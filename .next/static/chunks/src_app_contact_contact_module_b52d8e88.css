@@ -1,0 +1,105 @@
+/* [project]/src/app/contact/contact.module.css [app-client] (css) */
+.contact-module__swMWYG__contactPage {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.contact-module__swMWYG__contactHeader {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.contact-module__swMWYG__contactHeader h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.contact-module__swMWYG__contactHeader p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.contact-module__swMWYG__contactContainer {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 50px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 20px #0000001a;
+  padding: 40px;
+}
+
+.contact-module__swMWYG__contactInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.contact-module__swMWYG__infoItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.contact-module__swMWYG__infoItem i {
+  font-size: 24px;
+  color: #4a90e2;
+}
+
+.contact-module__swMWYG__infoItem h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.contact-module__swMWYG__infoItem p {
+  margin: 5px 0 0;
+  color: #666;
+}
+
+.contact-module__swMWYG__contactForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact-module__swMWYG__formGroup input, .contact-module__swMWYG__formGroup textarea {
+  background-color: #f0f8ff;
+  color: #000;
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e1e1e1;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: border-color .3s;
+}
+
+.contact-module__swMWYG__formGroup input:focus, .contact-module__swMWYG__formGroup textarea:focus {
+  border-color: #4a90e2;
+  outline: none;
+}
+
+.contact-module__swMWYG__submitButton {
+  background: #34b1f4;
+  color: #fff;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background .3s;
+}
+
+.contact-module__swMWYG__submitButton:hover {
+  background: #357abd;
+}
+
+@media (width <= 768px) {
+  .contact-module__swMWYG__contactContainer {
+    grid-template-columns: 1fr;
+  }
+}
+
+/*# sourceMappingURL=src_app_contact_contact_module_b52d8e88.css.map*/

@@ -1,0 +1,109 @@
+/* [project]/src/app/checkout/checkout.module.css [app-client] (css) */
+.checkout-module__6Nj7Kq__checkoutPage {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 24px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #0000001a;
+  font-family: Segoe UI, sans-serif;
+}
+
+.checkout-module__6Nj7Kq__checkoutPage h1 {
+  font-size: 28px;
+  margin-bottom: 24px;
+  text-align: center;
+  color: #333;
+}
+
+.checkout-module__6Nj7Kq__itemList {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 20px;
+}
+
+.checkout-module__6Nj7Kq__itemList li {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 16px;
+  color: #444;
+}
+
+.checkout-module__6Nj7Kq__checkoutForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.checkout-module__6Nj7Kq__checkoutForm label {
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: block;
+  color: #222;
+}
+
+.checkout-module__6Nj7Kq__checkoutForm input {
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.checkout-module__6Nj7Kq__checkoutForm button {
+  margin-top: 12px;
+  padding: 12px 18px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color .3s;
+}
+
+.checkout-module__6Nj7Kq__checkoutForm button:hover {
+  background-color: #444;
+}
+
+.checkout-module__6Nj7Kq__checkoutForm button:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+.checkout-module__6Nj7Kq__item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.checkout-module__6Nj7Kq__itemImage {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.checkout-module__6Nj7Kq__itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.checkout-module__6Nj7Kq__itemName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.checkout-module__6Nj7Kq__itemPrice {
+  font-size: 14px;
+  color: #666;
+}
+
+
+/*# sourceMappingURL=src_app_checkout_checkout_module_ed06fa17.css.map*/

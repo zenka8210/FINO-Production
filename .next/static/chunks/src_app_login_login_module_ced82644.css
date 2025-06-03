@@ -1,0 +1,117 @@
+/* [project]/src/app/login/login.module.css [app-client] (css) */
+.login-module__WEZH7G__loginContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px;
+}
+
+.login-module__WEZH7G__formSection {
+  background: #fffffff2;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px #0000001a;
+  width: 100%;
+  max-width: 400px;
+  backdrop-filter: blur(10px);
+  border: 1px solid #ffffff1a;
+  transition: transform .3s;
+}
+
+.login-module__WEZH7G__formSection:hover {
+  transform: translateY(-5px);
+}
+
+.login-module__WEZH7G__title {
+  color: #333;
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 30px;
+  font-weight: 600;
+}
+
+.login-module__WEZH7G__form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-module__WEZH7G__inputGroup {
+  position: relative;
+}
+
+.login-module__WEZH7G__input {
+  color: #000;
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #e1e1e1;
+  border-radius: 12px;
+  font-size: 16px;
+  transition: all .3s;
+  background: #ffffffe6;
+}
+
+.login-module__WEZH7G__input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 4px #4a90e21a;
+  outline: none;
+}
+
+.login-module__WEZH7G__button {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4a90e2 0%, #63b3ed 100%);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-module__WEZH7G__button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px #4a90e24d;
+}
+
+.login-module__WEZH7G__links {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.login-module__WEZH7G__forgotPassword, .login-module__WEZH7G__register {
+  color: #4a90e2;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color .3s;
+}
+
+.login-module__WEZH7G__forgotPassword:hover, .login-module__WEZH7G__register:hover {
+  color: #357abd;
+  text-decoration: underline;
+}
+
+@media (width <= 480px) {
+  .login-module__WEZH7G__formSection {
+    padding: 30px 20px;
+  }
+
+  .login-module__WEZH7G__title {
+    font-size: 1.75rem;
+  }
+
+  .login-module__WEZH7G__input, .login-module__WEZH7G__button {
+    padding: 12px;
+  }
+}
+
+
+/*# sourceMappingURL=src_app_login_login_module_ced82644.css.map*/

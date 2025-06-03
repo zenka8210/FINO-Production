@@ -1,0 +1,118 @@
+/* [project]/src/app/admin/products/adProducts.module.css [app-client] (css) */
+.adProducts-module__bdaI9W__adminContainer {
+  padding: 20px;
+  max-width: 900px;
+  margin: 40px auto;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.adProducts-module__bdaI9W__formGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.adProducts-module__bdaI9W__formGroup input {
+  flex: 200px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.adProducts-module__bdaI9W__formGroup button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color .2s;
+}
+
+.adProducts-module__bdaI9W__formGroup button:hover {
+  background-color: #0069d9;
+}
+
+.adProducts-module__bdaI9W__addProductForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.adProducts-module__bdaI9W__addProductForm input {
+  flex: 200px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.adProducts-module__bdaI9W__addProductForm button {
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color .2s;
+}
+
+.adProducts-module__bdaI9W__addProductForm button:hover {
+  background-color: #218838;
+}
+
+.adProducts-module__bdaI9W__productTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.adProducts-module__bdaI9W__productTable th, .adProducts-module__bdaI9W__productTable td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.adProducts-module__bdaI9W__productTable th {
+  background-color: #f2f2f2;
+}
+
+.adProducts-module__bdaI9W__productTable img {
+  max-width: 50px;
+  height: auto;
+  border-radius: 4px;
+}
+
+.adProducts-module__bdaI9W__deleteBtn {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.adProducts-module__bdaI9W__deleteBtn:hover {
+  background-color: #c82333;
+}
+
+.adProducts-module__bdaI9W__editBtn {
+  background-color: #ffc107;
+  color: #000;
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: background-color .2s;
+}
+
+.adProducts-module__bdaI9W__editBtn:hover {
+  background-color: #e0a800;
+}
+
+/*# sourceMappingURL=src_app_admin_products_adProducts_module_b52d8e88.css.map*/

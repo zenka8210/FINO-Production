@@ -1,0 +1,78 @@
+{
+  "product": [
+    {
+      "id": "1",
+      "name": "Product 1",
+      "price": 550,
+      "image": "https://product.hstatic.net/1000026602/product/00009542_2fb279f6ce2f45a1b51f0e6072e1e9d7_1024x1024.jpg",
+      "description": "This is a sample product.",
+      "category": 1
+    },
+    {
+      "id": "2",
+      "name": "Product 2",
+      "price": 200,
+      "image": "https://product.hstatic.net/1000026602/product/00009109_0472a3cf37884ea887bb0e212c77c275_1024x1024.jpg",
+      "description": "This is another sample product.",
+      "category": 2
+    },
+    {
+      "id": "3",
+      "name": "Product 3",
+      "price": 300,
+      "image": "https://product.hstatic.net/1000026602/product/img_7838_bbd8d1bb75d7422885d9cca0c6931ff7_1024x1024.jpg",
+      "description": "This is a third sample product.",
+      "category": 1
+    },
+    {
+      "id": "4",
+      "name": "Product 4",
+      "price": 2000,
+      "image": "https://product.hstatic.net/1000026602/product/1_copy_2092ac4621e64f91ae071ee223363662_master.jpg",
+      "description": "This is a fourth sample product.",
+      "category": 2
+    },
+    {
+      "id": "cb7f",
+      "name": "Áo Polo Athletic Ministripes 69",
+      "price": 160,
+      "image": "https://product.hstatic.net/1000026602/product/00000250_70c90f676d3e433b8f6c88b4cd7f1bcd_master.jpg"
+    },
+    {
+      "id": "655a",
+      "name": "Áo Polo Oversize Black Column",
+      "price": 224,
+      "image": "https://product.hstatic.net/1000026602/product/00000253_7c97acb06cd74f3195deadac3d53c00e_master.jpg"
+    },
+    {
+      "id": "11d8",
+      "name": "Áo Polo Subtle Pattern Gray",
+      "price": 257,
+      "image": "https://product.hstatic.net/1000026602/product/00006859_85243777a627425da5199eb105f87438_master.jpg"
+    },
+    {
+      "id": "30d9",
+      "name": "Áo Polo can phối FSTP031",
+      "price": 420,
+      "image": "https://product.hstatic.net/200000690725/product/d_f769cbcef8dd45e9b7d2a6eade08c75c_master.png"
+    },
+    {
+      "id": "ba24",
+      "name": "Áo Polo can phối tay thêu logo ngực FSTP061",
+      "price": 450,
+      "image": "https://product.hstatic.net/200000690725/product/thiet_ke_chua_co_ten__4__10fd151b13414c24b7daa7d0d338c466_master.png"
+    },
+    {
+      "id": "36e1",
+      "name": "Áo Polo Downline Greenie",
+      "price": 777,
+      "image": "https://product.hstatic.net/1000026602/product/00007113_21aaed64b7044729afee8db74ba7d49b_master.jpg"
+    },
+    {
+      "id": "9101",
+      "name": "Áo Polo Pickleball Blue White",
+      "price": 555,
+      "image": "https://product.hstatic.net/1000026602/product/00000273_9a74f8ea73c844a5b47e7fcb2ec4b7d1_master.jpg"
+    }
+  ]
+}

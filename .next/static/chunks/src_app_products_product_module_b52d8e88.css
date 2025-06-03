@@ -1,0 +1,30 @@
+/* [project]/src/app/products/product.module.css [app-client] (css) */
+.product-module__6JXRma__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px #fff;
+}
+
+.product-module__6JXRma__menu {
+  display: flex;
+  gap: 15px;
+}
+
+.product-module__6JXRma__menu a {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}
+
+.product-module__6JXRma__searchContainer input {
+  padding: 5px;
+  color: #000;
+  border: 1px solid #000;
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+/*# sourceMappingURL=src_app_products_product_module_b52d8e88.css.map*/

@@ -1,0 +1,45 @@
+.color {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+    color: black;
+}
+
+.color div {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.color button {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.color button:hover {
+    background-color: #0056b3;
+}
+
+.color button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.color span {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    min-width: 30px;
+}

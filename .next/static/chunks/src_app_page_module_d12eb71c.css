@@ -1,0 +1,215 @@
+/* [project]/src/app/page.module.css [app-client] (css) */
+.page-module___8aEwW__productSection {
+  padding: 40px 0;
+  margin: 0;
+  background-color: #fff;
+  border: none;
+}
+
+.page-module___8aEwW__banner {
+  width: 100%;
+  height: 500px;
+  background-image: url("/images/banner.jpg");
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.page-module___8aEwW__heartButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.page-module___8aEwW__heartButton:hover {
+  transform: scale(1.1);
+}
+
+.page-module___8aEwW__banner:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #0006;
+  border: none;
+}
+
+.page-module___8aEwW__bannerContent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #fff;
+  z-index: 1;
+}
+
+.page-module___8aEwW__bannerContent h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px #fff;
+}
+
+.page-module___8aEwW__bannerContent p {
+  font-size: 1.5rem;
+  text-shadow: 1px 1px 2px #fffffff5;
+}
+
+.page-module___8aEwW__banner:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #0006;
+}
+
+.page-module___8aEwW__sectionTitle {
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 30px;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.page-module___8aEwW__newProductsSection {
+  background-color: #fff;
+  padding: 40px 0;
+  margin: 0;
+  border: none;
+}
+
+.page-module___8aEwW__newProductsSection .page-module___8aEwW__productItem {
+  background: #fff;
+  box-shadow: 0 2px 15px #0000001a;
+}
+
+.page-module___8aEwW__newProductsSection .page-module___8aEwW__productItem:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 20px #00000026;
+}
+
+@media (width <= 768px) {
+  .page-module___8aEwW__newProductsSection {
+    padding: 20px 0;
+    margin: 20px 0;
+  }
+}
+
+.page-module___8aEwW__productGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  padding: 20px;
+}
+
+.page-module___8aEwW__productItem {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 15px #fff;
+  transition: all .3s;
+}
+
+.page-module___8aEwW__productItem:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 20px #cdcdcd;
+}
+
+.page-module___8aEwW__imageContainer {
+  position: relative;
+  padding-top: 75%;
+  overflow: hidden;
+}
+
+.page-module___8aEwW__imageContainer img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .3s;
+}
+
+.page-module___8aEwW__productItem:hover .page-module___8aEwW__imageContainer img {
+  transform: scale(1.05);
+}
+
+.page-module___8aEwW__productInfo {
+  padding: 20px;
+}
+
+.page-module___8aEwW__productInfo h3 {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.page-module___8aEwW__description {
+  font-size: .9rem;
+  color: #666;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.page-module___8aEwW__price {
+  font-size: 1.5rem;
+  color: #4a90e2;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.page-module___8aEwW__buyButton {
+  width: 100%;
+  padding: 12px;
+  background: #4a90e2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background .3s;
+}
+
+.page-module___8aEwW__buyButton:hover {
+  background: #357abd;
+}
+
+@media (width <= 1200px) {
+  .page-module___8aEwW__productGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (width <= 900px) {
+  .page-module___8aEwW__productGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (width <= 600px) {
+  .page-module___8aEwW__productGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-module___8aEwW__sectionTitle {
+    font-size: 1.5rem;
+  }
+
+  .page-module___8aEwW__productInfo h3 {
+    font-size: 1.1rem;
+  }
+}
+
+
+/*# sourceMappingURL=src_app_page_module_d12eb71c.css.map*/

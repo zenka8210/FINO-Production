@@ -1,0 +1,105 @@
+.checkoutPage {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 24px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  .checkoutPage h1 {
+    font-size: 28px;
+    margin-bottom: 24px;
+    text-align: center;
+    color: #333;
+  }
+  
+  .itemList {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 20px;
+  }
+  
+  .itemList li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 16px;
+    color: #444;
+  }
+  
+  .checkoutForm {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .checkoutForm label {
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: block;
+    color: #222;
+  }
+  
+  .checkoutForm input {
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .checkoutForm button {
+    margin-top: 12px;
+    padding: 12px 18px;
+    background-color: #000;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+  
+  .checkoutForm button:hover {
+    background-color: #444;
+  }
+  
+  .checkoutForm button:disabled {
+    background-color: #999;
+    cursor: not-allowed;
+  }
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .itemImage {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+  }
+  
+  .itemInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .itemName {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .itemPrice {
+    font-size: 14px;
+    color: #666;
+  }
+  

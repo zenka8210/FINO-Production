@@ -1,0 +1,122 @@
+/* [project]/src/app/maintenance/maintenance.module.css [app-client] (css) */
+.maintenance-module___7QalW__maintenancePage {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.maintenance-module___7QalW__header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.maintenance-module___7QalW__header h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.maintenance-module___7QalW__header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.maintenance-module___7QalW__guideContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.maintenance-module___7QalW__guideSection {
+  background: #fff;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 0 15px #0000001a;
+}
+
+.maintenance-module___7QalW__guideContent h2 {
+  color: #333;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #4a90e2;
+}
+
+.maintenance-module___7QalW__guideDetails {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: center;
+}
+
+.maintenance-module___7QalW__guideText ul {
+  list-style: none;
+  padding: 0;
+}
+
+.maintenance-module___7QalW__guideText ul li {
+  margin-bottom: 15px;
+  padding-left: 25px;
+  position: relative;
+  color: #444;
+  line-height: 1.6;
+}
+
+.maintenance-module___7QalW__guideText ul li:before {
+  content: "✓";
+  color: #4a90e2;
+  position: absolute;
+  left: 0;
+}
+
+.maintenance-module___7QalW__tipsList {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.maintenance-module___7QalW__tipItem {
+  text-align: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: transform .3s;
+}
+
+.maintenance-module___7QalW__tipItem:hover {
+  transform: translateY(-5px);
+}
+
+.maintenance-module___7QalW__tipItem i {
+  font-size: 2rem;
+  color: #4a90e2;
+  margin-bottom: 15px;
+}
+
+.maintenance-module___7QalW__tipItem h3 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.maintenance-module___7QalW__tipItem p {
+  color: #666;
+  line-height: 1.5;
+}
+
+@media (width <= 768px) {
+  .maintenance-module___7QalW__guideDetails {
+    grid-template-columns: 1fr;
+  }
+
+  .maintenance-module___7QalW__tipsList {
+    grid-template-columns: 1fr;
+  }
+
+  .maintenance-module___7QalW__guideSection {
+    padding: 20px;
+  }
+}
+
+
+/*# sourceMappingURL=src_app_maintenance_maintenance_module_67d9e312.css.map*/

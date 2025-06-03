@@ -1,0 +1,217 @@
+/* [project]/src/app/admin/admin.module.css [app-client] (css) */
+.admin-module__4WpgRW__adminHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  height: 70px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.admin-module__4WpgRW__logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -.5px;
+}
+
+.admin-module__4WpgRW__logo span {
+  color: #3b82f6;
+}
+
+.admin-module__4WpgRW__headerRight {
+  display: flex;
+  align-items: center;
+}
+
+.admin-module__4WpgRW__userButton {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: .5rem 1rem;
+  border-radius: 8px;
+  transition: all .2s;
+}
+
+.admin-module__4WpgRW__userButton:hover {
+  background: #f3f4f6;
+}
+
+.admin-module__4WpgRW__userAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.admin-module__4WpgRW__userAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-module__4WpgRW__userName {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.admin-module__4WpgRW__userDropdown {
+  position: absolute;
+  top: calc(100% + .5rem);
+  right: 1rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px #0000001a;
+  border: 1px solid #e5e7eb;
+  width: 200px;
+  overflow: hidden;
+}
+
+.admin-module__4WpgRW__logoutButton {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  width: 100%;
+  padding: .75rem 1rem;
+  color: #ef4444;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all .2s;
+  font-size: .875rem;
+}
+
+.admin-module__4WpgRW__logoutButton:hover {
+  background: #fef2f2;
+}
+
+.admin-module__4WpgRW__sidebar {
+  width: 250px;
+  height: calc(100vh - 70px);
+  border-right: 1px solid #e5e7eb;
+  position: fixed;
+  left: 0;
+  top: 70px;
+  z-index: 10;
+}
+
+.admin-module__4WpgRW__sidebarNav {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  gap: 1rem;
+}
+
+.admin-module__4WpgRW__navItem {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  color: #4b5563;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all .2s;
+  font-size: .875rem;
+  font-weight: 500;
+}
+
+.admin-module__4WpgRW__navIcon {
+  margin-right: 12px;
+  font-size: 1.25rem;
+}
+
+.admin-module__4WpgRW__navItem:hover {
+  background: #f3f4f6;
+  color: #3b82f6;
+}
+
+.admin-module__4WpgRW__adminContent {
+  margin-left: 250px;
+  margin-top: 70px;
+  padding: 2rem;
+  background: #f9fafb;
+  min-height: calc(100vh - 70px);
+}
+
+.admin-module__4WpgRW__adminContent {
+  margin-left: 250px;
+  padding: 2rem;
+  background: #f9fafb;
+  min-height: calc(100vh - 70px);
+}
+
+.admin-module__4WpgRW__editForm {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px #0000001a;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.admin-module__4WpgRW__formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.admin-module__4WpgRW__formGroup label {
+  display: block;
+  margin-bottom: .5rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.admin-module__4WpgRW__formGroup input, .admin-module__4WpgRW__formGroup textarea {
+  width: 100%;
+  padding: .75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.admin-module__4WpgRW__formGroup textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.admin-module__4WpgRW__formActions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.admin-module__4WpgRW__saveBtn, .admin-module__4WpgRW__cancelBtn {
+  padding: .75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color .2s;
+}
+
+.admin-module__4WpgRW__saveBtn {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.admin-module__4WpgRW__saveBtn:hover {
+  background-color: #45a049;
+}
+
+.admin-module__4WpgRW__cancelBtn {
+  background-color: #9ca3af;
+  color: #fff;
+}
+
+.admin-module__4WpgRW__cancelBtn:hover {
+  background-color: #6b7280;
+}
+
+/*# sourceMappingURL=src_app_admin_admin_module_b52d8e88.css.map*/
