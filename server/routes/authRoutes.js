@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const authController = require('../controllers/AuthController');
+const authController = require('../controllers/authController');
 
 // POST /api/auth/register
 // http://localhost:5000/api/auth/register

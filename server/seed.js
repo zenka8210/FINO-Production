@@ -4,10 +4,10 @@ const bcrypt = require('bcrypt');
 
 dotenv.config();
 
-const User = require('./models/UserSchema');
-const Product = require('./models/ProductSchema');
-const Order = require('./models/OrderSchema');
-const Payment = require('./models/PaymentSchema');
+const User = require('./models/userSchema');
+const Product = require('./models/productSchema');
+const Order = require('./models/orderSchema');
+const Payment = require('./models/paymentSchema');
 
 const dbUri = process.env.DB_URI;
 
@@ -26,7 +26,7 @@ async function seed() {
     const user1 = new User({
       username: 'testuser01',
       email: 'testuser01@example.com',
-      password: 'password123',
+      password: await bcrypt.hash('password123', 10), // hash password
       role: 'customer',
       full_name: 'Nguyễn Văn A',
       phone: '0111111111',
@@ -69,21 +69,29 @@ async function seed() {
       category: null,
       price: 250000,
       variants: [
-        { color: 'Đen', size: 'M', stock: 100, price: 250000 },
-        { color: 'Trắng', size: 'L', stock: 50, price: 260000 }
-      ]
+        { color: 'Đen', size: 'M', stock: 100, price: 250000, weight: 100 },
+        { color: 'Trắng', size: 'L', stock: 50, price: 260000, weight: 150 }
+      ],
+      images: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg']
     });
     await product.save();
 
     // Tạo đơn hàng cho user1
+    const order1Items = [{
+      product: product._id,
+      variant: { color: 'Đen', size: 'M' },
+      name: product.name,
+      quantity: 2,
+      price: 250000,
+      images: product.images[0]
+    }];
+    const order1Total = order1Items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const order1ShippingFee = 30000;
+    const order1FinalTotal = order1Total + order1ShippingFee;
+
     const order1 = new Order({
       user: user1._id,
-      items: [{
-        product: product._id,
-        variant: { color: 'Đen', size: 'M' },
-        quantity: 2,
-        price: 250000
-      }],
+      items: order1Items,
       shippingAddress: {
         fullName: user1.full_name,
         phone: user1.phone,
@@ -92,9 +100,13 @@ async function seed() {
         district: 'Hoàn Kiếm',
         ward: 'Phường A'
       },
-      total: 500000,
+      total: order1Total,
       discountAmount: 0,
       voucher: null,
+      shippingFee: order1ShippingFee,
+      shippingMethod: 'standard',
+      note: '',
+      finalTotal: order1FinalTotal,
       status: 'pending',
       paymentMethod: 'COD',
       paymentStatus: 'unpaid'
@@ -102,14 +114,21 @@ async function seed() {
     await order1.save();
 
     // Tạo đơn hàng cho user2
+    const order2Items = [{
+      product: product._id,
+      variant: { color: 'Trắng', size: 'L' },
+      name: product.name,
+      quantity: 1,
+      price: 260000,
+      images: product.images[1]
+    }];
+    const order2Total = order2Items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const order2ShippingFee = 30000;
+    const order2FinalTotal = order2Total + order2ShippingFee;
+
     const order2 = new Order({
       user: user2._id,
-      items: [{
-        product: product._id,
-        variant: { color: 'Trắng', size: 'L' },
-        quantity: 1,
-        price: 260000
-      }],
+      items: order2Items,
       shippingAddress: {
         fullName: user2.full_name,
         phone: user2.phone,
@@ -118,9 +137,13 @@ async function seed() {
         district: 'Ba Đình',
         ward: 'Phường B'
       },
-      total: 260000,
+      total: order2Total,
       discountAmount: 0,
       voucher: null,
+      shippingFee: order2ShippingFee,
+      shippingMethod: 'standard',
+      note: '',
+      finalTotal: order2FinalTotal,
       status: 'pending',
       paymentMethod: 'COD',
       paymentStatus: 'unpaid'
@@ -131,7 +154,7 @@ async function seed() {
     const payment1 = new Payment({
       order: order1._id,
       method: 'COD',
-      amount: order1.total,
+      amount: order1.finalTotal,
       status: 'Pending',
       transactionId: '',
       paymentDate: new Date()
@@ -141,7 +164,7 @@ async function seed() {
     const payment2 = new Payment({
       order: order2._id,
       method: 'COD',
-      amount: order2.total,
+      amount: order2.finalTotal,
       status: 'Pending',
       transactionId: '',
       paymentDate: new Date()
@@ -155,7 +178,7 @@ async function seed() {
     order2.payment = payment2._id;
     await order2.save();
 
-    // Kết quả log
+    // Log kết quả
     console.log('✅ Seed dữ liệu thành công');
     console.log('--- User ---');
     console.log('User1 ID:', user1._id.toString());

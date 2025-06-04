@@ -68,4 +68,8 @@ router.get('/user/:userId', authMiddleware, (req, res, next) => {
   }
 }, orderController.getOrdersByUser);
 
+// Kiểm tra xem user có thể đánh giá sản phẩm không
+// GET http://localhost:5000/api/orders/can-review/:productId
+router.get('/can-review/:productId', authMiddleware, orderController.canReviewProduct);
+
 module.exports = router;

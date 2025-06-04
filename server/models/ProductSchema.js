@@ -4,7 +4,8 @@ const VariantSchema = new mongoose.Schema({
   color: { type: String, required: true },
   size: { type: String, required: true },
   price: { type: Number, required: true },
-  stock: { type: Number, required: true }
+  stock: { type: Number, required: true },
+  weight: { type: Number, required: true }, // optional, in grams
 }, { _id: false });
 
 const ProductSchema = new mongoose.Schema({
