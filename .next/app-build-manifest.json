@@ -14,15 +14,17 @@
       "static/chunks/_e69f0d32._.js",
       "static/chunks/_be317ff2._.js"
     ],
-    "/cart/page": [
+    "/admin/page": [
       "static/chunks/[root of the server]__9721bb6b._.css",
       "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_dc0040ac._.js",
       "static/chunks/node_modules_next_94b24558._.js",
       "static/chunks/src_app_915ac0f1._.js",
       "static/chunks/src_app_layout_tsx_f0e4c1a2._.js",
-      "static/chunks/_9192a5d7._.js",
-      "static/chunks/src_app_cart_cart_module_51484c56.css",
-      "static/chunks/src_app_cart_page_tsx_5ae9e4eb._.js",
+      "static/chunks/src_app_admin_admin_module_f94e4cc6.css",
+      "static/chunks/_3318e659._.js",
+      "static/chunks/src_app_admin_layout_tsx_5ae9e4eb._.js",
+      "static/chunks/src_app_admin_page_tsx_86a53bab._.js",
+      "static/chunks/src_app_admin_page_tsx_27eae575._.js",
       "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_49a6ea35._.js",
       "static/chunks/node_modules_next_dist_compiled_2ce9398a._.js",
       "static/chunks/node_modules_next_dist_client_43e3ffb8._.js",

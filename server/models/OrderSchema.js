@@ -22,10 +22,12 @@ const OrderSchema = new mongoose.Schema({
     ward: String
   },
   total: { type: Number },
+  discountAmount: { type: Number, default: 0 },       
+  voucher: { type: mongoose.Schema.Types.ObjectId, ref: 'Voucher', default: null },  
   status: { type: String, enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'], default: 'pending' },
   payment: { type: mongoose.Schema.Types.ObjectId, ref: 'Payment' },
   paymentMethod: { type: String, enum: ['COD', 'CreditCard', 'BankTransfer', 'Momo', 'ZaloPay', 'VNPay'] },
   paymentStatus: { type: String, enum: ['unpaid', 'paid'], default: 'unpaid' }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Order', OrderSchema);
+module.exports = mongoose.models.Order || mongoose.model('Order', OrderSchema);

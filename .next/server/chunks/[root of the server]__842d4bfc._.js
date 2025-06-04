@@ -93,7 +93,8 @@ async function POST(req) {
         if (user) {
             const res = new Response(JSON.stringify({
                 success: true,
-                role: user.role
+                role: user.role,
+                username: user.username
             }), {
                 status: 200,
                 headers: {
