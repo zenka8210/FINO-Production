@@ -8,6 +8,101 @@ const { PAGINATION, MESSAGES, ERROR_CODES, ROLES } = require('../config/constant
  * Service xử lý logic nghiệp vụ liên quan đến người dùng
  */
 class UserService {
+  /**
+   * Lấy user theo ID kèm password (dùng cho xác thực sensitive)
+   * @param {string} userId
+   * @returns {Promise<Object>} user (có password)
+   */
+  async getUserWithPassword(userId) {
+    try {
+      const user = await User.findById(userId).select('+password').lean();
+      return user;
+    } catch (error) {
+      logger.error('Lỗi khi lấy user kèm password', { error: error.message, userId });
+      throw error;
+    }
+  }
+  /**
+   * Cập nhật vai trò người dùng (Admin)
+   * @param {string} userId - ID user
+   * @param {string} role - Vai trò mới
+   * @returns {Promise<Object>} - User đã cập nhật
+   */
+  async updateUserRole(userId, role) {
+    try {
+      logger.info('Cập nhật vai trò user', { userId, role });
+      const user = await User.findById(userId);
+      if (!user) {
+        const error = new Error('Không tìm thấy người dùng');
+        error.statusCode = 404;
+        error.errorCode = ERROR_CODES.NOT_FOUND;
+        throw error;
+      }
+      user.role = role;
+      user.updatedAt = new Date();
+      await user.save();
+      logger.info('Cập nhật vai trò user thành công', { userId });
+      return { message: 'Cập nhật vai trò thành công', user };
+    } catch (error) {
+      logger.error('Lỗi khi cập nhật vai trò user', { error: error.message, userId });
+      throw error;
+    }
+  }
+
+  /**
+   * Cập nhật trạng thái người dùng (Admin)
+   * @param {string} userId - ID user
+   * @param {string} status - Trạng thái mới
+   * @returns {Promise<Object>} - User đã cập nhật
+   */
+  async updateUserStatus(userId, status) {
+    try {
+      logger.info('Cập nhật trạng thái user', { userId, status });
+      const user = await User.findById(userId);
+      if (!user) {
+        const error = new Error('Không tìm thấy người dùng');
+        error.statusCode = 404;
+        error.errorCode = ERROR_CODES.NOT_FOUND;
+        throw error;
+      }
+      user.status = status;
+      user.updatedAt = new Date();
+      await user.save();
+      logger.info('Cập nhật trạng thái user thành công', { userId });
+      return { message: 'Cập nhật trạng thái thành công', user };
+    } catch (error) {
+      logger.error('Lỗi khi cập nhật trạng thái user', { error: error.message, userId });
+      throw error;
+    }
+  }
+
+  /**
+   * Đặt lại mật khẩu người dùng (Admin)
+   * @param {string} userId - ID user
+   * @param {string} newPassword - Mật khẩu mới
+   * @returns {Promise<Object>} - Kết quả đặt lại mật khẩu
+   */
+  async adminResetPassword(userId, newPassword) {
+    try {
+      logger.info('Admin đặt lại mật khẩu user', { userId });
+      const user = await User.findById(userId);
+      if (!user) {
+        const error = new Error('Không tìm thấy người dùng');
+        error.statusCode = 404;
+        error.errorCode = ERROR_CODES.NOT_FOUND;
+        throw error;
+      }
+      const saltRounds = 12;
+      user.password = await bcrypt.hash(newPassword, saltRounds);
+      user.updatedAt = new Date();
+      await user.save();
+      logger.info('Admin đặt lại mật khẩu thành công', { userId });
+      return { message: 'Đặt lại mật khẩu thành công', userId };
+    } catch (error) {
+      logger.error('Lỗi khi admin đặt lại mật khẩu', { error: error.message, userId });
+      throw error;
+    }
+  }
   
   /**
    * Tạo user mới (đăng ký)
@@ -27,7 +122,7 @@ class UserService {
         throw error;
       }
 
-      // Tạo user mới, password sẽ được hash tự động bởi pre-save hook
+      // Tạo user mới, password sẽ được hash tự động ở schema
       const user = new User({
         ...userData,
         role: 'customer', // Luôn ép role là customer khi đăng ký
@@ -633,4 +728,4 @@ class UserService {
   }
 }
 
-module.exports = new UserService();
+module.exports = UserService;

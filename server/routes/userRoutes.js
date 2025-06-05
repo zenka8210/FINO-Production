@@ -5,6 +5,7 @@ const validateRequest = require('../middlewares/validateRequest');
 const { userSchemas, authSchemas } = require('../middlewares/validationSchemas');
 const authenticateToken = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
+const validateObjectId = require('../middlewares/validateObjectId');
 
 // Authenticated user routes - Các route yêu cầu xác thực
 
@@ -30,8 +31,8 @@ router.put('/me/avatar',
   userController.updateAvatar
 );
 
-// DELETE /api/users/me - Xóa tài khoản người dùng hiện tại
-router.delete('/me', 
+// POST /api/users/me/delete - Xóa tài khoản người dùng hiện tại (cho phép body)
+router.post('/me/delete', 
   authenticateToken, 
   userController.deleteCurrentUser
 );
@@ -74,10 +75,12 @@ router.post('/',
   userController.createUser
 );
 
+
 // GET /api/users/:id - Lấy người dùng theo ID (Admin)
 router.get('/:id', 
   authenticateToken, 
   adminMiddleware, 
+  validateObjectId,
   userController.getUserById
 );
 
@@ -85,6 +88,7 @@ router.get('/:id',
 router.put('/:id', 
   authenticateToken, 
   adminMiddleware, 
+  validateObjectId,
   validateRequest(userSchemas.update), 
   userController.updateUser
 );
@@ -93,6 +97,7 @@ router.put('/:id',
 router.put('/:id/status', 
   authenticateToken, 
   adminMiddleware, 
+  validateObjectId,
   userController.updateUserStatus
 );
 
@@ -100,6 +105,7 @@ router.put('/:id/status',
 router.put('/:id/role', 
   authenticateToken, 
   adminMiddleware, 
+  validateObjectId,
   userController.updateUserRole
 );
 
@@ -107,6 +113,7 @@ router.put('/:id/role',
 router.put('/:id/reset-password', 
   authenticateToken, 
   adminMiddleware, 
+  validateObjectId,
   userController.resetUserPassword
 );
 
@@ -114,6 +121,7 @@ router.put('/:id/reset-password',
 router.delete('/:id', 
   authenticateToken, 
   adminMiddleware, 
+  validateObjectId,
   userController.deleteUser
 );
 

@@ -6,7 +6,7 @@ const { MESSAGES } = require('../config/constants');
 class UserController extends BaseController {
   constructor() {
     super();
-    this.userService = UserService; // UserService đã là instance
+    this.userService = new UserService();
   }
 
   /**
@@ -33,11 +33,8 @@ class UserController extends BaseController {
       const userId = req.user.id;
       const updateData = req.body;
       
-      const result = await this.userService.updateUser(userId, updateData);
-      
-      ResponseHandler.success(res, result.message, {
-        user: result.user
-      });
+      const user = await this.userService.updateUser(userId, updateData, req.user);
+      ResponseHandler.success(res, 'Cập nhật thành công', { user });
     } catch (error) {
       next(error);
     }
@@ -84,13 +81,17 @@ class UserController extends BaseController {
     try {
       const userId = req.user.id;
       const { password } = req.body;
-      
-      // Xác thực mật khẩu trước khi xóa
-      await this.userService.verifyPassword(userId, password);
-      
-      const result = await this.userService.deleteUser(userId);
-      
-      ResponseHandler.success(res, result.message);
+      // Lấy user kèm password để xác thực
+      const user = await this.userService.getUserWithPassword(userId);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
+      }
+      const isValid = await require('bcrypt').compare(password, user.password);
+      if (!isValid) {
+        return res.status(400).json({ success: false, message: 'Mật khẩu không đúng' });
+      }
+      await this.userService.deleteUser(userId, req.user);
+      ResponseHandler.success(res, 'Xóa tài khoản thành công');
     } catch (error) {
       next(error);
     }
@@ -113,12 +114,10 @@ class UserController extends BaseController {
         sortOrder: req.query.sortOrder || 'desc'
       };
 
-      const result = await this.userService.getAllUsers(options);
-      
-      ResponseHandler.success(res, result.message, {
+      const result = await this.userService.getUsers({}, options);
+      ResponseHandler.success(res, 'Lấy danh sách user thành công', {
         users: result.users,
-        pagination: result.pagination,
-        stats: result.stats
+        pagination: result.pagination
       });
     } catch (error) {
       next(error);
@@ -131,12 +130,8 @@ class UserController extends BaseController {
   getUserById = async (req, res, next) => {
     try {
       const { id } = req.params;
-      const result = await this.userService.getUserById(id, true); // includeStats = true for admin
-      
-      ResponseHandler.success(res, result.message, {
-        user: result.user,
-        stats: result.stats
-      });
+      const user = await this.userService.getUserById(id);
+      ResponseHandler.success(res, 'Lấy user thành công', { user });
     } catch (error) {
       next(error);
     }
@@ -166,11 +161,8 @@ class UserController extends BaseController {
       const { id } = req.params;
       const updateData = req.body;
       
-      const result = await this.userService.updateUser(id, updateData);
-      
-      ResponseHandler.success(res, result.message, {
-        user: result.user
-      });
+      const user = await this.userService.updateUser(id, updateData, req.user);
+      ResponseHandler.success(res, 'Cập nhật thành công', { user });
     } catch (error) {
       next(error);
     }
@@ -218,11 +210,8 @@ class UserController extends BaseController {
   deleteUser = async (req, res, next) => {
     try {
       const { id } = req.params;
-      const result = await this.userService.deleteUser(id);
-      
-      ResponseHandler.success(res, result.message, {
-        deletedUser: result.deletedUser
-      });
+      const result = await this.userService.deleteUser(id, req.user);
+      ResponseHandler.success(res, 'Xóa user thành công', { deletedUser: result });
     } catch (error) {
       next(error);
     }

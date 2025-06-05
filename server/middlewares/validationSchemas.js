@@ -42,9 +42,10 @@ const authResendVerificationSchema = Joi.object({
 
 // User schemas
 const userRegisterSchema = Joi.object({
+  username: Joi.string().min(8).max(30).required(),
   name: Joi.string().min(2).max(50).required(),
   email: Joi.string().email().required(),
-  password: Joi.string().min(6).required(),
+  password: Joi.string().min(8).required(),
   phone: Joi.string().pattern(/^[0-9]{10,11}$/).optional(),
   role: Joi.string().valid('customer', 'admin').default('customer')
 });

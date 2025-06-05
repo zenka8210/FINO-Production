@@ -6,7 +6,7 @@ const { MESSAGES } = require('../config/constants');
 class AuthController extends BaseController {
   constructor() {
     super();
-    this.userService = UserService; // UserService đã là instance
+    this.userService = new UserService();
   }
   // Đăng ký người dùng mới
   register = async (req, res, next) => {
