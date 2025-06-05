@@ -12,7 +12,9 @@ const UserSchema = new mongoose.Schema({
   address: { type: String },
   avatar: { type: String },
   resetPasswordToken: { type: String },
-  resetPasswordExpires: { type: Date }
+  resetPasswordExpires: { type: Date },
+  isEmailVerified: { type: Boolean, default: true }, // Bypass verification for now
+  emailVerificationToken: { type: String }
 }, { timestamps: true });
 
 // Middleware hash password trước khi lưu
