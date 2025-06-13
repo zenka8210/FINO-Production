@@ -1,189 +1,71 @@
 const BaseController = require('./baseController');
 const BannerService = require('../services/bannerService');
 const ResponseHandler = require('../services/responseHandler');
+const { MESSAGES } = require('../config/constants');
 
 class BannerController extends BaseController {
-  constructor() {
-    super();
-    this.bannerService = new BannerService();
-  }
-
-  /**
-   * Lấy tất cả banner với phân trang và lọc
-   */
-  getAllBanners = async (req, res, next) => {
-    try {
-      const query = {
-        page: parseInt(req.query.page) || 1,
-        limit: parseInt(req.query.limit) || 10,
-        status: req.query.status,
-        position: req.query.position,
-        sortBy: req.query.sortBy || 'order',
-        sortOrder: req.query.sortOrder || 'asc'
-      };
-
-      const result = await this.bannerService.getAllBanners(query);
-      ResponseHandler.success(res, result.message, {
-        banners: result.banners,
-        pagination: result.pagination
-      });
-    } catch (error) {
-      next(error);
+    constructor() {
+        super(new BannerService());
     }
-  };
 
-  /**
-   * Lấy banner theo ID
-   */
-  getBannerById = async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const result = await this.bannerService.getBannerById(id);
-      
-      ResponseHandler.success(res, result.message, {
-        banner: result.banner
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
+    getAllBanners = async (req, res, next) => {
+        try {
+            const queryOptions = req.query;
+            const result = await this.service.getAllBanners(queryOptions);
+            ResponseHandler.success(res, MESSAGES.BANNER.SUCCESS.FETCH_ALL || 'Banners retrieved successfully', result);
+        } catch (error) {
+            next(error);
+        }
+    };
 
-  /**
-   * Lấy banner theo vị trí (public endpoint)
-   */
-  getBannersByPosition = async (req, res, next) => {
-    try {
-      const { position } = req.params;
-      const limit = parseInt(req.query.limit) || 10;
-      
-      const result = await this.bannerService.getBannersByPosition(position, limit);
-      
-      ResponseHandler.success(res, result.message, {
-        banners: result.banners
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
+    getBannerById = async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const banner = await this.service.getBannerById(id);
+            ResponseHandler.success(res, MESSAGES.BANNER.SUCCESS.FETCH_SINGLE || 'Banner retrieved successfully', banner);
+        } catch (error) {
+            next(error);
+        }
+    };
 
-  /**
-   * Tạo banner mới (admin only)
-   */
-  createBanner = async (req, res, next) => {
-    try {
-      const bannerData = req.body;
-      const result = await this.bannerService.createBanner(bannerData);
-      
-      ResponseHandler.created(res, result.message, {
-        banner: result.banner
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
+    createBanner = async (req, res, next) => {
+        try {
+            const bannerData = req.body;
+            const newBanner = await this.service.createBanner(bannerData);
+            ResponseHandler.created(res, MESSAGES.BANNER.SUCCESS.CREATE || 'Banner created successfully', newBanner);
+        } catch (error) {
+            next(error);
+        }
+    };
 
-  /**
-   * Cập nhật banner (admin only)
-   */
-  updateBanner = async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const updateData = req.body;
-      
-      const result = await this.bannerService.updateBanner(id, updateData);
-      
-      ResponseHandler.success(res, result.message, {
-        banner: result.banner
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
+    updateBanner = async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const updateData = req.body;
+            const updatedBanner = await this.service.updateBanner(id, updateData);
+            ResponseHandler.success(res, MESSAGES.BANNER.SUCCESS.UPDATE || 'Banner updated successfully', updatedBanner);
+        } catch (error) {
+            next(error);
+        }
+    };    deleteBanner = async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            await this.service.deleteBanner(id);
+            ResponseHandler.success(res, MESSAGES.BANNER.SUCCESS.DELETE || 'Banner deleted successfully', null);
+        } catch (error) {
+            next(error);
+        }
+    };
 
-  /**
-   * Xóa banner (admin only)
-   */
-  deleteBanner = async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const result = await this.bannerService.deleteBanner(id);
-      
-      ResponseHandler.success(res, result.message);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Cập nhật thứ tự banner (admin only)
-   */
-  updateBannerOrder = async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const { order } = req.body;
-      
-      const result = await this.bannerService.updateBannerOrder(id, order);
-      
-      ResponseHandler.success(res, result.message, {
-        banner: result.banner
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Cập nhật trạng thái banner (admin only)
-   */
-  updateBannerStatus = async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const { status } = req.body;
-      
-      const result = await this.bannerService.updateBannerStatus(id, status);
-      
-      ResponseHandler.success(res, result.message, {
-        banner: result.banner
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Sắp xếp lại thứ tự banner (admin only)
-   */
-  reorderBanners = async (req, res, next) => {
-    try {
-      const { bannerOrders } = req.body; // Array of {id, order}
-      
-      const result = await this.bannerService.reorderBanners(bannerOrders);
-      
-      ResponseHandler.success(res, result.message, {
-        banners: result.banners
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Lấy banner đang hoạt động theo vị trí (public)
-   */
-  getActiveBannersByPosition = async (req, res, next) => {
-    try {
-      const { position } = req.params;
-      const limit = parseInt(req.query.limit) || 10;
-      
-      const result = await this.bannerService.getActiveBannersByPosition(position, limit);
-      
-      ResponseHandler.success(res, result.message, {
-        banners: result.banners
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
+    // Get active banners for client-side (e.g., homepage display)
+    getActiveClientBanners = async (req, res, next) => {
+        try {
+            const banners = await this.service.getActiveClientBanners();
+            ResponseHandler.success(res, MESSAGES.BANNER.SUCCESS.FETCH_ACTIVE || 'Active banners retrieved successfully', banners);
+        } catch (error) {
+            next(error);
+        }
+    };
 }
 
-module.exports = new BannerController();
+module.exports = BannerController;

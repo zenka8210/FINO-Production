@@ -1,412 +1,141 @@
-const Category = require('../models/categorySchema');
-const { MESSAGES, ERROR_CODES } = require('../config/constants');
+const BaseService = require('./baseService');
+const Category = require('../models/CategorySchema');
 const { AppError } = require('../middlewares/errorHandler');
-const LoggerService = require('./loggerService');
+const { MESSAGES, ERROR_CODES } = require('../config/constants');
 
-class CategoryService {
-  constructor() {
-    this.logger = LoggerService;
-  }
-
-  /**
-   * Tạo danh mục mới
-   * @param {Object} categoryData - Dữ liệu danh mục
-   * @returns {Promise<Object>} - Danh mục được tạo
-   */
-  async createCategory(categoryData) {
-    try {
-      // Kiểm tra tên danh mục đã tồn tại
-      const existingCategory = await Category.findOne({ 
-        name: new RegExp(`^${categoryData.name}$`, 'i') 
-      });
-      
-      if (existingCategory) {
-        throw new AppError(MESSAGES.ERROR.CATEGORY_EXISTS, 409, ERROR_CODES.DUPLICATE_ENTRY);
-      }
-
-      // Kiểm tra danh mục cha nếu có
-      if (categoryData.parent) {
-        const parentCategory = await Category.findById(categoryData.parent);
-        if (!parentCategory) {
-          throw new AppError(MESSAGES.ERROR.PARENT_CATEGORY_NOT_FOUND, 404, ERROR_CODES.NOT_FOUND);
-        }
-      }
-
-      const category = new Category({
-        name: categoryData.name.trim(),
-        description: categoryData.description?.trim(),
-        parent: categoryData.parent || null
-      });
-
-      const savedCategory = await category.save();
-      await savedCategory.populate('parent', 'name');
-
-      this.logger.info(`Danh mục được tạo thành công: ${savedCategory.name}`, {
-        categoryId: savedCategory._id,
-        createdBy: categoryData.createdBy
-      });
-
-      return {
-        message: MESSAGES.SUCCESS.CATEGORY_CREATED,
-        category: savedCategory
-      };
-    } catch (error) {
-      this.logger.error('Lỗi khi tạo danh mục:', error);
-      
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      // Lỗi MongoDB duplicate key
-      if (error.code === 11000) {
-        throw new AppError(MESSAGES.ERROR.CATEGORY_EXISTS, 409, ERROR_CODES.DUPLICATE_ENTRY);
-      }
-      
-      throw new AppError(MESSAGES.ERROR.CATEGORY_CREATE_FAILED, 500, ERROR_CODES.INTERNAL_ERROR);
+class CategoryService extends BaseService {
+    constructor() {
+        super(Category);
     }
-  }
+    async getAllCategories(queryOptions) {
+        const { page = 1, limit = 10, name, parent, sortBy = 'name', sortOrder = 'asc' } = queryOptions;
+        const skip = (page - 1) * limit;
+        const filter = {};
 
-  /**
-   * Lấy tất cả danh mục
-   * @param {Object} options - Tùy chọn phân trang và tìm kiếm
-   * @returns {Promise<Object>} - Danh sách danh mục
-   */
-  async getAllCategories(options = {}) {
-    try {
-      const {
-        page = 1,
-        limit = 10,
-        search = '',
-        parentOnly = false,
-        includeChildren = true
-      } = options;
-
-      const skip = (page - 1) * limit;
-      let query = {};
-
-      // Tìm kiếm theo tên
-      if (search) {
-        query.name = new RegExp(search, 'i');
-      }
-
-      // Chỉ lấy danh mục cha
-      if (parentOnly) {
-        query.parent = null;
-      }
-
-      // Thực hiện truy vấn
-      const categoriesQuery = Category.find(query)
-        .skip(skip)
-        .limit(limit)
-        .sort({ name: 1 });
-
-      if (includeChildren) {
-        categoriesQuery.populate('parent', 'name');
-      }
-
-      const [categories, total] = await Promise.all([
-        categoriesQuery.exec(),
-        Category.countDocuments(query)
-      ]);
-
-      // Nếu yêu cầu bao gồm danh mục con, tạo cấu trúc cây
-      let result = categories;
-      if (includeChildren && parentOnly) {
-        result = await this.buildCategoryTree(categories);
-      }
-
-      return {
-        message: MESSAGES.SUCCESS.DATA_RETRIEVED,
-        categories: result,
-        pagination: {
-          currentPage: page,
-          totalPages: Math.ceil(total / limit),
-          totalItems: total,
-          limit
+        if (name) {
+            filter.name = { $regex: name, $options: 'i' };
         }
-      };
-    } catch (error) {
-      this.logger.error('Lỗi khi lấy danh sách danh mục:', error);
-      throw new AppError(MESSAGES.ERROR.DATA_RETRIEVE_FAILED, 500, ERROR_CODES.INTERNAL_ERROR);
-    }
-  }
-
-  /**
-   * Lấy danh mục theo ID
-   * @param {string} categoryId - ID danh mục
-   * @returns {Promise<Object>} - Thông tin danh mục
-   */
-  async getCategoryById(categoryId) {
-    try {
-      const category = await Category.findById(categoryId)
-        .populate('parent', 'name description');
-
-      if (!category) {
-        throw new AppError(MESSAGES.ERROR.CATEGORY_NOT_FOUND, 404, ERROR_CODES.NOT_FOUND);
-      }
-
-      // Lấy danh mục con
-      const children = await Category.find({ parent: categoryId })
-        .select('name description')
-        .sort({ name: 1 });
-
-      return {
-        message: MESSAGES.SUCCESS.DATA_RETRIEVED,
-        category: {
-          ...category.toObject(),
-          children
-        }
-      };
-    } catch (error) {
-      this.logger.error(`Lỗi khi lấy danh mục ${categoryId}:`, error);
-      
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      throw new AppError(MESSAGES.ERROR.DATA_RETRIEVE_FAILED, 500, ERROR_CODES.INTERNAL_ERROR);
-    }
-  }
-
-  /**
-   * Cập nhật danh mục
-   * @param {string} categoryId - ID danh mục
-   * @param {Object} updateData - Dữ liệu cập nhật
-   * @returns {Promise<Object>} - Danh mục được cập nhật
-   */
-  async updateCategory(categoryId, updateData) {
-    try {
-      const category = await Category.findById(categoryId);
-      
-      if (!category) {
-        throw new AppError(MESSAGES.ERROR.CATEGORY_NOT_FOUND, 404, ERROR_CODES.NOT_FOUND);
-      }
-
-      // Kiểm tra tên danh mục trùng lặp (nếu có thay đổi tên)
-      if (updateData.name && updateData.name !== category.name) {
-        const existingCategory = await Category.findOne({
-          name: new RegExp(`^${updateData.name}$`, 'i'),
-          _id: { $ne: categoryId }
-        });
-        
-        if (existingCategory) {
-          throw new AppError(MESSAGES.ERROR.CATEGORY_EXISTS, 409, ERROR_CODES.DUPLICATE_ENTRY);
-        }
-      }
-
-      // Kiểm tra danh mục cha (nếu có thay đổi)
-      if (updateData.parent) {
-        // Không thể đặt chính nó làm danh mục cha
-        if (updateData.parent === categoryId) {
-          throw new AppError(
-            'Không thể đặt danh mục làm cha của chính nó', 
-            400, 
-            ERROR_CODES.INVALID_INPUT
-          );
+        if (parent === 'null' || parent === null) { // Handle string 'null' for root categories
+            filter.parent = null;
+        } else if (parent) {
+            filter.parent = parent;
         }
 
-        const parentCategory = await Category.findById(updateData.parent);
-        if (!parentCategory) {
-          throw new AppError(MESSAGES.ERROR.PARENT_CATEGORY_NOT_FOUND, 404, ERROR_CODES.NOT_FOUND);
+        try {
+            const categories = await Category.find(filter)
+                .populate('parent')
+                .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
+                .skip(skip)
+                .limit(parseInt(limit));
+
+            const totalCategories = await Category.countDocuments(filter);
+
+            return {
+                data: categories,
+                total: totalCategories,
+                page: parseInt(page),
+                limit: parseInt(limit),
+                totalPages: Math.ceil(totalCategories / limit),
+            };
+        } catch (error) {
+            throw new AppError(MESSAGES.CATEGORY_CREATE_FAILED, ERROR_CODES.CATEGORY.FETCH_ALL_FAILED || 'CATEGORY_FETCH_ALL_FAILED', 500); // Ensure FETCH_ALL_FAILED exists or add it
         }
+    }
 
-        // Kiểm tra tránh vòng lặp trong cây danh mục
-        const isDescendant = await this.isDescendantOf(updateData.parent, categoryId);
-        if (isDescendant) {
-          throw new AppError(
-            'Không thể đặt danh mục con làm cha của danh mục cha', 
-            400, 
-            ERROR_CODES.INVALID_INPUT
-          );
+    async getCategoryById(categoryId) {
+        try {
+            const category = await Category.findById(categoryId).populate('parent');
+            if (!category) {
+                throw new AppError(MESSAGES.CATEGORY_NOT_FOUND, ERROR_CODES.CATEGORY.NOT_FOUND, 404);
+            }
+            return category;
+        } catch (error) {
+            if (error instanceof AppError) throw error;
+            throw new AppError(MESSAGES.CATEGORY_UPDATE_FAILED, ERROR_CODES.CATEGORY.FETCH_SINGLE_FAILED || 'CATEGORY_FETCH_SINGLE_FAILED', 500); // Ensure FETCH_SINGLE_FAILED exists or add it
         }
-      }
-
-      // Cập nhật danh mục
-      Object.assign(category, {
-        name: updateData.name?.trim() || category.name,
-        description: updateData.description?.trim() || category.description,
-        parent: updateData.parent !== undefined ? updateData.parent : category.parent
-      });
-
-      const updatedCategory = await category.save();
-      await updatedCategory.populate('parent', 'name');
-
-      this.logger.info(`Danh mục được cập nhật: ${updatedCategory.name}`, {
-        categoryId: updatedCategory._id,
-        updatedBy: updateData.updatedBy
-      });
-
-      return {
-        message: MESSAGES.SUCCESS.CATEGORY_UPDATED,
-        category: updatedCategory
-      };
-    } catch (error) {
-      this.logger.error(`Lỗi khi cập nhật danh mục ${categoryId}:`, error);
-      
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      if (error.code === 11000) {
-        throw new AppError(MESSAGES.ERROR.CATEGORY_EXISTS, 409, ERROR_CODES.DUPLICATE_ENTRY);
-      }
-      
-      throw new AppError(MESSAGES.ERROR.CATEGORY_UPDATE_FAILED, 500, ERROR_CODES.INTERNAL_ERROR);
     }
-  }
 
-  /**
-   * Xóa danh mục
-   * @param {string} categoryId - ID danh mục
-   * @returns {Promise<Object>} - Kết quả xóa
-   */
-  async deleteCategory(categoryId) {
-    try {
-      const category = await Category.findById(categoryId);
-      
-      if (!category) {
-        throw new AppError(MESSAGES.ERROR.CATEGORY_NOT_FOUND, 404, ERROR_CODES.NOT_FOUND);
-      }
-
-      // Kiểm tra có danh mục con không
-      const childCategories = await Category.countDocuments({ parent: categoryId });
-      if (childCategories > 0) {
-        throw new AppError(
-          'Không thể xóa danh mục có danh mục con. Vui lòng xóa hoặc di chuyển danh mục con trước.',
-          400,
-          ERROR_CODES.CONSTRAINT_VIOLATION
-        );
-      }
-
-      // TODO: Kiểm tra có sản phẩm trong danh mục không
-      // const Product = require('../models/productSchema');
-      // const productCount = await Product.countDocuments({ category: categoryId });
-      // if (productCount > 0) {
-      //   throw new AppError(
-      //     'Không thể xóa danh mục có sản phẩm. Vui lòng di chuyển sản phẩm sang danh mục khác trước.',
-      //     400,
-      //     ERROR_CODES.CONSTRAINT_VIOLATION
-      //   );
-      // }
-
-      await Category.findByIdAndDelete(categoryId);
-
-      this.logger.info(`Danh mục được xóa: ${category.name}`, {
-        categoryId: categoryId
-      });
-
-      return {
-        message: MESSAGES.SUCCESS.CATEGORY_DELETED,
-        deletedCategory: {
-          id: categoryId,
-          name: category.name
+    async createCategory(categoryData) {
+        try {
+            // Check if parent category exists if provided
+            if (categoryData.parent) {
+                const parentCategory = await Category.findById(categoryData.parent);
+                if (!parentCategory) {
+                    throw new AppError(MESSAGES.PARENT_CATEGORY_NOT_FOUND, ERROR_CODES.CATEGORY.PARENT_NOT_FOUND, 400);
+                }
+            }
+            const newCategory = new Category(categoryData);
+            await newCategory.save();
+            return newCategory;
+        } catch (error) {
+            if (error.code === 11000) { // Duplicate key error for name
+                 throw new AppError(MESSAGES.CATEGORY_EXISTS, ERROR_CODES.CATEGORY.EXISTS, 400);
+            }
+            if (error instanceof AppError) throw error;
+            throw new AppError(MESSAGES.CATEGORY_CREATE_FAILED, ERROR_CODES.CATEGORY.CREATE_FAILED, 400, error.errors);
         }
-      };
-    } catch (error) {
-      this.logger.error(`Lỗi khi xóa danh mục ${categoryId}:`, error);
-      
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      throw new AppError(MESSAGES.ERROR.CATEGORY_DELETE_FAILED, 500, ERROR_CODES.INTERNAL_ERROR);
-    }
-  }
-
-  /**
-   * Lấy cây danh mục (danh mục cha và con)
-   * @returns {Promise<Object>} - Cây danh mục
-   */
-  async getCategoryTree() {
-    try {
-      const parentCategories = await Category.find({ parent: null })
-        .sort({ name: 1 });
-
-      const categoryTree = await this.buildCategoryTree(parentCategories);
-
-      return {
-        message: MESSAGES.SUCCESS.DATA_RETRIEVED,
-        categories: categoryTree
-      };
-    } catch (error) {
-      this.logger.error('Lỗi khi lấy cây danh mục:', error);
-      throw new AppError(MESSAGES.ERROR.DATA_RETRIEVE_FAILED, 500, ERROR_CODES.INTERNAL_ERROR);
-    }
-  }
-
-  /**
-   * Xây dựng cây danh mục
-   * @param {Array} parentCategories - Danh sách danh mục cha
-   * @returns {Promise<Array>} - Cây danh mục
-   */
-  async buildCategoryTree(parentCategories) {
-    const tree = [];
-
-    for (const parent of parentCategories) {
-      const children = await Category.find({ parent: parent._id })
-        .sort({ name: 1 });
-
-      const categoryNode = {
-        ...parent.toObject(),
-        children: children.length > 0 ? await this.buildCategoryTree(children) : []
-      };
-
-      tree.push(categoryNode);
     }
 
-    return tree;
-  }
-
-  /**
-   * Kiểm tra xem category A có phải là con cháu của category B không
-   * @param {string} ancestorId - ID danh mục tổ tiên
-   * @param {string} descendantId - ID danh mục con cháu
-   * @returns {Promise<boolean>} - Kết quả kiểm tra
-   */
-  async isDescendantOf(ancestorId, descendantId) {
-    const descendant = await Category.findById(descendantId);
-    
-    if (!descendant || !descendant.parent) {
-      return false;
+    async updateCategory(categoryId, updateData) {
+        try {
+            // Check if parent category exists if provided and changed
+            if (updateData.parent) {
+                const parentCategory = await Category.findById(updateData.parent);
+                if (!parentCategory) {
+                    throw new AppError(MESSAGES.PARENT_CATEGORY_NOT_FOUND, ERROR_CODES.CATEGORY.PARENT_NOT_FOUND, 400);
+                }
+            }
+            const category = await Category.findByIdAndUpdate(categoryId, updateData, { new: true, runValidators: true });
+            if (!category) {
+                throw new AppError(MESSAGES.CATEGORY_NOT_FOUND, ERROR_CODES.CATEGORY.NOT_FOUND, 404);
+            }
+            return category;
+        } catch (error) {
+            if (error.code === 11000) { // Duplicate key error for name
+                throw new AppError(MESSAGES.CATEGORY_EXISTS, ERROR_CODES.CATEGORY.EXISTS, 400);
+           }
+            if (error instanceof AppError) throw error;
+            throw new AppError(MESSAGES.CATEGORY_UPDATE_FAILED, ERROR_CODES.CATEGORY.UPDATE_FAILED, 400, error.errors);
+        }
     }
-    
-    if (descendant.parent.toString() === ancestorId) {
-      return true;
+
+    async deleteCategory(categoryId) {
+        try {
+            // Check if category has child categories
+            const childCategories = await Category.countDocuments({ parent: categoryId });
+            if (childCategories > 0) {
+                throw new AppError('Không thể xóa danh mục có chứa danh mục con.', 'CATEGORY_HAS_CHILDREN', 400);
+            }
+            // Add check for products associated with this category if necessary in the future
+
+            const category = await Category.findByIdAndDelete(categoryId);
+            if (!category) {
+                throw new AppError(MESSAGES.CATEGORY_NOT_FOUND, ERROR_CODES.CATEGORY.NOT_FOUND, 404);
+            }
+            return { message: MESSAGES.CATEGORY_DELETED };
+        } catch (error) {
+            if (error instanceof AppError) throw error;
+            throw new AppError(MESSAGES.CATEGORY_DELETE_FAILED, ERROR_CODES.CATEGORY.DELETE_FAILED, 500);
+        }
     }
-    
-    return this.isDescendantOf(ancestorId, descendant.parent.toString());
-  }
 
-  /**
-   * Tìm kiếm danh mục
-   * @param {string} searchTerm - Từ khóa tìm kiếm
-   * @param {Object} options - Tùy chọn tìm kiếm
-   * @returns {Promise<Object>} - Kết quả tìm kiếm
-   */
-  async searchCategories(searchTerm, options = {}) {
-    try {
-      const { limit = 10 } = options;
-
-      const categories = await Category.find({
-        $or: [
-          { name: new RegExp(searchTerm, 'i') },
-          { description: new RegExp(searchTerm, 'i') }
-        ]
-      })
-      .populate('parent', 'name')
-      .limit(limit)
-      .sort({ name: 1 });
-
-      return {
-        message: MESSAGES.SUCCESS.DATA_RETRIEVED,
-        categories,
-        searchTerm
-      };
-    } catch (error) {
-      this.logger.error('Lỗi khi tìm kiếm danh mục:', error);
-      throw new AppError(MESSAGES.ERROR.SEARCH_FAILED, 500, ERROR_CODES.INTERNAL_ERROR);
+    // Specific method to get only parent categories (categories with no parent)
+    async getParentCategories() {
+        try {
+            return await Category.find({ parent: null }).sort({ name: 1 });
+        } catch (error) {
+             throw new AppError('Lỗi lấy danh mục cha', 'FETCH_PARENT_CATEGORIES_FAILED', 500);
+        }
     }
-  }
+
+    // Specific method to get child categories of a given parentId
+    async getChildCategories(parentId) {
+        try {
+            return await Category.find({ parent: parentId }).populate('parent').sort({ name: 1 });
+        } catch (error) {
+            throw new AppError('Lỗi lấy danh mục con', 'FETCH_CHILD_CATEGORIES_FAILED', 500);
+        }
+    }
 }
 
 module.exports = CategoryService;

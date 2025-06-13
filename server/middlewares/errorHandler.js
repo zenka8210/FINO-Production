@@ -1,7 +1,18 @@
 const mongoose = require('mongoose');
 const ResponseHandler = require('../services/responseHandler');
-const logger = require('../services/loggerService');
-const { ERROR_CODES, MESSAGES } = require('../config/constants');
+
+/**
+ * Custom Error class để tạo lỗi có thể điều khiển được
+ */
+class AppError extends Error {
+  constructor(message, statusCode) {
+    super(message);
+    this.statusCode = statusCode;
+    this.isOperational = true;
+
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
 
 /**
  * Wrapper function để bắt lỗi async cho các route handlers
@@ -61,20 +72,19 @@ const errorHandler = (err, req, res, next) => {
       [field]: `${field} đã tồn tại.` 
     });
   }
-  
-  // Lỗi không tìm thấy (NotFoundError)
+    // Lỗi không tìm thấy (NotFoundError)
   if (err.name === 'NotFoundError') {
-    return ResponseHandler.notFound(res, err.message || MESSAGES.NOT_FOUND);
+    return ResponseHandler.notFound(res, err.message || 'Not found');
   }
 
   // Lỗi xác thực (AuthenticationError)
   if (err.name === 'AuthenticationError') {
-    return ResponseHandler.unauthorized(res, err.message || MESSAGES.AUTH_FAILED);
+    return ResponseHandler.unauthorized(res, err.message || 'Authentication failed');
   }
 
   // Lỗi quyền truy cập (AccessDeniedError)
   if (err.name === 'AccessDeniedError') {
-    return ResponseHandler.forbidden(res, err.message || MESSAGES.ACCESS_DENIED);
+    return ResponseHandler.forbidden(res, err.message || 'Access denied');
   }
   
   // Lỗi validation (ValidationError) - từ Joi hoặc tự định nghĩa
@@ -88,12 +98,13 @@ const errorHandler = (err, req, res, next) => {
   }
   
   // Lỗi server mặc định nếu không phải các loại trên
-  const statusCode = err.statusCode || ERROR_CODES.SERVER_ERROR;
-  const message = err.message || MESSAGES.SERVER_ERROR;
-    return ResponseHandler.error(res, message, statusCode, process.env.NODE_ENV === 'production' ? null : err);
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'Internal server error';
+  return ResponseHandler.error(res, message, statusCode, process.env.NODE_ENV === 'production' ? null : err);
 };
 
 module.exports = {
   errorHandler,
-  catchAsync
+  catchAsync,
+  AppError
 };

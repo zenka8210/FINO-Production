@@ -1,38 +1,190 @@
 const express = require('express');
 const router = express.Router();
-const addressController = require('../controllers/addressController');
-const validateRequest = require('../middlewares/validateRequest');
-const { addressSchemas } = require('../middlewares/validationSchemas');
-const authenticateToken = require('../middlewares/authMiddleware');
+const AddressController = require('../controllers/addressController');
+const protect = require('../middlewares/authMiddleware'); // Corrected import
+const validateObjectId = require('../middlewares/validateObjectId');
 
-// Tất cả address routes đều yêu cầu authentication
-router.use(authenticateToken);
+const addressController = new AddressController();
+// const { restrictToAdmin } = require('../middlewares/adminMiddleware'); // Not used for now as routes are user-specific
 
-// GET /api/addresses/default - Lấy địa chỉ mặc định (đặt trước route có tham số)
-router.get('/default', addressController.getDefaultAddress);
+/**
+ * @swagger
+ * tags:
+ *   name: Addresses
+ *   description: Quản lý địa chỉ người dùng (Người dùng chỉ quản lý địa chỉ của chính mình)
+ */
 
-// GET /api/addresses - Lấy tất cả địa chỉ của người dùng
-router.get('/', addressController.getUserAddresses);
+// Tất cả các route dưới đây yêu cầu người dùng phải đăng nhập
+router.use(protect);
 
-// GET /api/addresses/:id - Lấy địa chỉ theo ID
-router.get('/:id', addressController.getAddressById);
+/**
+ * @swagger
+ * /api/addresses:
+ *   post:
+ *     summary: Tạo một địa chỉ mới cho người dùng hiện tại
+ *     tags: [Addresses]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AddressInput'
+ *     responses:
+ *       201:
+ *         description: Tạo địa chỉ thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Address'
+ *       400:
+ *         description: Dữ liệu không hợp lệ hoặc đã đạt giới hạn số lượng địa chỉ
+ *       401:
+ *         description: Chưa đăng nhập
+ *   get:
+ *     summary: Lấy danh sách tất cả địa chỉ của người dùng hiện tại
+ *     tags: [Addresses]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Danh sách địa chỉ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Address'
+ *       401:
+ *         description: Chưa đăng nhập
+ */
+router.route('/')
+  .post(addressController.createAddress)
+  .get(addressController.getUserAddresses);
 
-// POST /api/addresses - Tạo địa chỉ mới
-router.post('/', 
-  validateRequest(addressSchemas.create), 
-  addressController.createAddress
-);
+/**
+ * @swagger
+ * /api/addresses/{id}:
+ *   get:
+ *     summary: Lấy thông tin chi tiết một địa chỉ của người dùng hiện tại
+ *     tags: [Addresses]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của địa chỉ
+ *     responses:
+ *       200:
+ *         description: Thông tin chi tiết địa chỉ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Address'
+ *       401:
+ *         description: Chưa đăng nhập
+ *       403:
+ *         description: Không có quyền truy cập địa chỉ này
+ *       404:
+ *         description: Không tìm thấy địa chỉ
+ *   put:
+ *     summary: Cập nhật thông tin một địa chỉ của người dùng hiện tại
+ *     tags: [Addresses]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của địa chỉ
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AddressUpdateInput'
+ *     responses:
+ *       200:
+ *         description: Cập nhật địa chỉ thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Address'
+ *       400:
+ *         description: Dữ liệu không hợp lệ
+ *       401:
+ *         description: Chưa đăng nhập
+ *       403:
+ *         description: Không có quyền truy cập địa chỉ này
+ *       404:
+ *         description: Không tìm thấy địa chỉ
+ *   delete:
+ *     summary: Xóa một địa chỉ của người dùng hiện tại
+ *     tags: [Addresses]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của địa chỉ
+ *     responses:
+ *       200:
+ *         description: Xóa địa chỉ thành công
+ *       401:
+ *         description: Chưa đăng nhập
+ *       403:
+ *         description: Không có quyền truy cập địa chỉ này
+ *       404:
+ *         description: Không tìm thấy địa chỉ
+ */
+router.route('/:id')
+  .get(validateObjectId('id'), addressController.getAddressById) // Corrected usage
+  .put(validateObjectId('id'), addressController.updateAddress) // Corrected usage
+  .delete(validateObjectId('id'), addressController.deleteAddress); // Corrected usage
 
-// PUT /api/addresses/:id - Cập nhật địa chỉ
-router.put('/:id', 
-  validateRequest(addressSchemas.update), 
-  addressController.updateAddress
-);
+/**
+ * @swagger
+ * /api/addresses/{id}/set-default:
+ *   patch:
+ *     summary: Đặt một địa chỉ làm địa chỉ mặc định cho người dùng hiện tại
+ *     tags: [Addresses]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của địa chỉ cần đặt làm mặc định
+ *     responses:
+ *       200:
+ *         description: Đặt làm địa chỉ mặc định thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Address'
+ *       401:
+ *         description: Chưa đăng nhập
+ *       403:
+ *         description: Không có quyền truy cập địa chỉ này
+ *       404:
+ *         description: Không tìm thấy địa chỉ
+ */
+router.patch('/:id/set-default', validateObjectId('id'), addressController.setDefaultAddress); // Corrected usage
 
-// PUT /api/addresses/:id/default - Đặt địa chỉ mặc định
-router.put('/:id/default', addressController.setDefaultAddress);
-
-// DELETE /api/addresses/:id - Xóa địa chỉ
-router.delete('/:id', addressController.deleteAddress);
+// Admin routes for addresses (e.g., listing all addresses for all users) are not implemented here
+// as the current focus is on user-specific address management.
+// If admin routes are needed, they would typically be under an /admin/addresses prefix
+// and use `protect` and `restrictToAdmin` middleware.
 
 module.exports = router;

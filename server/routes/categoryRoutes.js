@@ -1,51 +1,77 @@
 const express = require('express');
 const router = express.Router();
-const categoryController = require('../controllers/categoryController');
-const validateRequest = require('../middlewares/validateRequest');
-const { categorySchemas } = require('../middlewares/validationSchemas');
-const authenticateToken = require('../middlewares/authMiddleware');
+const CategoryController = require('../controllers/categoryController');
+const categoryController = new CategoryController();
+const authMiddleware = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
+const validateObjectId = require('../middlewares/validateObjectId');
 
-// Public routes - Các route công khai
+// --- Public Routes ---
 
-// GET /api/categories - Lấy tất cả danh mục (có phân trang)
-router.get('/', categoryController.getAllCategories);
-
-// GET /api/categories/tree - Lấy cây danh mục
-router.get('/tree', categoryController.getCategoryTree);
-
-// GET /api/categories/parents - Lấy danh mục cha
+/**
+ * @route   GET /api/categories/parents
+ * @desc    Lấy tất cả danh mục cha (không có parent)
+ * @access  Public
+ */
 router.get('/parents', categoryController.getParentCategories);
 
-// GET /api/categories/search - Tìm kiếm danh mục
-router.get('/search', categoryController.searchCategories);
+/**
+ * @route   GET /api/categories/:parentId/children
+ * @desc    Lấy tất cả danh mục con của một danh mục cha cụ thể
+ * @access  Public
+ */
+router.get('/:parentId/children', validateObjectId('parentId'), categoryController.getChildCategories);
 
-// GET /api/categories/:id - Lấy danh mục theo ID
-router.get('/:id', categoryController.getCategoryById);
+/**
+ * @route   GET /api/categories/public
+ * @desc    Lấy tất cả danh mục (có thể dùng cho client, có thể có filter đơn giản nếu cần, ví dụ: chỉ lấy name, _id)
+ * @access  Public
+ */
+router.get('/public', categoryController.getAllCategories); // Sử dụng lại getAllCategories, client có thể query parent=null
 
-// Admin routes - Các route yêu cầu quyền admin
+/**
+ * @route   GET /api/categories/:id/public
+ * @desc    Lấy chi tiết một danh mục (public)
+ * @access  Public
+ */
+router.get('/:id/public', validateObjectId('id'), categoryController.getCategoryById);
 
-// POST /api/categories - Tạo danh mục mới
-router.post('/', 
-  authenticateToken, 
-  adminMiddleware, 
-  validateRequest(categorySchemas.create), 
-  categoryController.createCategory
-);
 
-// PUT /api/categories/:id - Cập nhật danh mục
-router.put('/:id', 
-  authenticateToken, 
-  adminMiddleware, 
-  validateRequest(categorySchemas.create), 
-  categoryController.updateCategory
-);
+// --- Admin Routes (Require Auth and Admin Role) ---
 
-// DELETE /api/categories/:id - Xóa danh mục
-router.delete('/:id', 
-  authenticateToken, 
-  adminMiddleware, 
-  categoryController.deleteCategory
-);
+/**
+ * @route   GET /api/categories
+ * @desc    Lấy tất cả danh mục (cho admin, có phân trang, tìm kiếm, filter theo parent)
+ * @access  Private (Admin)
+ */
+router.get('/', authMiddleware, adminMiddleware, categoryController.getAllCategories);
+
+/**
+ * @route   GET /api/categories/:id
+ * @desc    Lấy chi tiết danh mục bằng ID (cho admin)
+ * @access  Private (Admin)
+ */
+router.get('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), categoryController.getCategoryById);
+
+/**
+ * @route   POST /api/categories
+ * @desc    Tạo danh mục mới (cho admin)
+ * @access  Private (Admin)
+ */
+router.post('/', authMiddleware, adminMiddleware, categoryController.createCategory);
+
+/**
+ * @route   PUT /api/categories/:id
+ * @desc    Cập nhật danh mục bằng ID (cho admin)
+ * @access  Private (Admin)
+ */
+router.put('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), categoryController.updateCategory);
+
+/**
+ * @route   DELETE /api/categories/:id
+ * @desc    Xóa danh mục bằng ID (cho admin)
+ * @access  Private (Admin)
+ */
+router.delete('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), categoryController.deleteCategory);
 
 module.exports = router;

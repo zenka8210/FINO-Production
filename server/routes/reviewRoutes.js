@@ -1,72 +1,38 @@
 const express = require('express');
 const router = express.Router();
-const reviewController = require('../controllers/reviewController');
-const validateRequest = require('../middlewares/validateRequest');
-const { reviewSchemas } = require('../middlewares/validationSchemas');
+const ReviewController = require('../controllers/reviewController');
 const authenticateToken = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
+const validateObjectId = require('../middlewares/validateObjectId');
 
-// Public routes - Các route công khai
+const reviewController = new ReviewController();
 
-// GET /api/reviews/product/:productId - Lấy đánh giá của sản phẩm
-router.get('/product/:productId', reviewController.getProductReviews);
+// Public routes
+// GET /api/reviews/product/:productId - Get reviews for a product
+router.get('/product/:productId', validateObjectId, reviewController.getProductReviews);
 
-// GET /api/reviews/product/:productId/stats - Lấy thống kê đánh giá sản phẩm
-router.get('/product/:productId/stats', reviewController.getProductReviewStats);
+// User routes - require authentication
+router.use(authenticateToken);
 
-// GET /api/reviews/:id - Lấy đánh giá theo ID
-router.get('/:id', reviewController.getReviewById);
+// GET /api/reviews - Get current user's reviews
+router.get('/', reviewController.getAll);
 
-// Authenticated routes - Các route yêu cầu xác thực
+// POST /api/reviews - Create new review
+router.post('/', reviewController.createReview);
 
-// GET /api/reviews/user/my-reviews - Lấy đánh giá của người dùng hiện tại
-router.get('/user/my-reviews', authenticateToken, reviewController.getUserReviews);
+// PUT /api/reviews/:id - Update review
+router.put('/:id', validateObjectId, reviewController.updateReview);
 
-// POST /api/reviews - Tạo đánh giá mới
-router.post('/', 
-  authenticateToken, 
-  validateRequest(reviewSchemas.create), 
-  reviewController.createReview
-);
+// DELETE /api/reviews/:id - Delete review
+router.delete('/:id', validateObjectId, reviewController.deleteReview);
 
-// PUT /api/reviews/:id - Cập nhật đánh giá
-router.put('/:id', 
-  authenticateToken, 
-  validateRequest(reviewSchemas.create), 
-  reviewController.updateReview
-);
+// Admin routes
+router.use(adminMiddleware);
 
-// DELETE /api/reviews/:id - Xóa đánh giá
-router.delete('/:id', authenticateToken, reviewController.deleteReview);
+// GET /api/reviews/admin/all - Get all reviews (admin)
+router.get('/admin/all', reviewController.getAll);
 
-// Admin routes - Các route yêu cầu quyền admin
-
-// GET /api/reviews/admin/all - Lấy tất cả đánh giá (Admin)
-router.get('/admin/all', 
-  authenticateToken, 
-  adminMiddleware, 
-  reviewController.getAllReviews
-);
-
-// GET /api/reviews/admin/pending - Lấy đánh giá chờ duyệt (Admin)
-router.get('/admin/pending', 
-  authenticateToken, 
-  adminMiddleware, 
-  reviewController.getPendingReviews
-);
-
-// PUT /api/reviews/admin/:id/approve - Duyệt đánh giá (Admin)
-router.put('/admin/:id/approve', 
-  authenticateToken, 
-  adminMiddleware, 
-  reviewController.approveReview
-);
-
-// DELETE /api/reviews/admin/:id - Xóa đánh giá (Admin)
-router.delete('/admin/:id', 
-  authenticateToken, 
-  adminMiddleware, 
-  reviewController.adminDeleteReview
-);
+// DELETE /api/reviews/admin/:id - Delete any review (admin)
+router.delete('/admin/:id', validateObjectId, reviewController.deleteById);
 
 module.exports = router;

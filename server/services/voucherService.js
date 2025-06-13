@@ -1,340 +1,333 @@
-const Voucher = require('../models/voucherSchema');
-const { MESSAGES, ERROR_CODES } = require('../config/constants');
+const BaseService = require('./baseService');
+const Voucher = require('../models/VoucherSchema');
 const { AppError } = require('../middlewares/errorHandler');
-const LoggerService = require('./loggerService');
+const { MESSAGES, ERROR_CODES, PAGINATION, voucherMessages } = require('../config/constants');
 
-class VoucherService {
+/**
+ * @class VoucherService
+ * @description Cung cấp các phương thức để tương tác với dữ liệu phiếu giảm giá
+ */
+class VoucherService extends BaseService {
   constructor() {
-    this.logger = LoggerService;
+    super(Voucher);
   }
 
   /**
-   * Lấy tất cả voucher với phân trang
-   * @param {Object} query - Query parameters
-   * @returns {Promise<Object>} - Danh sách voucher
-   */
-  async getAllVouchers(query = {}) {
-    try {
-      const { page = 1, limit = 10, status, type } = query;
-      const skip = (page - 1) * limit;
-
-      // Tạo filter
-      const filter = {};
-      if (status) filter.status = status;
-      if (type) filter.type = type;
-
-      const vouchers = await Voucher.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(parseInt(limit));
-
-      const total = await Voucher.countDocuments(filter);
-
-      return {
-        message: MESSAGES.SUCCESS.DATA_RETRIEVED,
-        vouchers,
-        pagination: {
-          total,
-          page: parseInt(page),
-          limit: parseInt(limit),
-          totalPages: Math.ceil(total / limit)
-        }
-      };
-    } catch (error) {
-      this.logger.error('Lỗi khi lấy danh sách voucher:', error);
-      throw new AppError(MESSAGES.ERROR.DATA_RETRIEVE_FAILED, 500, ERROR_CODES.INTERNAL_ERROR);
-    }
-  }
-
-  /**
-   * Lấy voucher theo ID
-   * @param {string} voucherId - ID voucher
-   * @returns {Promise<Object>} - Thông tin voucher
-   */
-  async getVoucherById(voucherId) {
-    try {
-      const voucher = await Voucher.findById(voucherId);
-
-      if (!voucher) {
-        throw new AppError('Không tìm thấy voucher', 404, ERROR_CODES.NOT_FOUND);
-      }
-
-      return {
-        message: MESSAGES.SUCCESS.DATA_RETRIEVED,
-        voucher
-      };
-    } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      this.logger.error('Lỗi khi lấy thông tin voucher:', error);
-      throw new AppError(MESSAGES.ERROR.DATA_RETRIEVE_FAILED, 500, ERROR_CODES.INTERNAL_ERROR);
-    }
-  }
-
-  /**
-   * Lấy voucher theo mã code
-   * @param {string} code - Mã voucher
-   * @returns {Promise<Object>} - Thông tin voucher
-   */
-  async getVoucherByCode(code) {
-    try {
-      const voucher = await Voucher.findOne({ code, status: 'active' });
-
-      if (!voucher) {
-        throw new AppError('Mã voucher không tồn tại hoặc đã hết hạn', 404, ERROR_CODES.NOT_FOUND);
-      }
-
-      // Kiểm tra thời hạn
-      const now = new Date();
-      if (now < voucher.startDate || now > voucher.endDate) {
-        throw new AppError('Voucher đã hết hạn sử dụng', 400, ERROR_CODES.INVALID_INPUT);
-      }
-
-      // Kiểm tra số lượng
-      if (voucher.used >= voucher.quantity) {
-        throw new AppError('Voucher đã hết lượt sử dụng', 400, ERROR_CODES.INVALID_INPUT);
-      }
-
-      return {
-        message: MESSAGES.SUCCESS.DATA_RETRIEVED,
-        voucher
-      };
-    } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      this.logger.error('Lỗi khi lấy voucher theo code:', error);
-      throw new AppError(MESSAGES.ERROR.DATA_RETRIEVE_FAILED, 500, ERROR_CODES.INTERNAL_ERROR);
-    }
-  }
-
-  /**
-   * Tạo voucher mới
-   * @param {Object} voucherData - Dữ liệu voucher
-   * @returns {Promise<Object>} - Voucher được tạo
+   * @description Tạo mới một phiếu giảm giá
+   * @param {object} voucherData - Dữ liệu của phiếu giảm giá
+   * @returns {Promise<object>} Phiếu giảm giá đã được tạo
+   * @throws {AppError} Nếu mã phiếu giảm giá đã tồn tại hoặc dữ liệu không hợp lệ
    */
   async createVoucher(voucherData) {
     try {
-      // Kiểm tra mã voucher đã tồn tại
-      const existingVoucher = await Voucher.findOne({ code: voucherData.code });
+      // Check if voucher code already exists
+      const existingVoucher = await this.Model.findOne({ code: voucherData.code });
       if (existingVoucher) {
-        throw new AppError('Mã voucher đã tồn tại', 400, ERROR_CODES.INVALID_INPUT);
+        throw new AppError(voucherMessages.VOUCHER_INVALID_CODE, ERROR_CODES.BAD_REQUEST, 'Voucher code already exists.');
       }
-
-      const voucher = new Voucher(voucherData);
-      const savedVoucher = await voucher.save();
-
-      this.logger.info(`Tạo voucher thành công`, { voucherId: savedVoucher._id });
-
-      return {
-        message: 'Tạo voucher thành công',
-        voucher: savedVoucher
-      };
+      return await this.create(voucherData);
     } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      this.logger.error('Lỗi khi tạo voucher:', error);
-      throw new AppError('Tạo voucher thất bại', 500, ERROR_CODES.INTERNAL_ERROR);
+      if (error instanceof AppError) throw error;
+      throw new AppError(MESSAGES.VOUCHER_CREATE_FAILED, ERROR_CODES.VOUCHER.CREATE_FAILED, error.message);
     }
+  }
+  /**
+   * @description Lấy tất cả phiếu giảm giá với tùy chọn phân trang, tìm kiếm, sắp xếp
+   * @param {object} queryOptions - Tùy chọn truy vấn (page, limit, search, sort, isActive)
+   * @returns {Promise<object>} Danh sách phiếu giảm giá và thông tin phân trang
+   */
+  async getAllVouchers(queryOptions) {
+    const { page = PAGINATION.DEFAULT_PAGE, limit = PAGINATION.DEFAULT_LIMIT, search, sort, isActive } = queryOptions;
+    const skip = (page - 1) * limit;
+
+    let query = {};
+    if (search) {
+      query.code = { $regex: search, $options: 'i' }; // Tìm kiếm theo mã phiếu giảm giá
+    }
+
+    // Filter by active status if provided
+    if (isActive !== undefined) {
+      query.isActive = isActive === 'true' || isActive === true;
+    }
+
+    const sortOptions = {};
+    if (sort) {
+      const [field, order] = sort.split(':');
+      sortOptions[field] = order === 'desc' ? -1 : 1;
+    } else {
+      sortOptions.createdAt = -1; // Mặc định sắp xếp theo ngày tạo mới nhất
+    }
+
+    const vouchers = await Voucher.find(query)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(parseInt(limit, 10));
+
+    const totalVouchers = await Voucher.countDocuments(query);
+    const totalPages = Math.ceil(totalVouchers / limit);    return {
+      data: vouchers,
+      totalDocuments: totalVouchers,
+      pagination: {
+        currentPage: parseInt(page, 10),
+        totalPages,
+        totalItems: totalVouchers,
+        itemsPerPage: parseInt(limit, 10),
+      },
+    };
   }
 
   /**
-   * Cập nhật voucher
-   * @param {string} voucherId - ID voucher
-   * @param {Object} updateData - Dữ liệu cập nhật
-   * @returns {Promise<Object>} - Voucher được cập nhật
+   * @description Lấy thông tin chi tiết một phiếu giảm giá bằng ID
+   * @param {string} voucherId - ID của phiếu giảm giá
+   * @returns {Promise<object>} Thông tin chi tiết phiếu giảm giá
+   * @throws {AppError} Nếu không tìm thấy phiếu giảm giá
+   */
+  async getVoucherById(voucherId) {
+    const voucher = await this.getById(voucherId);
+    if (!voucher) {
+      throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.VOUCHER.NOT_FOUND);
+    }
+    return voucher;
+  }
+
+  /**
+   * @description Lấy thông tin chi tiết một phiếu giảm giá bằng mã
+   * @param {string} code - Mã của phiếu giảm giá
+   * @returns {Promise<object>} Thông tin chi tiết phiếu giảm giá
+   * @throws {AppError} Nếu không tìm thấy phiếu giảm giá
+   */
+  async getVoucherByCode(code) {
+    const voucher = await this.Model.findOne({ code });
+    if (!voucher) {
+      throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.VOUCHER.NOT_FOUND);
+    }
+    // Optionally, check if the voucher is active based on startDate and endDate
+    const now = new Date();
+    if (voucher.startDate > now) {
+        throw new AppError(voucherMessages.VOUCHER_NOT_YET_ACTIVE, ERROR_CODES.VOUCHER.INVALID);
+    }
+    if (voucher.endDate < now) {
+        throw new AppError(voucherMessages.VOUCHER_EXPIRED, ERROR_CODES.VOUCHER.INVALID);
+    }
+    return voucher;
+  }
+
+  /**
+   * @description Cập nhật thông tin một phiếu giảm giá
+   * @param {string} voucherId - ID của phiếu giảm giá cần cập nhật
+   * @param {object} updateData - Dữ liệu cập nhật
+   * @returns {Promise<object>} Phiếu giảm giá đã được cập nhật
+   * @throws {AppError} Nếu không tìm thấy phiếu giảm giá hoặc dữ liệu không hợp lệ
    */
   async updateVoucher(voucherId, updateData) {
-    try {
-      const voucher = await Voucher.findById(voucherId);
-
-      if (!voucher) {
-        throw new AppError('Không tìm thấy voucher', 404, ERROR_CODES.NOT_FOUND);
+    // Prevent updating the code if it's not allowed or handle uniqueness
+    if (updateData.code) {
+      const existingVoucher = await this.Model.findOne({ code: updateData.code, _id: { $ne: voucherId } });
+      if (existingVoucher) {
+        throw new AppError(voucherMessages.VOUCHER_INVALID_CODE, ERROR_CODES.BAD_REQUEST, 'Voucher code already exists for another voucher.');
       }
-
-      // Kiểm tra mã voucher nếu được cập nhật
-      if (updateData.code && updateData.code !== voucher.code) {
-        const existingVoucher = await Voucher.findOne({ 
-          code: updateData.code, 
-          _id: { $ne: voucherId } 
-        });
-        if (existingVoucher) {
-          throw new AppError('Mã voucher đã tồn tại', 400, ERROR_CODES.INVALID_INPUT);
-        }
-      }
-
-      Object.assign(voucher, updateData);
-      const savedVoucher = await voucher.save();
-
-      this.logger.info(`Cập nhật voucher thành công`, { voucherId });
-
-      return {
-        message: 'Cập nhật voucher thành công',
-        voucher: savedVoucher
-      };
-    } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      this.logger.error('Lỗi khi cập nhật voucher:', error);
-      throw new AppError('Cập nhật voucher thất bại', 500, ERROR_CODES.INTERNAL_ERROR);
     }
+    const voucher = await this.updateById(voucherId, updateData);
+    if (!voucher) {
+      throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.VOUCHER.NOT_FOUND);
+    }
+    return voucher;
   }
 
   /**
-   * Xóa voucher
-   * @param {string} voucherId - ID voucher
-   * @returns {Promise<Object>} - Thông báo thành công
+   * @description Xóa một phiếu giảm giá
+   * @param {string} voucherId - ID của phiếu giảm giá cần xóa
+   * @returns {Promise<void>}
+   * @throws {AppError} Nếu không tìm thấy phiếu giảm giá
    */
   async deleteVoucher(voucherId) {
-    try {
-      const voucher = await Voucher.findById(voucherId);
-
-      if (!voucher) {
-        throw new AppError('Không tìm thấy voucher', 404, ERROR_CODES.NOT_FOUND);
-      }
-
-      await Voucher.findByIdAndDelete(voucherId);
-
-      this.logger.info(`Xóa voucher thành công`, { voucherId });
-
-      return {
-        message: 'Xóa voucher thành công'
-      };
-    } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      this.logger.error('Lỗi khi xóa voucher:', error);
-      throw new AppError('Xóa voucher thất bại', 500, ERROR_CODES.INTERNAL_ERROR);
+    const voucher = await this.deleteById(voucherId);
+    if (!voucher) {
+      throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.VOUCHER.NOT_FOUND);
     }
-  }
-
-  /**
-   * Áp dụng voucher cho đơn hàng
-   * @param {string} code - Mã voucher
-   * @param {number} orderValue - Giá trị đơn hàng
-   * @returns {Promise<Object>} - Thông tin giảm giá
+    return voucher;
+  }  /**
+   * @description Kiểm tra và áp dụng phiếu giảm giá cho một đơn hàng
+   * @param {string} code - Mã phiếu giảm giá
+   * @param {number} orderTotal - Tổng giá trị đơn hàng
+   * @param {string} userId - ID của user (để kiểm tra lịch sử sử dụng)
+   * @returns {Promise<object>} Thông tin phiếu giảm giá hợp lệ
+   * @throws {AppError} Nếu phiếu giảm giá không hợp lệ, hết hạn, không đủ điều kiện, v.v.
    */
-  async applyVoucher(code, orderValue) {
-    try {
-      const result = await this.getVoucherByCode(code);
-      const voucher = result.voucher;
+  async applyVoucher(code, orderTotal, userId = null) {
+    const voucher = await this.getVoucherByCode(code); // This already checks for existence and validity period
 
-      // Kiểm tra giá trị đơn hàng tối thiểu
-      if (voucher.minOrderValue && orderValue < voucher.minOrderValue) {
+    // Check if voucher is active
+    if (!voucher.isActive) {
+      throw new AppError(voucherMessages.VOUCHER_INACTIVE || 'Voucher is not active', ERROR_CODES.VOUCHER.INVALID);
+    }    // KIỂM TRA RÀNG BUỘC MỚI: 1 user chỉ được sử dụng 1 voucher duy nhất trong toàn bộ hệ thống
+    if (userId) {
+      const usedVoucherOrder = await this.getUserUsedVoucher(userId);
+      if (usedVoucherOrder && usedVoucherOrder.voucher._id.toString() !== voucher._id.toString()) {
         throw new AppError(
-          `Đơn hàng phải có giá trị tối thiểu ${voucher.minOrderValue.toLocaleString('vi-VN')} VNĐ để sử dụng voucher này`,
-          400,
-          ERROR_CODES.INVALID_INPUT
+          `Bạn đã sử dụng voucher "${usedVoucherOrder.voucher.code}" trước đó. Mỗi tài khoản chỉ được sử dụng 1 voucher duy nhất trong toàn bộ hệ thống.`, 
+          ERROR_CODES.VOUCHER.APPLY_FAILED
         );
       }
+    }
 
-      let discountAmount = 0;
+    // Check usage limit if user is provided
+    if (userId && voucher.isOneTimePerUser) {
+      const usageCount = await this.getUserVoucherUsageCount(userId, voucher._id);
+      if (usageCount >= voucher.usageLimit) {
+        throw new AppError('Bạn đã sử dụng voucher này rồi và không thể sử dụng lại', ERROR_CODES.VOUCHER.APPLY_FAILED);
+      }
+    }
 
-      if (voucher.type === 'percentage') {
-        discountAmount = (orderValue * voucher.value) / 100;
-        // Giới hạn giảm giá tối đa
-        if (voucher.maxDiscount && discountAmount > voucher.maxDiscount) {
-          discountAmount = voucher.maxDiscount;
-        }
-      } else if (voucher.type === 'fixed') {
-        discountAmount = voucher.value;
-        // Không được giảm quá giá trị đơn hàng
-        if (discountAmount > orderValue) {
-          discountAmount = orderValue;
+    // Check minimum order value
+    if (orderTotal < voucher.minimumOrderValue) {
+      throw new AppError(voucherMessages.VOUCHER_CRITERIA_NOT_MET, ERROR_CODES.VOUCHER.APPLY_FAILED, `Minimum order value of ${voucher.minimumOrderValue.toLocaleString('vi-VN')}đ not met.`);
+    }
+
+    // Check maximum order value if set (null means no limit)
+    if (voucher.maximumOrderValue !== null && voucher.maximumOrderValue !== undefined && orderTotal > voucher.maximumOrderValue) {
+      throw new AppError(voucherMessages.VOUCHER_CRITERIA_NOT_MET, ERROR_CODES.VOUCHER.APPLY_FAILED, `Đơn hàng vượt quá giá trị tối đa ${voucher.maximumOrderValue.toLocaleString('vi-VN')}đ để áp dụng voucher này.`);
+    }// Calculate discount amount
+    let discountAmount = (orderTotal * voucher.discountPercent) / 100;
+    
+    // Apply maximum discount limits:
+    // 1. Maximum 50% of order total
+    // 2. Maximum discount amount from voucher setting (default 200,000 VNĐ)
+    const maxDiscountByPercent = orderTotal * 0.5; // 50% of order total
+    const maxDiscountByAmount = voucher.maximumDiscountAmount || 200000; // Default 200k if not set
+    
+    const effectiveMaxDiscount = Math.min(maxDiscountByPercent, maxDiscountByAmount);
+    
+    if (discountAmount > effectiveMaxDiscount) {
+      discountAmount = effectiveMaxDiscount;
+    }
+
+    const finalTotal = orderTotal - discountAmount;
+
+    return {
+      discountPercent: voucher.discountPercent,
+      discountAmount: discountAmount,
+      finalTotal: finalTotal,
+      voucherId: voucher._id,
+      originalOrderTotal: orderTotal,
+      minimumOrderValue: voucher.minimumOrderValue,
+      maximumOrderValue: voucher.maximumOrderValue,
+      maximumDiscountAmount: voucher.maximumDiscountAmount,
+      appliedDiscountRule: discountAmount === maxDiscountByPercent ? 'Limited by 50% of order' : 
+                          discountAmount === maxDiscountByAmount ? 'Limited by maximum discount amount' : 
+                          'Full discount applied'
+    };
+  }
+
+  /**
+   * @description Toggle voucher active status
+   * @param {string} voucherId - ID của voucher
+   * @returns {Promise<object>} Voucher đã được cập nhật
+   */
+  async toggleVoucherStatus(voucherId) {
+    const voucher = await this.getById(voucherId);
+    if (!voucher) {
+      throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.VOUCHER.NOT_FOUND);
+    }
+
+    return await this.updateById(voucherId, { isActive: !voucher.isActive });
+  }
+
+  /**
+   * @description Get only active vouchers
+   * @param {object} queryOptions - Query options
+   * @returns {Promise<object>} Active vouchers
+   */
+  async getActiveVouchers(queryOptions = {}) {
+    return await this.getAllVouchers({ ...queryOptions, isActive: true });
+  }
+
+  /**
+   * @description Kiểm tra số lần user đã sử dụng một voucher
+   * @param {string} userId - ID của user
+   * @param {string} voucherId - ID của voucher
+   * @returns {Promise<number>} Số lần đã sử dụng
+   */
+  async getUserVoucherUsageCount(userId, voucherId) {
+    // Import Order model để kiểm tra lịch sử đơn hàng
+    const Order = require('../models/OrderSchema');
+    
+    const usageCount = await Order.countDocuments({
+      user: userId,
+      voucher: voucherId,
+      status: { $nin: ['cancelled'] } // Không tính các order đã hủy
+    });
+    
+    return usageCount;
+  }
+
+  /**
+   * @description Kiểm tra xem user đã sử dụng voucher nào chưa (để thực thi quy tắc 1 user chỉ được dùng 1 voucher duy nhất)
+   * @param {string} userId - ID của user
+   * @returns {Promise<object|null>} Thông tin voucher đã sử dụng hoặc null nếu chưa dùng
+   */
+  async getUserUsedVoucher(userId) {
+    const Order = require('../models/OrderSchema');
+    
+    const usedVoucherOrder = await Order.findOne({
+      user: userId,
+      voucher: { $ne: null },
+      status: { $nin: ['cancelled'] } // Không tính các order đã hủy
+    })
+    .populate('voucher', 'code discountPercent')
+    .sort({ createdAt: -1 }); // Lấy order mới nhất có voucher
+    
+    return usedVoucherOrder;
+  }
+
+  /**
+   * @description Kiểm tra xem user có thể sử dụng voucher không (không cần áp dụng)
+   * @param {string} code - Mã voucher
+   * @param {string} userId - ID của user
+   * @returns {Promise<object>} Thông tin có thể sử dụng hay không
+   */
+  async canUserUseVoucher(code, userId) {
+    try {
+      const voucher = await this.getVoucherByCode(code);
+        if (!voucher.isActive) {
+        return { canUse: false, reason: 'Voucher không còn hoạt động' };
+      }
+      
+      // KIỂM TRA RÀNG BUỘC MỚI: 1 user chỉ được sử dụng 1 voucher duy nhất trong toàn bộ hệ thống
+      const usedVoucherOrder = await this.getUserUsedVoucher(userId);
+      if (usedVoucherOrder && usedVoucherOrder.voucher._id.toString() !== voucher._id.toString()) {
+        return { 
+          canUse: false, 
+          reason: `Bạn đã sử dụng voucher "${usedVoucherOrder.voucher.code}" trước đó. Mỗi tài khoản chỉ được sử dụng 1 voucher duy nhất.`,
+          usedVoucher: {
+            code: usedVoucherOrder.voucher.code,
+            discountPercent: usedVoucherOrder.voucher.discountPercent,
+            usedDate: usedVoucherOrder.createdAt
+          }
+        };
+      }
+      
+      if (voucher.isOneTimePerUser) {
+        const usageCount = await this.getUserVoucherUsageCount(userId, voucher._id);
+        if (usageCount >= voucher.usageLimit) {
+          return { canUse: false, reason: 'Bạn đã sử dụng voucher này rồi' };
         }
       }
-
-      return {
-        message: 'Áp dụng voucher thành công',
+      
+      return { 
+        canUse: true, 
         voucher: {
-          _id: voucher._id,
           code: voucher.code,
-          type: voucher.type,
-          value: voucher.value,
-          description: voucher.description
-        },
-        discountAmount,
-        finalAmount: orderValue - discountAmount
+          discountPercent: voucher.discountPercent,
+          minimumOrderValue: voucher.minimumOrderValue,
+          maximumOrderValue: voucher.maximumOrderValue,
+          maximumDiscountAmount: voucher.maximumDiscountAmount,
+          usageCount: voucher.isOneTimePerUser ? await this.getUserVoucherUsageCount(userId, voucher._id) : null,
+          usageLimit: voucher.usageLimit
+        }
       };
     } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      this.logger.error('Lỗi khi áp dụng voucher:', error);
-      throw new AppError('Áp dụng voucher thất bại', 500, ERROR_CODES.INTERNAL_ERROR);
-    }
-  }
-
-  /**
-   * Sử dụng voucher (tăng số lượng đã sử dụng)
-   * @param {string} voucherId - ID voucher
-   * @returns {Promise<Object>} - Thông báo thành công
-   */
-  async useVoucher(voucherId) {
-    try {
-      const voucher = await Voucher.findById(voucherId);
-
-      if (!voucher) {
-        throw new AppError('Không tìm thấy voucher', 404, ERROR_CODES.NOT_FOUND);
-      }
-
-      if (voucher.used >= voucher.quantity) {
-        throw new AppError('Voucher đã hết lượt sử dụng', 400, ERROR_CODES.INVALID_INPUT);
-      }
-
-      voucher.used += 1;
-      await voucher.save();
-
-      this.logger.info(`Sử dụng voucher thành công`, { voucherId, used: voucher.used });
-
-      return {
-        message: 'Sử dụng voucher thành công',
-        voucher
-      };
-    } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      this.logger.error('Lỗi khi sử dụng voucher:', error);
-      throw new AppError('Sử dụng voucher thất bại', 500, ERROR_CODES.INTERNAL_ERROR);
-    }
-  }
-
-  /**
-   * Lấy voucher khả dụng cho người dùng
-   * @returns {Promise<Object>} - Danh sách voucher khả dụng
-   */
-  async getAvailableVouchers() {
-    try {
-      const now = new Date();
-
-      const vouchers = await Voucher.find({
-        status: 'active',
-        startDate: { $lte: now },
-        endDate: { $gte: now },
-        $expr: { $lt: ['$used', '$quantity'] }
-      })
-      .sort({ value: -1 })
-      .select('code type value maxDiscount minOrderValue description endDate');
-
-      return {
-        message: MESSAGES.SUCCESS.DATA_RETRIEVED,
-        vouchers
-      };
-    } catch (error) {
-      this.logger.error('Lỗi khi lấy voucher khả dụng:', error);
-      throw new AppError(MESSAGES.ERROR.DATA_RETRIEVE_FAILED, 500, ERROR_CODES.INTERNAL_ERROR);
+      return { canUse: false, reason: error.message };
     }
   }
 }

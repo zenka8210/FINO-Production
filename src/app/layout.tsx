@@ -4,7 +4,8 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./globals.css";
 import Menu from "./component/menu";
 import Footer from "./component/footer";
-import { AuthProvider } from "./context/AuthContext"; // 👉 Thêm dòng này
+import { AuthProvider } from "./context/AuthContext";
+import { CartProvider } from "./context/CartContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

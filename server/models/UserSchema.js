@@ -2,19 +2,14 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const UserSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true, trim: true, minlength: 8, maxlength: 30 },
   email: { type: String, required: true, unique: true, lowercase: true, 
            match: [/^\S+@\S+\.\S+$/, 'Email không hợp lệ'] },
   password: { type: String, required: true, minlength: 8 }, 
-  role: { type: String, enum: ['customer', 'admin'], default: 'customer' },
-  full_name: { type: String, maxlength: 60 },
+  name: { type: String, maxlength: 60 },
   phone: { type: String, maxlength: 11 },
   address: { type: String },
-  avatar: { type: String },
-  resetPasswordToken: { type: String },
-  resetPasswordExpires: { type: Date },
-  isEmailVerified: { type: Boolean, default: true }, // Bypass verification for now
-  emailVerificationToken: { type: String }
+  role: { type: String, enum: ['customer', 'admin'], default: 'customer' },
+  isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 
 // Middleware hash password trước khi lưu

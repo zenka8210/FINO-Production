@@ -1,203 +1,285 @@
-const Order = require('../models/orderSchema');
 const BaseController = require('./baseController');
-const orderService = require('../services/orderService');
+const OrderService = require('../services/orderService');
 const ResponseHandler = require('../services/responseHandler');
-const logger = require('../services/loggerService').getLogger('OrderController');
-const { PAGINATION, MESSAGES } = require('../config/constants');
+const { orderMessages, PAGINATION, ERROR_CODES } = require('../config/constants');
+const { AppError } = require('../middlewares/errorHandler');
 
-/**
- * Controller xử lý các request liên quan đến đơn hàng
- * Kế thừa từ BaseController
- */
 class OrderController extends BaseController {
   constructor() {
-    super(Order);
+    super(new OrderService());
   }
 
-  /**
-   * Tạo đơn hàng mới
-   * @param {Object} req - Express request object
-   * @param {Object} res - Express response object
-   */
-  async createOrder(req, res, next) {
+  // Tạo đơn hàng mới
+  createOrder = async (req, res, next) => {
     try {
-      const orderData = req.body;
-      const savedOrder = await orderService.createOrder(orderData, req.user);
-      return ResponseHandler.created(res, MESSAGES.ORDER_PLACED, savedOrder);
+      // Basic validation (more can be added with a validation middleware)
+      if (!req.body.items || req.body.items.length === 0) {
+        throw new AppError(orderMessages.ORDER_ITEMS_EMPTY, ERROR_CODES.BAD_REQUEST);
+      }
+      if (!req.body.address) {
+        throw new AppError(orderMessages.ORDER_ADDRESS_REQUIRED, ERROR_CODES.BAD_REQUEST);
+      }
+      if (!req.body.paymentMethod) {
+        throw new AppError(orderMessages.ORDER_PAYMENT_METHOD_REQUIRED, ERROR_CODES.BAD_REQUEST);
+      }
+
+      const order = await this.service.createOrder(req.user._id, req.body);
+      ResponseHandler.created(res, orderMessages.ORDER_CREATED_SUCCESSFULLY, order);
     } catch (error) {
-      logger.error('Lỗi khi tạo đơn hàng', { error: error.message });
       next(error);
     }
-  }
+  };
 
-  /**
-   * [Admin] Lấy danh sách tất cả đơn hàng (có phân trang và lọc)
-   * @param {Object} req - Express request object
-   * @param {Object} res - Express response object
-   */
-  async getOrders(req, res, next) {
+  // Lấy đơn hàng với thông tin đầy đủ
+  getOrderById = async (req, res, next) => {
     try {
-      // Xử lý các tham số query
-      const page = parseInt(req.query.page) || PAGINATION.DEFAULT_PAGE;
-      const limit = parseInt(req.query.limit) || PAGINATION.DEFAULT_LIMIT;
-      const status = req.query.status;
-      const paymentStatus = req.query.paymentStatus;
-      const sortBy = req.query.sortBy || 'createdAt';
-      const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+      const order = await this.service.getOrderWithDetails(req.params.id); // Assuming getOrderWithDetails exists and handles not found
       
-      // Xây dựng filter
+      if (!order) {
+        // This check might be redundant if getOrderWithDetails throws AppError for not found
+        return ResponseHandler.notFound(res, orderMessages.ORDER_NOT_FOUND);
+      }
+
+      ResponseHandler.success(res, orderMessages.ORDER_DETAIL_FETCHED_SUCCESSFULLY, order);
+    } catch (error) {
+      // If service throws AppError, it will be caught here and passed to global error handler
+      next(error);
+    }
+  };
+
+  // Lấy đơn hàng của user hiện tại
+  getUserOrders = async (req, res, next) => {
+    try {
+      const { page, limit, status } = req.query;
+      const options = {
+        page: parseInt(page) || PAGINATION.DEFAULT_PAGE,
+        limit: parseInt(limit) || PAGINATION.DEFAULT_LIMIT,
+        status
+      };
+
+      const result = await this.service.getUserOrders(req.user._id, options);
+      ResponseHandler.success(res, orderMessages.ORDERS_FETCHED_SUCCESSFULLY, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Admin: Lấy tất cả đơn hàng
+  getOrders = async (req, res, next) => {
+    try {
+      const { page, limit, status, paymentMethod, userId, startDate, endDate } = req.query;
+      
       const filter = {};
       if (status) filter.status = status;
-      if (paymentStatus) filter.paymentStatus = paymentStatus;
+      if (paymentMethod) filter.paymentMethod = paymentMethod;
+      if (userId) filter.user = userId;
       
-      // Xây dựng options
+      if (startDate || endDate) {
+        filter.createdAt = {};
+        if (startDate) filter.createdAt.$gte = new Date(startDate);
+        if (endDate) filter.createdAt.$lte = new Date(endDate);
+      }
+
       const options = {
-        page,
-        limit,
-        sort: { [sortBy]: sortOrder }
+        page: parseInt(page) || PAGINATION.DEFAULT_PAGE,
+        limit: parseInt(limit) || PAGINATION.DEFAULT_LIMIT, // Consider a different default for admin, e.g., 20
+        filter,
+        populate: 'user address voucher', // Ensure these paths are correct for your OrderSchema
+        sort: { createdAt: -1 }
       };
-      
-      // Lấy danh sách đơn hàng từ service
-      const result = await orderService.getOrders(filter, options);
-      
-      return ResponseHandler.success(res, result, 'Lấy danh sách đơn hàng thành công');
+
+      const result = await this.service.getAll(options);
+      ResponseHandler.success(res, orderMessages.ORDERS_FETCHED_SUCCESSFULLY, result);
     } catch (error) {
-      logger.error('Lỗi khi lấy danh sách đơn hàng', { error: error.message });
       next(error);
     }
-  }
+  };
 
-  /**
-   * [Auth] Lấy đơn hàng theo ID
-   * @param {Object} req - Express request object
-   * @param {Object} res - Express response object
-   */
-  async getOrderById(req, res, next) {
+  // Cập nhật trạng thái đơn hàng (Admin)
+  updateOrderStatus = async (req, res, next) => {
     try {
-      const orderId = req.params.id;
-      const order = await orderService.getOrderById(orderId);
+      const { status } = req.body;
+      if (!status) {
+        throw new AppError(orderMessages.ORDER_STATUS_REQUIRED, ERROR_CODES.BAD_REQUEST);
+      }
+      // Further validation for valid status values can be added here
+      const order = await this.service.updateOrderStatus(req.params.id, status, req.user._id);
+      ResponseHandler.success(res, orderMessages.ORDER_STATUS_UPDATED_SUCCESSFULLY, order);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Hủy đơn hàng
+  cancelOrder = async (req, res, next) => {
+    try {
+      const { reason } = req.body; // Reason might be useful for logging or display
+      const userId = req.user.role === 'admin' ? null : req.user._id;
       
-      // Kiểm tra quyền truy cập
-      if (req.user.role !== 'admin' && order.user._id.toString() !== req.user._id.toString()) {
-        return ResponseHandler.forbidden(res, 'Bạn không có quyền truy cập đơn hàng này');
+      const order = await this.service.cancelOrder(req.params.id, userId, reason);
+      ResponseHandler.success(res, orderMessages.ORDER_CANCELLED_SUCCESSFULLY, order);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Xóa đơn hàng (Admin only)
+  deleteOrder = async (req, res, next) => {
+    try {
+      const order = await this.service.getById(req.params.id);
+      
+      if (!order) {
+        throw new AppError(orderMessages.ORDER_NOT_FOUND, ERROR_CODES.ORDER.NOT_FOUND);
+      }      // Consider using constants for 'cancelled' status
+      if (order.status !== 'cancelled') {
+        return ResponseHandler.badRequest(res, orderMessages.ORDER_CANCELLATION_NOT_ALLOWED); // Or a more specific message like 'ORDER_MUST_BE_CANCELLED_TO_DELETE'
       }
 
-      return ResponseHandler.success(res, order, 'Lấy đơn hàng thành công');
+      await this.service.deleteOrder(req.params.id);
+      ResponseHandler.success(res, orderMessages.RESOURCE_DELETED); // Using generic delete message
     } catch (error) {
-      logger.error('Lỗi khi lấy đơn hàng', { orderId: req.params.id, error: error.message });
       next(error);
     }
-  }
+  };
 
-  /**
-   * [User] Lấy đơn hàng của người dùng hiện tại
-   * @param {Object} req - Express request object
-   * @param {Object} res - Express response object
-   */
-  async getUserOrders(req, res, next) {
+  // Lấy thống kê đơn hàng
+  getOrderStats = async (req, res, next) => {
     try {
-      const userId = req.params.userId || req.user._id;
+      const { startDate, endDate } = req.query;
+      const dateRange = {};
       
-      // Kiểm tra quyền truy cập
-      if (req.user.role !== 'admin' && req.user._id.toString() !== userId.toString()) {
-        return ResponseHandler.forbidden(res, 'Bạn không có quyền truy cập đơn hàng của người khác');
-      }
+      if (startDate) dateRange.startDate = startDate;
+      if (endDate) dateRange.endDate = endDate;
 
-      const page = parseInt(req.query.page) || PAGINATION.DEFAULT_PAGE;
-      const limit = parseInt(req.query.limit) || PAGINATION.DEFAULT_LIMIT;
-      
-      const options = { page, limit };
-      const result = await orderService.getUserOrders(userId, options);
-      
-      return ResponseHandler.success(res, result, 'Lấy đơn hàng của user thành công');
+      const stats = await this.service.getOrderStats(dateRange);
+      ResponseHandler.success(res, orderMessages.STATS_RETRIEVED, stats); // Assuming STATS_RETRIEVED is suitable
     } catch (error) {
-      logger.error('Lỗi khi lấy đơn hàng của user', { userId: req.params.userId, error: error.message });
       next(error);
     }
-  }
+  };
 
-  /**
-   * [Admin] Cập nhật trạng thái đơn hàng
-   * @param {Object} req - Express request object
-   * @param {Object} res - Express response object
-   */
-  async updateOrderStatus(req, res, next) {
-    try {
-      const orderId = req.params.id;
-      const updateData = req.body;
-      
-      const updatedOrder = await orderService.updateOrderStatus(orderId, updateData);
-      
-      return ResponseHandler.success(res, updatedOrder, 'Cập nhật trạng thái đơn hàng thành công');
-    } catch (error) {
-      logger.error('Lỗi khi cập nhật trạng thái đơn hàng', { orderId: req.params.id, error: error.message });
-      next(error);
-    }
-  }
-
-  /**
-   * [Admin] Xóa đơn hàng
-   * @param {Object} req - Express request object
-   * @param {Object} res - Express response object
-   */
-  async deleteOrder(req, res, next) {
-    try {
-      const orderId = req.params.id;
-      await orderService.deleteOrder(orderId);
-      
-      return ResponseHandler.success(res, null, 'Xóa đơn hàng thành công');
-    } catch (error) {
-      logger.error('Lỗi khi xóa đơn hàng', { orderId: req.params.id, error: error.message });
-      next(error);
-    }
-  }
-
-  /**
-   * [User] Kiểm tra xem user có thể đánh giá sản phẩm không
-   * @param {Object} req - Express request object
-   * @param {Object} res - Express response object
-   */
-  async canReviewProduct(req, res, next) {
+  // Kiểm tra user có thể review sản phẩm không
+  canReviewProduct = async (req, res, next) => {
     try {
       const { productId } = req.params;
-      const userId = req.user._id;
-
-      const order = await Order.findOne({
-        user: userId,
-        status: 'delivered',
-        'items.product': productId
-      });
-
-      if (!order) {
-        return ResponseHandler.forbidden(res, 'Bạn chưa mua sản phẩm này hoặc đơn chưa được giao');
-      }
-
-      return ResponseHandler.success(res, { canReview: true }, 'Bạn có thể đánh giá sản phẩm');
+      const canReview = await this.service.canUserReviewProduct(req.user._id, productId);
+      // Consider creating specific messages for this in constants.js
+      ResponseHandler.success(res, 'Kiểm tra quyền review thành công', { canReview });
     } catch (error) {
-      logger.error('Lỗi khi kiểm tra quyền đánh giá', { productId: req.params.productId, error: error.message });
       next(error);
     }
-  }
+  };
+
+  // Lấy đơn hàng theo payment method
+  getOrdersByPaymentMethod = async (req, res, next) => {
+    try {
+      const { paymentMethod } = req.params;
+      const { page, limit } = req.query;
+
+      const options = {
+        page: parseInt(page) || PAGINATION.DEFAULT_PAGE,
+        limit: parseInt(limit) || PAGINATION.DEFAULT_LIMIT
+      };
+
+      const result = await this.service.getOrdersByPaymentMethod(paymentMethod, options);
+      ResponseHandler.success(res, orderMessages.ORDERS_FETCHED_SUCCESSFULLY, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Tìm kiếm đơn hàng
+  searchOrders = async (req, res, next) => {
+    try {
+      const { q, limit } = req.query;
+      
+      if (!q) {
+        // Consider a specific message for missing search query from constants
+        return ResponseHandler.badRequest(res, 'Thiếu từ khóa tìm kiếm');
+      }
+
+      const options = { limit: parseInt(limit) || PAGINATION.DEFAULT_LIMIT }; // Using default limit
+      const orders = await this.service.searchOrders(q, options);
+      // Consider a specific message for search success from constants
+      ResponseHandler.success(res, 'Tìm kiếm đơn hàng thành công', orders);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Lấy top sản phẩm bán chạy
+  getTopSellingProducts = async (req, res, next) => {
+    try {
+      const { limit } = req.query;
+      const products = await this.service.getTopSellingProducts(parseInt(limit) || PAGINATION.DEFAULT_LIMIT);
+      // Consider a specific message for top selling products success from constants
+      ResponseHandler.success(res, 'Lấy top sản phẩm bán chạy thành công', products);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Lấy đơn hàng theo user ID (Admin)
+  getOrdersByUserId = async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+      const { page, limit, status } = req.query;
+
+      const options = {
+        page: parseInt(page) || PAGINATION.DEFAULT_PAGE,
+        limit: parseInt(limit) || PAGINATION.DEFAULT_LIMIT,
+        status
+      };
+
+      const result = await this.service.getOrdersByUserId(userId, options); // Assuming this method exists in service
+      ResponseHandler.success(res, orderMessages.ORDERS_FETCHED_SUCCESSFULLY, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Tính phí ship dựa trên địa chỉ
+  calculateShippingFee = async (req, res, next) => {
+    try {
+      const { addressId } = req.params;
+      if (!addressId) {
+        throw new AppError('ID địa chỉ là bắt buộc', ERROR_CODES.BAD_REQUEST);
+      }
+
+      const shippingInfo = await this.service.calculateShippingFee(addressId);
+      ResponseHandler.success(res, 'Tính phí ship thành công', shippingInfo);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Migration: Update shipping fees for existing orders (Admin only)
+  updateExistingOrdersShippingFees = async (req, res, next) => {
+    try {
+      const result = await this.service.updateExistingOrdersShippingFees();
+      ResponseHandler.success(res, 'Cập nhật phí ship thành công', result);
+    } catch (error) {
+      next(error);
+    }
+  };
+  // Calculate order total (preview before placing order)
+  calculateOrderTotal = async (req, res, next) => {
+    try {
+      // Validation
+      if (!req.body.items || req.body.items.length === 0) {
+        throw new AppError(orderMessages.ORDER_ITEMS_EMPTY, ERROR_CODES.BAD_REQUEST);
+      }
+      if (!req.body.address) {
+        throw new AppError(orderMessages.ORDER_ADDRESS_REQUIRED, ERROR_CODES.BAD_REQUEST);
+      }
+
+      // Pass userId to check voucher usage
+      const orderTotal = await this.service.calculateOrderTotal(req.body, req.user._id);
+      ResponseHandler.success(res, 'Tính tổng tiền đơn hàng thành công', orderTotal);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
-// Tạo instance của OrderController
-const orderController = new OrderController();
-
-// Export các methods với cú pháp tương thích
-module.exports = {
-  createOrder: orderController.createOrder.bind(orderController),
-  getOrders: orderController.getOrders.bind(orderController),
-  getOrderById: orderController.getOrderById.bind(orderController),
-  getUserOrders: orderController.getUserOrders.bind(orderController),
-  getOrdersByUser: orderController.getUserOrders.bind(orderController), // Alias cho tương thích
-  updateOrderStatus: orderController.updateOrderStatus.bind(orderController),
-  deleteOrder: orderController.deleteOrder.bind(orderController),
-  canReviewProduct: orderController.canReviewProduct.bind(orderController),
-  
-  // Các methods từ BaseController
-  getAll: orderController.getAll.bind(orderController),
-  getById: orderController.getById.bind(orderController),
-  create: orderController.create.bind(orderController),
-  update: orderController.update.bind(orderController),
-  delete: orderController.delete.bind(orderController)
-};
+module.exports = OrderController;

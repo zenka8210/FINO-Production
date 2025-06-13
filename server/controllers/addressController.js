@@ -1,124 +1,100 @@
 const BaseController = require('./baseController');
 const AddressService = require('../services/addressService');
+const ResponseHandler = require('../services/responseHandler');
+const { addressMessages } = require('../config/constants');
 
 /**
- * Address Controller - Quản lý địa chỉ người dùng
- * Extends BaseController để sử dụng các phương thức chung
+ * @class AddressController
+ * @description Xử lý các yêu cầu liên quan đến địa chỉ người dùng
  */
 class AddressController extends BaseController {
   constructor() {
-    super();
-    this.addressService = new AddressService();
+    super(new AddressService());
   }
 
   /**
-   * Lấy tất cả địa chỉ của người dùng hiện tại
-   * GET /api/addresses
-   */
-  getUserAddresses = async (req, res, next) => {
-    try {
-      const userId = req.user.id;
-      const result = await this.addressService.getUserAddresses(userId);
-      
-      this.sendResponse(res, 200, result.message, result.addresses);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Lấy địa chỉ theo ID
-   * GET /api/addresses/:id
-   */
-  getAddressById = async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const userId = req.user.id;
-      const result = await this.addressService.getAddressById(id, userId);
-      
-      this.sendResponse(res, 200, result.message, result.address);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Lấy địa chỉ mặc định
-   * GET /api/addresses/default
-   */
-  getDefaultAddress = async (req, res, next) => {
-    try {
-      const userId = req.user.id;
-      const result = await this.addressService.getDefaultAddress(userId);
-      
-      this.sendResponse(res, 200, result.message, result.address);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Tạo địa chỉ mới
-   * POST /api/addresses
+   * @description Tạo mới một địa chỉ cho người dùng hiện tại
+   * @param {import('express').Request} req - Đối tượng request (req.user được thêm bởi middleware protect)
+   * @param {import('express').Response} res - Đối tượng response
    */
   createAddress = async (req, res, next) => {
     try {
-      const userId = req.user.id;
-      const result = await this.addressService.createAddress(userId, req.body);
-      
-      this.sendResponse(res, 201, result.message, result.address);
+      const address = await this.service.createAddress(req.user.id, req.body);
+      ResponseHandler.success(res, addressMessages.ADDRESS_CREATED_SUCCESSFULLY, address, 201);
+    } catch (error) {
+      next(error);
+    }
+  };
+  /**
+   * @description Lấy tất cả địa chỉ của người dùng hiện tại
+   * @param {import('express').Request} req - Đối tượng request
+   * @param {import('express').Response} res - Đối tượng response
+   */
+  getUserAddresses = async (req, res, next) => {
+    try {
+      const addresses = await this.service.getUserAddresses(req.user.id);
+      ResponseHandler.success(res, addressMessages.ALL_ADDRESSES_FETCHED_SUCCESSFULLY, addresses);
+    } catch (error) {
+      next(error);
+    }
+  };
+  /**
+   * @description Lấy thông tin chi tiết một địa chỉ của người dùng hiện tại
+   * @param {import('express').Request} req - Đối tượng request
+   * @param {import('express').Response} res - Đối tượng response
+   */
+  getAddressById = async (req, res, next) => {
+    try {
+      const address = await this.service.getAddressById(req.params.id, req.user.id);
+      ResponseHandler.success(res, addressMessages.ADDRESS_FETCHED_SUCCESSFULLY, address);
     } catch (error) {
       next(error);
     }
   };
 
   /**
-   * Cập nhật địa chỉ
-   * PUT /api/addresses/:id
+   * @description Cập nhật thông tin một địa chỉ của người dùng hiện tại
+   * @param {import('express').Request} req - Đối tượng request
+   * @param {import('express').Response} res - Đối tượng response
    */
   updateAddress = async (req, res, next) => {
     try {
-      const { id } = req.params;
-      const userId = req.user.id;
-      const result = await this.addressService.updateAddress(id, userId, req.body);
-      
-      this.sendResponse(res, 200, result.message, result.address);
+      const address = await this.service.updateAddress(req.params.id, req.user.id, req.body);
+      ResponseHandler.success(res, addressMessages.ADDRESS_UPDATED_SUCCESSFULLY, address);
     } catch (error) {
       next(error);
     }
   };
 
   /**
-   * Đặt địa chỉ mặc định
-   * PUT /api/addresses/:id/default
-   */
-  setDefaultAddress = async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const userId = req.user.id;
-      const result = await this.addressService.setDefaultAddress(id, userId);
-      
-      this.sendResponse(res, 200, result.message, result.address);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Xóa địa chỉ
-   * DELETE /api/addresses/:id
+   * @description Xóa một địa chỉ của người dùng hiện tại
+   * @param {import('express').Request} req - Đối tượng request
+   * @param {import('express').Response} res - Đối tượng response
    */
   deleteAddress = async (req, res, next) => {
     try {
-      const { id } = req.params;
-      const userId = req.user.id;
-      const result = await this.addressService.deleteAddress(id, userId);
-      
-      this.sendResponse(res, 200, result.message);
+      await this.service.deleteAddress(req.params.id, req.user.id);
+      ResponseHandler.success(res, addressMessages.ADDRESS_DELETED_SUCCESSFULLY);
     } catch (error) {
       next(error);
     }
   };
+
+  /**
+   * @description Đặt một địa chỉ làm địa chỉ mặc định cho người dùng hiện tại
+   * @param {import('express').Request} req - Đối tượng request
+   * @param {import('express').Response} res - Đối tượng response
+   */
+  setDefaultAddress = async (req, res, next) => {
+    try {
+      const address = await this.service.setDefaultAddress(req.params.id, req.user.id);
+      ResponseHandler.success(res, addressMessages.ADDRESS_SET_AS_DEFAULT_SUCCESSFULLY, address);
+    } catch (error) {
+      next(error);
+    }
+  };
+  // Admin specific methods can be added here if needed, for example, to list all addresses
+  // For now, address management is user-specific.
 }
 
-module.exports = new AddressController();
+module.exports = AddressController;

@@ -1,13 +1,13 @@
 class ResponseHandler {
-  static success(res, data, message = 'Thao tác thành công', status = 200) {
-    return res.status(status).json({
+  static success(res, message = 'Thành công', data = null, statusCode = 200) {
+    return res.status(statusCode).json({
       success: true,
       message,
       data
     });
   }
 
-  static created(res, message = 'Tạo mới thành công', data = null) {
+  static created(res, message = 'Tạo thành công', data = null) {
     return res.status(201).json({
       success: true,
       message,
@@ -15,19 +15,11 @@ class ResponseHandler {
     });
   }
 
-  static error(res, message = 'Đã xảy ra lỗi', status = 500, error = null) {
-    return res.status(status).json({
-      success: false,
-      message,
-      error: error?.message || error
-    });
-  }
-
-  static badRequest(res, validationErrors = null, message = 'Dữ liệu không hợp lệ') {
+  static badRequest(res, message = 'Yêu cầu không hợp lệ', errors = null) {
     return res.status(400).json({
       success: false,
       message,
-      validationErrors
+      errors
     });
   }
 
@@ -38,7 +30,7 @@ class ResponseHandler {
     });
   }
 
-  static forbidden(res, message = 'Truy cập bị cấm') {
+  static forbidden(res, message = 'Truy cập bị từ chối') {
     return res.status(403).json({
       success: false,
       message
@@ -52,18 +44,34 @@ class ResponseHandler {
     });
   }
 
-  static conflict(res, message = 'Xung đột dữ liệu') {
+  static conflict(res, message = 'Dữ liệu đã tồn tại') {
     return res.status(409).json({
       success: false,
       message
     });
   }
 
-  static serverError(res, message = 'Lỗi máy chủ', error = null) {
-    return res.status(500).json({
+  static error(res, message = 'Lỗi server', statusCode = 500) {
+    return res.status(statusCode).json({
       success: false,
+      message
+    });
+  }
+
+  static validationError(res, errors) {
+    return res.status(422).json({
+      success: false,
+      message: 'Dữ liệu không hợp lệ',
+      errors
+    });
+  }
+
+  static paginatedResponse(res, message, data, pagination) {
+    return res.status(200).json({
+      success: true,
       message,
-      error: process.env.NODE_ENV === 'production' ? null : error
+      data,
+      pagination
     });
   }
 }

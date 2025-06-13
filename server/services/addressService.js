@@ -1,265 +1,186 @@
-const Address = require('../models/addressSchema');
-const { MESSAGES, ERROR_CODES } = require('../config/constants');
+const BaseService = require('./baseService');
+const Address = require('../models/AddressSchema');
+const User = require('../models/UserSchema');
 const { AppError } = require('../middlewares/errorHandler');
-const LoggerService = require('./loggerService');
+const { addressMessages, ERROR_CODES } = require('../config/constants');
 
-class AddressService {
+const MAX_ADDRESSES_PER_USER = 5; // Giới hạn số lượng địa chỉ mỗi người dùng
+
+/**
+ * @class AddressService
+ * @description Cung cấp các phương thức để quản lý địa chỉ của người dùng
+ */
+class AddressService extends BaseService {
   constructor() {
-    this.logger = LoggerService;
+    super(Address);
   }
 
   /**
-   * Lấy tất cả địa chỉ của người dùng
-   * @param {string} userId - ID người dùng
-   * @returns {Promise<Object>} - Danh sách địa chỉ
-   */
-  async getUserAddresses(userId) {
-    try {
-      const addresses = await Address.find({ user: userId }).sort({ isDefault: -1, createdAt: -1 });
-
-      return {
-        message: MESSAGES.SUCCESS.DATA_RETRIEVED,
-        addresses
-      };
-    } catch (error) {
-      this.logger.error('Lỗi khi lấy danh sách địa chỉ:', error);
-      throw new AppError(MESSAGES.ERROR.DATA_RETRIEVE_FAILED, 500, ERROR_CODES.INTERNAL_ERROR);
-    }
-  }
-
-  /**
-   * Lấy địa chỉ theo ID
-   * @param {string} addressId - ID địa chỉ
-   * @param {string} userId - ID người dùng
-   * @returns {Promise<Object>} - Thông tin địa chỉ
-   */
-  async getAddressById(addressId, userId) {
-    try {
-      const address = await Address.findOne({ _id: addressId, user: userId });
-
-      if (!address) {
-        throw new AppError('Không tìm thấy địa chỉ', 404, ERROR_CODES.NOT_FOUND);
-      }
-
-      return {
-        message: MESSAGES.SUCCESS.DATA_RETRIEVED,
-        address
-      };
-    } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      this.logger.error('Lỗi khi lấy thông tin địa chỉ:', error);
-      throw new AppError(MESSAGES.ERROR.DATA_RETRIEVE_FAILED, 500, ERROR_CODES.INTERNAL_ERROR);
-    }
-  }
-
-  /**
-   * Tạo địa chỉ mới
-   * @param {string} userId - ID người dùng
-   * @param {Object} addressData - Dữ liệu địa chỉ
-   * @returns {Promise<Object>} - Địa chỉ được tạo
+   * @description Tạo mới một địa chỉ cho người dùng hiện tại
+   * @param {string} userId - ID của người dùng
+   * @param {object} addressData - Dữ liệu địa chỉ (bao gồm cả isDefault nếu người dùng muốn set)
+   * @returns {Promise<object>} Địa chỉ đã được tạo
+   * @throws {AppError} Nếu người dùng không tồn tại, đạt giới hạn địa chỉ, hoặc dữ liệu không hợp lệ
    */
   async createAddress(userId, addressData) {
-    try {
-      // Nếu đây là địa chỉ mặc định, cập nhật các địa chỉ khác
-      if (addressData.isDefault) {
-        await Address.updateMany(
-          { user: userId },
-          { isDefault: false }
-        );
-      } else {
-        // Nếu đây là địa chỉ đầu tiên của user, tự động đặt làm mặc định
-        const existingAddressCount = await Address.countDocuments({ user: userId });
-        if (existingAddressCount === 0) {
-          addressData.isDefault = true;
-        }
-      }
-
-      const address = new Address({
-        ...addressData,
-        user: userId
-      });
-
-      const savedAddress = await address.save();
-
-      this.logger.info(`Tạo địa chỉ thành công`, { userId, addressId: savedAddress._id });
-
-      return {
-        message: 'Tạo địa chỉ thành công',
-        address: savedAddress
-      };
-    } catch (error) {
-      this.logger.error('Lỗi khi tạo địa chỉ:', error);
-      throw new AppError('Tạo địa chỉ thất bại', 500, ERROR_CODES.INTERNAL_ERROR);
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new AppError('Người dùng không tồn tại.', 404, ERROR_CODES.USER.NOT_FOUND);
     }
+
+    const userAddressesCount = await Address.countDocuments({ user: userId });
+    if (userAddressesCount >= MAX_ADDRESSES_PER_USER) {
+      throw new AppError(addressMessages.MAX_ADDRESSES_REACHED, 400, ERROR_CODES.ADDRESS.MAX_LIMIT_REACHED);
+    }
+
+    const newAddressPayload = {
+      ...addressData,
+      user: userId,
+    };
+
+    // Xử lý isDefault
+    if (addressData.isDefault) {
+      await Address.updateMany({ user: userId, isDefault: true }, { $set: { isDefault: false } });
+      newAddressPayload.isDefault = true;
+    } else {
+      // Nếu không có địa chỉ nào khác và đây không được set là default, thì tự động set nó là default
+      if (userAddressesCount === 0) {
+        newAddressPayload.isDefault = true;
+      } else {
+        newAddressPayload.isDefault = false;
+      }
+    }
+
+    const newAddress = new Address(newAddressPayload);
+    await newAddress.save();
+    return newAddress;
   }
 
   /**
-   * Cập nhật địa chỉ
-   * @param {string} addressId - ID địa chỉ
-   * @param {string} userId - ID người dùng
-   * @param {Object} updateData - Dữ liệu cập nhật
-   * @returns {Promise<Object>} - Địa chỉ được cập nhật
+   * @description Lấy tất cả địa chỉ của người dùng hiện tại
+   * @param {string} userId - ID của người dùng
+   * @returns {Promise<Array<object>>} Danh sách địa chỉ, sắp xếp theo mặc định và ngày tạo
+   */
+  async getUserAddresses(userId) {
+    const addresses = await Address.find({ user: userId }).sort({ isDefault: -1, createdAt: -1 });
+    return addresses;
+  }
+
+  /**
+   * @description Lấy thông tin chi tiết một địa chỉ
+   * @param {string} addressId - ID của địa chỉ
+   * @param {string} userId - ID của người dùng (để kiểm tra quyền sở hữu)
+   * @returns {Promise<object>} Thông tin chi tiết địa chỉ
+   * @throws {AppError} Nếu không tìm thấy địa chỉ hoặc người dùng không có quyền truy cập
+   */
+  async getAddressById(addressId, userId) {
+    const address = await Address.findById(addressId);
+    if (!address) {
+      throw new AppError(addressMessages.ADDRESS_NOT_FOUND, 404, ERROR_CODES.ADDRESS.NOT_FOUND);
+    }
+    if (address.user.toString() !== userId) {
+      throw new AppError(addressMessages.ADDRESS_BELONGS_TO_ANOTHER_USER, 403, ERROR_CODES.ADDRESS.PERMISSION_DENIED);
+    }
+    return address;
+  }
+
+  /**
+   * @description Cập nhật thông tin một địa chỉ
+   * @param {string} addressId - ID của địa chỉ cần cập nhật
+   * @param {string} userId - ID của người dùng (để kiểm tra quyền sở hữu)
+   * @param {object} updateData - Dữ liệu cập nhật
+   * @returns {Promise<object>} Địa chỉ đã được cập nhật
+   * @throws {AppError} Nếu không tìm thấy địa chỉ, người dùng không có quyền, hoặc dữ liệu không hợp lệ
    */
   async updateAddress(addressId, userId, updateData) {
-    try {
-      const address = await Address.findOne({ _id: addressId, user: userId });
-
-      if (!address) {
-        throw new AppError('Không tìm thấy địa chỉ', 404, ERROR_CODES.NOT_FOUND);
-      }
-
-      // Nếu đặt làm địa chỉ mặc định, cập nhật các địa chỉ khác
-      if (updateData.isDefault) {
-        await Address.updateMany(
-          { user: userId, _id: { $ne: addressId } },
-          { isDefault: false }
-        );
-      }
-
-      Object.assign(address, updateData);
-      const savedAddress = await address.save();
-
-      this.logger.info(`Cập nhật địa chỉ thành công`, { userId, addressId });
-
-      return {
-        message: 'Cập nhật địa chỉ thành công',
-        address: savedAddress
-      };
-    } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      this.logger.error('Lỗi khi cập nhật địa chỉ:', error);
-      throw new AppError('Cập nhật địa chỉ thất bại', 500, ERROR_CODES.INTERNAL_ERROR);
+    const address = await Address.findById(addressId);
+    if (!address) {
+      throw new AppError(addressMessages.ADDRESS_NOT_FOUND, 404, ERROR_CODES.ADDRESS.NOT_FOUND);
     }
+    if (address.user.toString() !== userId) {
+      throw new AppError(addressMessages.ADDRESS_BELONGS_TO_ANOTHER_USER, 403, ERROR_CODES.ADDRESS.PERMISSION_DENIED);
+    }
+
+    // Xử lý isDefault khi cập nhật
+    if (updateData.isDefault === true && !address.isDefault) {
+      // Nếu đang set địa chỉ này làm mặc định (và nó chưa phải mặc định)
+      await Address.updateMany({ user: userId, _id: { $ne: addressId }, isDefault: true }, { $set: { isDefault: false } });
+    } else if (updateData.isDefault === false && address.isDefault) {
+      // Nếu đang bỏ mặc định địa chỉ này (và nó đang là mặc định)
+      const otherAddressesCount = await Address.countDocuments({ user: userId, _id: { $ne: addressId } });
+      if (otherAddressesCount === 0) {
+        // Không thể bỏ mặc định nếu đây là địa chỉ duy nhất
+        throw new AppError("Không thể bỏ trạng thái mặc định cho địa chỉ duy nhất.", 400, ERROR_CODES.ADDRESS.UPDATE_FAILED);
+      }
+      // Nếu còn địa chỉ khác, cho phép bỏ default. Client/FE nên có logic chọn default mới nếu cần.
+      // Hoặc, service có thể tự động chọn 1 cái khác làm default. Hiện tại không tự động.
+    }
+    // Các trường hợp khác: isDefault không thay đổi, hoặc isDefault=true và đã là true, hoặc isDefault=false và đã là false -> không cần xử lý đặc biệt isDefault.
+
+    const updatedAddress = await Address.findByIdAndUpdate(addressId, updateData, { new: true, runValidators: true });
+    if (!updatedAddress) {
+      // Should not happen if initial findById succeeded, but as a safeguard
+      throw new AppError(addressMessages.ADDRESS_UPDATE_FAILED, 500, ERROR_CODES.ADDRESS.UPDATE_FAILED);
+    }
+    return updatedAddress;
   }
 
   /**
-   * Xóa địa chỉ
-   * @param {string} addressId - ID địa chỉ
-   * @param {string} userId - ID người dùng
-   * @returns {Promise<Object>} - Thông báo thành công
+   * @description Xóa một địa chỉ
+   * @param {string} addressId - ID của địa chỉ cần xóa
+   * @param {string} userId - ID của người dùng (để kiểm tra quyền sở hữu)
+   * @returns {Promise<void>}
+   * @throws {AppError} Nếu không tìm thấy địa chỉ hoặc người dùng không có quyền
    */
   async deleteAddress(addressId, userId) {
-    try {
-      const address = await Address.findOne({ _id: addressId, user: userId });
+    const address = await Address.findById(addressId);
+    if (!address) {
+      throw new AppError(addressMessages.ADDRESS_NOT_FOUND, 404, ERROR_CODES.ADDRESS.NOT_FOUND);
+    }
+    if (address.user.toString() !== userId) {
+      throw new AppError(addressMessages.ADDRESS_BELONGS_TO_ANOTHER_USER, 403, ERROR_CODES.ADDRESS.PERMISSION_DENIED);
+    }
 
-      if (!address) {
-        throw new AppError('Không tìm thấy địa chỉ', 404, ERROR_CODES.NOT_FOUND);
+    await Address.findByIdAndDelete(addressId);
+
+    // Nếu địa chỉ bị xóa là địa chỉ mặc định, và còn địa chỉ khác, đặt địa chỉ gần nhất làm mặc định
+    if (address.isDefault) {
+      const remainingAddresses = await Address.find({ user: userId }).sort({ createdAt: -1 });
+      if (remainingAddresses.length > 0) {
+        remainingAddresses[0].isDefault = true;
+        await remainingAddresses[0].save();
       }
-
-      // Nếu xóa địa chỉ mặc định, tự động đặt địa chỉ khác làm mặc định
-      if (address.isDefault) {
-        const otherAddress = await Address.findOne({ 
-          user: userId, 
-          _id: { $ne: addressId } 
-        });
-        
-        if (otherAddress) {
-          otherAddress.isDefault = true;
-          await otherAddress.save();
-        }
-      }
-
-      await Address.findByIdAndDelete(addressId);
-
-      this.logger.info(`Xóa địa chỉ thành công`, { userId, addressId });
-
-      return {
-        message: 'Xóa địa chỉ thành công'
-      };
-    } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      this.logger.error('Lỗi khi xóa địa chỉ:', error);
-      throw new AppError('Xóa địa chỉ thất bại', 500, ERROR_CODES.INTERNAL_ERROR);
     }
   }
 
   /**
-   * Đặt địa chỉ mặc định
-   * @param {string} addressId - ID địa chỉ
-   * @param {string} userId - ID người dùng
-   * @returns {Promise<Object>} - Thông báo thành công
+   * @description Đặt một địa chỉ làm địa chỉ mặc định
+   * @param {string} addressId - ID của địa chỉ
+   * @param {string} userId - ID của người dùng
+   * @returns {Promise<object>} Địa chỉ đã được đặt làm mặc định
+   * @throws {AppError} Nếu không tìm thấy địa chỉ hoặc người dùng không có quyền
    */
   async setDefaultAddress(addressId, userId) {
-    try {
-      const address = await Address.findOne({ _id: addressId, user: userId });
-
-      if (!address) {
-        throw new AppError('Không tìm thấy địa chỉ', 404, ERROR_CODES.NOT_FOUND);
-      }
-
-      // Cập nhật tất cả địa chỉ khác thành không mặc định
-      await Address.updateMany(
-        { user: userId },
-        { isDefault: false }
-      );
-
-      // Đặt địa chỉ hiện tại làm mặc định
-      address.isDefault = true;
-      await address.save();
-
-      this.logger.info(`Đặt địa chỉ mặc định thành công`, { userId, addressId });
-
-      return {
-        message: 'Đặt địa chỉ mặc định thành công',
-        address
-      };
-    } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      this.logger.error('Lỗi khi đặt địa chỉ mặc định:', error);
-      throw new AppError('Đặt địa chỉ mặc định thất bại', 500, ERROR_CODES.INTERNAL_ERROR);
+    const addressToSetDefault = await Address.findById(addressId);
+    if (!addressToSetDefault) {
+      throw new AppError(addressMessages.ADDRESS_NOT_FOUND, 404, ERROR_CODES.ADDRESS.NOT_FOUND);
     }
-  }
-
-  /**
-   * Lấy địa chỉ mặc định của người dùng
-   * @param {string} userId - ID người dùng
-   * @returns {Promise<Object>} - Địa chỉ mặc định
-   */
-  async getDefaultAddress(userId) {
-    try {
-      const address = await Address.findOne({ user: userId, isDefault: true });
-
-      if (!address) {
-        // Nếu không có địa chỉ mặc định, lấy địa chỉ đầu tiên
-        const firstAddress = await Address.findOne({ user: userId }).sort({ createdAt: 1 });
-        
-        if (firstAddress) {
-          firstAddress.isDefault = true;
-          await firstAddress.save();
-          
-          return {
-            message: MESSAGES.SUCCESS.DATA_RETRIEVED,
-            address: firstAddress
-          };
-        }
-        
-        throw new AppError('Người dùng chưa có địa chỉ nào', 404, ERROR_CODES.NOT_FOUND);
-      }
-
-      return {
-        message: MESSAGES.SUCCESS.DATA_RETRIEVED,
-        address
-      };
-    } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
-      
-      this.logger.error('Lỗi khi lấy địa chỉ mặc định:', error);
-      throw new AppError(MESSAGES.ERROR.DATA_RETRIEVE_FAILED, 500, ERROR_CODES.INTERNAL_ERROR);
+    if (addressToSetDefault.user.toString() !== userId) {
+      throw new AppError(addressMessages.ADDRESS_BELONGS_TO_ANOTHER_USER, 403, ERROR_CODES.ADDRESS.PERMISSION_DENIED);
     }
+
+    if (addressToSetDefault.isDefault) {
+      return addressToSetDefault; // Đã là mặc định rồi
+    }
+
+    // Bỏ cờ isDefault ở các địa chỉ khác của người dùng này
+    await Address.updateMany({ user: userId, isDefault: true }, { $set: { isDefault: false } });
+
+    // Đặt địa chỉ được chọn làm mặc định
+    addressToSetDefault.isDefault = true;
+    await addressToSetDefault.save();
+
+    return addressToSetDefault;
   }
 }
 

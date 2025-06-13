@@ -4,250 +4,168 @@ const ResponseHandler = require('../services/responseHandler');
 
 class ReviewController extends BaseController {
   constructor() {
-    super();
-    this.reviewService = new ReviewService();
+    super(new ReviewService());
   }
 
-  /**
-   * Tạo đánh giá mới
-   */
-  createReview = async (req, res, next) => {
-    try {
-      const userId = req.user.id;
-      const reviewData = req.body;
-
-      const result = await this.reviewService.createReview(reviewData, userId);
-      ResponseHandler.created(res, result.message, {
-        review: result.review
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Lấy đánh giá của sản phẩm
-   */
+  // Lấy reviews theo sản phẩm
   getProductReviews = async (req, res, next) => {
     try {
       const { productId } = req.params;
+      const { page, limit, rating, sort } = req.query;
+
       const options = {
-        page: parseInt(req.query.page) || 1,
-        limit: parseInt(req.query.limit) || 10,
-        rating: req.query.rating ? parseInt(req.query.rating) : null,
-        approved: req.query.approved !== 'false'
+        page: parseInt(page) || 1,
+        limit: parseInt(limit) || 10,
+        rating: rating ? parseInt(rating) : undefined,
+        sort: sort ? JSON.parse(sort) : { createdAt: -1 }
       };
 
-      const result = await this.reviewService.getProductReviews(productId, options);
-      ResponseHandler.success(res, result.message, {
-        reviews: result.reviews,
-        stats: result.stats,
-        pagination: result.pagination
-      });
+      const result = await this.service.getReviewsByProduct(productId, options);
+      ResponseHandler.success(res, 'Lấy đánh giá sản phẩm thành công', result);
     } catch (error) {
       next(error);
     }
   };
 
-  /**
-   * Lấy thống kê đánh giá của sản phẩm
-   */
+  // Lấy thống kê rating sản phẩm
   getProductReviewStats = async (req, res, next) => {
     try {
       const { productId } = req.params;
-      const stats = await this.reviewService.getReviewStats(productId);
-      
-      ResponseHandler.success(res, 'Lấy thống kê đánh giá thành công', { stats });
+      const stats = await this.service.getProductRatingStats(productId);
+      ResponseHandler.success(res, 'Lấy thống kê đánh giá thành công', stats);
     } catch (error) {
       next(error);
     }
   };
 
-  /**
-   * Lấy đánh giá của người dùng
-   */
+  // Lấy reviews của user hiện tại
   getUserReviews = async (req, res, next) => {
     try {
-      const userId = req.user.id;
+      const { page, limit } = req.query;
       const options = {
-        page: parseInt(req.query.page) || 1,
-        limit: parseInt(req.query.limit) || 10
+        page: parseInt(page) || 1,
+        limit: parseInt(limit) || 10
       };
 
-      const result = await this.reviewService.getUserReviews(userId, options);
-      ResponseHandler.success(res, result.message, {
-        reviews: result.reviews,
-        pagination: result.pagination
-      });
+      const result = await this.service.getUserReviews(req.user._id, options);
+      ResponseHandler.success(res, 'Lấy đánh giá của bạn thành công', result);
     } catch (error) {
       next(error);
     }
   };
 
-  /**
-   * Lấy đánh giá theo ID
-   */
-  getReviewById = async (req, res, next) => {
+  // Tạo review mới
+  createReview = async (req, res, next) => {
     try {
-      const { id } = req.params;
-      const review = await Review.findById(id)
-        .populate('user', 'username full_name avatar')
-        .populate('product', 'name images');
-
-      if (!review) {
-        return ResponseHandler.notFound(res, 'Không tìm thấy đánh giá');
-      }
-
-      ResponseHandler.success(res, 'Lấy đánh giá thành công', { review });
+      const review = await this.service.createReview(req.user._id, req.body);
+      ResponseHandler.created(res, 'Tạo đánh giá thành công', review);
     } catch (error) {
       next(error);
     }
   };
 
-  /**
-   * Cập nhật đánh giá
-   */
+  // Cập nhật review
   updateReview = async (req, res, next) => {
     try {
-      const { id } = req.params;
-      const userId = req.user.id;
-      const updateData = req.body;
-
-      const result = await this.reviewService.updateReview(id, updateData, userId);
-      ResponseHandler.success(res, result.message, {
-        review: result.review
-      });
+      const review = await this.service.updateReview(req.params.id, req.user._id, req.body);
+      ResponseHandler.success(res, 'Cập nhật đánh giá thành công', review);
     } catch (error) {
       next(error);
     }
   };
 
-  /**
-   * Xóa đánh giá
-   */
+  // Xóa review
   deleteReview = async (req, res, next) => {
     try {
-      const { id } = req.params;
-      const userId = req.user.id;
-
-      const result = await this.reviewService.deleteReview(id, userId);
-      ResponseHandler.success(res, result.message, {
-        deletedReview: result.deletedReview
-      });
+      await this.service.deleteReview(req.params.id, req.user._id);
+      ResponseHandler.success(res, 'Xóa đánh giá thành công');
     } catch (error) {
       next(error);
     }
   };
 
-  // Admin methods
-
-  /**
-   * Lấy đánh giá chờ duyệt (Admin)
-   */
-  getPendingReviews = async (req, res, next) => {
+  // Kiểm tra có thể review không
+  canReviewProduct = async (req, res, next) => {
     try {
-      const options = {
-        page: parseInt(req.query.page) || 1,
-        limit: parseInt(req.query.limit) || 10
-      };
-
-      const result = await this.reviewService.getPendingReviews(options);
-      ResponseHandler.success(res, result.message, {
-        reviews: result.reviews,
-        pagination: result.pagination
-      });
+      const { productId } = req.params;
+      const result = await this.service.canUserReview(req.user._id, productId);
+      ResponseHandler.success(res, 'Kiểm tra quyền đánh giá thành công', result);
     } catch (error) {
       next(error);
     }
   };
 
-  /**
-   * Duyệt đánh giá (Admin)
-   */
-  approveReview = async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const { approved } = req.body;
-
-      const result = await this.reviewService.approveReview(id, approved);
-      ResponseHandler.success(res, result.message, {
-        review: result.review
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Lấy tất cả đánh giá (Admin)
-   */
+  // Admin: Lấy tất cả reviews
   getAllReviews = async (req, res, next) => {
     try {
+      const { page, limit, rating, isVerified, product, user } = req.query;
+      
+      const filter = {};
+      if (rating) filter.rating = parseInt(rating);
+      if (isVerified !== undefined) filter.isVerified = isVerified === 'true';
+      if (product) filter.product = product;
+      if (user) filter.user = user;
+
       const options = {
-        page: parseInt(req.query.page) || 1,
-        limit: parseInt(req.query.limit) || 10,
-        approved: req.query.approved ? req.query.approved === 'true' : null
+        page: parseInt(page) || 1,
+        limit: parseInt(limit) || 20,
+        filter,
+        populate: 'user product productVariant',
+        sort: { createdAt: -1 }
       };
 
-      // Admin có thể xem tất cả đánh giá
-      const Review = require('../models/reviewSchema');
-      const skip = (options.page - 1) * options.limit;
-      let query = {};
-
-      if (options.approved !== null) {
-        query.approved = options.approved;
-      }
-
-      const [reviews, total] = await Promise.all([
-        Review.find(query)
-          .populate('user', 'username full_name avatar')
-          .populate('product', 'name images')
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(options.limit),
-        Review.countDocuments(query)
-      ]);
-
-      ResponseHandler.success(res, 'Lấy danh sách đánh giá thành công', {
-        reviews,
-        pagination: {
-          currentPage: options.page,
-          totalPages: Math.ceil(total / options.limit),
-          totalItems: total,
-          limit: options.limit
-        }
-      });
+      const result = await this.service.getAll(options);
+      ResponseHandler.success(res, 'Lấy danh sách đánh giá thành công', result);
     } catch (error) {
       next(error);
     }
   };
 
-  /**
-   * Xóa đánh giá (Admin)
-   */
+  // Admin: Lấy reviews chờ duyệt
+  getPendingReviews = async (req, res, next) => {
+    try {
+      const { page, limit } = req.query;
+      const options = {
+        page: parseInt(page) || 1,
+        limit: parseInt(limit) || 20
+      };
+
+      const result = await this.service.getPendingReviews(options);
+      ResponseHandler.success(res, 'Lấy đánh giá chờ duyệt thành công', result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Admin: Duyệt review
+  approveReview = async (req, res, next) => {
+    try {
+      const review = await this.service.approveReview(req.params.id);
+      ResponseHandler.success(res, 'Duyệt đánh giá thành công', review);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Admin: Xóa review
   adminDeleteReview = async (req, res, next) => {
     try {
-      const { id } = req.params;
-      const Review = require('../models/reviewSchema');
-      
-      const review = await Review.findById(id);
-      if (!review) {
-        return ResponseHandler.notFound(res, 'Không tìm thấy đánh giá');
-      }
+      await this.service.deleteById(req.params.id);
+      ResponseHandler.success(res, 'Xóa đánh giá thành công');
+    } catch (error) {
+      next(error);
+    }
+  };
 
-      const productId = review.product;
-      await Review.findByIdAndDelete(id);
-
-      // Cập nhật rating của sản phẩm
-      await this.reviewService.updateProductRating(productId);
-
-      ResponseHandler.success(res, 'Xóa đánh giá thành công', {
-        deletedReview: { id, productId }
-      });
+  // Admin: Lấy thống kê reviews
+  getReviewStats = async (req, res, next) => {
+    try {
+      const stats = await this.service.getReviewStats();
+      ResponseHandler.success(res, 'Lấy thống kê đánh giá thành công', stats);
     } catch (error) {
       next(error);
     }
   };
 }
 
-module.exports = new ReviewController();
+module.exports = ReviewController;
