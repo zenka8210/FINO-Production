@@ -12,7 +12,7 @@ class BannerController extends BaseController {
         try {
             const queryOptions = req.query;
             const result = await this.service.getAllBanners(queryOptions);
-            ResponseHandler.success(res, MESSAGES.BANNER.SUCCESS.FETCH_ALL || 'Banners retrieved successfully', result);
+            ResponseHandler.success(res, 'Lấy danh sách banner thành công', result);
         } catch (error) {
             next(error);
         }
@@ -22,7 +22,7 @@ class BannerController extends BaseController {
         try {
             const { id } = req.params;
             const banner = await this.service.getBannerById(id);
-            ResponseHandler.success(res, MESSAGES.BANNER.SUCCESS.FETCH_SINGLE || 'Banner retrieved successfully', banner);
+            ResponseHandler.success(res, 'Lấy chi tiết banner thành công', banner);
         } catch (error) {
             next(error);
         }
@@ -32,7 +32,7 @@ class BannerController extends BaseController {
         try {
             const bannerData = req.body;
             const newBanner = await this.service.createBanner(bannerData);
-            ResponseHandler.created(res, MESSAGES.BANNER.SUCCESS.CREATE || 'Banner created successfully', newBanner);
+            ResponseHandler.created(res, MESSAGES.BANNER_CREATED, newBanner);
         } catch (error) {
             next(error);
         }
@@ -43,15 +43,17 @@ class BannerController extends BaseController {
             const { id } = req.params;
             const updateData = req.body;
             const updatedBanner = await this.service.updateBanner(id, updateData);
-            ResponseHandler.success(res, MESSAGES.BANNER.SUCCESS.UPDATE || 'Banner updated successfully', updatedBanner);
+            ResponseHandler.success(res, MESSAGES.BANNER_UPDATED, updatedBanner);
         } catch (error) {
             next(error);
         }
-    };    deleteBanner = async (req, res, next) => {
+    };
+
+    deleteBanner = async (req, res, next) => {
         try {
             const { id } = req.params;
             await this.service.deleteBanner(id);
-            ResponseHandler.success(res, MESSAGES.BANNER.SUCCESS.DELETE || 'Banner deleted successfully', null);
+            ResponseHandler.success(res, MESSAGES.BANNER_DELETED, null);
         } catch (error) {
             next(error);
         }
@@ -61,7 +63,7 @@ class BannerController extends BaseController {
     getActiveClientBanners = async (req, res, next) => {
         try {
             const banners = await this.service.getActiveClientBanners();
-            ResponseHandler.success(res, MESSAGES.BANNER.SUCCESS.FETCH_ACTIVE || 'Active banners retrieved successfully', banners);
+            ResponseHandler.success(res, 'Lấy danh sách banner hoạt động thành công', banners);
         } catch (error) {
             next(error);
         }

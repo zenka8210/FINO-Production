@@ -1,0 +1,68 @@
+[{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc8f"
+  },
+  "image": "https://picsum.photos/seed/banner1/1200/400",
+  "title": "Sale Cuối Năm -50%",
+  "description": "Sale Cuối Năm -50% - Khuyến mãi đặc biệt.",
+  "link": "/category/684aca5df3433021c33dc94a",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-05-14T01:35:45.716Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc90"
+  },
+  "image": "https://picsum.photos/seed/banner2/1200/400",
+  "title": "Bộ Sưu Tập Mới",
+  "description": "Bộ Sưu Tập Mới - Khuyến mãi đặc biệt.",
+  "link": "/category/684aca5df3433021c33dc94b",
+  "isActive": false,
+  "createdAt": {
+    "$date": "2025-04-23T12:48:53.845Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc91"
+  },
+  "image": "https://picsum.photos/seed/banner3/1200/400",
+  "title": "Flash Sale",
+  "description": "Flash Sale - Khuyến mãi đặc biệt.",
+  "link": "/category/684aca5df3433021c33dc94c",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-08T08:58:54.547Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc92"
+  },
+  "image": "https://picsum.photos/seed/banner4/1200/400",
+  "title": "Miễn Phí Vận Chuyển",
+  "description": "Miễn Phí Vận Chuyển - Khuyến mãi đặc biệt.",
+  "link": "/category/684aca5df3433021c33dc94d",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-05-11T11:55:49.536Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "__v": 0
+}]

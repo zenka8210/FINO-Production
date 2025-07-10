@@ -9,7 +9,7 @@ const reviewController = new ReviewController();
 
 // Public routes
 // GET /api/reviews/product/:productId - Get reviews for a product
-router.get('/product/:productId', validateObjectId, reviewController.getProductReviews);
+router.get('/product/:productId', validateObjectId('productId'), reviewController.getProductReviews);
 
 // User routes - require authentication
 router.use(authenticateToken);
@@ -21,10 +21,10 @@ router.get('/', reviewController.getAll);
 router.post('/', reviewController.createReview);
 
 // PUT /api/reviews/:id - Update review
-router.put('/:id', validateObjectId, reviewController.updateReview);
+router.put('/:id', validateObjectId('id'), reviewController.updateReview);
 
 // DELETE /api/reviews/:id - Delete review
-router.delete('/:id', validateObjectId, reviewController.deleteReview);
+router.delete('/:id', validateObjectId('id'), reviewController.deleteReview);
 
 // Admin routes
 router.use(adminMiddleware);
@@ -33,6 +33,6 @@ router.use(adminMiddleware);
 router.get('/admin/all', reviewController.getAll);
 
 // DELETE /api/reviews/admin/:id - Delete any review (admin)
-router.delete('/admin/:id', validateObjectId, reviewController.deleteById);
+router.delete('/admin/:id', validateObjectId('id'), reviewController.deleteById);
 
 module.exports = router;

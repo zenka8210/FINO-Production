@@ -1,0 +1,4400 @@
+[{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc96e"
+  },
+  "name": "Quần Jean Slim Fit - Model 1",
+  "price": 976492,
+  "description": "Quần Jean Slim Fit chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product1_1/600/800",
+    "https://picsum.photos/seed/product1_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-21T14:52:31.252Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc96f"
+  },
+  "name": "Áo Khoác Hoodie - Model 2",
+  "price": 963778,
+  "description": "Áo Khoác Hoodie chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product2_1/600/800",
+    "https://picsum.photos/seed/product2_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-03T09:26:37.266Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc970"
+  },
+  "name": "Váy Maxi Bohemian - Model 3",
+  "price": 168408,
+  "description": "Váy Maxi Bohemian chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product3_1/600/800",
+    "https://picsum.photos/seed/product3_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-06-06T17:54:27.411Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc971"
+  },
+  "name": "Áo Sơ Mi Công Sở - Model 4",
+  "price": 705981,
+  "description": "Áo Sơ Mi Công Sở chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product4_1/600/800",
+    "https://picsum.photos/seed/product4_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-11T11:00:24.674Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc972"
+  },
+  "name": "Quần Short Kaki - Model 5",
+  "price": 320315,
+  "description": "Quần Short Kaki chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "images": [
+    "https://picsum.photos/seed/product5_1/600/800",
+    "https://picsum.photos/seed/product5_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-05T17:51:23.159Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc973"
+  },
+  "name": "Đầm Cocktail Elegant - Model 6",
+  "price": 972663,
+  "description": "Đầm Cocktail Elegant chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product6_1/600/800",
+    "https://picsum.photos/seed/product6_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-11T13:02:43.073Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc974"
+  },
+  "name": "Áo Polo Classic - Model 7",
+  "price": 151742,
+  "description": "Áo Polo Classic chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "images": [
+    "https://picsum.photos/seed/product7_1/600/800",
+    "https://picsum.photos/seed/product7_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-19T19:49:04.097Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc975"
+  },
+  "name": "Quần Jogger Streetwear - Model 8",
+  "price": 982400,
+  "description": "Quần Jogger Streetwear chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product8_1/600/800",
+    "https://picsum.photos/seed/product8_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-10T18:29:53.985Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc976"
+  },
+  "name": "Áo Blazer Professional - Model 9",
+  "price": 517303,
+  "description": "Áo Blazer Professional chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product9_1/600/800",
+    "https://picsum.photos/seed/product9_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-03T05:29:27.268Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc977"
+  },
+  "name": "Chân Váy A-line - Model 10",
+  "price": 1354197,
+  "description": "Chân Váy A-line chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product10_1/600/800",
+    "https://picsum.photos/seed/product10_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-16T02:59:23.158Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc978"
+  },
+  "name": "Áo Tank Top - Model 11",
+  "price": 849908,
+  "description": "Áo Tank Top chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product11_1/600/800",
+    "https://picsum.photos/seed/product11_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-19T11:53:43.905Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc979"
+  },
+  "name": "Quần Chinos Casual - Model 12",
+  "price": 892553,
+  "description": "Quần Chinos Casual chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product12_1/600/800",
+    "https://picsum.photos/seed/product12_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-04T13:10:47.564Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc97a"
+  },
+  "name": "Đầm Midi Vintage - Model 13",
+  "price": 916951,
+  "description": "Đầm Midi Vintage chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product13_1/600/800",
+    "https://picsum.photos/seed/product13_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-26T20:31:11.772Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc97b"
+  },
+  "name": "Áo Cardigan Soft - Model 14",
+  "price": 1573111,
+  "description": "Áo Cardigan Soft chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product14_1/600/800",
+    "https://picsum.photos/seed/product14_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-11-26T09:30:57.515Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc97c"
+  },
+  "name": "Quần Tây Formal - Model 15",
+  "price": 196938,
+  "description": "Quần Tây Formal chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product15_1/600/800",
+    "https://picsum.photos/seed/product15_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-09T13:59:17.283Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc97d"
+  },
+  "name": "Áo Crop Top Trendy - Model 16",
+  "price": 101328,
+  "description": "Áo Crop Top Trendy chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product16_1/600/800",
+    "https://picsum.photos/seed/product16_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-06-04T23:13:18.134Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc97e"
+  },
+  "name": "Váy Ngắn Summer - Model 17",
+  "price": 1500421,
+  "description": "Váy Ngắn Summer chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product17_1/600/800",
+    "https://picsum.photos/seed/product17_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-21T12:04:26.071Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc97f"
+  },
+  "name": "Áo Len Oversized - Model 18",
+  "price": 1106200,
+  "description": "Áo Len Oversized chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product18_1/600/800",
+    "https://picsum.photos/seed/product18_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-30T12:41:42.004Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc980"
+  },
+  "name": "Quần Legging Sport - Model 19",
+  "price": 1090182,
+  "description": "Quần Legging Sport chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product19_1/600/800",
+    "https://picsum.photos/seed/product19_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-06T06:39:29.266Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc981"
+  },
+  "name": "Đầm Dạ Hội Luxury - Model 20",
+  "price": 404938,
+  "description": "Đầm Dạ Hội Luxury chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product20_1/600/800",
+    "https://picsum.photos/seed/product20_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-22T02:41:14.944Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc982"
+  },
+  "name": "Áo Thể Thao Performance - Model 21",
+  "price": 848413,
+  "description": "Áo Thể Thao Performance chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product21_1/600/800",
+    "https://picsum.photos/seed/product21_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-03T05:05:33.937Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc983"
+  },
+  "name": "Quần Shorts Jean - Model 22",
+  "price": 1031265,
+  "description": "Quần Shorts Jean chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product22_1/600/800",
+    "https://picsum.photos/seed/product22_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-06-10T10:20:37.776Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc984"
+  },
+  "name": "Áo Kiểu Nữ - Model 23",
+  "price": 989912,
+  "description": "Áo Kiểu Nữ chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product23_1/600/800",
+    "https://picsum.photos/seed/product23_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-10T01:03:10.014Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc985"
+  },
+  "name": "Quần Baggy Unisex - Model 24",
+  "price": 264348,
+  "description": "Quần Baggy Unisex chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product24_1/600/800",
+    "https://picsum.photos/seed/product24_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-22T04:03:44.575Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc986"
+  },
+  "name": "Đầm Shirt Dress - Model 25",
+  "price": 1525923,
+  "description": "Đầm Shirt Dress chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product25_1/600/800",
+    "https://picsum.photos/seed/product25_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-27T15:12:46.038Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc987"
+  },
+  "name": "Áo Bomber Jacket - Model 26",
+  "price": 1176996,
+  "description": "Áo Bomber Jacket chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product26_1/600/800",
+    "https://picsum.photos/seed/product26_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-13T02:00:46.013Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc988"
+  },
+  "name": "Quần Palazzo Wide - Model 27",
+  "price": 1293339,
+  "description": "Quần Palazzo Wide chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product27_1/600/800",
+    "https://picsum.photos/seed/product27_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-09T04:02:06.297Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc989"
+  },
+  "name": "Áo Off-shoulder - Model 28",
+  "price": 519518,
+  "description": "Áo Off-shoulder chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product28_1/600/800",
+    "https://picsum.photos/seed/product28_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-16T01:22:08.186Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc98a"
+  },
+  "name": "Quần Culottes Fashion - Model 29",
+  "price": 417990,
+  "description": "Quần Culottes Fashion chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product29_1/600/800",
+    "https://picsum.photos/seed/product29_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-03T00:39:58.331Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc98b"
+  },
+  "name": "Đầm Wrap Dress - Model 30",
+  "price": 1439937,
+  "description": "Đầm Wrap Dress chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "images": [
+    "https://picsum.photos/seed/product30_1/600/800",
+    "https://picsum.photos/seed/product30_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-11-28T18:25:40.290Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc98c"
+  },
+  "name": "Áo Muscle Tee - Model 31",
+  "price": 482928,
+  "description": "Áo Muscle Tee chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product31_1/600/800",
+    "https://picsum.photos/seed/product31_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-01T17:44:44.646Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc98d"
+  },
+  "name": "Quần Wide-leg Trousers - Model 32",
+  "price": 1070388,
+  "description": "Quần Wide-leg Trousers chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product32_1/600/800",
+    "https://picsum.photos/seed/product32_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-17T21:20:18.685Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc98e"
+  },
+  "name": "Áo Peplum Top - Model 33",
+  "price": 217452,
+  "description": "Áo Peplum Top chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "images": [
+    "https://picsum.photos/seed/product33_1/600/800",
+    "https://picsum.photos/seed/product33_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-31T18:17:44.460Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc98f"
+  },
+  "name": "Quần Cargo Utility - Model 34",
+  "price": 129284,
+  "description": "Quần Cargo Utility chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product34_1/600/800",
+    "https://picsum.photos/seed/product34_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-02T02:44:16.560Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc990"
+  },
+  "name": "Đầm Slip Dress - Model 35",
+  "price": 427314,
+  "description": "Đầm Slip Dress chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product35_1/600/800",
+    "https://picsum.photos/seed/product35_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-21T13:56:10.994Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc991"
+  },
+  "name": "Áo Mesh Top - Model 36",
+  "price": 810052,
+  "description": "Áo Mesh Top chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94b"
+  },
+  "images": [
+    "https://picsum.photos/seed/product36_1/600/800",
+    "https://picsum.photos/seed/product36_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-26T06:06:37.999Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc992"
+  },
+  "name": "Quần Mom Jeans - Model 37",
+  "price": 585264,
+  "description": "Quần Mom Jeans chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product37_1/600/800",
+    "https://picsum.photos/seed/product37_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-28T09:26:07.202Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc993"
+  },
+  "name": "Áo Corset - Model 38",
+  "price": 1320885,
+  "description": "Áo Corset chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product38_1/600/800",
+    "https://picsum.photos/seed/product38_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-22T07:29:50.951Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc994"
+  },
+  "name": "Quần Track Pants - Model 39",
+  "price": 1545786,
+  "description": "Quần Track Pants chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product39_1/600/800",
+    "https://picsum.photos/seed/product39_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-09T12:39:48.438Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc995"
+  },
+  "name": "Đầm Tunic - Model 40",
+  "price": 203198,
+  "description": "Đầm Tunic chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94b"
+  },
+  "images": [
+    "https://picsum.photos/seed/product40_1/600/800",
+    "https://picsum.photos/seed/product40_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-23T05:40:22.130Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc996"
+  },
+  "name": "Áo Button-up Shirt - Model 41",
+  "price": 1419838,
+  "description": "Áo Button-up Shirt chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product41_1/600/800",
+    "https://picsum.photos/seed/product41_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-29T14:53:12.975Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc997"
+  },
+  "name": "Quần High-waist - Model 42",
+  "price": 143933,
+  "description": "Quần High-waist chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product42_1/600/800",
+    "https://picsum.photos/seed/product42_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-06-07T19:07:02.536Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc998"
+  },
+  "name": "Áo Turtleneck - Model 43",
+  "price": 158424,
+  "description": "Áo Turtleneck chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product43_1/600/800",
+    "https://picsum.photos/seed/product43_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-05T17:20:52.079Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc999"
+  },
+  "name": "Quần Flare Jeans - Model 44",
+  "price": 1335589,
+  "description": "Quần Flare Jeans chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product44_1/600/800",
+    "https://picsum.photos/seed/product44_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-12T22:53:06.125Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc99a"
+  },
+  "name": "Đầm Bodycon - Model 45",
+  "price": 674423,
+  "description": "Đầm Bodycon chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product45_1/600/800",
+    "https://picsum.photos/seed/product45_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-05T00:44:58.686Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc99b"
+  },
+  "name": "Áo Sweatshirt - Model 46",
+  "price": 549929,
+  "description": "Áo Sweatshirt chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product46_1/600/800",
+    "https://picsum.photos/seed/product46_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-13T11:08:13.725Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc99c"
+  },
+  "name": "Quần Bootcut - Model 47",
+  "price": 467580,
+  "description": "Quần Bootcut chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product47_1/600/800",
+    "https://picsum.photos/seed/product47_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-26T08:46:32.310Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc99d"
+  },
+  "name": "Áo Halter Top - Model 48",
+  "price": 124058,
+  "description": "Áo Halter Top chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "images": [
+    "https://picsum.photos/seed/product48_1/600/800",
+    "https://picsum.photos/seed/product48_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-04T04:46:58.172Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc99e"
+  },
+  "name": "Quần Straight Leg - Model 49",
+  "price": 1407684,
+  "description": "Quần Straight Leg chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product49_1/600/800",
+    "https://picsum.photos/seed/product49_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-08T13:11:55.033Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc99f"
+  },
+  "name": "Áo Thun Premium Cotton - Model 50",
+  "price": 1287870,
+  "description": "Áo Thun Premium Cotton chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product50_1/600/800",
+    "https://picsum.photos/seed/product50_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-24T10:41:38.154Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9a0"
+  },
+  "name": "Quần Jean Slim Fit - Model 51",
+  "price": 111590,
+  "description": "Quần Jean Slim Fit chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product51_1/600/800",
+    "https://picsum.photos/seed/product51_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-07T05:22:57.487Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9a1"
+  },
+  "name": "Áo Khoác Hoodie - Model 52",
+  "price": 1038135,
+  "description": "Áo Khoác Hoodie chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product52_1/600/800",
+    "https://picsum.photos/seed/product52_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-12T23:28:03.992Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9a2"
+  },
+  "name": "Váy Maxi Bohemian - Model 53",
+  "price": 1521164,
+  "description": "Váy Maxi Bohemian chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product53_1/600/800",
+    "https://picsum.photos/seed/product53_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-27T16:08:00.102Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9a3"
+  },
+  "name": "Áo Sơ Mi Công Sở - Model 54",
+  "price": 1109756,
+  "description": "Áo Sơ Mi Công Sở chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product54_1/600/800",
+    "https://picsum.photos/seed/product54_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-23T08:45:06.037Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9a4"
+  },
+  "name": "Quần Short Kaki - Model 55",
+  "price": 912928,
+  "description": "Quần Short Kaki chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product55_1/600/800",
+    "https://picsum.photos/seed/product55_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-26T12:51:44.703Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9a5"
+  },
+  "name": "Đầm Cocktail Elegant - Model 56",
+  "price": 1435036,
+  "description": "Đầm Cocktail Elegant chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product56_1/600/800",
+    "https://picsum.photos/seed/product56_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-11T00:46:18.438Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9a6"
+  },
+  "name": "Áo Polo Classic - Model 57",
+  "price": 1579038,
+  "description": "Áo Polo Classic chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product57_1/600/800",
+    "https://picsum.photos/seed/product57_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-20T05:38:56.117Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9a7"
+  },
+  "name": "Quần Jogger Streetwear - Model 58",
+  "price": 815847,
+  "description": "Quần Jogger Streetwear chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product58_1/600/800",
+    "https://picsum.photos/seed/product58_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-23T09:04:27.457Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9a8"
+  },
+  "name": "Áo Blazer Professional - Model 59",
+  "price": 283664,
+  "description": "Áo Blazer Professional chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "images": [
+    "https://picsum.photos/seed/product59_1/600/800",
+    "https://picsum.photos/seed/product59_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-24T01:29:52.616Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9a9"
+  },
+  "name": "Chân Váy A-line - Model 60",
+  "price": 515981,
+  "description": "Chân Váy A-line chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product60_1/600/800",
+    "https://picsum.photos/seed/product60_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-17T10:25:20.754Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9aa"
+  },
+  "name": "Áo Tank Top - Model 61",
+  "price": 1247473,
+  "description": "Áo Tank Top chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "images": [
+    "https://picsum.photos/seed/product61_1/600/800",
+    "https://picsum.photos/seed/product61_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-17T06:57:02.028Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9ab"
+  },
+  "name": "Quần Chinos Casual - Model 62",
+  "price": 1294555,
+  "description": "Quần Chinos Casual chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product62_1/600/800",
+    "https://picsum.photos/seed/product62_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-06-03T10:03:03.978Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9ac"
+  },
+  "name": "Đầm Midi Vintage - Model 63",
+  "price": 837370,
+  "description": "Đầm Midi Vintage chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product63_1/600/800",
+    "https://picsum.photos/seed/product63_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-16T22:55:51.696Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9ad"
+  },
+  "name": "Áo Cardigan Soft - Model 64",
+  "price": 1205087,
+  "description": "Áo Cardigan Soft chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product64_1/600/800",
+    "https://picsum.photos/seed/product64_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-18T03:00:59.370Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9ae"
+  },
+  "name": "Quần Tây Formal - Model 65",
+  "price": 211015,
+  "description": "Quần Tây Formal chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product65_1/600/800",
+    "https://picsum.photos/seed/product65_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-22T05:02:37.561Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9af"
+  },
+  "name": "Áo Crop Top Trendy - Model 66",
+  "price": 1192288,
+  "description": "Áo Crop Top Trendy chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product66_1/600/800",
+    "https://picsum.photos/seed/product66_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-12T04:23:53.053Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9b0"
+  },
+  "name": "Váy Ngắn Summer - Model 67",
+  "price": 642193,
+  "description": "Váy Ngắn Summer chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product67_1/600/800",
+    "https://picsum.photos/seed/product67_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-17T03:24:20.413Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9b1"
+  },
+  "name": "Áo Len Oversized - Model 68",
+  "price": 1363647,
+  "description": "Áo Len Oversized chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product68_1/600/800",
+    "https://picsum.photos/seed/product68_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-19T06:31:14.493Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9b2"
+  },
+  "name": "Quần Legging Sport - Model 69",
+  "price": 728016,
+  "description": "Quần Legging Sport chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product69_1/600/800",
+    "https://picsum.photos/seed/product69_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-11-27T13:42:11.563Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9b3"
+  },
+  "name": "Đầm Dạ Hội Luxury - Model 70",
+  "price": 463368,
+  "description": "Đầm Dạ Hội Luxury chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product70_1/600/800",
+    "https://picsum.photos/seed/product70_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-11T08:32:42.985Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9b4"
+  },
+  "name": "Áo Thể Thao Performance - Model 71",
+  "price": 773642,
+  "description": "Áo Thể Thao Performance chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product71_1/600/800",
+    "https://picsum.photos/seed/product71_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-08T12:40:01.289Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9b5"
+  },
+  "name": "Quần Shorts Jean - Model 72",
+  "price": 459984,
+  "description": "Quần Shorts Jean chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product72_1/600/800",
+    "https://picsum.photos/seed/product72_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-19T11:38:13.200Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9b6"
+  },
+  "name": "Áo Kiểu Nữ - Model 73",
+  "price": 1220037,
+  "description": "Áo Kiểu Nữ chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product73_1/600/800",
+    "https://picsum.photos/seed/product73_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-05T18:00:05.356Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9b7"
+  },
+  "name": "Quần Baggy Unisex - Model 74",
+  "price": 1108294,
+  "description": "Quần Baggy Unisex chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product74_1/600/800",
+    "https://picsum.photos/seed/product74_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-04T02:39:36.954Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9b8"
+  },
+  "name": "Đầm Shirt Dress - Model 75",
+  "price": 614027,
+  "description": "Đầm Shirt Dress chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product75_1/600/800",
+    "https://picsum.photos/seed/product75_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-05T08:52:40.539Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9b9"
+  },
+  "name": "Áo Bomber Jacket - Model 76",
+  "price": 1433742,
+  "description": "Áo Bomber Jacket chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94b"
+  },
+  "images": [
+    "https://picsum.photos/seed/product76_1/600/800",
+    "https://picsum.photos/seed/product76_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-03T13:27:28.900Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9ba"
+  },
+  "name": "Quần Palazzo Wide - Model 77",
+  "price": 261137,
+  "description": "Quần Palazzo Wide chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product77_1/600/800",
+    "https://picsum.photos/seed/product77_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-11T16:11:14.451Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9bb"
+  },
+  "name": "Áo Off-shoulder - Model 78",
+  "price": 436739,
+  "description": "Áo Off-shoulder chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product78_1/600/800",
+    "https://picsum.photos/seed/product78_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-11-28T18:00:43.236Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9bc"
+  },
+  "name": "Quần Culottes Fashion - Model 79",
+  "price": 1540469,
+  "description": "Quần Culottes Fashion chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94b"
+  },
+  "images": [
+    "https://picsum.photos/seed/product79_1/600/800",
+    "https://picsum.photos/seed/product79_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-19T20:26:51.847Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9bd"
+  },
+  "name": "Đầm Wrap Dress - Model 80",
+  "price": 1205445,
+  "description": "Đầm Wrap Dress chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product80_1/600/800",
+    "https://picsum.photos/seed/product80_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-24T09:11:05.021Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9be"
+  },
+  "name": "Áo Muscle Tee - Model 81",
+  "price": 1111894,
+  "description": "Áo Muscle Tee chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product81_1/600/800",
+    "https://picsum.photos/seed/product81_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-27T19:59:15.961Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9bf"
+  },
+  "name": "Quần Wide-leg Trousers - Model 82",
+  "price": 772926,
+  "description": "Quần Wide-leg Trousers chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product82_1/600/800",
+    "https://picsum.photos/seed/product82_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-07T06:34:44.689Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9c0"
+  },
+  "name": "Áo Peplum Top - Model 83",
+  "price": 1440566,
+  "description": "Áo Peplum Top chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product83_1/600/800",
+    "https://picsum.photos/seed/product83_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-10T18:48:58.870Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9c1"
+  },
+  "name": "Quần Cargo Utility - Model 84",
+  "price": 1350344,
+  "description": "Quần Cargo Utility chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product84_1/600/800",
+    "https://picsum.photos/seed/product84_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-19T19:46:53.067Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9c2"
+  },
+  "name": "Đầm Slip Dress - Model 85",
+  "price": 189530,
+  "description": "Đầm Slip Dress chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product85_1/600/800",
+    "https://picsum.photos/seed/product85_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-11T06:55:23.398Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9c3"
+  },
+  "name": "Áo Mesh Top - Model 86",
+  "price": 1570753,
+  "description": "Áo Mesh Top chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product86_1/600/800",
+    "https://picsum.photos/seed/product86_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-11T04:09:26.852Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9c4"
+  },
+  "name": "Quần Mom Jeans - Model 87",
+  "price": 569119,
+  "description": "Quần Mom Jeans chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product87_1/600/800",
+    "https://picsum.photos/seed/product87_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-10T01:16:03.961Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9c5"
+  },
+  "name": "Áo Corset - Model 88",
+  "price": 752953,
+  "description": "Áo Corset chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product88_1/600/800",
+    "https://picsum.photos/seed/product88_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-11T02:44:14.437Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9c6"
+  },
+  "name": "Quần Track Pants - Model 89",
+  "price": 664623,
+  "description": "Quần Track Pants chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product89_1/600/800",
+    "https://picsum.photos/seed/product89_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-09T22:43:03.261Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9c7"
+  },
+  "name": "Đầm Tunic - Model 90",
+  "price": 277144,
+  "description": "Đầm Tunic chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product90_1/600/800",
+    "https://picsum.photos/seed/product90_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-11T10:04:36.660Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9c8"
+  },
+  "name": "Áo Button-up Shirt - Model 91",
+  "price": 245160,
+  "description": "Áo Button-up Shirt chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94b"
+  },
+  "images": [
+    "https://picsum.photos/seed/product91_1/600/800",
+    "https://picsum.photos/seed/product91_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-03T21:01:11.543Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9c9"
+  },
+  "name": "Quần High-waist - Model 92",
+  "price": 1493146,
+  "description": "Quần High-waist chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product92_1/600/800",
+    "https://picsum.photos/seed/product92_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-28T07:46:35.898Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9ca"
+  },
+  "name": "Áo Turtleneck - Model 93",
+  "price": 1090115,
+  "description": "Áo Turtleneck chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product93_1/600/800",
+    "https://picsum.photos/seed/product93_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-10T16:13:37.439Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9cb"
+  },
+  "name": "Quần Flare Jeans - Model 94",
+  "price": 1321617,
+  "description": "Quần Flare Jeans chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product94_1/600/800",
+    "https://picsum.photos/seed/product94_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-06-03T04:01:10.940Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9cc"
+  },
+  "name": "Đầm Bodycon - Model 95",
+  "price": 423424,
+  "description": "Đầm Bodycon chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product95_1/600/800",
+    "https://picsum.photos/seed/product95_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-05T07:02:32.673Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9cd"
+  },
+  "name": "Áo Sweatshirt - Model 96",
+  "price": 1401735,
+  "description": "Áo Sweatshirt chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product96_1/600/800",
+    "https://picsum.photos/seed/product96_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-03T21:37:25.669Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9ce"
+  },
+  "name": "Quần Bootcut - Model 97",
+  "price": 264041,
+  "description": "Quần Bootcut chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product97_1/600/800",
+    "https://picsum.photos/seed/product97_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-27T11:43:23.271Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9cf"
+  },
+  "name": "Áo Halter Top - Model 98",
+  "price": 709335,
+  "description": "Áo Halter Top chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product98_1/600/800",
+    "https://picsum.photos/seed/product98_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-13T20:02:54.877Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9d0"
+  },
+  "name": "Quần Straight Leg - Model 99",
+  "price": 531495,
+  "description": "Quần Straight Leg chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product99_1/600/800",
+    "https://picsum.photos/seed/product99_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-24T07:35:44.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9d1"
+  },
+  "name": "Áo Thun Premium Cotton - Model 100",
+  "price": 1290367,
+  "description": "Áo Thun Premium Cotton chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product100_1/600/800",
+    "https://picsum.photos/seed/product100_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-28T13:04:59.885Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9d2"
+  },
+  "name": "Quần Jean Slim Fit - Model 101",
+  "price": 1599294,
+  "description": "Quần Jean Slim Fit chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product101_1/600/800",
+    "https://picsum.photos/seed/product101_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-05T15:33:25.703Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9d3"
+  },
+  "name": "Áo Khoác Hoodie - Model 102",
+  "price": 1478362,
+  "description": "Áo Khoác Hoodie chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94b"
+  },
+  "images": [
+    "https://picsum.photos/seed/product102_1/600/800",
+    "https://picsum.photos/seed/product102_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-28T09:22:26.809Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9d4"
+  },
+  "name": "Váy Maxi Bohemian - Model 103",
+  "price": 510887,
+  "description": "Váy Maxi Bohemian chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product103_1/600/800",
+    "https://picsum.photos/seed/product103_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-03T21:44:40.221Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9d5"
+  },
+  "name": "Áo Sơ Mi Công Sở - Model 104",
+  "price": 818814,
+  "description": "Áo Sơ Mi Công Sở chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product104_1/600/800",
+    "https://picsum.photos/seed/product104_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-04T11:24:08.521Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9d6"
+  },
+  "name": "Quần Short Kaki - Model 105",
+  "price": 1010965,
+  "description": "Quần Short Kaki chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product105_1/600/800",
+    "https://picsum.photos/seed/product105_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-07T11:13:53.849Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9d7"
+  },
+  "name": "Đầm Cocktail Elegant - Model 106",
+  "price": 410246,
+  "description": "Đầm Cocktail Elegant chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product106_1/600/800",
+    "https://picsum.photos/seed/product106_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-26T21:06:28.748Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9d8"
+  },
+  "name": "Áo Polo Classic - Model 107",
+  "price": 769472,
+  "description": "Áo Polo Classic chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "images": [
+    "https://picsum.photos/seed/product107_1/600/800",
+    "https://picsum.photos/seed/product107_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-15T19:02:16.970Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9d9"
+  },
+  "name": "Quần Jogger Streetwear - Model 108",
+  "price": 221511,
+  "description": "Quần Jogger Streetwear chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product108_1/600/800",
+    "https://picsum.photos/seed/product108_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-27T19:35:09.000Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9da"
+  },
+  "name": "Áo Blazer Professional - Model 109",
+  "price": 507088,
+  "description": "Áo Blazer Professional chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product109_1/600/800",
+    "https://picsum.photos/seed/product109_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-22T10:58:32.860Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9db"
+  },
+  "name": "Chân Váy A-line - Model 110",
+  "price": 273083,
+  "description": "Chân Váy A-line chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94b"
+  },
+  "images": [
+    "https://picsum.photos/seed/product110_1/600/800",
+    "https://picsum.photos/seed/product110_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-02T01:55:04.504Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9dc"
+  },
+  "name": "Áo Tank Top - Model 111",
+  "price": 995886,
+  "description": "Áo Tank Top chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product111_1/600/800",
+    "https://picsum.photos/seed/product111_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-06-01T08:59:37.521Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9dd"
+  },
+  "name": "Quần Chinos Casual - Model 112",
+  "price": 1135851,
+  "description": "Quần Chinos Casual chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product112_1/600/800",
+    "https://picsum.photos/seed/product112_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-22T05:38:50.984Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9de"
+  },
+  "name": "Đầm Midi Vintage - Model 113",
+  "price": 353450,
+  "description": "Đầm Midi Vintage chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product113_1/600/800",
+    "https://picsum.photos/seed/product113_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-04T03:50:24.582Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9df"
+  },
+  "name": "Áo Cardigan Soft - Model 114",
+  "price": 465981,
+  "description": "Áo Cardigan Soft chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product114_1/600/800",
+    "https://picsum.photos/seed/product114_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-19T20:15:26.486Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9e0"
+  },
+  "name": "Quần Tây Formal - Model 115",
+  "price": 478460,
+  "description": "Quần Tây Formal chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product115_1/600/800",
+    "https://picsum.photos/seed/product115_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-06-03T11:51:26.351Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9e1"
+  },
+  "name": "Áo Crop Top Trendy - Model 116",
+  "price": 681065,
+  "description": "Áo Crop Top Trendy chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product116_1/600/800",
+    "https://picsum.photos/seed/product116_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-28T18:31:51.203Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9e2"
+  },
+  "name": "Váy Ngắn Summer - Model 117",
+  "price": 155106,
+  "description": "Váy Ngắn Summer chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product117_1/600/800",
+    "https://picsum.photos/seed/product117_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-01T22:38:07.676Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9e3"
+  },
+  "name": "Áo Len Oversized - Model 118",
+  "price": 638970,
+  "description": "Áo Len Oversized chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product118_1/600/800",
+    "https://picsum.photos/seed/product118_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-03T11:13:19.024Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9e4"
+  },
+  "name": "Quần Legging Sport - Model 119",
+  "price": 939795,
+  "description": "Quần Legging Sport chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product119_1/600/800",
+    "https://picsum.photos/seed/product119_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-31T19:52:19.419Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9e5"
+  },
+  "name": "Đầm Dạ Hội Luxury - Model 120",
+  "price": 114071,
+  "description": "Đầm Dạ Hội Luxury chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94b"
+  },
+  "images": [
+    "https://picsum.photos/seed/product120_1/600/800",
+    "https://picsum.photos/seed/product120_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-03T02:18:44.340Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9e6"
+  },
+  "name": "Áo Thể Thao Performance - Model 121",
+  "price": 765288,
+  "description": "Áo Thể Thao Performance chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product121_1/600/800",
+    "https://picsum.photos/seed/product121_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-24T04:47:46.042Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9e7"
+  },
+  "name": "Quần Shorts Jean - Model 122",
+  "price": 401427,
+  "description": "Quần Shorts Jean chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product122_1/600/800",
+    "https://picsum.photos/seed/product122_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-22T02:12:46.421Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9e8"
+  },
+  "name": "Áo Kiểu Nữ - Model 123",
+  "price": 1186263,
+  "description": "Áo Kiểu Nữ chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product123_1/600/800",
+    "https://picsum.photos/seed/product123_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-21T03:16:55.161Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9e9"
+  },
+  "name": "Quần Baggy Unisex - Model 124",
+  "price": 768134,
+  "description": "Quần Baggy Unisex chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product124_1/600/800",
+    "https://picsum.photos/seed/product124_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-29T16:20:00.143Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9ea"
+  },
+  "name": "Đầm Shirt Dress - Model 125",
+  "price": 1586340,
+  "description": "Đầm Shirt Dress chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product125_1/600/800",
+    "https://picsum.photos/seed/product125_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-25T02:28:59.889Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9eb"
+  },
+  "name": "Áo Bomber Jacket - Model 126",
+  "price": 1366819,
+  "description": "Áo Bomber Jacket chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product126_1/600/800",
+    "https://picsum.photos/seed/product126_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-07T12:39:01.509Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9ec"
+  },
+  "name": "Quần Palazzo Wide - Model 127",
+  "price": 1317103,
+  "description": "Quần Palazzo Wide chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product127_1/600/800",
+    "https://picsum.photos/seed/product127_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-13T15:39:39.331Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9ed"
+  },
+  "name": "Áo Off-shoulder - Model 128",
+  "price": 505659,
+  "description": "Áo Off-shoulder chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product128_1/600/800",
+    "https://picsum.photos/seed/product128_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-24T00:24:23.965Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9ee"
+  },
+  "name": "Quần Culottes Fashion - Model 129",
+  "price": 108396,
+  "description": "Quần Culottes Fashion chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product129_1/600/800",
+    "https://picsum.photos/seed/product129_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-28T20:08:49.415Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9ef"
+  },
+  "name": "Đầm Wrap Dress - Model 130",
+  "price": 552918,
+  "description": "Đầm Wrap Dress chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product130_1/600/800",
+    "https://picsum.photos/seed/product130_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-11T14:30:37.569Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9f0"
+  },
+  "name": "Áo Muscle Tee - Model 131",
+  "price": 1417443,
+  "description": "Áo Muscle Tee chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product131_1/600/800",
+    "https://picsum.photos/seed/product131_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-01T20:40:45.810Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9f1"
+  },
+  "name": "Quần Wide-leg Trousers - Model 132",
+  "price": 963987,
+  "description": "Quần Wide-leg Trousers chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product132_1/600/800",
+    "https://picsum.photos/seed/product132_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-31T07:10:29.019Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9f2"
+  },
+  "name": "Áo Peplum Top - Model 133",
+  "price": 815359,
+  "description": "Áo Peplum Top chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product133_1/600/800",
+    "https://picsum.photos/seed/product133_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-02T10:37:33.364Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9f3"
+  },
+  "name": "Quần Cargo Utility - Model 134",
+  "price": 319441,
+  "description": "Quần Cargo Utility chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product134_1/600/800",
+    "https://picsum.photos/seed/product134_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-21T19:00:47.957Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9f4"
+  },
+  "name": "Đầm Slip Dress - Model 135",
+  "price": 533453,
+  "description": "Đầm Slip Dress chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product135_1/600/800",
+    "https://picsum.photos/seed/product135_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-08T18:36:44.381Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9f5"
+  },
+  "name": "Áo Mesh Top - Model 136",
+  "price": 133917,
+  "description": "Áo Mesh Top chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product136_1/600/800",
+    "https://picsum.photos/seed/product136_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-11-30T09:17:49.284Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9f6"
+  },
+  "name": "Quần Mom Jeans - Model 137",
+  "price": 889199,
+  "description": "Quần Mom Jeans chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product137_1/600/800",
+    "https://picsum.photos/seed/product137_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-03T23:19:22.839Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9f7"
+  },
+  "name": "Áo Corset - Model 138",
+  "price": 719067,
+  "description": "Áo Corset chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product138_1/600/800",
+    "https://picsum.photos/seed/product138_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-26T04:39:30.222Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9f8"
+  },
+  "name": "Quần Track Pants - Model 139",
+  "price": 1185708,
+  "description": "Quần Track Pants chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product139_1/600/800",
+    "https://picsum.photos/seed/product139_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-18T22:40:47.222Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9f9"
+  },
+  "name": "Đầm Tunic - Model 140",
+  "price": 1545631,
+  "description": "Đầm Tunic chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product140_1/600/800",
+    "https://picsum.photos/seed/product140_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-24T13:32:30.114Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9fa"
+  },
+  "name": "Áo Button-up Shirt - Model 141",
+  "price": 628847,
+  "description": "Áo Button-up Shirt chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product141_1/600/800",
+    "https://picsum.photos/seed/product141_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-25T07:28:55.722Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9fb"
+  },
+  "name": "Quần High-waist - Model 142",
+  "price": 1233564,
+  "description": "Quần High-waist chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product142_1/600/800",
+    "https://picsum.photos/seed/product142_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-14T22:47:13.924Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9fc"
+  },
+  "name": "Áo Turtleneck - Model 143",
+  "price": 1177071,
+  "description": "Áo Turtleneck chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "images": [
+    "https://picsum.photos/seed/product143_1/600/800",
+    "https://picsum.photos/seed/product143_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-27T15:48:39.215Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9fd"
+  },
+  "name": "Quần Flare Jeans - Model 144",
+  "price": 259073,
+  "description": "Quần Flare Jeans chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product144_1/600/800",
+    "https://picsum.photos/seed/product144_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-21T22:59:59.388Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9fe"
+  },
+  "name": "Đầm Bodycon - Model 145",
+  "price": 1318444,
+  "description": "Đầm Bodycon chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94b"
+  },
+  "images": [
+    "https://picsum.photos/seed/product145_1/600/800",
+    "https://picsum.photos/seed/product145_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-29T11:25:01.434Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc9ff"
+  },
+  "name": "Áo Sweatshirt - Model 146",
+  "price": 1088369,
+  "description": "Áo Sweatshirt chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94b"
+  },
+  "images": [
+    "https://picsum.photos/seed/product146_1/600/800",
+    "https://picsum.photos/seed/product146_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-15T17:14:17.761Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca00"
+  },
+  "name": "Quần Bootcut - Model 147",
+  "price": 429227,
+  "description": "Quần Bootcut chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product147_1/600/800",
+    "https://picsum.photos/seed/product147_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-15T17:30:37.709Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca01"
+  },
+  "name": "Áo Halter Top - Model 148",
+  "price": 423822,
+  "description": "Áo Halter Top chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product148_1/600/800",
+    "https://picsum.photos/seed/product148_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-18T06:12:53.498Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca02"
+  },
+  "name": "Quần Straight Leg - Model 149",
+  "price": 844661,
+  "description": "Quần Straight Leg chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product149_1/600/800",
+    "https://picsum.photos/seed/product149_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-12T08:47:22.820Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca03"
+  },
+  "name": "Áo Thun Premium Cotton - Model 150",
+  "price": 406883,
+  "description": "Áo Thun Premium Cotton chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "images": [
+    "https://picsum.photos/seed/product150_1/600/800",
+    "https://picsum.photos/seed/product150_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-08T15:21:40.734Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca04"
+  },
+  "name": "Quần Jean Slim Fit - Model 151",
+  "price": 1070559,
+  "description": "Quần Jean Slim Fit chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product151_1/600/800",
+    "https://picsum.photos/seed/product151_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-29T01:45:21.440Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca05"
+  },
+  "name": "Áo Khoác Hoodie - Model 152",
+  "price": 585893,
+  "description": "Áo Khoác Hoodie chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product152_1/600/800",
+    "https://picsum.photos/seed/product152_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-08T21:32:27.532Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca06"
+  },
+  "name": "Váy Maxi Bohemian - Model 153",
+  "price": 1272259,
+  "description": "Váy Maxi Bohemian chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product153_1/600/800",
+    "https://picsum.photos/seed/product153_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-11-28T11:37:35.976Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca07"
+  },
+  "name": "Áo Sơ Mi Công Sở - Model 154",
+  "price": 276190,
+  "description": "Áo Sơ Mi Công Sở chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product154_1/600/800",
+    "https://picsum.photos/seed/product154_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-05T23:08:24.120Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca08"
+  },
+  "name": "Quần Short Kaki - Model 155",
+  "price": 1308682,
+  "description": "Quần Short Kaki chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product155_1/600/800",
+    "https://picsum.photos/seed/product155_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-17T17:42:37.070Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca09"
+  },
+  "name": "Đầm Cocktail Elegant - Model 156",
+  "price": 1346672,
+  "description": "Đầm Cocktail Elegant chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product156_1/600/800",
+    "https://picsum.photos/seed/product156_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-22T08:58:36.764Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca0a"
+  },
+  "name": "Áo Polo Classic - Model 157",
+  "price": 583914,
+  "description": "Áo Polo Classic chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product157_1/600/800",
+    "https://picsum.photos/seed/product157_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-31T04:10:55.372Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca0b"
+  },
+  "name": "Quần Jogger Streetwear - Model 158",
+  "price": 720549,
+  "description": "Quần Jogger Streetwear chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product158_1/600/800",
+    "https://picsum.photos/seed/product158_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-23T16:21:13.104Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca0c"
+  },
+  "name": "Áo Blazer Professional - Model 159",
+  "price": 331731,
+  "description": "Áo Blazer Professional chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product159_1/600/800",
+    "https://picsum.photos/seed/product159_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-28T16:59:24.034Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca0d"
+  },
+  "name": "Chân Váy A-line - Model 160",
+  "price": 417453,
+  "description": "Chân Váy A-line chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product160_1/600/800",
+    "https://picsum.photos/seed/product160_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-06-04T10:59:35.685Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca0e"
+  },
+  "name": "Áo Tank Top - Model 161",
+  "price": 848978,
+  "description": "Áo Tank Top chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product161_1/600/800",
+    "https://picsum.photos/seed/product161_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-12T23:03:46.915Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca0f"
+  },
+  "name": "Quần Chinos Casual - Model 162",
+  "price": 293527,
+  "description": "Quần Chinos Casual chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "images": [
+    "https://picsum.photos/seed/product162_1/600/800",
+    "https://picsum.photos/seed/product162_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-02T02:22:36.056Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca10"
+  },
+  "name": "Đầm Midi Vintage - Model 163",
+  "price": 621868,
+  "description": "Đầm Midi Vintage chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "images": [
+    "https://picsum.photos/seed/product163_1/600/800",
+    "https://picsum.photos/seed/product163_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-08T13:35:46.741Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca11"
+  },
+  "name": "Áo Cardigan Soft - Model 164",
+  "price": 742994,
+  "description": "Áo Cardigan Soft chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product164_1/600/800",
+    "https://picsum.photos/seed/product164_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-17T19:17:55.836Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca12"
+  },
+  "name": "Quần Tây Formal - Model 165",
+  "price": 961716,
+  "description": "Quần Tây Formal chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product165_1/600/800",
+    "https://picsum.photos/seed/product165_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-28T22:02:29.373Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca13"
+  },
+  "name": "Áo Crop Top Trendy - Model 166",
+  "price": 1220912,
+  "description": "Áo Crop Top Trendy chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94b"
+  },
+  "images": [
+    "https://picsum.photos/seed/product166_1/600/800",
+    "https://picsum.photos/seed/product166_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-16T06:21:40.292Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca14"
+  },
+  "name": "Váy Ngắn Summer - Model 167",
+  "price": 1306348,
+  "description": "Váy Ngắn Summer chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product167_1/600/800",
+    "https://picsum.photos/seed/product167_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-20T07:24:41.761Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca15"
+  },
+  "name": "Áo Len Oversized - Model 168",
+  "price": 605617,
+  "description": "Áo Len Oversized chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product168_1/600/800",
+    "https://picsum.photos/seed/product168_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-30T10:13:33.221Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca16"
+  },
+  "name": "Quần Legging Sport - Model 169",
+  "price": 1394455,
+  "description": "Quần Legging Sport chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "images": [
+    "https://picsum.photos/seed/product169_1/600/800",
+    "https://picsum.photos/seed/product169_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-15T08:11:17.769Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca17"
+  },
+  "name": "Đầm Dạ Hội Luxury - Model 170",
+  "price": 262095,
+  "description": "Đầm Dạ Hội Luxury chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product170_1/600/800",
+    "https://picsum.photos/seed/product170_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-10T01:07:37.622Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca18"
+  },
+  "name": "Áo Thể Thao Performance - Model 171",
+  "price": 558178,
+  "description": "Áo Thể Thao Performance chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "images": [
+    "https://picsum.photos/seed/product171_1/600/800",
+    "https://picsum.photos/seed/product171_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-14T17:35:52.817Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca19"
+  },
+  "name": "Quần Shorts Jean - Model 172",
+  "price": 1578389,
+  "description": "Quần Shorts Jean chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "images": [
+    "https://picsum.photos/seed/product172_1/600/800",
+    "https://picsum.photos/seed/product172_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-27T10:42:51.016Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca1a"
+  },
+  "name": "Áo Kiểu Nữ - Model 173",
+  "price": 1006553,
+  "description": "Áo Kiểu Nữ chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product173_1/600/800",
+    "https://picsum.photos/seed/product173_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-06-07T08:15:07.081Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca1b"
+  },
+  "name": "Quần Baggy Unisex - Model 174",
+  "price": 832482,
+  "description": "Quần Baggy Unisex chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94b"
+  },
+  "images": [
+    "https://picsum.photos/seed/product174_1/600/800",
+    "https://picsum.photos/seed/product174_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-22T06:30:33.851Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca1c"
+  },
+  "name": "Đầm Shirt Dress - Model 175",
+  "price": 793454,
+  "description": "Đầm Shirt Dress chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product175_1/600/800",
+    "https://picsum.photos/seed/product175_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-01T18:09:22.538Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca1d"
+  },
+  "name": "Áo Bomber Jacket - Model 176",
+  "price": 1111089,
+  "description": "Áo Bomber Jacket chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product176_1/600/800",
+    "https://picsum.photos/seed/product176_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-23T23:59:01.815Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca1e"
+  },
+  "name": "Quần Palazzo Wide - Model 177",
+  "price": 209184,
+  "description": "Quần Palazzo Wide chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "images": [
+    "https://picsum.photos/seed/product177_1/600/800",
+    "https://picsum.photos/seed/product177_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-29T21:22:42.598Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca1f"
+  },
+  "name": "Áo Off-shoulder - Model 178",
+  "price": 1104334,
+  "description": "Áo Off-shoulder chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "images": [
+    "https://picsum.photos/seed/product178_1/600/800",
+    "https://picsum.photos/seed/product178_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-04T15:12:34.596Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca20"
+  },
+  "name": "Quần Culottes Fashion - Model 179",
+  "price": 1429323,
+  "description": "Quần Culottes Fashion chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product179_1/600/800",
+    "https://picsum.photos/seed/product179_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-21T16:11:25.116Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca21"
+  },
+  "name": "Đầm Wrap Dress - Model 180",
+  "price": 841278,
+  "description": "Đầm Wrap Dress chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "images": [
+    "https://picsum.photos/seed/product180_1/600/800",
+    "https://picsum.photos/seed/product180_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-14T17:38:25.467Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca22"
+  },
+  "name": "Áo Muscle Tee - Model 181",
+  "price": 646510,
+  "description": "Áo Muscle Tee chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product181_1/600/800",
+    "https://picsum.photos/seed/product181_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-09T21:14:38.043Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca23"
+  },
+  "name": "Quần Wide-leg Trousers - Model 182",
+  "price": 1565523,
+  "description": "Quần Wide-leg Trousers chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product182_1/600/800",
+    "https://picsum.photos/seed/product182_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-16T11:30:41.859Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca24"
+  },
+  "name": "Áo Peplum Top - Model 183",
+  "price": 1278570,
+  "description": "Áo Peplum Top chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product183_1/600/800",
+    "https://picsum.photos/seed/product183_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-23T12:15:48.683Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca25"
+  },
+  "name": "Quần Cargo Utility - Model 184",
+  "price": 913711,
+  "description": "Quần Cargo Utility chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product184_1/600/800",
+    "https://picsum.photos/seed/product184_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-03T01:50:55.114Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca26"
+  },
+  "name": "Đầm Slip Dress - Model 185",
+  "price": 1396128,
+  "description": "Đầm Slip Dress chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product185_1/600/800",
+    "https://picsum.photos/seed/product185_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2024-12-12T20:21:26.907Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca27"
+  },
+  "name": "Áo Mesh Top - Model 186",
+  "price": 1202747,
+  "description": "Áo Mesh Top chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product186_1/600/800",
+    "https://picsum.photos/seed/product186_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-09T12:11:20.572Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca28"
+  },
+  "name": "Quần Mom Jeans - Model 187",
+  "price": 1338584,
+  "description": "Quần Mom Jeans chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product187_1/600/800",
+    "https://picsum.photos/seed/product187_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-01T14:34:42.022Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca29"
+  },
+  "name": "Áo Corset - Model 188",
+  "price": 694058,
+  "description": "Áo Corset chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "images": [
+    "https://picsum.photos/seed/product188_1/600/800",
+    "https://picsum.photos/seed/product188_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-19T08:06:38.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca2a"
+  },
+  "name": "Quần Track Pants - Model 189",
+  "price": 861594,
+  "description": "Quần Track Pants chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product189_1/600/800",
+    "https://picsum.photos/seed/product189_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-16T09:01:39.880Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca2b"
+  },
+  "name": "Đầm Tunic - Model 190",
+  "price": 409767,
+  "description": "Đầm Tunic chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product190_1/600/800",
+    "https://picsum.photos/seed/product190_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-23T18:10:14.519Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca2c"
+  },
+  "name": "Áo Button-up Shirt - Model 191",
+  "price": 466122,
+  "description": "Áo Button-up Shirt chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product191_1/600/800",
+    "https://picsum.photos/seed/product191_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-07T18:00:57.144Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca2d"
+  },
+  "name": "Quần High-waist - Model 192",
+  "price": 377976,
+  "description": "Quần High-waist chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product192_1/600/800",
+    "https://picsum.photos/seed/product192_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-04-08T23:04:08.991Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca2e"
+  },
+  "name": "Áo Turtleneck - Model 193",
+  "price": 1178156,
+  "description": "Áo Turtleneck chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product193_1/600/800",
+    "https://picsum.photos/seed/product193_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-06-01T07:20:20.084Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca2f"
+  },
+  "name": "Quần Flare Jeans - Model 194",
+  "price": 1405275,
+  "description": "Quần Flare Jeans chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94b"
+  },
+  "images": [
+    "https://picsum.photos/seed/product194_1/600/800",
+    "https://picsum.photos/seed/product194_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-01-14T12:56:46.402Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca30"
+  },
+  "name": "Đầm Bodycon - Model 195",
+  "price": 661263,
+  "description": "Đầm Bodycon chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "images": [
+    "https://picsum.photos/seed/product195_1/600/800",
+    "https://picsum.photos/seed/product195_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-09T12:36:51.309Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca31"
+  },
+  "name": "Áo Sweatshirt - Model 196",
+  "price": 1380133,
+  "description": "Áo Sweatshirt chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "images": [
+    "https://picsum.photos/seed/product196_1/600/800",
+    "https://picsum.photos/seed/product196_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-04T10:47:02.763Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca32"
+  },
+  "name": "Quần Bootcut - Model 197",
+  "price": 836769,
+  "description": "Quần Bootcut chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "images": [
+    "https://picsum.photos/seed/product197_1/600/800",
+    "https://picsum.photos/seed/product197_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-14T10:42:48.293Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca33"
+  },
+  "name": "Áo Halter Top - Model 198",
+  "price": 1247188,
+  "description": "Áo Halter Top chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "images": [
+    "https://picsum.photos/seed/product198_1/600/800",
+    "https://picsum.photos/seed/product198_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-02-08T00:53:37.849Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca34"
+  },
+  "name": "Quần Straight Leg - Model 199",
+  "price": 1486130,
+  "description": "Quần Straight Leg chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product199_1/600/800",
+    "https://picsum.photos/seed/product199_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-05-19T19:03:26.752Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dca35"
+  },
+  "name": "Áo Thun Premium Cotton - Model 200",
+  "price": 979610,
+  "description": "Áo Thun Premium Cotton chất liệu cao cấp, thiết kế hiện đại.",
+  "category": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "images": [
+    "https://picsum.photos/seed/product200_1/600/800",
+    "https://picsum.photos/seed/product200_2/600/800"
+  ],
+  "createdAt": {
+    "$date": "2025-03-08T19:26:28.596Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.781Z"
+  },
+  "__v": 0
+}]

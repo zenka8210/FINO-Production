@@ -1,0 +1,158 @@
+[{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc94a"
+  },
+  "name": "Áo Nam",
+  "description": "Danh mục Áo Nam với nhiều sản phẩm chất lượng cao.",
+  "parent": null,
+  "createdAt": {
+    "$date": "2025-04-17T08:45:33.242Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc94b"
+  },
+  "name": "Quần Nam",
+  "description": "Danh mục Quần Nam với nhiều sản phẩm chất lượng cao.",
+  "parent": null,
+  "createdAt": {
+    "$date": "2025-05-20T05:28:00.202Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "name": "Áo Nữ",
+  "description": "Danh mục Áo Nữ với nhiều sản phẩm chất lượng cao.",
+  "parent": null,
+  "createdAt": {
+    "$date": "2025-05-10T11:01:53.183Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "name": "Quần Nữ",
+  "description": "Danh mục Quần Nữ với nhiều sản phẩm chất lượng cao.",
+  "parent": null,
+  "createdAt": {
+    "$date": "2025-03-20T22:45:12.247Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "name": "Đầm Váy",
+  "description": "Danh mục Đầm Váy với nhiều sản phẩm chất lượng cao.",
+  "parent": null,
+  "createdAt": {
+    "$date": "2025-04-01T00:24:57.010Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc94f"
+  },
+  "name": "Phụ Kiện",
+  "description": "Danh mục Phụ Kiện với nhiều sản phẩm chất lượng cao.",
+  "parent": null,
+  "createdAt": {
+    "$date": "2025-04-17T19:59:35.735Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc950"
+  },
+  "name": "Giày Dép",
+  "description": "Danh mục Giày Dép với nhiều sản phẩm chất lượng cao.",
+  "parent": {
+    "$oid": "684aca5df3433021c33dc94b"
+  },
+  "createdAt": {
+    "$date": "2025-06-06T15:21:58.207Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc951"
+  },
+  "name": "Túi Xách",
+  "description": "Danh mục Túi Xách với nhiều sản phẩm chất lượng cao.",
+  "parent": {
+    "$oid": "684aca5df3433021c33dc94e"
+  },
+  "createdAt": {
+    "$date": "2025-04-20T10:12:36.424Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc952"
+  },
+  "name": "Đồng Hồ",
+  "description": "Danh mục Đồng Hồ với nhiều sản phẩm chất lượng cao.",
+  "parent": {
+    "$oid": "684aca5df3433021c33dc94c"
+  },
+  "createdAt": {
+    "$date": "2025-04-10T05:22:26.498Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc953"
+  },
+  "name": "Trang Sức",
+  "description": "Danh mục Trang Sức với nhiều sản phẩm chất lượng cao.",
+  "parent": {
+    "$oid": "684aca5df3433021c33dc94d"
+  },
+  "createdAt": {
+    "$date": "2025-03-17T00:20:02.988Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+}]

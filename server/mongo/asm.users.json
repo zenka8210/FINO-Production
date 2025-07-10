@@ -1,0 +1,1900 @@
+[{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8e6"
+  },
+  "email": "admin1@shop.com",
+  "password": "P@ssword123!",
+  "name": "Trần Thị Bình",
+  "phone": "0996933926",
+  "address": "255 Quận 2, Hồ Chí Minh",
+  "role": "admin",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-03T21:59:11.786Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.777Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8e7"
+  },
+  "email": "admin2@shop.com",
+  "password": "P@ssword123!",
+  "name": "Lê Hoàng Cường",
+  "phone": "0965208500",
+  "address": "571 Quận 3, Đà Nẵng",
+  "role": "admin",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-06-19T14:35:37.328Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.777Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8e8"
+  },
+  "email": "admin3@shop.com",
+  "password": "P@ssword123!",
+  "name": "Phạm Thị Dương",
+  "phone": "0947472030",
+  "address": "278 Ba Đình, Hải Phòng",
+  "role": "admin",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-12-01T03:09:21.559Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.777Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8e9"
+  },
+  "email": "admin4@shop.com",
+  "password": "P@ssword123!",
+  "name": "Hoàng Văn Em",
+  "phone": "0991784676",
+  "address": "816 Hoàn Kiếm, Cần Thơ",
+  "role": "admin",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-02-21T22:11:14.589Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.777Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8ea"
+  },
+  "email": "admin5@shop.com",
+  "password": "P@ssword123!",
+  "name": "Ngô Thị Phương",
+  "phone": "0972471384",
+  "address": "817 Hai Bà Trưng, Nha Trang",
+  "role": "admin",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-12-01T16:04:04.898Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.777Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8eb"
+  },
+  "email": "user6@example.com",
+  "password": "P@ssword123!",
+  "name": "Đặng Văn Giang",
+  "phone": "0936512292",
+  "address": "766 Long Biên, Huế",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-02-02T07:29:47.605Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.777Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8ec"
+  },
+  "email": "user7@example.com",
+  "password": "P@ssword123!",
+  "name": "Bùi Thị Hương",
+  "phone": "0985366324",
+  "address": "514 Cầu Giấy, Vũng Tàu",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-10-04T05:16:17.626Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.777Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8ed"
+  },
+  "email": "user8@example.com",
+  "password": "P@ssword123!",
+  "name": "Vũ Văn Inh",
+  "phone": "0970179548",
+  "address": "383 Quận 1, Hà Nội",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-03-26T14:42:48.490Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.777Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8ee"
+  },
+  "email": "user9@example.com",
+  "password": "P@ssword123!",
+  "name": "Cao Thị Khánh",
+  "phone": "0964285556",
+  "address": "151 Quận 2, Hồ Chí Minh",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-09-25T02:31:47.432Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8ef"
+  },
+  "email": "user10@example.com",
+  "password": "P@ssword123!",
+  "name": "Đỗ Văn Long",
+  "phone": "0970702775",
+  "address": "500 Quận 3, Đà Nẵng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-11-27T21:42:24.418Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8f0"
+  },
+  "email": "user11@example.com",
+  "password": "P@ssword123!",
+  "name": "Lý Thị Minh",
+  "phone": "0929271223",
+  "address": "471 Ba Đình, Hải Phòng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-03-20T13:36:32.496Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8f1"
+  },
+  "email": "user12@example.com",
+  "password": "P@ssword123!",
+  "name": "Tôn Văn Nam",
+  "phone": "0982249991",
+  "address": "836 Hoàn Kiếm, Cần Thơ",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-07-10T11:51:29.205Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8f2"
+  },
+  "email": "user13@example.com",
+  "password": "P@ssword123!",
+  "name": "Phan Thị Oanh",
+  "phone": "0919103479",
+  "address": "335 Hai Bà Trưng, Nha Trang",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-01-13T22:10:36.207Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8f3"
+  },
+  "email": "user14@example.com",
+  "password": "P@ssword123!",
+  "name": "Đinh Văn Phúc",
+  "phone": "0951806181",
+  "address": "573 Long Biên, Huế",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-09-16T23:44:50.520Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8f4"
+  },
+  "email": "user15@example.com",
+  "password": "P@ssword123!",
+  "name": "Võ Thị Quỳnh",
+  "phone": "0932334969",
+  "address": "929 Cầu Giấy, Vũng Tàu",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-01-22T22:11:43.524Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8f5"
+  },
+  "email": "user16@example.com",
+  "password": "P@ssword123!",
+  "name": "Dương Văn Sơn",
+  "phone": "0998249840",
+  "address": "867 Quận 1, Hà Nội",
+  "role": "customer",
+  "isActive": false,
+  "createdAt": {
+    "$date": "2025-02-05T19:07:58.973Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8f6"
+  },
+  "email": "user17@example.com",
+  "password": "P@ssword123!",
+  "name": "Chu Thị Tâm",
+  "phone": "0918368804",
+  "address": "637 Quận 2, Hồ Chí Minh",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-05-08T18:29:01.553Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8f7"
+  },
+  "email": "user18@example.com",
+  "password": "P@ssword123!",
+  "name": "Lưu Văn Ưng",
+  "phone": "0937154781",
+  "address": "849 Quận 3, Đà Nẵng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-01-20T22:01:42.752Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8f8"
+  },
+  "email": "user19@example.com",
+  "password": "P@ssword123!",
+  "name": "Mai Thị Vân",
+  "phone": "0934089989",
+  "address": "47 Ba Đình, Hải Phòng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-02-15T16:36:48.869Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8f9"
+  },
+  "email": "user20@example.com",
+  "password": "P@ssword123!",
+  "name": "Trịnh Văn Xuân",
+  "phone": "0919419004",
+  "address": "615 Hoàn Kiếm, Cần Thơ",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-04-08T11:31:03.995Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8fa"
+  },
+  "email": "user21@example.com",
+  "password": "P@ssword123!",
+  "name": "Hồ Thị Yến",
+  "phone": "0976820718",
+  "address": "827 Hai Bà Trưng, Nha Trang",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-05T22:23:30.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8fb"
+  },
+  "email": "user22@example.com",
+  "password": "P@ssword123!",
+  "name": "Lâm Văn Zung",
+  "phone": "0963338786",
+  "address": "965 Long Biên, Huế",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-05-18T01:35:39.666Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8fc"
+  },
+  "email": "user23@example.com",
+  "password": "P@ssword123!",
+  "name": "Từ Thị Ánh",
+  "phone": "0933521972",
+  "address": "626 Cầu Giấy, Vũng Tàu",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-04-22T13:24:06.789Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8fd"
+  },
+  "email": "user24@example.com",
+  "password": "P@ssword123!",
+  "name": "Quan Văn Bảo",
+  "phone": "0992617900",
+  "address": "936 Quận 1, Hà Nội",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-08-29T10:05:58.844Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8fe"
+  },
+  "email": "user25@example.com",
+  "password": "P@ssword123!",
+  "name": "Hứa Thị Cẩm",
+  "phone": "0912771885",
+  "address": "342 Quận 2, Hồ Chí Minh",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-11-22T00:11:58.680Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc8ff"
+  },
+  "email": "user26@example.com",
+  "password": "P@ssword123!",
+  "name": "Tạ Văn Đức",
+  "phone": "0953647849",
+  "address": "250 Quận 3, Đà Nẵng",
+  "role": "customer",
+  "isActive": false,
+  "createdAt": {
+    "$date": "2024-12-18T17:41:56.517Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc900"
+  },
+  "email": "user27@example.com",
+  "password": "P@ssword123!",
+  "name": "Lữ Thị Ê",
+  "phone": "0944062628",
+  "address": "461 Ba Đình, Hải Phòng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-04-23T04:08:29.186Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc901"
+  },
+  "email": "user28@example.com",
+  "password": "P@ssword123!",
+  "name": "Nghiêm Văn Phong",
+  "phone": "0934237328",
+  "address": "877 Hoàn Kiếm, Cần Thơ",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-10-22T21:29:44.443Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc902"
+  },
+  "email": "user29@example.com",
+  "password": "P@ssword123!",
+  "name": "Ông Thị Giang",
+  "phone": "0924348655",
+  "address": "420 Hai Bà Trưng, Nha Trang",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-01-05T21:44:37.916Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc903"
+  },
+  "email": "user30@example.com",
+  "password": "P@ssword123!",
+  "name": "Nguyễn Văn An",
+  "phone": "0919499272",
+  "address": "252 Long Biên, Huế",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-12-22T03:34:41.996Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc904"
+  },
+  "email": "user31@example.com",
+  "password": "P@ssword123!",
+  "name": "Trần Thị Bình",
+  "phone": "0978078453",
+  "address": "593 Cầu Giấy, Vũng Tàu",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-11-21T13:49:21.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc905"
+  },
+  "email": "user32@example.com",
+  "password": "P@ssword123!",
+  "name": "Lê Hoàng Cường",
+  "phone": "0926829594",
+  "address": "152 Quận 1, Hà Nội",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-12-05T06:04:10.364Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc906"
+  },
+  "email": "user33@example.com",
+  "password": "P@ssword123!",
+  "name": "Phạm Thị Dương",
+  "phone": "0922940801",
+  "address": "292 Quận 2, Hồ Chí Minh",
+  "role": "customer",
+  "isActive": false,
+  "createdAt": {
+    "$date": "2025-03-30T22:18:41.793Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc907"
+  },
+  "email": "user34@example.com",
+  "password": "P@ssword123!",
+  "name": "Hoàng Văn Em",
+  "phone": "0981851658",
+  "address": "540 Quận 3, Đà Nẵng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-05-13T01:34:51.746Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc908"
+  },
+  "email": "user35@example.com",
+  "password": "P@ssword123!",
+  "name": "Ngô Thị Phương",
+  "phone": "0944511739",
+  "address": "162 Ba Đình, Hải Phòng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-12-08T01:42:24.163Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc909"
+  },
+  "email": "user36@example.com",
+  "password": "P@ssword123!",
+  "name": "Đặng Văn Giang",
+  "phone": "0917095401",
+  "address": "877 Hoàn Kiếm, Cần Thơ",
+  "role": "customer",
+  "isActive": false,
+  "createdAt": {
+    "$date": "2024-09-05T08:22:35.538Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc90a"
+  },
+  "email": "user37@example.com",
+  "password": "P@ssword123!",
+  "name": "Bùi Thị Hương",
+  "phone": "0999726288",
+  "address": "189 Hai Bà Trưng, Nha Trang",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-08-11T14:05:46.378Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc90b"
+  },
+  "email": "user38@example.com",
+  "password": "P@ssword123!",
+  "name": "Vũ Văn Inh",
+  "phone": "0973760857",
+  "address": "990 Long Biên, Huế",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-06-27T08:36:16.804Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc90c"
+  },
+  "email": "user39@example.com",
+  "password": "P@ssword123!",
+  "name": "Cao Thị Khánh",
+  "phone": "0989495576",
+  "address": "630 Cầu Giấy, Vũng Tàu",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-10-05T23:25:12.447Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc90d"
+  },
+  "email": "user40@example.com",
+  "password": "P@ssword123!",
+  "name": "Đỗ Văn Long",
+  "phone": "0971838895",
+  "address": "390 Quận 1, Hà Nội",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-03-12T22:58:58.853Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc90e"
+  },
+  "email": "user41@example.com",
+  "password": "P@ssword123!",
+  "name": "Lý Thị Minh",
+  "phone": "0976536535",
+  "address": "280 Quận 2, Hồ Chí Minh",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-02-26T22:14:14.664Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc90f"
+  },
+  "email": "user42@example.com",
+  "password": "P@ssword123!",
+  "name": "Tôn Văn Nam",
+  "phone": "0924164632",
+  "address": "797 Quận 3, Đà Nẵng",
+  "role": "customer",
+  "isActive": false,
+  "createdAt": {
+    "$date": "2025-02-10T16:50:53.584Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc910"
+  },
+  "email": "user43@example.com",
+  "password": "P@ssword123!",
+  "name": "Phan Thị Oanh",
+  "phone": "0969940783",
+  "address": "864 Ba Đình, Hải Phòng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-05-11T11:56:30.931Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc911"
+  },
+  "email": "user44@example.com",
+  "password": "P@ssword123!",
+  "name": "Đinh Văn Phúc",
+  "phone": "0975758853",
+  "address": "874 Hoàn Kiếm, Cần Thơ",
+  "role": "customer",
+  "isActive": false,
+  "createdAt": {
+    "$date": "2025-03-28T21:21:54.062Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc912"
+  },
+  "email": "user45@example.com",
+  "password": "P@ssword123!",
+  "name": "Võ Thị Quỳnh",
+  "phone": "0976145071",
+  "address": "504 Hai Bà Trưng, Nha Trang",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-10-22T11:21:25.838Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc913"
+  },
+  "email": "user46@example.com",
+  "password": "P@ssword123!",
+  "name": "Dương Văn Sơn",
+  "phone": "0989593003",
+  "address": "67 Long Biên, Huế",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-10-05T06:35:31.546Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc914"
+  },
+  "email": "user47@example.com",
+  "password": "P@ssword123!",
+  "name": "Chu Thị Tâm",
+  "phone": "0979205729",
+  "address": "520 Cầu Giấy, Vũng Tàu",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-02-02T23:27:17.348Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc915"
+  },
+  "email": "user48@example.com",
+  "password": "P@ssword123!",
+  "name": "Lưu Văn Ưng",
+  "phone": "0940964352",
+  "address": "114 Quận 1, Hà Nội",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-08-03T22:39:27.944Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc916"
+  },
+  "email": "user49@example.com",
+  "password": "P@ssword123!",
+  "name": "Mai Thị Vân",
+  "phone": "0915455528",
+  "address": "52 Quận 2, Hồ Chí Minh",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-06-22T21:10:31.764Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc917"
+  },
+  "email": "user50@example.com",
+  "password": "P@ssword123!",
+  "name": "Trịnh Văn Xuân",
+  "phone": "0927141561",
+  "address": "712 Quận 3, Đà Nẵng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-07-01T10:25:27.362Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc918"
+  },
+  "email": "user51@example.com",
+  "password": "P@ssword123!",
+  "name": "Hồ Thị Yến",
+  "phone": "0920319797",
+  "address": "213 Ba Đình, Hải Phòng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-06-14T02:38:45.065Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc919"
+  },
+  "email": "user52@example.com",
+  "password": "P@ssword123!",
+  "name": "Lâm Văn Zung",
+  "phone": "0965157061",
+  "address": "27 Hoàn Kiếm, Cần Thơ",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-07-24T04:40:23.817Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc91a"
+  },
+  "email": "user53@example.com",
+  "password": "P@ssword123!",
+  "name": "Từ Thị Ánh",
+  "phone": "0922357926",
+  "address": "608 Hai Bà Trưng, Nha Trang",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-12-03T11:58:41.720Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc91b"
+  },
+  "email": "user54@example.com",
+  "password": "P@ssword123!",
+  "name": "Quan Văn Bảo",
+  "phone": "0983094761",
+  "address": "128 Long Biên, Huế",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-05-16T22:37:26.468Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc91c"
+  },
+  "email": "user55@example.com",
+  "password": "P@ssword123!",
+  "name": "Hứa Thị Cẩm",
+  "phone": "0927364334",
+  "address": "684 Cầu Giấy, Vũng Tàu",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-08-20T21:21:05.846Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc91d"
+  },
+  "email": "user56@example.com",
+  "password": "P@ssword123!",
+  "name": "Tạ Văn Đức",
+  "phone": "0981534510",
+  "address": "302 Quận 1, Hà Nội",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-10-02T16:07:26.833Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc91e"
+  },
+  "email": "user57@example.com",
+  "password": "P@ssword123!",
+  "name": "Lữ Thị Ê",
+  "phone": "0946650505",
+  "address": "960 Quận 2, Hồ Chí Minh",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-08-23T06:44:15.289Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc91f"
+  },
+  "email": "user58@example.com",
+  "password": "P@ssword123!",
+  "name": "Nghiêm Văn Phong",
+  "phone": "0947918757",
+  "address": "865 Quận 3, Đà Nẵng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-12-19T01:53:40.402Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc920"
+  },
+  "email": "user59@example.com",
+  "password": "P@ssword123!",
+  "name": "Ông Thị Giang",
+  "phone": "0986482279",
+  "address": "21 Ba Đình, Hải Phòng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-09-13T00:47:01.255Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc921"
+  },
+  "email": "user60@example.com",
+  "password": "P@ssword123!",
+  "name": "Nguyễn Văn An",
+  "phone": "0918084072",
+  "address": "777 Hoàn Kiếm, Cần Thơ",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-03-11T12:07:30.921Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc922"
+  },
+  "email": "user61@example.com",
+  "password": "P@ssword123!",
+  "name": "Trần Thị Bình",
+  "phone": "0913535237",
+  "address": "131 Hai Bà Trưng, Nha Trang",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-05-12T01:25:40.012Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc923"
+  },
+  "email": "user62@example.com",
+  "password": "P@ssword123!",
+  "name": "Lê Hoàng Cường",
+  "phone": "0925614672",
+  "address": "316 Long Biên, Huế",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-02-01T01:10:32.193Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc924"
+  },
+  "email": "user63@example.com",
+  "password": "P@ssword123!",
+  "name": "Phạm Thị Dương",
+  "phone": "0910669495",
+  "address": "160 Cầu Giấy, Vũng Tàu",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-03-13T07:17:41.131Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc925"
+  },
+  "email": "user64@example.com",
+  "password": "P@ssword123!",
+  "name": "Hoàng Văn Em",
+  "phone": "0952888272",
+  "address": "762 Quận 1, Hà Nội",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-08-24T07:33:05.058Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc926"
+  },
+  "email": "user65@example.com",
+  "password": "P@ssword123!",
+  "name": "Ngô Thị Phương",
+  "phone": "0972600607",
+  "address": "30 Quận 2, Hồ Chí Minh",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-05-06T12:23:58.449Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc927"
+  },
+  "email": "user66@example.com",
+  "password": "P@ssword123!",
+  "name": "Đặng Văn Giang",
+  "phone": "0914096175",
+  "address": "865 Quận 3, Đà Nẵng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-04-06T04:24:41.151Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc928"
+  },
+  "email": "user67@example.com",
+  "password": "P@ssword123!",
+  "name": "Bùi Thị Hương",
+  "phone": "0910181162",
+  "address": "557 Ba Đình, Hải Phòng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-06-21T00:41:08.940Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc929"
+  },
+  "email": "user68@example.com",
+  "password": "P@ssword123!",
+  "name": "Vũ Văn Inh",
+  "phone": "0999696326",
+  "address": "933 Hoàn Kiếm, Cần Thơ",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-05-18T15:30:02.153Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc92a"
+  },
+  "email": "user69@example.com",
+  "password": "P@ssword123!",
+  "name": "Cao Thị Khánh",
+  "phone": "0930829392",
+  "address": "114 Hai Bà Trưng, Nha Trang",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-08-24T22:07:21.837Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc92b"
+  },
+  "email": "user70@example.com",
+  "password": "P@ssword123!",
+  "name": "Đỗ Văn Long",
+  "phone": "0931729420",
+  "address": "7 Long Biên, Huế",
+  "role": "customer",
+  "isActive": false,
+  "createdAt": {
+    "$date": "2024-08-15T13:31:24.013Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc92c"
+  },
+  "email": "user71@example.com",
+  "password": "P@ssword123!",
+  "name": "Lý Thị Minh",
+  "phone": "0941370907",
+  "address": "247 Cầu Giấy, Vũng Tàu",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-08-10T01:57:56.864Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc92d"
+  },
+  "email": "user72@example.com",
+  "password": "P@ssword123!",
+  "name": "Tôn Văn Nam",
+  "phone": "0993993011",
+  "address": "808 Quận 1, Hà Nội",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-08-27T18:21:50.698Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc92e"
+  },
+  "email": "user73@example.com",
+  "password": "P@ssword123!",
+  "name": "Phan Thị Oanh",
+  "phone": "0997677821",
+  "address": "990 Quận 2, Hồ Chí Minh",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-01-29T02:16:53.571Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc92f"
+  },
+  "email": "user74@example.com",
+  "password": "P@ssword123!",
+  "name": "Đinh Văn Phúc",
+  "phone": "0913900226",
+  "address": "733 Quận 3, Đà Nẵng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-12-13T17:31:04.792Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc930"
+  },
+  "email": "user75@example.com",
+  "password": "P@ssword123!",
+  "name": "Võ Thị Quỳnh",
+  "phone": "0961711575",
+  "address": "549 Ba Đình, Hải Phòng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-07-26T23:20:04.850Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc931"
+  },
+  "email": "user76@example.com",
+  "password": "P@ssword123!",
+  "name": "Dương Văn Sơn",
+  "phone": "0944018294",
+  "address": "98 Hoàn Kiếm, Cần Thơ",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-09-21T22:29:04.500Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc932"
+  },
+  "email": "user77@example.com",
+  "password": "P@ssword123!",
+  "name": "Chu Thị Tâm",
+  "phone": "0928426844",
+  "address": "857 Hai Bà Trưng, Nha Trang",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-04-02T21:35:28.585Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc933"
+  },
+  "email": "user78@example.com",
+  "password": "P@ssword123!",
+  "name": "Lưu Văn Ưng",
+  "phone": "0912927353",
+  "address": "381 Long Biên, Huế",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-05-12T11:10:02.473Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc934"
+  },
+  "email": "user79@example.com",
+  "password": "P@ssword123!",
+  "name": "Mai Thị Vân",
+  "phone": "0939853656",
+  "address": "508 Cầu Giấy, Vũng Tàu",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-04-19T15:46:53.997Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc935"
+  },
+  "email": "user80@example.com",
+  "password": "P@ssword123!",
+  "name": "Trịnh Văn Xuân",
+  "phone": "0961222219",
+  "address": "613 Quận 1, Hà Nội",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-05-13T22:43:22.261Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc936"
+  },
+  "email": "user81@example.com",
+  "password": "P@ssword123!",
+  "name": "Hồ Thị Yến",
+  "phone": "0990656184",
+  "address": "127 Quận 2, Hồ Chí Minh",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-11-11T10:51:28.151Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc937"
+  },
+  "email": "user82@example.com",
+  "password": "P@ssword123!",
+  "name": "Lâm Văn Zung",
+  "phone": "0984863035",
+  "address": "866 Quận 3, Đà Nẵng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-06-14T20:11:29.317Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc938"
+  },
+  "email": "user83@example.com",
+  "password": "P@ssword123!",
+  "name": "Từ Thị Ánh",
+  "phone": "0939345620",
+  "address": "978 Ba Đình, Hải Phòng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-09-29T16:43:18.826Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc939"
+  },
+  "email": "user84@example.com",
+  "password": "P@ssword123!",
+  "name": "Quan Văn Bảo",
+  "phone": "0989686079",
+  "address": "506 Hoàn Kiếm, Cần Thơ",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-02-02T18:33:38.823Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc93a"
+  },
+  "email": "user85@example.com",
+  "password": "P@ssword123!",
+  "name": "Hứa Thị Cẩm",
+  "phone": "0940293644",
+  "address": "776 Hai Bà Trưng, Nha Trang",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-08-31T05:36:59.256Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc93b"
+  },
+  "email": "user86@example.com",
+  "password": "P@ssword123!",
+  "name": "Tạ Văn Đức",
+  "phone": "0937978885",
+  "address": "911 Long Biên, Huế",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-09-10T07:43:44.372Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc93c"
+  },
+  "email": "user87@example.com",
+  "password": "P@ssword123!",
+  "name": "Lữ Thị Ê",
+  "phone": "0973772282",
+  "address": "551 Cầu Giấy, Vũng Tàu",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-01-22T05:18:27.745Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc93d"
+  },
+  "email": "user88@example.com",
+  "password": "P@ssword123!",
+  "name": "Nghiêm Văn Phong",
+  "phone": "0953161248",
+  "address": "139 Quận 1, Hà Nội",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-03-12T18:57:11.747Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc93e"
+  },
+  "email": "user89@example.com",
+  "password": "P@ssword123!",
+  "name": "Ông Thị Giang",
+  "phone": "0932152023",
+  "address": "59 Quận 2, Hồ Chí Minh",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-10-18T15:53:19.146Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc93f"
+  },
+  "email": "user90@example.com",
+  "password": "P@ssword123!",
+  "name": "Nguyễn Văn An",
+  "phone": "0920095271",
+  "address": "724 Quận 3, Đà Nẵng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-02-14T08:46:43.931Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc940"
+  },
+  "email": "user91@example.com",
+  "password": "P@ssword123!",
+  "name": "Trần Thị Bình",
+  "phone": "0942831772",
+  "address": "164 Ba Đình, Hải Phòng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-09-06T08:05:18.329Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc941"
+  },
+  "email": "user92@example.com",
+  "password": "P@ssword123!",
+  "name": "Lê Hoàng Cường",
+  "phone": "0914438977",
+  "address": "837 Hoàn Kiếm, Cần Thơ",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-11-10T20:26:07.638Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc942"
+  },
+  "email": "user93@example.com",
+  "password": "P@ssword123!",
+  "name": "Phạm Thị Dương",
+  "phone": "0928884818",
+  "address": "887 Hai Bà Trưng, Nha Trang",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-12-25T00:52:09.750Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc943"
+  },
+  "email": "user94@example.com",
+  "password": "P@ssword123!",
+  "name": "Hoàng Văn Em",
+  "phone": "0984464010",
+  "address": "879 Long Biên, Huế",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-05-02T00:30:43.927Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc944"
+  },
+  "email": "user95@example.com",
+  "password": "P@ssword123!",
+  "name": "Ngô Thị Phương",
+  "phone": "0923171956",
+  "address": "7 Cầu Giấy, Vũng Tàu",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-11-06T12:36:12.017Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc945"
+  },
+  "email": "user96@example.com",
+  "password": "P@ssword123!",
+  "name": "Đặng Văn Giang",
+  "phone": "0951124917",
+  "address": "876 Quận 1, Hà Nội",
+  "role": "customer",
+  "isActive": false,
+  "createdAt": {
+    "$date": "2024-07-01T14:34:01.161Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc946"
+  },
+  "email": "user97@example.com",
+  "password": "P@ssword123!",
+  "name": "Bùi Thị Hương",
+  "phone": "0934937330",
+  "address": "695 Quận 2, Hồ Chí Minh",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-08T18:15:31.038Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc947"
+  },
+  "email": "user98@example.com",
+  "password": "P@ssword123!",
+  "name": "Vũ Văn Inh",
+  "phone": "0975250672",
+  "address": "515 Quận 3, Đà Nẵng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-07-06T08:23:04.178Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc948"
+  },
+  "email": "user99@example.com",
+  "password": "P@ssword123!",
+  "name": "Cao Thị Khánh",
+  "phone": "0990885469",
+  "address": "834 Ba Đình, Hải Phòng",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-03-31T03:54:17.823Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc949"
+  },
+  "email": "user100@example.com",
+  "password": "P@ssword123!",
+  "name": "Đỗ Văn Long",
+  "phone": "0944545699",
+  "address": "368 Hoàn Kiếm, Cần Thơ",
+  "role": "customer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2024-11-07T17:24:15.372Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.778Z"
+  },
+  "__v": 0
+}]

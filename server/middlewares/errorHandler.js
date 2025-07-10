@@ -1,6 +1,19 @@
 const mongoose = require('mongoose');
 const ResponseHandler = require('../services/responseHandler');
 
+// Simple console logger fallback if winston is not available
+const logger = {
+  error: (message, meta) => {
+    console.error(`[ERROR] ${message}`, meta ? JSON.stringify(meta, null, 2) : '');
+  },
+  warn: (message, meta) => {
+    console.warn(`[WARN] ${message}`, meta ? JSON.stringify(meta, null, 2) : '');
+  },
+  info: (message, meta) => {
+    console.log(`[INFO] ${message}`, meta ? JSON.stringify(meta, null, 2) : '');
+  }
+};
+
 /**
  * Custom Error class để tạo lỗi có thể điều khiển được
  */
@@ -100,7 +113,7 @@ const errorHandler = (err, req, res, next) => {
   // Lỗi server mặc định nếu không phải các loại trên
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Internal server error';
-  return ResponseHandler.error(res, message, statusCode, process.env.NODE_ENV === 'production' ? null : err);
+  return ResponseHandler.error(res, message, statusCode);
 };
 
 module.exports = {

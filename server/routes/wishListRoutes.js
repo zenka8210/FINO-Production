@@ -26,13 +26,13 @@ router.post('/multiple', wishListController.addMultipleToWishList);
 router.post('/toggle', wishListController.toggleWishList);
 
 // DELETE /api/wishlist/:id - Remove item from wishlist
-router.delete('/:id', validateObjectId, wishListController.removeFromWishList);
+router.delete('/:id', validateObjectId('id'), wishListController.removeFromWishList);
 
 // DELETE /api/wishlist/clear - Clear user's wishlist
 router.delete('/clear', wishListController.clearWishList);
 
 // GET /api/wishlist/check/:productId - Check if product is in wishlist
-router.get('/check/:productId', validateObjectId, wishListController.checkInWishList);
+router.get('/check/:productId', validateObjectId('productId'), wishListController.checkInWishList);
 
 // Admin routes
 router.use(adminMiddleware);

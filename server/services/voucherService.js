@@ -85,7 +85,7 @@ class VoucherService extends BaseService {
   async getVoucherById(voucherId) {
     const voucher = await this.getById(voucherId);
     if (!voucher) {
-      throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.VOUCHER.NOT_FOUND);
+      throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
     }
     return voucher;
   }
@@ -99,15 +99,15 @@ class VoucherService extends BaseService {
   async getVoucherByCode(code) {
     const voucher = await this.Model.findOne({ code });
     if (!voucher) {
-      throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.VOUCHER.NOT_FOUND);
+      throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
     }
     // Optionally, check if the voucher is active based on startDate and endDate
     const now = new Date();
     if (voucher.startDate > now) {
-        throw new AppError(voucherMessages.VOUCHER_NOT_YET_ACTIVE, ERROR_CODES.VOUCHER.INVALID);
+        throw new AppError(voucherMessages.VOUCHER_NOT_YET_ACTIVE, ERROR_CODES.BAD_REQUEST);
     }
     if (voucher.endDate < now) {
-        throw new AppError(voucherMessages.VOUCHER_EXPIRED, ERROR_CODES.VOUCHER.INVALID);
+        throw new AppError(voucherMessages.VOUCHER_EXPIRED, ERROR_CODES.BAD_REQUEST);
     }
     return voucher;
   }
@@ -129,7 +129,7 @@ class VoucherService extends BaseService {
     }
     const voucher = await this.updateById(voucherId, updateData);
     if (!voucher) {
-      throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.VOUCHER.NOT_FOUND);
+      throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
     }
     return voucher;
   }
@@ -143,7 +143,7 @@ class VoucherService extends BaseService {
   async deleteVoucher(voucherId) {
     const voucher = await this.deleteById(voucherId);
     if (!voucher) {
-      throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.VOUCHER.NOT_FOUND);
+      throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
     }
     return voucher;
   }  /**
@@ -227,7 +227,7 @@ class VoucherService extends BaseService {
   async toggleVoucherStatus(voucherId) {
     const voucher = await this.getById(voucherId);
     if (!voucher) {
-      throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.VOUCHER.NOT_FOUND);
+      throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
     }
 
     return await this.updateById(voucherId, { isActive: !voucher.isActive });

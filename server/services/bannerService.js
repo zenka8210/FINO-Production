@@ -35,7 +35,7 @@ class BannerService extends BaseService {
                 totalPages: Math.ceil(totalBanners / limit),
             };
         } catch (error) {
-            throw new AppError(MESSAGES.BANNER.ERROR.FETCH_ALL, ERROR_CODES.BANNER.FETCH_ALL_FAILED, 500);
+            throw new AppError(MESSAGES.BANNER_FETCH_ALL_FAILED, ERROR_CODES.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -43,12 +43,12 @@ class BannerService extends BaseService {
         try {
             const banner = await Banner.findById(bannerId);
             if (!banner) {
-                throw new AppError(MESSAGES.BANNER.ERROR.NOT_FOUND, ERROR_CODES.BANNER.NOT_FOUND, 404);
+                throw new AppError(MESSAGES.BANNER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
             }
             return banner;
         } catch (error) {
             if (error instanceof AppError) throw error;
-            throw new AppError(MESSAGES.BANNER.ERROR.FETCH_SINGLE, ERROR_CODES.BANNER.FETCH_SINGLE_FAILED, 500);
+            throw new AppError(MESSAGES.BANNER_FETCH_SINGLE_FAILED, ERROR_CODES.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -58,7 +58,7 @@ class BannerService extends BaseService {
             await newBanner.save();
             return newBanner;
         } catch (error) {
-            throw new AppError(MESSAGES.BANNER.ERROR.CREATE, ERROR_CODES.BANNER.CREATE_FAILED, 400, error.errors);
+            throw new AppError(MESSAGES.BANNER_CREATE_FAILED, ERROR_CODES.BAD_REQUEST);
         }
     }
 
@@ -66,12 +66,12 @@ class BannerService extends BaseService {
         try {
             const banner = await Banner.findByIdAndUpdate(bannerId, updateData, { new: true, runValidators: true });
             if (!banner) {
-                throw new AppError(MESSAGES.BANNER.ERROR.NOT_FOUND, ERROR_CODES.BANNER.NOT_FOUND, 404);
+                throw new AppError(MESSAGES.BANNER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
             }
             return banner;
         } catch (error) {
             if (error instanceof AppError) throw error;
-            throw new AppError(MESSAGES.BANNER.ERROR.UPDATE, ERROR_CODES.BANNER.UPDATE_FAILED, 400, error.errors);
+            throw new AppError(MESSAGES.BANNER_UPDATE_FAILED, ERROR_CODES.BAD_REQUEST);
         }
     }
 
@@ -79,12 +79,12 @@ class BannerService extends BaseService {
         try {
             const banner = await Banner.findByIdAndDelete(bannerId);
             if (!banner) {
-                throw new AppError(MESSAGES.BANNER.ERROR.NOT_FOUND, ERROR_CODES.BANNER.NOT_FOUND, 404);
+                throw new AppError(MESSAGES.BANNER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
             }
-            return { message: MESSAGES.BANNER.SUCCESS.DELETE };
+            return { message: MESSAGES.BANNER_DELETED };
         } catch (error) {
             if (error instanceof AppError) throw error;
-            throw new AppError(MESSAGES.BANNER.ERROR.DELETE, ERROR_CODES.BANNER.DELETE_FAILED, 500);
+            throw new AppError(MESSAGES.BANNER_DELETE_FAILED, ERROR_CODES.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -93,7 +93,7 @@ class BannerService extends BaseService {
         try {
             return await Banner.find({ isActive: true }).sort({ createdAt: -1 }); // Example sort, adjust if needed
         } catch (error) {
-            throw new AppError(MESSAGES.BANNER.ERROR.FETCH_ACTIVE, ERROR_CODES.BANNER.FETCH_ACTIVE_FAILED, 500);
+            throw new AppError(MESSAGES.BANNER_FETCH_ACTIVE_FAILED, ERROR_CODES.INTERNAL_SERVER_ERROR);
         }
     }
 }

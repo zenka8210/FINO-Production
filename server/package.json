@@ -4,7 +4,21 @@
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "seed": "node seedUsers.js",
+    "test": "node testAPIs.js",
+    "test-all": "node testAllAPIs.js",
+    "test-comprehensive": "node testAllAPIs.js",
+    "seed-and-test": "node seedUsers.js && timeout /t 3 && node testAPIs.js",
+    "seed-and-test-all": "node seedUsers.js && timeout /t 3 && node testAllAPIs.js",
+    "full-test": "node seedUsers.js && timeout /t 3 && node testAllAPIs.js",
+    "cleanup": "node cleanupTestData.js",
+    "cleanup-recent": "node cleanupTestData.js --by-date",
+    "cleanup-hours": "node cleanupTestData.js --by-date --hours=1",
+    "cleanup-comprehensive": "node cleanupComprehensive.js",
+    "deep-cleanup": "node cleanupComprehensive.js --confirm",
+    "cleanup-recent-only": "node cleanupComprehensive.js --confirm --recent-only",
+    "test-stock": "node testStockManagement.js"
   },
   "keywords": [],
   "author": "",

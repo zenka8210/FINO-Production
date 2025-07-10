@@ -1,0 +1,7060 @@
+[{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd73"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc919"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca9e"
+      },
+      "quantity": 1,
+      "price": 89427,
+      "totalPrice": 89427
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb50"
+      },
+      "quantity": 1,
+      "price": 1374123,
+      "totalPrice": 1374123
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc25"
+  },
+  "total": 1463550,
+  "voucher": null,
+  "shippingFee": 20000,
+  "finalTotal": 1483550,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-18T21:59:39.903Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:20.910Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd74"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ee"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca84"
+      },
+      "quantity": 2,
+      "price": 566525,
+      "totalPrice": 1133050
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbc9"
+      },
+      "quantity": 2,
+      "price": 1332073,
+      "totalPrice": 2664146
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb06"
+      },
+      "quantity": 2,
+      "price": 591924,
+      "totalPrice": 1183848
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbe3"
+  },
+  "total": 4981044,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 5031044,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-27T09:21:46.091Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:20.939Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd75"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc935"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb0f"
+      },
+      "quantity": 2,
+      "price": 329904,
+      "totalPrice": 659808
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc51"
+  },
+  "total": 659808,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dcca1"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 643827.2,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-20T10:08:12.575Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.030Z"
+  },
+  "__v": 0,
+  "discountAmount": 65980.8
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd76"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc940"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb6d"
+      },
+      "quantity": 1,
+      "price": 1165834,
+      "totalPrice": 1165834
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca66"
+      },
+      "quantity": 1,
+      "price": 276485,
+      "totalPrice": 276485
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb75"
+      },
+      "quantity": 1,
+      "price": 1481758,
+      "totalPrice": 1481758
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc60"
+  },
+  "total": 2924077,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2974077,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-21T02:14:46.826Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:20.951Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd77"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc934"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbba"
+      },
+      "quantity": 1,
+      "price": 1418644,
+      "totalPrice": 1418644
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca48"
+      },
+      "quantity": 2,
+      "price": 1064684,
+      "totalPrice": 2129368
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc50"
+  },
+  "total": 3548012,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccbf"
+  },
+  "shippingFee": 20000,
+  "finalTotal": 3368012,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-14T04:49:20.867Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.045Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd78"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc907"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb55"
+      },
+      "quantity": 2,
+      "price": 1187358,
+      "totalPrice": 2374716
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcabf"
+      },
+      "quantity": 2,
+      "price": 222246,
+      "totalPrice": 444492
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc0a"
+  },
+  "total": 2819208,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2869208,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-27T02:08:41.646Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:20.959Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd79"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f3"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb76"
+      },
+      "quantity": 2,
+      "price": 1384431,
+      "totalPrice": 2768862
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca88"
+      },
+      "quantity": 1,
+      "price": 185579,
+      "totalPrice": 185579
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb6e"
+      },
+      "quantity": 2,
+      "price": 639783,
+      "totalPrice": 1279566
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbed"
+  },
+  "total": 4234007,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dcca5"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 4084007,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-20T07:19:30.807Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.063Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd7a"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92a"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaeb"
+      },
+      "quantity": 1,
+      "price": 258988,
+      "totalPrice": 258988
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc42"
+  },
+  "total": 258988,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 308988,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-23T14:27:02.130Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:20.968Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd7b"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc90b"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb2a"
+      },
+      "quantity": 2,
+      "price": 370308,
+      "totalPrice": 740616
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc0e"
+  },
+  "total": 740616,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccae"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 679523.6,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-14T19:08:05.164Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.077Z"
+  },
+  "__v": 0,
+  "discountAmount": 111092.4
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd7c"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc928"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb1f"
+      },
+      "quantity": 2,
+      "price": 370229,
+      "totalPrice": 740458
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbbc"
+      },
+      "quantity": 1,
+      "price": 635485,
+      "totalPrice": 635485
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb9e"
+      },
+      "quantity": 2,
+      "price": 894511,
+      "totalPrice": 1789022
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc3f"
+  },
+  "total": 3164965,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3214965,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-29T02:50:36.537Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:20.977Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd7d"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f8"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb75"
+      },
+      "quantity": 1,
+      "price": 1481758,
+      "totalPrice": 1481758
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcad6"
+      },
+      "quantity": 1,
+      "price": 1370709,
+      "totalPrice": 1370709
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb45"
+      },
+      "quantity": 1,
+      "price": 603293,
+      "totalPrice": 603293
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbf3"
+  },
+  "total": 3455760,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccbf"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 3305760,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-22T20:11:50.695Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.083Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd7e"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc907"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca8d"
+      },
+      "quantity": 2,
+      "price": 166126,
+      "totalPrice": 332252
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc0a"
+  },
+  "total": 332252,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 382252,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-06-09T01:51:21.232Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:20.983Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd7f"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc908"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaf0"
+      },
+      "quantity": 1,
+      "price": 1076848,
+      "totalPrice": 1076848
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc0b"
+  },
+  "total": 1076848,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccc1"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 1073005.6,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-19T13:29:41.969Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.092Z"
+  },
+  "__v": 0,
+  "discountAmount": 53842.4
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd80"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc912"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca8a"
+      },
+      "quantity": 2,
+      "price": 1308281,
+      "totalPrice": 2616562
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbbd"
+      },
+      "quantity": 1,
+      "price": 618419,
+      "totalPrice": 618419
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb98"
+      },
+      "quantity": 2,
+      "price": 1403496,
+      "totalPrice": 2806992
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc19"
+  },
+  "total": 6041973,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 6091973,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-06-07T04:38:16.691Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:20.987Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd81"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93c"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb29"
+      },
+      "quantity": 1,
+      "price": 620854,
+      "totalPrice": 620854
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb60"
+      },
+      "quantity": 2,
+      "price": 425158,
+      "totalPrice": 850316
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc5b"
+  },
+  "total": 1471170,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1521170,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-17T05:44:50.739Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:20.991Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd82"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92d"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb2f"
+      },
+      "quantity": 2,
+      "price": 638908,
+      "totalPrice": 1277816
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb95"
+      },
+      "quantity": 1,
+      "price": 661939,
+      "totalPrice": 661939
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc47"
+  },
+  "total": 1939755,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1989755,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-04T20:12:23.171Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:20.995Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd83"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc900"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca3b"
+      },
+      "quantity": 2,
+      "price": 144795,
+      "totalPrice": 289590
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc01"
+  },
+  "total": 289590,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 339590,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-02T17:45:30.415Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:20.998Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd84"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc928"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca56"
+      },
+      "quantity": 1,
+      "price": 231329,
+      "totalPrice": 231329
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb8c"
+      },
+      "quantity": 1,
+      "price": 1224587,
+      "totalPrice": 1224587
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc3f"
+  },
+  "total": 1455916,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1505916,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-26T14:32:44.248Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.001Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd85"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc931"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb21"
+      },
+      "quantity": 1,
+      "price": 488063,
+      "totalPrice": 488063
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb7a"
+      },
+      "quantity": 1,
+      "price": 513790,
+      "totalPrice": 513790
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc4c"
+  },
+  "total": 1001853,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1051853,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-21T23:23:30.812Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.004Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd86"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ff"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca94"
+      },
+      "quantity": 1,
+      "price": 580942,
+      "totalPrice": 580942
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbff"
+  },
+  "total": 580942,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 630942,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-19T20:04:45.948Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.007Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd87"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f7"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbc7"
+      },
+      "quantity": 1,
+      "price": 958379,
+      "totalPrice": 958379
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcae5"
+      },
+      "quantity": 1,
+      "price": 583102,
+      "totalPrice": 583102
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb38"
+      },
+      "quantity": 2,
+      "price": 1089108,
+      "totalPrice": 2178216
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbf2"
+  },
+  "total": 3719697,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3769697,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-27T20:30:08.439Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.012Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd88"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f2"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca8b"
+      },
+      "quantity": 1,
+      "price": 1419044,
+      "totalPrice": 1419044
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbeb"
+  },
+  "total": 1419044,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1469044,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-09T23:11:48.193Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.015Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd89"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93c"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb0f"
+      },
+      "quantity": 1,
+      "price": 329904,
+      "totalPrice": 329904
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc5b"
+  },
+  "total": 329904,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 379904,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-30T15:25:36.326Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.018Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd8a"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc930"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb90"
+      },
+      "quantity": 2,
+      "price": 1365268,
+      "totalPrice": 2730536
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca8b"
+      },
+      "quantity": 2,
+      "price": 1419044,
+      "totalPrice": 2838088
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca92"
+      },
+      "quantity": 1,
+      "price": 633819,
+      "totalPrice": 633819
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc4a"
+  },
+  "total": 6202443,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 6252443,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-09T17:13:51.365Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.021Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd8b"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc944"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaae"
+      },
+      "quantity": 2,
+      "price": 1585628,
+      "totalPrice": 3171256
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc65"
+  },
+  "total": 3171256,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3221256,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-24T04:18:25.006Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.027Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd8c"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc942"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb6e"
+      },
+      "quantity": 1,
+      "price": 639783,
+      "totalPrice": 639783
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc63"
+  },
+  "total": 639783,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dcc9f"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 593815.55,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-30T18:11:17.046Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.098Z"
+  },
+  "__v": 0,
+  "discountAmount": 95967.45
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd8d"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc912"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca79"
+      },
+      "quantity": 1,
+      "price": 513242,
+      "totalPrice": 513242
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc19"
+  },
+  "total": 513242,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 563242,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-02T18:53:25.623Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.035Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd8e"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc917"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaa9"
+      },
+      "quantity": 2,
+      "price": 930943,
+      "totalPrice": 1861886
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaba"
+      },
+      "quantity": 2,
+      "price": 1537605,
+      "totalPrice": 3075210
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc21"
+  },
+  "total": 4937096,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 4987096,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-09T02:47:43.517Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.038Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd8f"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ff"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb3a"
+      },
+      "quantity": 1,
+      "price": 548949,
+      "totalPrice": 548949
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcae2"
+      },
+      "quantity": 1,
+      "price": 702732,
+      "totalPrice": 702732
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbff"
+  },
+  "total": 1251681,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dcca5"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 1176512.9,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-05T16:48:33.264Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.108Z"
+  },
+  "__v": 0,
+  "discountAmount": 125168.1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd90"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93d"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcae6"
+      },
+      "quantity": 2,
+      "price": 709747,
+      "totalPrice": 1419494
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcabf"
+      },
+      "quantity": 1,
+      "price": 222246,
+      "totalPrice": 222246
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcac5"
+      },
+      "quantity": 1,
+      "price": 638180,
+      "totalPrice": 638180
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc5c"
+  },
+  "total": 2279920,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2329920,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-25T09:14:50.239Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.046Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd91"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f3"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbb6"
+      },
+      "quantity": 1,
+      "price": 1450090,
+      "totalPrice": 1450090
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca3a"
+      },
+      "quantity": 2,
+      "price": 162269,
+      "totalPrice": 324538
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbb4"
+      },
+      "quantity": 1,
+      "price": 1608173,
+      "totalPrice": 1608173
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbed"
+  },
+  "total": 3382801,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3432801,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-31T05:29:00.367Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.050Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd92"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f5"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb93"
+      },
+      "quantity": 1,
+      "price": 259397,
+      "totalPrice": 259397
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbc4"
+      },
+      "quantity": 1,
+      "price": 413687,
+      "totalPrice": 413687
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbf0"
+  },
+  "total": 673084,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 723084,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-04T07:07:53.903Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.053Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd93"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93b"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb10"
+      },
+      "quantity": 1,
+      "price": 836234,
+      "totalPrice": 836234
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc5a"
+  },
+  "total": 836234,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 886234,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-03T04:38:16.230Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.056Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd94"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc900"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb79"
+      },
+      "quantity": 1,
+      "price": 1309179,
+      "totalPrice": 1309179
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcac9"
+      },
+      "quantity": 2,
+      "price": 916351,
+      "totalPrice": 1832702
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb21"
+      },
+      "quantity": 1,
+      "price": 488063,
+      "totalPrice": 488063
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc01"
+  },
+  "total": 3629944,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccc3"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 3479944,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-27T03:31:53.683Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.114Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd95"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc927"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbb7"
+      },
+      "quantity": 1,
+      "price": 1387145,
+      "totalPrice": 1387145
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc3d"
+  },
+  "total": 1387145,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1437145,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-14T10:14:23.301Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.065Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd96"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc938"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca94"
+      },
+      "quantity": 2,
+      "price": 580942,
+      "totalPrice": 1161884
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc55"
+  },
+  "total": 1161884,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1211884,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-26T21:17:32.632Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.068Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd97"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f8"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca8e"
+      },
+      "quantity": 2,
+      "price": 173432,
+      "totalPrice": 346864
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca86"
+      },
+      "quantity": 1,
+      "price": 1359978,
+      "totalPrice": 1359978
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca61"
+      },
+      "quantity": 2,
+      "price": 432549,
+      "totalPrice": 865098
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbf3"
+  },
+  "total": 2571940,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2621940,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-01T19:59:25.495Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.071Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd98"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc929"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb4c"
+      },
+      "quantity": 1,
+      "price": 798123,
+      "totalPrice": 798123
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc41"
+  },
+  "total": 798123,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 848123,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-18T11:04:09.076Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.075Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd99"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc946"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb4a"
+      },
+      "quantity": 1,
+      "price": 114127,
+      "totalPrice": 114127
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca7c"
+      },
+      "quantity": 2,
+      "price": 1015100,
+      "totalPrice": 2030200
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca82"
+      },
+      "quantity": 2,
+      "price": 358198,
+      "totalPrice": 716396
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc69"
+  },
+  "total": 2860723,
+  "voucher": null,
+  "shippingFee": 20000,
+  "finalTotal": 2880723,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-26T12:32:06.411Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.082Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd9a"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92b"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca88"
+      },
+      "quantity": 1,
+      "price": 185579,
+      "totalPrice": 185579
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca4e"
+      },
+      "quantity": 1,
+      "price": 1352493,
+      "totalPrice": 1352493
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc43"
+  },
+  "total": 1538072,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1588072,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-29T11:08:45.740Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.085Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd9b"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc927"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb82"
+      },
+      "quantity": 2,
+      "price": 302198,
+      "totalPrice": 604396
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb41"
+      },
+      "quantity": 1,
+      "price": 980342,
+      "totalPrice": 980342
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbc5"
+      },
+      "quantity": 1,
+      "price": 438852,
+      "totalPrice": 438852
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc3d"
+  },
+  "total": 2023590,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2073590,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-10T19:15:58.514Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.088Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd9c"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc91d"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca84"
+      },
+      "quantity": 1,
+      "price": 566525,
+      "totalPrice": 566525
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc2c"
+  },
+  "total": 566525,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dcca9"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 474893.75,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-28T14:01:14.632Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.120Z"
+  },
+  "__v": 0,
+  "discountAmount": 141631.25
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd9d"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fc"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcab6"
+      },
+      "quantity": 2,
+      "price": 432083,
+      "totalPrice": 864166
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbc3"
+      },
+      "quantity": 2,
+      "price": 426992,
+      "totalPrice": 853984
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaab"
+      },
+      "quantity": 2,
+      "price": 1515063,
+      "totalPrice": 3030126
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbfa"
+  },
+  "total": 4748276,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 4798276,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-04T12:10:35.520Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.097Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd9e"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc913"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcae7"
+      },
+      "quantity": 1,
+      "price": 268052,
+      "totalPrice": 268052
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca49"
+      },
+      "quantity": 2,
+      "price": 790471,
+      "totalPrice": 1580942
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca4d"
+      },
+      "quantity": 2,
+      "price": 1265147,
+      "totalPrice": 2530294
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc1a"
+  },
+  "total": 4379288,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 4429288,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-01T04:03:54.170Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.100Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd9f"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93f"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca6f"
+      },
+      "quantity": 2,
+      "price": 1101212,
+      "totalPrice": 2202424
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc5e"
+  },
+  "total": 2202424,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccb9"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 2052424,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-24T21:58:31.415Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.128Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcda0"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92a"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaa7"
+      },
+      "quantity": 1,
+      "price": 795334,
+      "totalPrice": 795334
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb21"
+      },
+      "quantity": 1,
+      "price": 488063,
+      "totalPrice": 488063
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc42"
+  },
+  "total": 1283397,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccad"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 1133397,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-16T19:59:32.566Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.133Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcda1"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc918"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbbd"
+      },
+      "quantity": 1,
+      "price": 618419,
+      "totalPrice": 618419
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca6c"
+      },
+      "quantity": 2,
+      "price": 1006603,
+      "totalPrice": 2013206
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc23"
+  },
+  "total": 2631625,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2681625,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-16T21:33:16.165Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.111Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcda2"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f3"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbaf"
+      },
+      "quantity": 2,
+      "price": 1434573,
+      "totalPrice": 2869146
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca54"
+      },
+      "quantity": 2,
+      "price": 809390,
+      "totalPrice": 1618780
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcba8"
+      },
+      "quantity": 1,
+      "price": 1349076,
+      "totalPrice": 1349076
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbed"
+  },
+  "total": 5837002,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 5887002,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-15T11:11:30.324Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.114Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcda3"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ef"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcac2"
+      },
+      "quantity": 1,
+      "price": 712049,
+      "totalPrice": 712049
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbe5"
+  },
+  "total": 712049,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 762049,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-07T10:26:59.441Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.117Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcda4"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc909"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb2b"
+      },
+      "quantity": 2,
+      "price": 387126,
+      "totalPrice": 774252
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc0c"
+  },
+  "total": 774252,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 824252,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-31T22:55:25.692Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.120Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcda5"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc913"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcab2"
+      },
+      "quantity": 2,
+      "price": 660155,
+      "totalPrice": 1320310
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcba1"
+      },
+      "quantity": 2,
+      "price": 1088536,
+      "totalPrice": 2177072
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb5c"
+      },
+      "quantity": 2,
+      "price": 1238499,
+      "totalPrice": 2476998
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc1a"
+  },
+  "total": 5974380,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 6024380,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-17T09:40:20.514Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.123Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcda6"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f9"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca5f"
+      },
+      "quantity": 2,
+      "price": 901889,
+      "totalPrice": 1803778
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb19"
+      },
+      "quantity": 1,
+      "price": 275801,
+      "totalPrice": 275801
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaf7"
+      },
+      "quantity": 2,
+      "price": 1167714,
+      "totalPrice": 2335428
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbf4"
+  },
+  "total": 4415007,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 4465007,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-07T15:10:15.084Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.127Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcda7"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fe"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcab6"
+      },
+      "quantity": 2,
+      "price": 432083,
+      "totalPrice": 864166
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca87"
+      },
+      "quantity": 2,
+      "price": 1350869,
+      "totalPrice": 2701738
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb15"
+      },
+      "quantity": 1,
+      "price": 524877,
+      "totalPrice": 524877
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbfd"
+  },
+  "total": 4090781,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 4140781,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-03T13:57:09.301Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.130Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcda8"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8eb"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcacd"
+      },
+      "quantity": 1,
+      "price": 1238848,
+      "totalPrice": 1238848
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca4c"
+      },
+      "quantity": 1,
+      "price": 1510634,
+      "totalPrice": 1510634
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbde"
+  },
+  "total": 2749482,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2799482,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-17T08:04:26.840Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.132Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcda9"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc930"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcab8"
+      },
+      "quantity": 2,
+      "price": 1267949,
+      "totalPrice": 2535898
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc4a"
+  },
+  "total": 2535898,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2585898,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-14T20:40:33.394Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.135Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdaa"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc903"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca7a"
+      },
+      "quantity": 2,
+      "price": 1163998,
+      "totalPrice": 2327996
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc05"
+  },
+  "total": 2327996,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2377996,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-17T18:05:56.851Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.139Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdab"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f2"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca3b"
+      },
+      "quantity": 2,
+      "price": 144795,
+      "totalPrice": 289590
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbeb"
+  },
+  "total": 289590,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 339590,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-01T00:24:15.536Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.144Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdac"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc923"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcae8"
+      },
+      "quantity": 2,
+      "price": 288485,
+      "totalPrice": 576970
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcafb"
+      },
+      "quantity": 1,
+      "price": 665336,
+      "totalPrice": 665336
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb82"
+      },
+      "quantity": 2,
+      "price": 302198,
+      "totalPrice": 604396
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc37"
+  },
+  "total": 1846702,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1896702,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-21T20:18:21.033Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.147Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdad"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fb"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca38"
+      },
+      "quantity": 1,
+      "price": 970045,
+      "totalPrice": 970045
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaea"
+      },
+      "quantity": 1,
+      "price": 292565,
+      "totalPrice": 292565
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbf8"
+  },
+  "total": 1262610,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1312610,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-17T01:35:45.864Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.153Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdae"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc941"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb57"
+      },
+      "quantity": 2,
+      "price": 1047407,
+      "totalPrice": 2094814
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc62"
+  },
+  "total": 2094814,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2144814,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-14T06:17:14.085Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.156Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdaf"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92c"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca40"
+      },
+      "quantity": 1,
+      "price": 274401,
+      "totalPrice": 274401
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcab1"
+      },
+      "quantity": 2,
+      "price": 930035,
+      "totalPrice": 1860070
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc45"
+  },
+  "total": 2134471,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dcc9c"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 1984471,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-04T15:57:34.775Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.140Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdb0"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc943"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca87"
+      },
+      "quantity": 1,
+      "price": 1350869,
+      "totalPrice": 1350869
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcac2"
+      },
+      "quantity": 2,
+      "price": 712049,
+      "totalPrice": 1424098
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaf9"
+      },
+      "quantity": 1,
+      "price": 768853,
+      "totalPrice": 768853
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc64"
+  },
+  "total": 3543820,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccbd"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 3393820,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-28T04:32:14.365Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.145Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdb1"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fb"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca86"
+      },
+      "quantity": 2,
+      "price": 1359978,
+      "totalPrice": 2719956
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb6e"
+      },
+      "quantity": 2,
+      "price": 639783,
+      "totalPrice": 1279566
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbf8"
+  },
+  "total": 3999522,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 4049522,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-06-04T19:08:44.857Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.166Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdb2"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc915"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcafe"
+      },
+      "quantity": 2,
+      "price": 574330,
+      "totalPrice": 1148660
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc1d"
+  },
+  "total": 1148660,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1198660,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-06-09T04:18:28.057Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.169Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdb3"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93b"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb54"
+      },
+      "quantity": 2,
+      "price": 1348854,
+      "totalPrice": 2697708
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca63"
+      },
+      "quantity": 2,
+      "price": 1100274,
+      "totalPrice": 2200548
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc5a"
+  },
+  "total": 4898256,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 4948256,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-15T01:11:28.819Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.172Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdb4"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc90b"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb8c"
+      },
+      "quantity": 2,
+      "price": 1224587,
+      "totalPrice": 2449174
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc0e"
+  },
+  "total": 2449174,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2499174,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-21T07:57:10.878Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.176Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdb5"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc90b"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb75"
+      },
+      "quantity": 1,
+      "price": 1481758,
+      "totalPrice": 1481758
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc0e"
+  },
+  "total": 1481758,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1531758,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-07T03:15:56.955Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.179Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdb6"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc930"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaad"
+      },
+      "quantity": 2,
+      "price": 1666976,
+      "totalPrice": 3333952
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc4a"
+  },
+  "total": 3333952,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3383952,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-06-02T20:51:35.677Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.181Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdb7"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93c"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbd6"
+      },
+      "quantity": 2,
+      "price": 918676,
+      "totalPrice": 1837352
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaad"
+      },
+      "quantity": 2,
+      "price": 1666976,
+      "totalPrice": 3333952
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc5b"
+  },
+  "total": 5171304,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 5221304,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-17T14:41:26.450Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.183Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdb8"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f2"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb5a"
+      },
+      "quantity": 2,
+      "price": 1485066,
+      "totalPrice": 2970132
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb5b"
+      },
+      "quantity": 1,
+      "price": 1405099,
+      "totalPrice": 1405099
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbc8"
+      },
+      "quantity": 2,
+      "price": 1272110,
+      "totalPrice": 2544220
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbeb"
+  },
+  "total": 6919451,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dcc95"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 6769451,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-16T00:35:46.571Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.149Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdb9"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc927"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb97"
+      },
+      "quantity": 1,
+      "price": 1622287,
+      "totalPrice": 1622287
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca3e"
+      },
+      "quantity": 1,
+      "price": 328391,
+      "totalPrice": 328391
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaaa"
+      },
+      "quantity": 1,
+      "price": 1264731,
+      "totalPrice": 1264731
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc3d"
+  },
+  "total": 3215409,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3265409,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-27T21:26:05.925Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.189Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdba"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92e"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb52"
+      },
+      "quantity": 2,
+      "price": 1813495,
+      "totalPrice": 3626990
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcadd"
+      },
+      "quantity": 2,
+      "price": 1250186,
+      "totalPrice": 2500372
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc48"
+  },
+  "total": 6127362,
+  "voucher": null,
+  "shippingFee": 20000,
+  "finalTotal": 6147362,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-30T07:14:50.192Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.194Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdbb"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92e"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaf1"
+      },
+      "quantity": 1,
+      "price": 1581591,
+      "totalPrice": 1581591
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc48"
+  },
+  "total": 1581591,
+  "voucher": null,
+  "shippingFee": 20000,
+  "finalTotal": 1601591,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-30T11:19:48.150Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.197Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdbc"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fc"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca97"
+      },
+      "quantity": 2,
+      "price": 379149,
+      "totalPrice": 758298
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbba"
+      },
+      "quantity": 2,
+      "price": 1418644,
+      "totalPrice": 2837288
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb5c"
+      },
+      "quantity": 2,
+      "price": 1238499,
+      "totalPrice": 2476998
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbfa"
+  },
+  "total": 6072584,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 6122584,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-21T22:26:53.724Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.200Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdbd"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc929"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb5b"
+      },
+      "quantity": 2,
+      "price": 1405099,
+      "totalPrice": 2810198
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcae9"
+      },
+      "quantity": 2,
+      "price": 245351,
+      "totalPrice": 490702
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc41"
+  },
+  "total": 3300900,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3350900,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-10T23:14:41.063Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.202Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdbe"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fb"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca54"
+      },
+      "quantity": 1,
+      "price": 809390,
+      "totalPrice": 809390
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb92"
+      },
+      "quantity": 1,
+      "price": 260872,
+      "totalPrice": 260872
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbf8"
+  },
+  "total": 1070262,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1120262,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-17T12:51:56.943Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.205Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdbf"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc939"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb76"
+      },
+      "quantity": 2,
+      "price": 1384431,
+      "totalPrice": 2768862
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcab7"
+      },
+      "quantity": 1,
+      "price": 1322389,
+      "totalPrice": 1322389
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc57"
+  },
+  "total": 4091251,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccbf"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 3941251,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-27T15:48:31.397Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.153Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdc0"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f7"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb60"
+      },
+      "quantity": 1,
+      "price": 425158,
+      "totalPrice": 425158
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbf2"
+  },
+  "total": 425158,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 475158,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-14T02:49:32.599Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.212Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdc1"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f5"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb5a"
+      },
+      "quantity": 1,
+      "price": 1485066,
+      "totalPrice": 1485066
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb91"
+      },
+      "quantity": 2,
+      "price": 236080,
+      "totalPrice": 472160
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb8e"
+      },
+      "quantity": 1,
+      "price": 529211,
+      "totalPrice": 529211
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbf0"
+  },
+  "total": 2486437,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dcca3"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 2336437,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-31T08:48:50.355Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.160Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdc2"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc926"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbc2"
+      },
+      "quantity": 1,
+      "price": 409032,
+      "totalPrice": 409032
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca5d"
+      },
+      "quantity": 2,
+      "price": 1123193,
+      "totalPrice": 2246386
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca91"
+      },
+      "quantity": 1,
+      "price": 792512,
+      "totalPrice": 792512
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc3c"
+  },
+  "total": 3447930,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccbe"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 3297930,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-03T22:57:56.981Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.167Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdc3"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc941"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca91"
+      },
+      "quantity": 2,
+      "price": 792512,
+      "totalPrice": 1585024
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc62"
+  },
+  "total": 1585024,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dcc97"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 1435024,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-06-07T19:00:23.164Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.174Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdc4"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc90f"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca89"
+      },
+      "quantity": 2,
+      "price": 187873,
+      "totalPrice": 375746
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc15"
+  },
+  "total": 375746,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 425746,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-21T07:39:07.540Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.223Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdc5"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc91a"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaf1"
+      },
+      "quantity": 2,
+      "price": 1581591,
+      "totalPrice": 3163182
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca46"
+      },
+      "quantity": 1,
+      "price": 181052,
+      "totalPrice": 181052
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc27"
+  },
+  "total": 3344234,
+  "voucher": null,
+  "shippingFee": 20000,
+  "finalTotal": 3364234,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-06-02T01:29:49.882Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.227Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdc6"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc932"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb52"
+      },
+      "quantity": 2,
+      "price": 1813495,
+      "totalPrice": 3626990
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb2c"
+      },
+      "quantity": 2,
+      "price": 401674,
+      "totalPrice": 803348
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb30"
+      },
+      "quantity": 2,
+      "price": 768560,
+      "totalPrice": 1537120
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc4d"
+  },
+  "total": 5967458,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 6017458,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-05T01:26:18.672Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.230Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdc7"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc916"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb80"
+      },
+      "quantity": 1,
+      "price": 350493,
+      "totalPrice": 350493
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbae"
+      },
+      "quantity": 2,
+      "price": 617822,
+      "totalPrice": 1235644
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcace"
+      },
+      "quantity": 2,
+      "price": 1117322,
+      "totalPrice": 2234644
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc1f"
+  },
+  "total": 3820781,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3870781,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-21T01:31:46.375Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.233Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdc8"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f6"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb14"
+      },
+      "quantity": 2,
+      "price": 265784,
+      "totalPrice": 531568
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaa7"
+      },
+      "quantity": 2,
+      "price": 795334,
+      "totalPrice": 1590668
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb28"
+      },
+      "quantity": 1,
+      "price": 850097,
+      "totalPrice": 850097
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbf1"
+  },
+  "total": 2972333,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3022333,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-11T23:01:02.166Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.235Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdc9"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc926"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb24"
+      },
+      "quantity": 2,
+      "price": 146130,
+      "totalPrice": 292260
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc3c"
+  },
+  "total": 292260,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccba"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 269195,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-27T05:39:00.156Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.180Z"
+  },
+  "__v": 0,
+  "discountAmount": 73065
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdca"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc948"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca43"
+      },
+      "quantity": 2,
+      "price": 1158731,
+      "totalPrice": 2317462
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbb8"
+      },
+      "quantity": 1,
+      "price": 1018245,
+      "totalPrice": 1018245
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc6d"
+  },
+  "total": 3335707,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3385707,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-29T03:47:59.956Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.241Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdcb"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ef"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb74"
+      },
+      "quantity": 2,
+      "price": 267150,
+      "totalPrice": 534300
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcad3"
+      },
+      "quantity": 2,
+      "price": 448906,
+      "totalPrice": 897812
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbe5"
+  },
+  "total": 1432112,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1482112,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-07T17:07:38.148Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.246Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdcc"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fe"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb0c"
+      },
+      "quantity": 2,
+      "price": 1193769,
+      "totalPrice": 2387538
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb96"
+      },
+      "quantity": 2,
+      "price": 621086,
+      "totalPrice": 1242172
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbfd"
+  },
+  "total": 3629710,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccc4"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 3479710,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-06-08T05:12:07.419Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.184Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdcd"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc900"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca4a"
+      },
+      "quantity": 2,
+      "price": 416709,
+      "totalPrice": 833418
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca43"
+      },
+      "quantity": 2,
+      "price": 1158731,
+      "totalPrice": 2317462
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb57"
+      },
+      "quantity": 2,
+      "price": 1047407,
+      "totalPrice": 2094814
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc01"
+  },
+  "total": 5245694,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 5295694,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-15T10:20:36.668Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.251Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdce"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc910"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb6f"
+      },
+      "quantity": 2,
+      "price": 612013,
+      "totalPrice": 1224026
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbc2"
+      },
+      "quantity": 2,
+      "price": 409032,
+      "totalPrice": 818064
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb1a"
+      },
+      "quantity": 2,
+      "price": 998017,
+      "totalPrice": 1996034
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc16"
+  },
+  "total": 4038124,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccbd"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 3888124,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-25T16:41:09.969Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.191Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdcf"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ec"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcad1"
+      },
+      "quantity": 2,
+      "price": 1244981,
+      "totalPrice": 2489962
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbe0"
+  },
+  "total": 2489962,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccc4"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 2339962,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-19T10:48:26.688Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.195Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdd0"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc915"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcae7"
+      },
+      "quantity": 2,
+      "price": 268052,
+      "totalPrice": 536104
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca9b"
+      },
+      "quantity": 2,
+      "price": 1078213,
+      "totalPrice": 2156426
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc1d"
+  },
+  "total": 2692530,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2742530,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-26T14:48:05.648Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.262Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdd1"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc936"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb70"
+      },
+      "quantity": 2,
+      "price": 1414093,
+      "totalPrice": 2828186
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb11"
+      },
+      "quantity": 2,
+      "price": 633981,
+      "totalPrice": 1267962
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb5b"
+      },
+      "quantity": 2,
+      "price": 1405099,
+      "totalPrice": 2810198
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc52"
+  },
+  "total": 6906346,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 6956346,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-06-06T02:45:21.063Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.265Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdd2"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc939"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca8d"
+      },
+      "quantity": 2,
+      "price": 166126,
+      "totalPrice": 332252
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc57"
+  },
+  "total": 332252,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 382252,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-01T13:55:22.923Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.267Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdd3"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ec"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb9f"
+      },
+      "quantity": 1,
+      "price": 894193,
+      "totalPrice": 894193
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb11"
+      },
+      "quantity": 1,
+      "price": 633981,
+      "totalPrice": 633981
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcae3"
+      },
+      "quantity": 1,
+      "price": 863750,
+      "totalPrice": 863750
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbe0"
+  },
+  "total": 2391924,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dcc96"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 2241924,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-02T02:24:51.789Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.201Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdd4"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc944"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb91"
+      },
+      "quantity": 1,
+      "price": 236080,
+      "totalPrice": 236080
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca37"
+      },
+      "quantity": 1,
+      "price": 1118864,
+      "totalPrice": 1118864
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb7d"
+      },
+      "quantity": 1,
+      "price": 755176,
+      "totalPrice": 755176
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc65"
+  },
+  "total": 2110120,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2160120,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-22T19:32:08.496Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.273Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdd5"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc948"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb0d"
+      },
+      "quantity": 2,
+      "price": 347481,
+      "totalPrice": 694962
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc6d"
+  },
+  "total": 694962,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 744962,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-13T21:10:49.379Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.277Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdd6"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc90d"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca9e"
+      },
+      "quantity": 2,
+      "price": 89427,
+      "totalPrice": 178854
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb45"
+      },
+      "quantity": 1,
+      "price": 603293,
+      "totalPrice": 603293
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc12"
+  },
+  "total": 782147,
+  "voucher": null,
+  "shippingFee": 20000,
+  "finalTotal": 802147,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-01T03:04:14.851Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.281Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdd7"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92c"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb2f"
+      },
+      "quantity": 1,
+      "price": 638908,
+      "totalPrice": 638908
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb3e"
+      },
+      "quantity": 2,
+      "price": 1652189,
+      "totalPrice": 3304378
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb5b"
+      },
+      "quantity": 1,
+      "price": 1405099,
+      "totalPrice": 1405099
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc45"
+  },
+  "total": 5348385,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dcc95"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 5198385,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-26T05:51:32.991Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.213Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdd8"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc940"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcae8"
+      },
+      "quantity": 2,
+      "price": 288485,
+      "totalPrice": 576970
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca75"
+      },
+      "quantity": 2,
+      "price": 1720080,
+      "totalPrice": 3440160
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc60"
+  },
+  "total": 4017130,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 4067130,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-01T15:03:32.693Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.287Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdd9"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc947"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb53"
+      },
+      "quantity": 2,
+      "price": 722633,
+      "totalPrice": 1445266
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaa2"
+      },
+      "quantity": 1,
+      "price": 1321211,
+      "totalPrice": 1321211
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb99"
+      },
+      "quantity": 2,
+      "price": 948002,
+      "totalPrice": 1896004
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc6b"
+  },
+  "total": 4662481,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 4712481,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-27T07:17:28.961Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.290Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdda"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc909"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcadb"
+      },
+      "quantity": 1,
+      "price": 783597,
+      "totalPrice": 783597
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb61"
+      },
+      "quantity": 2,
+      "price": 443822,
+      "totalPrice": 887644
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc0c"
+  },
+  "total": 1671241,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccc2"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 1637678.95,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-18T01:06:41.837Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.219Z"
+  },
+  "__v": 0,
+  "discountAmount": 83562.05
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcddb"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc90f"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbd0"
+      },
+      "quantity": 1,
+      "price": 1289509,
+      "totalPrice": 1289509
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc15"
+  },
+  "total": 1289509,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1339509,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-01T23:00:26.637Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.298Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcddc"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc911"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaf5"
+      },
+      "quantity": 2,
+      "price": 373205,
+      "totalPrice": 746410
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc17"
+  },
+  "total": 746410,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 796410,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-14T09:43:52.918Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.302Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcddd"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc926"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca63"
+      },
+      "quantity": 2,
+      "price": 1100274,
+      "totalPrice": 2200548
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb2e"
+      },
+      "quantity": 1,
+      "price": 1340263,
+      "totalPrice": 1340263
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbbe"
+      },
+      "quantity": 2,
+      "price": 573123,
+      "totalPrice": 1146246
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc3c"
+  },
+  "total": 4687057,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 4737057,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-08T03:28:30.722Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.304Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdde"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93f"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca43"
+      },
+      "quantity": 2,
+      "price": 1158731,
+      "totalPrice": 2317462
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbd3"
+      },
+      "quantity": 1,
+      "price": 1284227,
+      "totalPrice": 1284227
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb63"
+      },
+      "quantity": 1,
+      "price": 458305,
+      "totalPrice": 458305
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc5e"
+  },
+  "total": 4059994,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 4109994,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-19T03:21:08.692Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.307Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcddf"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fb"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca5c"
+      },
+      "quantity": 1,
+      "price": 1394293,
+      "totalPrice": 1394293
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbf8"
+  },
+  "total": 1394293,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1444293,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-07T23:59:20.398Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.312Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcde0"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93a"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca85"
+      },
+      "quantity": 1,
+      "price": 1491137,
+      "totalPrice": 1491137
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb0e"
+      },
+      "quantity": 2,
+      "price": 473680,
+      "totalPrice": 947360
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc58"
+  },
+  "total": 2438497,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2488497,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-31T23:03:42.155Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.314Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcde1"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc936"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcab7"
+      },
+      "quantity": 2,
+      "price": 1322389,
+      "totalPrice": 2644778
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb60"
+      },
+      "quantity": 2,
+      "price": 425158,
+      "totalPrice": 850316
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc52"
+  },
+  "total": 3495094,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3545094,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-01T09:16:47.679Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.317Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcde2"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93e"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcad6"
+      },
+      "quantity": 2,
+      "price": 1370709,
+      "totalPrice": 2741418
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb25"
+      },
+      "quantity": 2,
+      "price": 748090,
+      "totalPrice": 1496180
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc5d"
+  },
+  "total": 4237598,
+  "voucher": null,
+  "shippingFee": 20000,
+  "finalTotal": 4257598,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-04T22:00:52.705Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.320Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcde3"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc929"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaff"
+      },
+      "quantity": 1,
+      "price": 1040548,
+      "totalPrice": 1040548
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbaf"
+      },
+      "quantity": 1,
+      "price": 1434573,
+      "totalPrice": 1434573
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc41"
+  },
+  "total": 2475121,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2525121,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-23T07:00:50.436Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.322Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcde4"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f8"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcae3"
+      },
+      "quantity": 1,
+      "price": 863750,
+      "totalPrice": 863750
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbf3"
+  },
+  "total": 863750,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dcc9b"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 827375,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-31T05:58:24.516Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.230Z"
+  },
+  "__v": 0,
+  "discountAmount": 86375
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcde5"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ef"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca44"
+      },
+      "quantity": 2,
+      "price": 163204,
+      "totalPrice": 326408
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca3a"
+      },
+      "quantity": 2,
+      "price": 162269,
+      "totalPrice": 324538
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb67"
+      },
+      "quantity": 2,
+      "price": 726291,
+      "totalPrice": 1452582
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbe5"
+  },
+  "total": 2103528,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2153528,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-31T17:12:29.995Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.331Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcde6"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc90c"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb49"
+      },
+      "quantity": 1,
+      "price": 134263,
+      "totalPrice": 134263
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc10"
+  },
+  "total": 134263,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 184263,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-03T17:37:12.833Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.334Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcde7"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc91e"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb2a"
+      },
+      "quantity": 2,
+      "price": 370308,
+      "totalPrice": 740616
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc2e"
+  },
+  "total": 740616,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 790616,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-27T07:18:29.336Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.336Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcde8"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc918"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbb6"
+      },
+      "quantity": 2,
+      "price": 1450090,
+      "totalPrice": 2900180
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb7b"
+      },
+      "quantity": 1,
+      "price": 804772,
+      "totalPrice": 804772
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb9f"
+      },
+      "quantity": 1,
+      "price": 894193,
+      "totalPrice": 894193
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc23"
+  },
+  "total": 4599145,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 4649145,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-07T19:45:40.536Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.339Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcde9"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93a"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbc3"
+      },
+      "quantity": 1,
+      "price": 426992,
+      "totalPrice": 426992
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaae"
+      },
+      "quantity": 1,
+      "price": 1585628,
+      "totalPrice": 1585628
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc58"
+  },
+  "total": 2012620,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2062620,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-28T08:32:01.670Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.343Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdea"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc948"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb8a"
+      },
+      "quantity": 1,
+      "price": 1019686,
+      "totalPrice": 1019686
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca7b"
+      },
+      "quantity": 1,
+      "price": 857026,
+      "totalPrice": 857026
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb0d"
+      },
+      "quantity": 2,
+      "price": 347481,
+      "totalPrice": 694962
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc6d"
+  },
+  "total": 2571674,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2621674,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-13T21:10:06.773Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.347Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdeb"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc933"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcab1"
+      },
+      "quantity": 2,
+      "price": 930035,
+      "totalPrice": 1860070
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb7e"
+      },
+      "quantity": 1,
+      "price": 385979,
+      "totalPrice": 385979
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcabf"
+      },
+      "quantity": 1,
+      "price": 222246,
+      "totalPrice": 222246
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc4f"
+  },
+  "total": 2468295,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccbf"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 2318295,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-27T04:27:39.395Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.235Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdec"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92e"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb05"
+      },
+      "quantity": 1,
+      "price": 542914,
+      "totalPrice": 542914
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb2a"
+      },
+      "quantity": 2,
+      "price": 370308,
+      "totalPrice": 740616
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc48"
+  },
+  "total": 1283530,
+  "voucher": null,
+  "shippingFee": 20000,
+  "finalTotal": 1303530,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-15T23:40:19.145Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.352Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcded"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f7"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb0e"
+      },
+      "quantity": 2,
+      "price": 473680,
+      "totalPrice": 947360
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb55"
+      },
+      "quantity": 2,
+      "price": 1187358,
+      "totalPrice": 2374716
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb53"
+      },
+      "quantity": 2,
+      "price": 722633,
+      "totalPrice": 1445266
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbf2"
+  },
+  "total": 4767342,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccab"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 4617342,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-18T13:01:45.519Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.243Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdee"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ec"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb75"
+      },
+      "quantity": 2,
+      "price": 1481758,
+      "totalPrice": 2963516
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbe0"
+  },
+  "total": 2963516,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3013516,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-03T12:17:50.406Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.357Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdef"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc913"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb9e"
+      },
+      "quantity": 2,
+      "price": 894511,
+      "totalPrice": 1789022
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca3e"
+      },
+      "quantity": 2,
+      "price": 328391,
+      "totalPrice": 656782
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc1a"
+  },
+  "total": 2445804,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2495804,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-29T22:49:45.119Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.363Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdf0"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fa"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca54"
+      },
+      "quantity": 2,
+      "price": 809390,
+      "totalPrice": 1618780
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca72"
+      },
+      "quantity": 2,
+      "price": 420138,
+      "totalPrice": 840276
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca47"
+      },
+      "quantity": 2,
+      "price": 1001928,
+      "totalPrice": 2003856
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbf6"
+  },
+  "total": 4462912,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 4512912,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-19T11:22:55.937Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.367Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdf1"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f4"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbb4"
+      },
+      "quantity": 1,
+      "price": 1608173,
+      "totalPrice": 1608173
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbee"
+  },
+  "total": 1608173,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1658173,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-04T06:41:03.013Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.370Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdf2"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fc"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaab"
+      },
+      "quantity": 2,
+      "price": 1515063,
+      "totalPrice": 3030126
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb9c"
+      },
+      "quantity": 2,
+      "price": 675853,
+      "totalPrice": 1351706
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbfa"
+  },
+  "total": 4381832,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 4431832,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-21T23:10:13.143Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.372Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdf3"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc936"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb2a"
+      },
+      "quantity": 1,
+      "price": 370308,
+      "totalPrice": 370308
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcae5"
+      },
+      "quantity": 2,
+      "price": 583102,
+      "totalPrice": 1166204
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaf8"
+      },
+      "quantity": 2,
+      "price": 273914,
+      "totalPrice": 547828
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc52"
+  },
+  "total": 2084340,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2134340,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-28T19:16:57.637Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.378Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdf4"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fc"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca8c"
+      },
+      "quantity": 2,
+      "price": 136293,
+      "totalPrice": 272586
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbfa"
+  },
+  "total": 272586,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 322586,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-19T11:49:38.566Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.381Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdf5"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc91e"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb70"
+      },
+      "quantity": 2,
+      "price": 1414093,
+      "totalPrice": 2828186
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc2e"
+  },
+  "total": 2828186,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2878186,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-01T02:15:49.991Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.384Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdf6"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f2"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca64"
+      },
+      "quantity": 1,
+      "price": 994394,
+      "totalPrice": 994394
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcabc"
+      },
+      "quantity": 2,
+      "price": 1363703,
+      "totalPrice": 2727406
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbeb"
+  },
+  "total": 3721800,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3771800,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-20T17:56:40.686Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.387Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdf7"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc90f"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb3e"
+      },
+      "quantity": 1,
+      "price": 1652189,
+      "totalPrice": 1652189
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaae"
+      },
+      "quantity": 1,
+      "price": 1585628,
+      "totalPrice": 1585628
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc15"
+  },
+  "total": 3237817,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3287817,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-15T00:50:24.047Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.390Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdf8"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc913"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaa0"
+      },
+      "quantity": 1,
+      "price": 1141171,
+      "totalPrice": 1141171
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb6d"
+      },
+      "quantity": 2,
+      "price": 1165834,
+      "totalPrice": 2331668
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc1a"
+  },
+  "total": 3472839,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3522839,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-27T06:15:50.959Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.396Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdf9"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc929"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaef"
+      },
+      "quantity": 1,
+      "price": 1036805,
+      "totalPrice": 1036805
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca4b"
+      },
+      "quantity": 2,
+      "price": 502457,
+      "totalPrice": 1004914
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb66"
+      },
+      "quantity": 1,
+      "price": 705172,
+      "totalPrice": 705172
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc41"
+  },
+  "total": 2746891,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2796891,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-14T22:07:46.620Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.399Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdfa"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc900"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca76"
+      },
+      "quantity": 2,
+      "price": 1579412,
+      "totalPrice": 3158824
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb1f"
+      },
+      "quantity": 1,
+      "price": 370229,
+      "totalPrice": 370229
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc01"
+  },
+  "total": 3529053,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3579053,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-18T04:24:18.160Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.402Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdfb"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc90f"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb7e"
+      },
+      "quantity": 2,
+      "price": 385979,
+      "totalPrice": 771958
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb92"
+      },
+      "quantity": 2,
+      "price": 260872,
+      "totalPrice": 521744
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb54"
+      },
+      "quantity": 2,
+      "price": 1348854,
+      "totalPrice": 2697708
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc15"
+  },
+  "total": 3991410,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 4041410,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-25T04:07:05.225Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.406Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdfc"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc918"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb69"
+      },
+      "quantity": 1,
+      "price": 444013,
+      "totalPrice": 444013
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb38"
+      },
+      "quantity": 1,
+      "price": 1089108,
+      "totalPrice": 1089108
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc23"
+  },
+  "total": 1533121,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 1583121,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-06-04T23:59:46.671Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.411Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdfd"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc929"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaaf"
+      },
+      "quantity": 2,
+      "price": 1507916,
+      "totalPrice": 3015832
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca5b"
+      },
+      "quantity": 2,
+      "price": 1393771,
+      "totalPrice": 2787542
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb9a"
+      },
+      "quantity": 2,
+      "price": 1049023,
+      "totalPrice": 2098046
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc41"
+  },
+  "total": 7901420,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 7951420,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-19T23:54:10.047Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.414Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdfe"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc91c"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcad7"
+      },
+      "quantity": 2,
+      "price": 1095885,
+      "totalPrice": 2191770
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca76"
+      },
+      "quantity": 2,
+      "price": 1579412,
+      "totalPrice": 3158824
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc2a"
+  },
+  "total": 5350594,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 5400594,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-14T10:48:34.559Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.417Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcdff"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc944"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaf6"
+      },
+      "quantity": 2,
+      "price": 1140728,
+      "totalPrice": 2281456
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc65"
+  },
+  "total": 2281456,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2331456,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-22T18:25:39.840Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.420Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dce00"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc917"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb42"
+      },
+      "quantity": 2,
+      "price": 767795,
+      "totalPrice": 1535590
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaed"
+      },
+      "quantity": 1,
+      "price": 1432794,
+      "totalPrice": 1432794
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc21"
+  },
+  "total": 2968384,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 3018384,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-06-07T13:44:49.952Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.425Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dce01"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc941"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcad2"
+      },
+      "quantity": 2,
+      "price": 241079,
+      "totalPrice": 482158
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaac"
+      },
+      "quantity": 1,
+      "price": 1153183,
+      "totalPrice": 1153183
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb10"
+      },
+      "quantity": 1,
+      "price": 836234,
+      "totalPrice": 836234
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc62"
+  },
+  "total": 2471575,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dccb9"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 2321575,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-22T12:11:14.459Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.250Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dce02"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc918"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbb7"
+      },
+      "quantity": 2,
+      "price": 1387145,
+      "totalPrice": 2774290
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca74"
+      },
+      "quantity": 2,
+      "price": 1709410,
+      "totalPrice": 3418820
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbba"
+      },
+      "quantity": 2,
+      "price": 1418644,
+      "totalPrice": 2837288
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc23"
+  },
+  "total": 9030398,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 9080398,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-08T00:42:04.435Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.433Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dce03"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc90f"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca3f"
+      },
+      "quantity": 1,
+      "price": 286949,
+      "totalPrice": 286949
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca81"
+      },
+      "quantity": 2,
+      "price": 141405,
+      "totalPrice": 282810
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc15"
+  },
+  "total": 569759,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 619759,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-04-18T16:19:21.175Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.436Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dce04"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93f"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbba"
+      },
+      "quantity": 2,
+      "price": 1418644,
+      "totalPrice": 2837288
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc5e"
+  },
+  "total": 2837288,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2887288,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-04-27T18:38:21.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.440Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dce05"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc916"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcaa7"
+      },
+      "quantity": 2,
+      "price": 795334,
+      "totalPrice": 1590668
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc1f"
+  },
+  "total": 1590668,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dcc95"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 1440668,
+  "status": "delivered",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "paid",
+  "createdAt": {
+    "$date": "2025-05-09T00:22:16.589Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.259Z"
+  },
+  "__v": 0,
+  "discountAmount": 200000
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dce06"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc900"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcbad"
+      },
+      "quantity": 1,
+      "price": 730737,
+      "totalPrice": 730737
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc01"
+  },
+  "total": 730737,
+  "voucher": {
+    "$oid": "684aca5df3433021c33dcc93"
+  },
+  "shippingFee": 50000,
+  "finalTotal": 744200.15,
+  "status": "shipped",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-11T04:49:53.302Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:21:16.275Z"
+  },
+  "__v": 0,
+  "discountAmount": 36536.85
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dce07"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc915"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb1b"
+      },
+      "quantity": 2,
+      "price": 972354,
+      "totalPrice": 1944708
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcabc"
+      },
+      "quantity": 2,
+      "price": 1363703,
+      "totalPrice": 2727406
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc1d"
+  },
+  "total": 4672114,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 4722114,
+  "status": "cancelled",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-02T17:51:01.873Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.452Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dce08"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc945"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dcb55"
+      },
+      "quantity": 2,
+      "price": 1187358,
+      "totalPrice": 2374716
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcc67"
+  },
+  "total": 2374716,
+  "voucher": null,
+  "shippingFee": 50000,
+  "finalTotal": 2424716,
+  "status": "processing",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-05-31T02:11:30.526Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:31:21.455Z"
+  },
+  "__v": 0,
+  "discountAmount": 0
+},
+{
+  "_id": {
+    "$oid": "684bd0e77a84bdcbfe905c40"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8e6"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca36"
+      },
+      "quantity": 2,
+      "price": 300000,
+      "totalPrice": 600000
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca36"
+      },
+      "quantity": 1,
+      "price": 150000,
+      "totalPrice": 150000
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbd7"
+  },
+  "total": 750000,
+  "voucher": {
+    "$oid": "684bd0e67a84bdcbfe905c33"
+  },
+  "discountAmount": 150000,
+  "shippingFee": 50000,
+  "finalTotal": 650000,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-06-13T07:19:03.043Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:19:03.043Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684bd1367ac591e8e67b027e"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8e6"
+  },
+  "items": [
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca36"
+      },
+      "quantity": 2,
+      "price": 300000,
+      "totalPrice": 600000
+    },
+    {
+      "productVariant": {
+        "$oid": "684aca5df3433021c33dca36"
+      },
+      "quantity": 1,
+      "price": 150000,
+      "totalPrice": 150000
+    }
+  ],
+  "address": {
+    "$oid": "684aca5df3433021c33dcbd7"
+  },
+  "total": 750000,
+  "voucher": {
+    "$oid": "684bd1367ac591e8e67b0271"
+  },
+  "discountAmount": 150000,
+  "shippingFee": 50000,
+  "finalTotal": 650000,
+  "status": "pending",
+  "paymentMethod": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "Status": "unpaid",
+  "createdAt": {
+    "$date": "2025-06-13T07:20:22.457Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:20:22.457Z"
+  },
+  "__v": 0
+}]

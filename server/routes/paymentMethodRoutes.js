@@ -27,16 +27,16 @@ router.get('/stats', paymentMethodController.getPaymentMethodStats);
 router.post('/', paymentMethodController.createPaymentMethod);
 
 // GET /api/payment-methods/:id - Get payment method by ID
-router.get('/:id', validateObjectId, paymentMethodController.getPaymentMethodById);
+router.get('/:id', validateObjectId('id'), paymentMethodController.getPaymentMethodById);
 
 // PUT /api/payment-methods/:id - Update payment method
-router.put('/:id', validateObjectId, paymentMethodController.updatePaymentMethod);
+router.put('/:id', validateObjectId('id'), paymentMethodController.updatePaymentMethod);
 
 // DELETE /api/payment-methods/:id - Delete payment method
-router.delete('/:id', validateObjectId, paymentMethodController.deletePaymentMethod);
+router.delete('/:id', validateObjectId('id'), paymentMethodController.deletePaymentMethod);
 
 // PUT /api/payment-methods/:id/toggle-status - Toggle payment method status
-router.put('/:id/toggle-status', validateObjectId, paymentMethodController.togglePaymentMethodStatus);
+router.put('/:id/toggle-status', validateObjectId('id'), paymentMethodController.togglePaymentMethodStatus);
 
 // PUT /api/payment-methods/:id/order - Update payment method order
 router.put('/:id/order', validateObjectId, paymentMethodController.updatePaymentMethodOrder);

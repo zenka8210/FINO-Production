@@ -19,7 +19,8 @@ class ProductService extends BaseService {
             maxPrice,
             sortBy = 'createdAt', // Default sort field
             sortOrder = 'desc', // Default sort order
-            includeVariants = false // New option to include variants or not
+            includeVariants = false, // New option to include variants or not
+            includeOutOfStock = false // New option to include out of stock products
         } = queryOptions;
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -44,7 +45,9 @@ class ProductService extends BaseService {
             if (maxPrice) {
                 filter.price.$lte = parseFloat(maxPrice);
             }
-        }        try {
+        }
+
+        try {
             let query = Product.find(filter)
                 .populate('category')
                 .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
@@ -52,10 +55,47 @@ class ProductService extends BaseService {
                 .limit(parseInt(limit));
 
             if (includeVariants === 'true' || includeVariants === true) {
-                query = query.populate('variants');
+                query = query.populate({
+                    path: 'variants',
+                    populate: [
+                        { path: 'color', select: 'name hexCode' },
+                        { path: 'size', select: 'name' }
+                    ]
+                });
             }
 
-            const products = await query;
+            let products = await query;
+            
+            // Filter out products with no stock if includeOutOfStock is false
+            if (includeOutOfStock === 'false' || includeOutOfStock === false) {
+                const productsWithStock = [];
+                
+                for (const product of products) {
+                    const hasStock = await this.checkProductAvailability(product._id);
+                    if (hasStock.available) {
+                        productsWithStock.push({
+                            ...product.toObject(),
+                            stockInfo: hasStock
+                        });
+                    }
+                }
+                
+                products = productsWithStock;
+            } else {
+                // Include stock info for all products
+                const productsWithStockInfo = [];
+                
+                for (const product of products) {
+                    const stockInfo = await this.checkProductAvailability(product._id);
+                    productsWithStockInfo.push({
+                        ...product.toObject(),
+                        stockInfo
+                    });
+                }
+                
+                products = productsWithStockInfo;
+            }
+
             const totalProducts = await Product.countDocuments(filter);
 
             return {
@@ -164,6 +204,175 @@ class ProductService extends BaseService {
             category: categoryId,
             includeVariants: queryOptions.includeVariants === undefined ? true : queryOptions.includeVariants // Default to true if not specified
         });
+    }
+
+    /**
+     * Check if a product has available stock
+     * @param {string} productId - Product ID
+     * @returns {Promise<object>} Availability information
+     */
+    async checkProductAvailability(productId) {
+        try {
+            const variants = await ProductVariant.find({ product: productId })
+                .populate('color', 'name hexCode')
+                .populate('size', 'name');
+
+            if (!variants || variants.length === 0) {
+                return {
+                    available: false,
+                    totalStock: 0,
+                    availableVariants: 0,
+                    outOfStockVariants: 0,
+                    variants: []
+                };
+            }
+
+            let totalStock = 0;
+            let availableVariants = 0;
+            let outOfStockVariants = 0;
+            
+            const variantDetails = variants.map(variant => {
+                const stock = variant.stock || 0;
+                totalStock += stock;
+                
+                if (stock > 0) {
+                    availableVariants++;
+                } else {
+                    outOfStockVariants++;
+                }
+                
+                return {
+                    _id: variant._id,
+                    color: variant.color,
+                    size: variant.size,
+                    price: variant.price,
+                    stock: stock,
+                    available: stock > 0
+                };
+            });
+
+            return {
+                available: totalStock > 0,
+                totalStock,
+                availableVariants,
+                outOfStockVariants,
+                variants: variantDetails
+            };
+        } catch (error) {
+            throw new AppError("Lỗi kiểm tra tồn kho sản phẩm", 'STOCK_CHECK_FAILED', 500);
+        }
+    }
+
+    /**
+     * Check if a specific variant has enough stock for order
+     * @param {string} variantId - Product Variant ID
+     * @param {number} quantity - Requested quantity
+     * @returns {Promise<object>} Stock availability
+     */
+    async checkVariantStock(variantId, quantity = 1) {
+        try {
+            const variant = await ProductVariant.findById(variantId)
+                .populate('product', 'name')
+                .populate('color', 'name')
+                .populate('size', 'name');
+
+            if (!variant) {
+                throw new AppError("Variant không tồn tại", 'VARIANT_NOT_FOUND', 404);
+            }
+
+            const availableStock = variant.stock || 0;
+            const canOrder = availableStock >= quantity;
+
+            return {
+                canOrder,
+                availableStock,
+                requestedQuantity: quantity,
+                variant: {
+                    _id: variant._id,
+                    product: variant.product,
+                    color: variant.color,
+                    size: variant.size,
+                    price: variant.price
+                }
+            };
+        } catch (error) {
+            if (error instanceof AppError) throw error;
+            throw new AppError("Lỗi kiểm tra tồn kho variant", 'VARIANT_STOCK_CHECK_FAILED', 500);
+        }
+    }
+
+    /**
+     * Reserve stock for order (decrease stock)
+     * @param {Array} orderItems - Array of {variantId, quantity}
+     * @returns {Promise<Array>} Updated variants
+     */
+    async reserveStock(orderItems) {
+        const session = await ProductVariant.startSession();
+        session.startTransaction();
+
+        try {
+            const updatedVariants = [];
+
+            for (const item of orderItems) {
+                const { variantId, quantity } = item;
+
+                // Check stock availability
+                const stockCheck = await this.checkVariantStock(variantId, quantity);
+                
+                if (!stockCheck.canOrder) {
+                    throw new AppError(
+                        `Không đủ hàng cho ${stockCheck.variant.product.name} - ${stockCheck.variant.color.name} - ${stockCheck.variant.size.name}. Còn lại: ${stockCheck.availableStock}, yêu cầu: ${quantity}`,
+                        'INSUFFICIENT_STOCK',
+                        400
+                    );
+                }
+
+                // Update stock
+                const updatedVariant = await ProductVariant.findByIdAndUpdate(
+                    variantId,
+                    { $inc: { stock: -quantity } },
+                    { new: true, session }
+                );
+
+                updatedVariants.push(updatedVariant);
+            }
+
+            await session.commitTransaction();
+            return updatedVariants;
+
+        } catch (error) {
+            await session.abortTransaction();
+            throw error;
+        } finally {
+            session.endSession();
+        }
+    }
+
+    /**
+     * Restore stock when order is cancelled
+     * @param {Array} orderItems - Array of {variantId, quantity}
+     * @returns {Promise<Array>} Updated variants
+     */
+    async restoreStock(orderItems) {
+        try {
+            const updatedVariants = [];
+
+            for (const item of orderItems) {
+                const { variantId, quantity } = item;
+
+                const updatedVariant = await ProductVariant.findByIdAndUpdate(
+                    variantId,
+                    { $inc: { stock: quantity } },
+                    { new: true }
+                );
+
+                updatedVariants.push(updatedVariant);
+            }
+
+            return updatedVariants;
+        } catch (error) {
+            throw new AppError("Lỗi khôi phục tồn kho", 'STOCK_RESTORE_FAILED', 500);
+        }
     }
 }
 

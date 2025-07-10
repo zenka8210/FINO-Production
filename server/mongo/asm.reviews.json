@@ -1,0 +1,3000 @@
+[{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccc5"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca26"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc935"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-03-01T17:54:05.283Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccc6"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc979"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc928"
+  },
+  "rating": 3,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-05-19T17:40:21.681Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccc7"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9c8"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc920"
+  },
+  "rating": 4,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-02-25T04:25:22.784Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccc8"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc985"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc943"
+  },
+  "rating": 5,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-05-18T06:59:31.255Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccc9"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9c7"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc91f"
+  },
+  "rating": 3,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-04-20T11:44:16.032Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccca"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc970"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc903"
+  },
+  "rating": 3,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-05-03T11:14:55.595Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcccb"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca1d"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92b"
+  },
+  "rating": 5,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-05-22T03:21:23.484Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcccc"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9e5"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f1"
+  },
+  "rating": 4,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-03-12T06:21:50.533Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcccd"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca2b"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc91f"
+  },
+  "rating": 4,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-03-19T16:00:41.763Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccce"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9a7"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc931"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-03-09T16:08:47.889Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcccf"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9c3"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc901"
+  },
+  "rating": 4,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-05-02T20:50:00.026Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccd0"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc977"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc914"
+  },
+  "rating": 3,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-02-14T02:02:46.989Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccd1"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9fe"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc90a"
+  },
+  "rating": 5,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-02-18T08:33:53.776Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccd2"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9a0"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ec"
+  },
+  "rating": 5,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-06-09T16:33:43.106Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccd3"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9df"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ee"
+  },
+  "rating": 4,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-06-05T21:14:35.595Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccd4"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9d8"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc904"
+  },
+  "rating": 3,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-05-14T02:35:56.918Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccd5"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9da"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92d"
+  },
+  "rating": 4,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-05-31T13:04:34.777Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccd6"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc995"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc921"
+  },
+  "rating": 3,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-05-15T10:48:21.740Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccd7"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc991"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc936"
+  },
+  "rating": 4,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-05-26T05:32:45.045Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccd8"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9b5"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93b"
+  },
+  "rating": 3,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-05-15T01:37:15.765Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccd9"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9f5"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc914"
+  },
+  "rating": 4,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-03-01T06:57:49.816Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccda"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca2f"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92e"
+  },
+  "rating": 4,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-05-10T13:42:56.338Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccdb"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc997"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc91d"
+  },
+  "rating": 3,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-02-28T20:09:37.252Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccdc"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9fa"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92e"
+  },
+  "rating": 5,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-04-06T02:48:33.548Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccdd"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9ee"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f4"
+  },
+  "rating": 3,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-05-11T18:40:24.056Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccde"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9f6"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc908"
+  },
+  "rating": 3,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-04-24T06:58:14.236Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccdf"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9dd"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc916"
+  },
+  "rating": 5,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-04-09T02:47:10.434Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcce0"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca11"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc90c"
+  },
+  "rating": 4,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-05-23T06:36:52.798Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcce1"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9d6"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92d"
+  },
+  "rating": 5,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-06-06T01:05:34.690Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcce2"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca20"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc918"
+  },
+  "rating": 3,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-03-02T10:19:18.405Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcce3"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc996"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f5"
+  },
+  "rating": 3,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-03-08T04:07:49.088Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcce4"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9d5"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fd"
+  },
+  "rating": 3,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-05-02T14:38:41.968Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcce5"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca16"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc943"
+  },
+  "rating": 3,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-04-05T09:59:37.255Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcce6"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc992"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc948"
+  },
+  "rating": 4,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-05-25T01:52:50.358Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcce7"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca0a"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92d"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-03-09T14:20:26.845Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcce8"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc981"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc932"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-05-22T14:30:57.394Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcce9"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc978"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc90d"
+  },
+  "rating": 3,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-05-11T02:53:35.563Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccea"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9e3"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92d"
+  },
+  "rating": 4,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-05-26T20:09:27.146Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcceb"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9cc"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f4"
+  },
+  "rating": 3,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-06-06T09:28:43.898Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccec"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9de"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc91a"
+  },
+  "rating": 5,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-03-03T11:34:55.030Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcced"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca32"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc937"
+  },
+  "rating": 4,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-04-26T00:58:51.594Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccee"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9f6"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc923"
+  },
+  "rating": 5,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-03-22T18:02:49.946Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccef"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca17"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f6"
+  },
+  "rating": 4,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-06-04T18:13:27.275Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccf0"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca30"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc937"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-03-27T16:18:00.951Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccf1"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9ed"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc942"
+  },
+  "rating": 3,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-04-29T13:07:08.079Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccf2"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9e8"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc900"
+  },
+  "rating": 4,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-02-25T09:57:23.861Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccf3"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc99b"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92c"
+  },
+  "rating": 4,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-04-22T14:11:57.890Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccf4"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9af"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc90b"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-05-20T01:46:13.826Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccf5"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9ce"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc930"
+  },
+  "rating": 4,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-05-07T02:41:28.114Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccf6"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc987"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fc"
+  },
+  "rating": 4,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-02-25T00:23:54.239Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccf7"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9cf"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc926"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-05-15T19:58:00.082Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccf8"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca20"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc905"
+  },
+  "rating": 5,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-02-25T23:40:21.992Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccf9"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca04"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc922"
+  },
+  "rating": 5,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-02-13T07:30:15.264Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccfa"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc98c"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc914"
+  },
+  "rating": 5,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-03-10T15:56:33.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccfb"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9ad"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc904"
+  },
+  "rating": 5,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-03-28T00:14:19.066Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccfc"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9ab"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc905"
+  },
+  "rating": 4,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-02-23T19:08:04.130Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccfd"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9ef"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f5"
+  },
+  "rating": 4,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-04-13T06:16:29.419Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccfe"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9f2"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc90e"
+  },
+  "rating": 3,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-06-10T16:27:52.140Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccff"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc994"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc917"
+  },
+  "rating": 5,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-05-23T06:09:43.368Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd00"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9c0"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc906"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-04-05T01:22:17.077Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd01"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca01"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc943"
+  },
+  "rating": 4,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-04-13T15:31:18.390Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd02"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc99f"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93f"
+  },
+  "rating": 5,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-06-01T20:11:24.294Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd03"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9c7"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ec"
+  },
+  "rating": 5,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-03-10T11:48:42.595Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd04"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc983"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fe"
+  },
+  "rating": 5,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-05-12T16:17:37.797Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd05"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca03"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc926"
+  },
+  "rating": 3,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-03-30T06:29:06.940Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd06"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9fb"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f2"
+  },
+  "rating": 5,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-04-27T04:53:17.033Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd07"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca23"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc949"
+  },
+  "rating": 4,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-05-22T06:00:24.501Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd08"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9a9"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f0"
+  },
+  "rating": 5,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-05-03T16:50:06.525Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd09"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9ff"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc943"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-05-08T14:05:44.997Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd0a"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc97c"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92f"
+  },
+  "rating": 3,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-04-27T18:50:34.966Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd0b"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9c4"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc906"
+  },
+  "rating": 3,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-04-18T00:42:08.142Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd0c"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc98b"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc944"
+  },
+  "rating": 4,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-03-30T23:01:24.369Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd0d"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9f8"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92e"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-02-18T11:03:28.747Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd0e"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca1d"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc902"
+  },
+  "rating": 5,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-05-31T05:09:44.893Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd0f"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc982"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93a"
+  },
+  "rating": 5,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-04-09T19:57:39.180Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd10"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc980"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92f"
+  },
+  "rating": 3,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-03-09T00:35:09.306Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd11"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9bf"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f2"
+  },
+  "rating": 4,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-06-10T05:12:37.751Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd12"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca23"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc936"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-05-28T10:21:41.687Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd13"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9e1"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92e"
+  },
+  "rating": 4,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-06-05T22:54:42.390Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd14"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9bb"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc910"
+  },
+  "rating": 3,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-05-05T07:30:14.032Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd15"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9eb"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ef"
+  },
+  "rating": 4,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-03-13T21:17:48.961Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd16"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9e0"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc91f"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-04-14T21:27:35.891Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd17"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9c4"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc941"
+  },
+  "rating": 4,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-02-16T20:49:10.090Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd18"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9c5"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc913"
+  },
+  "rating": 5,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-06-07T22:31:20.199Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd19"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca30"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc90c"
+  },
+  "rating": 3,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-04-24T08:20:00.217Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd1a"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca20"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc934"
+  },
+  "rating": 3,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-05-05T08:32:48.414Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd1b"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9d2"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc940"
+  },
+  "rating": 4,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-06-02T01:24:46.947Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd1c"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca0f"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fc"
+  },
+  "rating": 4,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-04-09T00:14:03.007Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd1d"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9bc"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc91b"
+  },
+  "rating": 4,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-05-20T07:38:24.297Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd1e"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9d9"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fa"
+  },
+  "rating": 3,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-04-23T04:49:02.232Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd1f"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9df"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc903"
+  },
+  "rating": 4,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-02-26T20:31:09.809Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd20"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca34"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f4"
+  },
+  "rating": 4,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-03-17T14:15:41.999Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd21"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9d8"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc947"
+  },
+  "rating": 3,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-04-09T15:06:12.388Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd22"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca1d"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93b"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-03-11T11:44:24.174Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd23"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc975"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92c"
+  },
+  "rating": 5,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-05-04T04:08:13.722Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd24"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca11"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc947"
+  },
+  "rating": 3,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-05-02T15:50:27.350Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd25"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc99e"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f6"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-03-09T12:51:06.269Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd26"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9f9"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc907"
+  },
+  "rating": 3,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-03-18T21:01:10.375Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd27"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca00"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f6"
+  },
+  "rating": 4,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-03-31T10:40:35.626Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd28"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc99f"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc909"
+  },
+  "rating": 4,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-02-19T11:46:48.107Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd29"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca12"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fb"
+  },
+  "rating": 4,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-05-16T18:17:58.159Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd2a"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca1c"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc928"
+  },
+  "rating": 4,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-02-23T23:28:18.463Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd2b"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9cf"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc902"
+  },
+  "rating": 5,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-03-14T10:17:30.657Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd2c"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca09"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc905"
+  },
+  "rating": 4,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-03-26T00:16:03.424Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd2d"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9b7"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc91f"
+  },
+  "rating": 5,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-04-09T23:24:04.689Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd2e"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca0e"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc941"
+  },
+  "rating": 3,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-05-06T04:59:55.020Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd2f"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9cb"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc933"
+  },
+  "rating": 3,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-03-25T07:49:42.426Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd30"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9e5"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93c"
+  },
+  "rating": 3,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-06-10T22:09:25.195Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd31"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9be"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc925"
+  },
+  "rating": 5,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-02-22T22:54:59.341Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd32"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc98b"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc943"
+  },
+  "rating": 5,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-04-21T17:35:28.464Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd33"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca32"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f0"
+  },
+  "rating": 5,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-03-05T14:56:55.198Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd34"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9ce"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc906"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-02-23T21:37:19.052Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd35"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9fd"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc912"
+  },
+  "rating": 5,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-05-07T14:24:14.543Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd36"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc990"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc91f"
+  },
+  "rating": 4,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-03-04T18:29:57.099Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd37"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca0f"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc929"
+  },
+  "rating": 3,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-05-06T13:46:36.068Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd38"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9b9"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fa"
+  },
+  "rating": 5,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-06-02T06:17:29.015Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd39"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca0f"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92f"
+  },
+  "rating": 5,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-04-27T23:47:18.014Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd3a"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca11"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f5"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-05-11T19:57:38.484Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd3b"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9e6"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ef"
+  },
+  "rating": 5,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-02-23T14:39:11.165Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd3c"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9fe"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92a"
+  },
+  "rating": 5,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-04-22T07:27:19.386Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd3d"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca35"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc944"
+  },
+  "rating": 5,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-05-01T23:11:57.252Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd3e"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc979"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc914"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-05-08T22:22:47.141Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd3f"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9ea"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ec"
+  },
+  "rating": 4,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-06-01T17:32:16.263Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd40"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc989"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f7"
+  },
+  "rating": 4,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-05-30T19:21:57.208Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd41"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9d4"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc944"
+  },
+  "rating": 5,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-03-24T14:50:03.830Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd42"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc979"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc942"
+  },
+  "rating": 5,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-04-26T00:52:01.067Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd43"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc982"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc935"
+  },
+  "rating": 3,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-04-09T06:13:10.305Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd44"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9d0"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ef"
+  },
+  "rating": 3,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-04-12T14:44:04.098Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd45"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9c8"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc91b"
+  },
+  "rating": 3,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-03-18T09:38:51.352Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd46"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9da"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fd"
+  },
+  "rating": 5,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-05-09T03:32:56.187Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd47"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9a2"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f5"
+  },
+  "rating": 3,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-02-18T09:55:04.019Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd48"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca33"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc934"
+  },
+  "rating": 4,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-05-13T22:44:36.786Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd49"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca24"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc943"
+  },
+  "rating": 4,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-03-30T04:37:33.497Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd4a"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9fc"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8fe"
+  },
+  "rating": 5,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-04-23T12:15:12.776Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd4b"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9aa"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc92f"
+  },
+  "rating": 4,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-03-28T00:19:59.317Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd4c"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9f4"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc93b"
+  },
+  "rating": 4,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-03-31T00:33:13.676Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd4d"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc97c"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc91e"
+  },
+  "rating": 3,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-04-24T15:08:02.504Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd4e"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9f8"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f0"
+  },
+  "rating": 5,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-04-30T23:55:07.505Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd4f"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc979"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f1"
+  },
+  "rating": 3,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-05-21T03:03:12.402Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd50"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9d4"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8ef"
+  },
+  "rating": 5,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-04-20T02:03:02.352Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd51"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca25"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc903"
+  },
+  "rating": 3,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-04-25T04:26:31.440Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd52"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc974"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc915"
+  },
+  "rating": 5,
+  "comment": "Giao hàng nhanh.",
+  "createdAt": {
+    "$date": "2025-02-26T00:06:58.378Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd53"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9a4"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f4"
+  },
+  "rating": 3,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-05-01T02:22:14.484Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd54"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc98e"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc924"
+  },
+  "rating": 4,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-04-24T22:16:23.341Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd55"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca2c"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc8f8"
+  },
+  "rating": 5,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-04-22T05:16:35.446Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd56"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc97b"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc916"
+  },
+  "rating": 4,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-05-25T07:40:10.908Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd57"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9ee"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc948"
+  },
+  "rating": 4,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-03-28T20:42:28.081Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd58"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dca2b"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc918"
+  },
+  "rating": 3,
+  "comment": "Chất lượng tuyệt vời.",
+  "createdAt": {
+    "$date": "2025-05-04T16:41:16.051Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd59"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9c7"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc942"
+  },
+  "rating": 3,
+  "comment": "Rất hài lòng.",
+  "createdAt": {
+    "$date": "2025-02-12T21:38:52.031Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcd5a"
+  },
+  "product": {
+    "$oid": "684aca5df3433021c33dc9e8"
+  },
+  "user": {
+    "$oid": "684aca5df3433021c33dc931"
+  },
+  "rating": 3,
+  "comment": "Sản phẩm tốt!",
+  "createdAt": {
+    "$date": "2025-06-05T16:30:47.425Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.789Z"
+  },
+  "__v": 0
+}]

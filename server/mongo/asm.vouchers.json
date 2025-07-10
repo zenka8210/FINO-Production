@@ -1,0 +1,1638 @@
+[{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc93"
+  },
+  "code": "SALE5NO001",
+  "discountPercent": 5,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-05-30T10:07:27.391Z"
+  },
+  "endDate": {
+    "$date": "2025-06-30T05:33:32.773Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:00:23.503Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc94"
+  },
+  "code": "SALE15NO002",
+  "discountPercent": 15,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-06-12T10:29:29.751Z"
+  },
+  "endDate": {
+    "$date": "2025-08-26T10:17:27.248Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc95"
+  },
+  "code": "SALE20NO003",
+  "discountPercent": 20,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-05-14T14:05:16.242Z"
+  },
+  "endDate": {
+    "$date": "2025-06-25T09:20:40.487Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc96"
+  },
+  "code": "SALE15NO004",
+  "discountPercent": 15,
+  "minimumOrderValue": 0,
+  "startDate": {
+    "$date": "2025-05-21T22:35:29.519Z"
+  },
+  "endDate": {
+    "$date": "2025-07-04T18:22:04.030Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc97"
+  },
+  "code": "SALE25NO005",
+  "discountPercent": 25,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-06-01T02:34:09.215Z"
+  },
+  "endDate": {
+    "$date": "2025-08-10T22:59:01.388Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc98"
+  },
+  "code": "SALE10NO006",
+  "discountPercent": 10,
+  "minimumOrderValue": 0,
+  "startDate": {
+    "$date": "2025-05-21T23:56:25.788Z"
+  },
+  "endDate": {
+    "$date": "2025-06-28T07:47:47.445Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc99"
+  },
+  "code": "SALE5NO007",
+  "discountPercent": 5,
+  "minimumOrderValue": 0,
+  "startDate": {
+    "$date": "2025-05-22T08:39:42.403Z"
+  },
+  "endDate": {
+    "$date": "2025-07-21T19:33:35.642Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc9a"
+  },
+  "code": "SALE25NO008",
+  "discountPercent": 25,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-05-30T02:19:55.357Z"
+  },
+  "endDate": {
+    "$date": "2025-07-15T02:21:08.746Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc9b"
+  },
+  "code": "SALE10NO009",
+  "discountPercent": 10,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-05-26T21:41:25.472Z"
+  },
+  "endDate": {
+    "$date": "2025-07-14T12:46:32.781Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc9c"
+  },
+  "code": "SALE15NO010",
+  "discountPercent": 15,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-05-17T04:45:48.848Z"
+  },
+  "endDate": {
+    "$date": "2025-08-01T16:51:01.340Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc9d"
+  },
+  "code": "SALE10NO011",
+  "discountPercent": 10,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-06-04T05:45:19.025Z"
+  },
+  "endDate": {
+    "$date": "2025-08-22T17:47:51.160Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc9e"
+  },
+  "code": "SALE25NO012",
+  "discountPercent": 25,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-06-08T02:28:04.951Z"
+  },
+  "endDate": {
+    "$date": "2025-07-22T06:19:28.352Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcc9f"
+  },
+  "code": "SALE15NO013",
+  "discountPercent": 15,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-06-11T22:09:39.306Z"
+  },
+  "endDate": {
+    "$date": "2025-08-11T15:16:44.979Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcca0"
+  },
+  "code": "SALE5NO014",
+  "discountPercent": 5,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-05-30T20:54:58.505Z"
+  },
+  "endDate": {
+    "$date": "2025-07-31T01:12:18.171Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcca1"
+  },
+  "code": "SALE10NO015",
+  "discountPercent": 10,
+  "minimumOrderValue": 0,
+  "startDate": {
+    "$date": "2025-06-02T08:26:04.334Z"
+  },
+  "endDate": {
+    "$date": "2025-07-05T20:36:22.921Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcca2"
+  },
+  "code": "SALE20NO016",
+  "discountPercent": 20,
+  "minimumOrderValue": 0,
+  "startDate": {
+    "$date": "2025-06-02T23:15:54.931Z"
+  },
+  "endDate": {
+    "$date": "2025-07-10T11:55:57.275Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcca3"
+  },
+  "code": "SALE15NO017",
+  "discountPercent": 15,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-06-02T18:26:47.128Z"
+  },
+  "endDate": {
+    "$date": "2025-08-17T14:06:55.447Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcca4"
+  },
+  "code": "SALE5NO018",
+  "discountPercent": 5,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-05-17T04:16:45.314Z"
+  },
+  "endDate": {
+    "$date": "2025-07-01T03:52:08.433Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcca5"
+  },
+  "code": "SALE10NO019",
+  "discountPercent": 10,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-05-25T23:32:51.612Z"
+  },
+  "endDate": {
+    "$date": "2025-07-25T14:19:02.309Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcca6"
+  },
+  "code": "SALE10NO020",
+  "discountPercent": 10,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-05-29T00:08:17.538Z"
+  },
+  "endDate": {
+    "$date": "2025-07-23T21:02:52.785Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcca7"
+  },
+  "code": "SALE15NO021",
+  "discountPercent": 15,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-06-08T01:14:09.764Z"
+  },
+  "endDate": {
+    "$date": "2025-08-15T04:55:31.919Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcca8"
+  },
+  "code": "SALE5NO022",
+  "discountPercent": 5,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-05-20T16:30:39.591Z"
+  },
+  "endDate": {
+    "$date": "2025-08-03T11:06:08.036Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dcca9"
+  },
+  "code": "SALE25NO023",
+  "discountPercent": 25,
+  "minimumOrderValue": 0,
+  "startDate": {
+    "$date": "2025-05-14T17:28:58.771Z"
+  },
+  "endDate": {
+    "$date": "2025-07-10T04:49:21.511Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccaa"
+  },
+  "code": "SALE10NO024",
+  "discountPercent": 10,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-05-18T02:22:09.178Z"
+  },
+  "endDate": {
+    "$date": "2025-06-29T12:06:38.024Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccab"
+  },
+  "code": "SALE15NO025",
+  "discountPercent": 15,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-05-22T22:54:50.662Z"
+  },
+  "endDate": {
+    "$date": "2025-08-01T17:53:44.770Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccac"
+  },
+  "code": "SALE10NO026",
+  "discountPercent": 10,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-05-18T07:27:11.386Z"
+  },
+  "endDate": {
+    "$date": "2025-06-17T13:38:48.350Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccad"
+  },
+  "code": "SALE25NO027",
+  "discountPercent": 25,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-05-24T10:59:55.073Z"
+  },
+  "endDate": {
+    "$date": "2025-07-06T08:24:14.479Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccae"
+  },
+  "code": "SALE15NO028",
+  "discountPercent": 15,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-06-05T07:46:44.243Z"
+  },
+  "endDate": {
+    "$date": "2025-08-22T12:32:44.223Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccaf"
+  },
+  "code": "SALE5NO029",
+  "discountPercent": 5,
+  "minimumOrderValue": 0,
+  "startDate": {
+    "$date": "2025-05-18T06:47:30.654Z"
+  },
+  "endDate": {
+    "$date": "2025-08-03T09:28:35.829Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccb0"
+  },
+  "code": "SALE10NO030",
+  "discountPercent": 10,
+  "minimumOrderValue": 0,
+  "startDate": {
+    "$date": "2025-05-17T07:36:05.810Z"
+  },
+  "endDate": {
+    "$date": "2025-06-20T16:37:05.879Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccb1"
+  },
+  "code": "SALE10NO031",
+  "discountPercent": 10,
+  "minimumOrderValue": 0,
+  "startDate": {
+    "$date": "2025-05-24T02:59:57.223Z"
+  },
+  "endDate": {
+    "$date": "2025-08-02T02:18:11.134Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccb2"
+  },
+  "code": "SALE10NO032",
+  "discountPercent": 10,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-05-14T07:37:46.350Z"
+  },
+  "endDate": {
+    "$date": "2025-07-18T12:22:51.640Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccb3"
+  },
+  "code": "SALE10NO033",
+  "discountPercent": 10,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-05-29T23:30:31.923Z"
+  },
+  "endDate": {
+    "$date": "2025-07-13T19:52:55.132Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccb4"
+  },
+  "code": "SALE25NO034",
+  "discountPercent": 25,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-05-25T07:03:29.805Z"
+  },
+  "endDate": {
+    "$date": "2025-07-08T12:24:58.359Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccb5"
+  },
+  "code": "SALE25NO035",
+  "discountPercent": 25,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-05-16T07:56:53.639Z"
+  },
+  "endDate": {
+    "$date": "2025-07-25T14:25:27.965Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccb6"
+  },
+  "code": "SALE20NO036",
+  "discountPercent": 20,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-06-12T06:22:34.953Z"
+  },
+  "endDate": {
+    "$date": "2025-07-26T02:41:13.019Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccb7"
+  },
+  "code": "SALE10NO037",
+  "discountPercent": 10,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-06-04T01:31:50.065Z"
+  },
+  "endDate": {
+    "$date": "2025-08-26T19:11:13.513Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccb8"
+  },
+  "code": "SALE20NO038",
+  "discountPercent": 20,
+  "minimumOrderValue": 0,
+  "startDate": {
+    "$date": "2025-06-03T08:57:37.276Z"
+  },
+  "endDate": {
+    "$date": "2025-08-20T22:03:09.070Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccb9"
+  },
+  "code": "SALE25NO039",
+  "discountPercent": 25,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-06-01T04:49:27.741Z"
+  },
+  "endDate": {
+    "$date": "2025-07-16T03:37:51.689Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccba"
+  },
+  "code": "SALE25NO040",
+  "discountPercent": 25,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-05-20T17:17:07.485Z"
+  },
+  "endDate": {
+    "$date": "2025-07-03T21:20:17.738Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccbb"
+  },
+  "code": "SALE10NO041",
+  "discountPercent": 10,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-06-11T02:48:08.401Z"
+  },
+  "endDate": {
+    "$date": "2025-08-15T21:38:33.254Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccbc"
+  },
+  "code": "SALE10NO042",
+  "discountPercent": 10,
+  "minimumOrderValue": 0,
+  "startDate": {
+    "$date": "2025-06-01T10:46:49.424Z"
+  },
+  "endDate": {
+    "$date": "2025-08-04T21:37:38.640Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccbd"
+  },
+  "code": "SALE20NO043",
+  "discountPercent": 20,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-06-08T14:58:55.280Z"
+  },
+  "endDate": {
+    "$date": "2025-08-10T07:14:28.885Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccbe"
+  },
+  "code": "SALE10NO044",
+  "discountPercent": 10,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-05-24T06:50:42.937Z"
+  },
+  "endDate": {
+    "$date": "2025-07-19T21:52:46.745Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccbf"
+  },
+  "code": "SALE15NO045",
+  "discountPercent": 15,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-06-06T05:22:50.669Z"
+  },
+  "endDate": {
+    "$date": "2025-07-11T17:23:06.280Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccc0"
+  },
+  "code": "SALE25NO046",
+  "discountPercent": 25,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-06-11T18:08:44.897Z"
+  },
+  "endDate": {
+    "$date": "2025-08-23T03:07:51.513Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccc1"
+  },
+  "code": "SALE5NO047",
+  "discountPercent": 5,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-06-06T16:54:21.500Z"
+  },
+  "endDate": {
+    "$date": "2025-07-15T14:18:29.444Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccc2"
+  },
+  "code": "SALE5NO048",
+  "discountPercent": 5,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-05-25T01:34:50.193Z"
+  },
+  "endDate": {
+    "$date": "2025-08-20T21:37:52.174Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccc3"
+  },
+  "code": "SALE15NO049",
+  "discountPercent": 15,
+  "minimumOrderValue": 500000,
+  "startDate": {
+    "$date": "2025-06-08T05:28:30.146Z"
+  },
+  "endDate": {
+    "$date": "2025-08-22T00:33:39.441Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dccc4"
+  },
+  "code": "SALE15NO050",
+  "discountPercent": 15,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-06-03T18:16:00.250Z"
+  },
+  "endDate": {
+    "$date": "2025-07-12T08:11:11.785Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:55:58.892Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684bc8b2a32008999ab6a1c1"
+  },
+  "code": "TEST2025",
+  "discountPercent": 15,
+  "minimumOrderValue": 100000,
+  "startDate": {
+    "$date": "2025-06-13T06:44:02.967Z"
+  },
+  "endDate": {
+    "$date": "2025-12-31T00:00:00.000Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-13T06:44:03.004Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:01:19.936Z"
+  },
+  "__v": 0,
+  "isActive": true,
+  "maximumOrderValue": null,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684bcbc6ed2c144fc535d02a"
+  },
+  "code": "DIRECTTEST2025",
+  "discountPercent": 20,
+  "minimumOrderValue": 50000,
+  "startDate": {
+    "$date": "2025-06-13T06:57:10.549Z"
+  },
+  "endDate": {
+    "$date": "2025-12-31T00:00:00.000Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-13T06:57:10.591Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:57:10.591Z"
+  },
+  "__v": 0,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1,
+  "isActive": true,
+  "maximumOrderValue": null
+},
+{
+  "_id": {
+    "$oid": "684bcc32d7fc9d5c3266314e"
+  },
+  "code": "SCHEMATEST1749797938138",
+  "discountPercent": 10,
+  "minimumOrderValue": 100000,
+  "startDate": {
+    "$date": "2025-06-13T06:58:58.139Z"
+  },
+  "endDate": {
+    "$date": "2025-07-13T06:58:58.139Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-13T06:58:58.149Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T06:58:58.149Z"
+  },
+  "__v": 0,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1,
+  "isActive": true,
+  "maximumOrderValue": null
+},
+{
+  "_id": {
+    "$oid": "684bccbfcbd2e965287e0b10"
+  },
+  "code": "MAXTEST1749798079938",
+  "discountPercent": 20,
+  "minimumOrderValue": 100000,
+  "startDate": {
+    "$date": "2025-06-13T07:01:19.938Z"
+  },
+  "endDate": {
+    "$date": "2025-07-13T07:01:19.938Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-13T07:01:19.952Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:01:19.952Z"
+  },
+  "__v": 0,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1,
+  "isActive": true,
+  "maximumOrderValue": null
+},
+{
+  "_id": {
+    "$oid": "684bcd1abe871638c28e5a25"
+  },
+  "code": "FRESH1749798170103",
+  "discountPercent": 25,
+  "maximumOrderValue": 800000,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-06-13T07:02:50.103Z"
+  },
+  "endDate": {
+    "$date": "2025-07-13T07:02:50.103Z"
+  },
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-13T07:02:50.110Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:03:39.053Z"
+  },
+  "__v": 0,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684bcd4b62fc80a6ee3a59e9"
+  },
+  "code": "FINAL1749798219055",
+  "discountPercent": 30,
+  "minimumOrderValue": 150000,
+  "startDate": {
+    "$date": "2025-06-13T07:03:39.055Z"
+  },
+  "endDate": {
+    "$date": "2025-07-13T07:03:39.055Z"
+  },
+  "createdAt": {
+    "$date": "2025-06-13T07:03:39.064Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:03:39.064Z"
+  },
+  "__v": 0,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1,
+  "isActive": true,
+  "maximumOrderValue": null
+},
+{
+  "_id": {
+    "$oid": "684bce0b3dc14466616680cd"
+  },
+  "code": "UNLIMITED1749798411769",
+  "discountPercent": 15,
+  "maximumOrderValue": null,
+  "minimumOrderValue": 100000,
+  "startDate": {
+    "$date": "2025-06-13T07:06:51.770Z"
+  },
+  "endDate": {
+    "$date": "2025-07-13T07:06:51.770Z"
+  },
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-13T07:06:51.829Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:06:51.829Z"
+  },
+  "__v": 0,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684bce0b3dc14466616680d1"
+  },
+  "code": "LIMITED1749798411877",
+  "discountPercent": 20,
+  "maximumOrderValue": 1000000,
+  "minimumOrderValue": 200000,
+  "startDate": {
+    "$date": "2025-06-13T07:06:51.877Z"
+  },
+  "endDate": {
+    "$date": "2025-07-13T07:06:51.877Z"
+  },
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-13T07:06:51.880Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:06:51.880Z"
+  },
+  "__v": 0,
+  "maximumDiscountAmount": 200000,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684bcee17466887ad178fa98"
+  },
+  "code": "TEST50_200K_1749798625449",
+  "discountPercent": 50,
+  "maximumOrderValue": null,
+  "minimumOrderValue": 100000,
+  "maximumDiscountAmount": 200000,
+  "startDate": {
+    "$date": "2025-06-13T07:10:25.450Z"
+  },
+  "endDate": {
+    "$date": "2025-07-13T07:10:25.450Z"
+  },
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-13T07:10:25.479Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:10:25.479Z"
+  },
+  "__v": 0,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684bcee17466887ad178fa9b"
+  },
+  "code": "TEST30_500K_1749798625484",
+  "discountPercent": 30,
+  "maximumOrderValue": null,
+  "minimumOrderValue": 200000,
+  "maximumDiscountAmount": 500000,
+  "startDate": {
+    "$date": "2025-06-13T07:10:25.484Z"
+  },
+  "endDate": {
+    "$date": "2025-07-13T07:10:25.484Z"
+  },
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-13T07:10:25.487Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:10:25.487Z"
+  },
+  "__v": 0,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684bd0c41981b07898af2e7d"
+  },
+  "code": "ORDER_TEST_1749799108319",
+  "discountPercent": 20,
+  "maximumOrderValue": null,
+  "minimumOrderValue": 200000,
+  "maximumDiscountAmount": 150000,
+  "startDate": {
+    "$date": "2025-06-13T07:18:28.319Z"
+  },
+  "endDate": {
+    "$date": "2025-07-13T07:18:28.319Z"
+  },
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-13T07:18:28.363Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:18:28.363Z"
+  },
+  "__v": 0,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684bd0e67a84bdcbfe905c33"
+  },
+  "code": "ORDER_TEST_1749799142878",
+  "discountPercent": 20,
+  "maximumOrderValue": null,
+  "minimumOrderValue": 200000,
+  "maximumDiscountAmount": 150000,
+  "startDate": {
+    "$date": "2025-06-13T07:19:02.878Z"
+  },
+  "endDate": {
+    "$date": "2025-07-13T07:19:02.878Z"
+  },
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-13T07:19:02.914Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:19:02.914Z"
+  },
+  "__v": 0,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+},
+{
+  "_id": {
+    "$oid": "684bd1367ac591e8e67b0271"
+  },
+  "code": "ORDER_TEST_1749799222340",
+  "discountPercent": 20,
+  "maximumOrderValue": null,
+  "minimumOrderValue": 200000,
+  "maximumDiscountAmount": 150000,
+  "startDate": {
+    "$date": "2025-06-13T07:20:22.340Z"
+  },
+  "endDate": {
+    "$date": "2025-07-13T07:20:22.340Z"
+  },
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-13T07:20:22.371Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-13T07:20:22.371Z"
+  },
+  "__v": 0,
+  "isOneTimePerUser": true,
+  "usageLimit": 1
+}]

@@ -131,7 +131,7 @@ class PaymentMethodController extends BaseController {
     getPaymentMethodById = async (req, res, next) => {
         try {
             const { id } = req.params;
-            const paymentMethod = await this.service.findById(id);
+            const paymentMethod = await this.service.getById(id);
             
             ResponseHandler.success(res, paymentMethod, 'Payment method retrieved successfully');
         } catch (error) {

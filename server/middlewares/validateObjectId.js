@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const ResponseHandler = require('../services/responseHandler'); 
 const { MESSAGES, ERROR_CODES } = require('../config/constants');
 
-const validateObjectId = (paramName) => {
+const validateObjectId = (paramName = 'id') => {
   return (req, res, next) => {
     const id = req.params[paramName];
     
@@ -16,4 +16,8 @@ const validateObjectId = (paramName) => {
   };
 };
 
+// Middleware mặc định cho param 'id'
+const defaultValidateObjectId = validateObjectId('id');
+
 module.exports = validateObjectId;
+module.exports.default = defaultValidateObjectId;

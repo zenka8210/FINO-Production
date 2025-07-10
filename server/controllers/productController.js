@@ -7,9 +7,7 @@ const { AppError } = require('../middlewares/errorHandler');
 class ProductController extends BaseController {
     constructor() {
         super(new ProductService());
-    }
-
-    getAllProducts = async (req, res, next) => {
+    }    getAllProducts = async (req, res, next) => {
         try {
             const queryOptions = {
                 page: req.query.page || PAGINATION.DEFAULT_PAGE,
@@ -23,7 +21,7 @@ class ProductController extends BaseController {
                 includeVariants: req.query.includeVariants
             };
             const result = await this.service.getAllProducts(queryOptions);
-            ResponseHandler.success(res, MESSAGES.PRODUCT_CREATED || 'Lấy danh sách sản phẩm thành công', result);
+            ResponseHandler.success(res, MESSAGES.PRODUCTS_FETCHED, result);
         } catch (error) {
             next(error);
         }
@@ -34,7 +32,7 @@ class ProductController extends BaseController {
             const { id } = req.params;
             const includeVariants = req.query.includeVariants;
             const product = await this.service.getProductById(id, includeVariants);
-            ResponseHandler.success(res, MESSAGES.PRODUCT_UPDATED || 'Lấy chi tiết sản phẩm thành công', product);
+            ResponseHandler.success(res, MESSAGES.PRODUCT_FETCHED, product);
         } catch (error) {
             next(error);
         }
@@ -79,6 +77,7 @@ class ProductController extends BaseController {
                 page: req.query.page || PAGINATION.DEFAULT_PAGE,
                 limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
                 includeVariants: req.query.includeVariants,
+                includeOutOfStock: req.query.includeOutOfStock || false,
                 sortBy: req.query.sortBy,
                 sortOrder: req.query.sortOrder,
             };
@@ -88,6 +87,98 @@ class ProductController extends BaseController {
             next(error);
         }
     };
+
+    // Check product availability
+    checkProductAvailability = async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const availability = await this.service.checkProductAvailability(id);
+            ResponseHandler.success(res, 'Kiểm tra tồn kho sản phẩm thành công', availability);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // Check variant stock
+    checkVariantStock = async (req, res, next) => {
+        try {
+            const { variantId } = req.params;
+            const { quantity = 1 } = req.query;
+            const stockInfo = await this.service.checkVariantStock(variantId, parseInt(quantity));
+            ResponseHandler.success(res, 'Kiểm tra tồn kho variant thành công', stockInfo);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // Get available products only (public endpoint)
+    getAvailableProducts = async (req, res, next) => {
+        try {
+            const queryOptions = {
+                page: req.query.page || PAGINATION.DEFAULT_PAGE,
+                limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+                name: req.query.name,
+                category: req.query.category,
+                minPrice: req.query.minPrice,
+                maxPrice: req.query.maxPrice,
+                sortBy: req.query.sortBy,
+                sortOrder: req.query.sortOrder,
+                includeVariants: req.query.includeVariants,
+                includeOutOfStock: false // Always exclude out of stock
+            };
+            const result = await this.service.getAllProducts(queryOptions);
+            ResponseHandler.success(res, 'Lấy sản phẩm có sẵn thành công', result);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // Validate cart items before checkout
+    validateCartItems = async (req, res, next) => {
+        try {
+            const { items } = req.body; // Array of {variantId, quantity}
+            
+            if (!items || !Array.isArray(items) || items.length === 0) {
+                throw new AppError('Items không hợp lệ', 'INVALID_ITEMS', 400);
+            }
+
+            const validationResults = [];
+            let allValid = true;
+
+            for (const item of items) {
+                try {
+                    const stockCheck = await this.service.checkVariantStock(item.variantId, item.quantity);
+                    validationResults.push({
+                        variantId: item.variantId,
+                        requestedQuantity: item.quantity,
+                        valid: stockCheck.canOrder,
+                        availableStock: stockCheck.availableStock,
+                        variant: stockCheck.variant
+                    });
+                    
+                    if (!stockCheck.canOrder) {
+                        allValid = false;
+                    }
+                } catch (error) {
+                    validationResults.push({
+                        variantId: item.variantId,
+                        requestedQuantity: item.quantity,
+                        valid: false,
+                        error: error.message
+                    });
+                    allValid = false;
+                }
+            }
+
+            ResponseHandler.success(res, 'Kiểm tra giỏ hàng hoàn tất', {
+                valid: allValid,
+                items: validationResults
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
 }
 
 module.exports = ProductController;

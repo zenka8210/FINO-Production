@@ -1,0 +1,70 @@
+[{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc969"
+  },
+  "method": "COD",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc96a"
+  },
+  "method": "BankTransfer",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc96b"
+  },
+  "method": "Momo",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc96c"
+  },
+  "method": "ZaloPay",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc96d"
+  },
+  "method": "VNPay",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.780Z"
+  },
+  "__v": 0
+}]

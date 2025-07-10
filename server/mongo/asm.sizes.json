@@ -1,0 +1,91 @@
+[{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc962"
+  },
+  "name": "Extra Small",
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc963"
+  },
+  "name": "Small",
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc964"
+  },
+  "name": "Medium",
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc965"
+  },
+  "name": "Large",
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc966"
+  },
+  "name": "Extra Large",
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc967"
+  },
+  "name": "Double XL",
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684aca5df3433021c33dc968"
+  },
+  "name": "Triple XL",
+  "createdAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-12T12:38:53.779Z"
+  },
+  "__v": 0
+}]

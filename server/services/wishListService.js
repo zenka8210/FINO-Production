@@ -9,43 +9,59 @@ class WishListService extends BaseService {
 
   // Get user wishlist
   async getUserWishList(userId) {
-    return await this.Model.find({ user: userId })
-      .populate('product')
+    return await this.Model.findOne({ user: userId })
+      .populate('products')
       .sort({ createdAt: -1 });
   }
 
   // Add to wishlist
   async addToWishList(userId, productId) {
-    // Check if already exists
-    const existing = await this.Model.findOne({ user: userId, product: productId });
-    if (existing) {
-      throw new AppError('Sản phẩm đã có trong wishlist', 400);
+    // Find user's wishlist or create one
+    let wishlist = await this.Model.findOne({ user: userId });
+    
+    if (!wishlist) {
+      wishlist = await this.create({
+        user: userId,
+        products: [productId]
+      });
+    } else {
+      // Check if product already exists
+      if (wishlist.products.includes(productId)) {
+        throw new AppError('Sản phẩm đã có trong wishlist', 400);
+      }
+      
+      wishlist.products.push(productId);
+      await wishlist.save();
     }
-
-    return await this.create({
-      user: userId,
-      product: productId
-    });
+    
+    return wishlist;
   }
   // Remove from wishlist
   async removeFromWishList(userId, productId) {
-    const item = await this.Model.findOne({ user: userId, product: productId });
-    if (!item) {
+    const wishlist = await this.Model.findOne({ user: userId });
+    if (!wishlist || !wishlist.products.includes(productId)) {
       throw new AppError('Sản phẩm không có trong wishlist', 404);
     }
 
-    return await this.deleteById(item._id);
+    wishlist.products = wishlist.products.filter(id => !id.equals(productId));
+    await wishlist.save();
+    return wishlist;
   }
 
   // Clear user's entire wishlist
   async clearWishList(userId) {
-    return await this.Model.deleteMany({ user: userId });
+    const wishlist = await this.Model.findOne({ user: userId });
+    if (wishlist) {
+      wishlist.products = [];
+      await wishlist.save();
+    }
+    return wishlist;
   }
 
   // Check if product is in wishlist
   async isInWishList(userId, productId) {
-    const item = await this.Model.findOne({ user: userId, product: productId });
-    return !!item;
+    const wishlist = await this.Model.findOne({ user: userId });
+    return wishlist && wishlist.products.includes(productId);
   }
 
   // Add multiple products to wishlist

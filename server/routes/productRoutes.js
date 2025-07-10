@@ -8,6 +8,29 @@ const validateObjectId = require('../middlewares/validateObjectId');
 
 // --- Tuyến đường công khai ---
 
+// @route GET /api/products/available
+// @desc Lấy sản phẩm có sẵn (chỉ sản phẩm còn hàng)
+// @query includeVariants=true/false - để bao gồm/loại trừ các biến thể sản phẩm
+// @access Public
+router.get('/available', productController.getAvailableProducts);
+
+// @route GET /api/products/check-availability/:id
+// @desc Kiểm tra tồn kho sản phẩm
+// @access Public
+router.get('/check-availability/:id', validateObjectId('id'), productController.checkProductAvailability);
+
+// @route GET /api/products/check-variant-stock/:variantId
+// @desc Kiểm tra tồn kho variant cụ thể
+// @query quantity - số lượng muốn kiểm tra
+// @access Public
+router.get('/check-variant-stock/:variantId', validateObjectId('variantId'), productController.checkVariantStock);
+
+// @route POST /api/products/validate-cart
+// @desc Kiểm tra giỏ hàng trước khi checkout
+// @body items - Array of {variantId, quantity}
+// @access Public
+router.post('/validate-cart', productController.validateCartItems);
+
 // @route GET /api/products/public
 // @desc Lấy tất cả sản phẩm (công khai, có phân trang, tìm kiếm, lọc, sắp xếp)
 // @query includeVariants=true/false - để bao gồm/loại trừ các biến thể sản phẩm

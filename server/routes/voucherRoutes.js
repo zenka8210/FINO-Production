@@ -120,6 +120,46 @@ router.get('/active', voucherController.getActiveVouchers);
 
 /**
  * @swagger
+ * /api/vouchers/my-used-voucher:
+ *   get:
+ *     summary: Lấy thông tin phiếu giảm giá mà user đã sử dụng (User)
+ *     tags: [Vouchers]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lấy thông tin phiếu giảm giá đã sử dụng thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 hasUsedVoucher:
+ *                   type: boolean
+ *                 voucherHistory:
+ *                   type: object
+ *                   properties:
+ *                     orderId:
+ *                       type: string
+ *                     voucherCode:
+ *                       type: string
+ *                     discountPercent:
+ *                       type: number
+ *                     discountAmount:
+ *                       type: number
+ *                     orderDate:
+ *                       type: string
+ *                     orderStatus:
+ *                       type: string
+ *                     note:
+ *                       type: string
+ *       401:
+ *         description: Chưa đăng nhập
+ */
+router.get('/my-used-voucher', protect, voucherController.getUserUsedVoucher);
+
+/**
+ * @swagger
  * /api/vouchers/{id}:
  *   get:
  *     summary: Lấy thông tin chi tiết một phiếu giảm giá (Public)
@@ -237,11 +277,6 @@ router.get('/check-usage/:code', protect, voucherController.checkVoucherUsage);
  *                       type: string
  *                     note:
  *                       type: string
- *       401:
- *         description: Chưa đăng nhập
- */
-router.get('/my-used-voucher', protect, voucherController.getUserUsedVoucher);
-
 // === User Specific Routes (Authenticated) ===
 /**
  * @swagger

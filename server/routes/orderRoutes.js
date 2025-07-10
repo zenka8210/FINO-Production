@@ -6,26 +6,30 @@ const authenticateToken = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
 const validateObjectId = require('../middlewares/validateObjectId');
 
-// User routes - require authentication
+// Apply authentication to all routes
 router.use(authenticateToken);
 
+// User routes
 // GET /api/orders - Get current user's orders
 router.get('/', orderController.getUserOrders);
 
 // POST /api/orders - Create new order
 router.post('/', orderController.createOrder);
 
-// POST /api/orders/calculate-total - Calculate order total with voucher and shipping
+// POST /api/orders/calculate-total - Calculate order total
 router.post('/calculate-total', orderController.calculateOrderTotal);
 
 // GET /api/orders/shipping-fee/:addressId - Calculate shipping fee for address
 router.get('/shipping-fee/:addressId', validateObjectId('addressId'), orderController.calculateShippingFee);
 
 // GET /api/orders/:id - Get order by ID
-router.get('/:id', validateObjectId, orderController.getOrderById);
+router.get('/:id', validateObjectId('id'), orderController.getOrderById);
 
 // PUT /api/orders/:id/cancel - Cancel order
-router.put('/:id/cancel', validateObjectId, orderController.cancelOrder);
+router.put('/:id/cancel', validateObjectId('id'), orderController.cancelOrder);
+
+// GET /api/orders/:productId/can-review - Check if user can review product
+router.get('/:productId/can-review', validateObjectId('productId'), orderController.canReviewProduct);
 
 // Admin routes
 router.use(adminMiddleware);
@@ -34,10 +38,10 @@ router.use(adminMiddleware);
 router.get('/admin/all', orderController.getOrders);
 
 // PUT /api/orders/admin/:id/status - Update order status
-router.put('/admin/:id/status', validateObjectId, orderController.updateOrderStatus);
+router.put('/admin/:id/status', validateObjectId('id'), orderController.updateOrderStatus);
 
 // DELETE /api/orders/admin/:id - Delete order (admin only)
-router.delete('/admin/:id', validateObjectId, orderController.deleteOrder);
+router.delete('/admin/:id', validateObjectId('id'), orderController.deleteOrder);
 
 // GET /api/orders/admin/stats - Get order statistics (admin)
 router.get('/admin/stats', orderController.getOrderStats);
@@ -56,8 +60,5 @@ router.get('/admin/user/:userId', validateObjectId('userId'), orderController.ge
 
 // PUT /api/orders/admin/update-shipping-fees - Update shipping fees for existing orders (admin migration)
 router.put('/admin/update-shipping-fees', orderController.updateExistingOrdersShippingFees);
-
-// GET /api/orders/:productId/can-review - Check if user can review product
-router.get('/:productId/can-review', validateObjectId('productId'), orderController.canReviewProduct);
 
 module.exports = router;

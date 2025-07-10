@@ -30,7 +30,16 @@ class UserController extends BaseController {
         isActive: req.query.isActive,
       };
       const result = await this.service.getAllUsers(queryOptions);
-      ResponseHandler.success(res, userMessages.FETCH_ALL_SUCCESS, result.data, result);
+      
+      return res.status(200).json({
+        success: true,
+        message: userMessages.FETCH_ALL_SUCCESS,
+        data: result.data,
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages
+      });
     } catch (error) {
       next(error);
     }

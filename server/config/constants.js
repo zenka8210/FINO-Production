@@ -1,4 +1,15 @@
 module.exports = {
+  // Error codes
+  ERROR_CODES: {
+    BAD_REQUEST: 400,
+    UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    CONFLICT: 409,
+    VALIDATION_ERROR: 422,
+    INTERNAL_SERVER_ERROR: 500
+  },
+
   // Trạng thái đơn hàng
   ORDER_STATUS: {
     PENDING: 'pending',
@@ -45,12 +56,12 @@ module.exports = {
     ORDER_STATUS_UPDATED: 'Cập nhật trạng thái đơn hàng thành công',
     ORDER_CREATE_FAILED: 'Tạo đơn hàng thất bại',
     ORDER_UPDATE_FAILED: 'Cập nhật đơn hàng thất bại',
-    ORDER_DELETE_FAILED: 'Xóa đơn hàng thất bại',
-
-    // Product messages
+    ORDER_DELETE_FAILED: 'Xóa đơn hàng thất bại',    // Product messages
     PRODUCT_CREATED: 'Tạo sản phẩm thành công',
     PRODUCT_UPDATED: 'Cập nhật sản phẩm thành công',
     PRODUCT_DELETED: 'Xóa sản phẩm thành công',
+    PRODUCT_FETCHED: 'Lấy chi tiết sản phẩm thành công',
+    PRODUCTS_FETCHED: 'Lấy danh sách sản phẩm thành công',
     PRODUCT_NOT_FOUND: 'Không tìm thấy sản phẩm',
     PRODUCT_STATUS_UPDATED: 'Cập nhật trạng thái sản phẩm thành công',
     PRODUCT_CREATE_FAILED: 'Tạo sản phẩm thất bại',

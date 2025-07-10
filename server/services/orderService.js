@@ -1,6 +1,7 @@
 const BaseService = require('./baseService');
 const Order = require('../models/OrderSchema');
 const Address = require('../models/AddressSchema');
+const ProductService = require('./productService');
 const VoucherService = require('./voucherService');
 const { AppError } = require('../middlewares/errorHandler');
 const { orderMessages, ERROR_CODES, PAGINATION } = require('../config/constants');
@@ -10,9 +11,25 @@ class OrderService extends BaseService {
   constructor() {
     super(Order);
     this.voucherService = new VoucherService();
+    this.productService = new ProductService();
   }  // Create new order
   async createOrder(userId, orderData) {
     try {
+      // Validate stock availability for all items before proceeding
+      if (!orderData.items || !Array.isArray(orderData.items) || orderData.items.length === 0) {
+        throw new AppError("Order items không hợp lệ", ERROR_CODES.BAD_REQUEST);
+      }
+
+      // Extract variant IDs and quantities for stock checking
+      const stockItems = orderData.items.map(item => ({
+        variantId: item.productVariant,
+        quantity: item.quantity
+      }));
+
+      // Check stock availability for all items
+      console.log('Checking stock for items:', stockItems);
+      await this.validateOrderStock(stockItems);
+
       // Get shipping address to calculate shipping fee
       const address = await Address.findById(orderData.address);
       if (!address) {
@@ -33,7 +50,9 @@ class OrderService extends BaseService {
       // Handle voucher if provided
       let discountAmount = 0;
       let voucherId = null;
-      let voucherResult = null;      if (orderData.voucherCode) {
+      let voucherResult = null;
+
+      if (orderData.voucherCode) {
         try {
           // Apply voucher to get discount amount (pass userId for usage checking)
           voucherResult = await this.voucherService.applyVoucher(orderData.voucherCode, total, userId);
@@ -46,6 +65,10 @@ class OrderService extends BaseService {
           throw new AppError(`Voucher error: ${voucherError.message}`, ERROR_CODES.BAD_REQUEST);
         }
       }
+
+      // Reserve stock for the order
+      console.log('Reserving stock for items:', stockItems);
+      await this.productService.reserveStock(stockItems);
 
       // Calculate final total: original total - discount + shipping fee
       const finalTotal = total - discountAmount + shippingFee;
@@ -77,7 +100,7 @@ class OrderService extends BaseService {
       return result;
     } catch (error) {
       if (error instanceof AppError) throw error;
-      throw new AppError(orderMessages.ORDER_CREATE_FAILED, ERROR_CODES.ORDER.CREATE_FAILED, 400, error.message);
+      throw new AppError(orderMessages.ORDER_CREATE_FAILED, ERROR_CODES.BAD_REQUEST, 400, error.message);
     }
   }
 
@@ -94,6 +117,31 @@ class OrderService extends BaseService {
       filter,
       sort: { createdAt: -1 }
     });
+  }
+
+  /**
+   * Validate stock availability for order items
+   * @param {Array} stockItems - Array of {variantId, quantity}
+   * @throws {AppError} If any item is out of stock
+   */
+  async validateOrderStock(stockItems) {
+    const stockResults = [];
+    
+    for (const item of stockItems) {
+      const stockCheck = await this.productService.checkVariantStock(item.variantId, item.quantity);
+      
+      if (!stockCheck.canOrder) {
+        throw new AppError(
+          `Sản phẩm "${stockCheck.variant.product.name}" (${stockCheck.variant.color.name} - ${stockCheck.variant.size.name}) không đủ hàng. Còn lại: ${stockCheck.availableStock}, yêu cầu: ${item.quantity}`,
+          'INSUFFICIENT_STOCK',
+          400
+        );
+      }
+      
+      stockResults.push(stockCheck);
+    }
+    
+    return stockResults;
   }
 
   // Calculate shipping fee for an address (for frontend preview)
@@ -147,6 +195,20 @@ class OrderService extends BaseService {
     // Consider using constants for 'pending' and 'cancelled' statuses
     if (order.status !== 'pending') {
       throw new AppError(orderMessages.ORDER_CANCELLATION_NOT_ALLOWED, ERROR_CODES.BAD_REQUEST);
+    }
+
+    // Restore stock for cancelled order
+    const stockItems = order.items.map(item => ({
+      variantId: item.productVariant,
+      quantity: item.quantity
+    }));
+
+    try {
+      await this.productService.restoreStock(stockItems);
+      console.log('Stock restored for cancelled order:', orderId);
+    } catch (stockError) {
+      console.error('Error restoring stock for cancelled order:', stockError);
+      // Continue with cancellation even if stock restore fails
     }
 
     const updateData = { status: 'cancelled' };

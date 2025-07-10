@@ -216,6 +216,11 @@ class VoucherController extends BaseController {
     try {
       const userId = req.user._id;
       
+      // Validate userId
+      if (!userId) {
+        return ResponseHandler.error(res, 'User ID không hợp lệ', 400);
+      }
+      
       const usedVoucherOrder = await this.service.getUserUsedVoucher(userId);
       
       if (!usedVoucherOrder) {

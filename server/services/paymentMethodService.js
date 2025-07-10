@@ -80,7 +80,7 @@ class PaymentMethodService extends BaseService {
 
     // Toggle payment method status
     async togglePaymentMethodStatus(id) {
-        const paymentMethod = await this.findById(id);
+        const paymentMethod = await this.getById(id);
         if (!paymentMethod) {
             throw new AppError('Payment method not found', 404);
         }

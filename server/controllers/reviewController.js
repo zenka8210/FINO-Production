@@ -20,7 +20,7 @@ class ReviewController extends BaseController {
         sort: sort ? JSON.parse(sort) : { createdAt: -1 }
       };
 
-      const result = await this.service.getReviewsByProduct(productId, options);
+      const result = await this.service.getProductReviews(productId, options);
       ResponseHandler.success(res, 'Lấy đánh giá sản phẩm thành công', result);
     } catch (error) {
       next(error);
@@ -67,7 +67,7 @@ class ReviewController extends BaseController {
   // Cập nhật review
   updateReview = async (req, res, next) => {
     try {
-      const review = await this.service.updateReview(req.params.id, req.user._id, req.body);
+      const review = await this.service.updateUserReview(req.params.id, req.user._id, req.body);
       ResponseHandler.success(res, 'Cập nhật đánh giá thành công', review);
     } catch (error) {
       next(error);
@@ -77,7 +77,7 @@ class ReviewController extends BaseController {
   // Xóa review
   deleteReview = async (req, res, next) => {
     try {
-      await this.service.deleteReview(req.params.id, req.user._id);
+      await this.service.deleteUserReview(req.params.id, req.user._id);
       ResponseHandler.success(res, 'Xóa đánh giá thành công');
     } catch (error) {
       next(error);

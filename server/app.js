@@ -68,9 +68,9 @@ mongoose.connect(dbUri)
   
   // Chỉ khởi động server sau khi kết nối MongoDB thành công
   app.listen(port, () => {
-    console.log(`🚀 Server running at http://localhost:${port}`);
-    console.log(`🌐 API Documentation: http://localhost:${port}/`);
-    console.log('📋 Server is ready to accept requests');
+    console.log(`🚀 Server chạy ở port http://localhost:${port}`);
+    console.log(`🌐 API Docs: http://localhost:${port}/`);
+    console.log('📋 Server đã sẵn sàng');
   });
 })
 .catch(err => {
@@ -106,7 +106,7 @@ mongoose.connection.on('reconnected', () => {
   console.log('✅ MongoDB reconnected successfully');
 });
 
-// Xử lý graceful shutdown
+// Xử lý shutdown
 process.on('SIGINT', async () => {
   console.log('\n🛑 Received SIGINT. Graceful shutdown...');
   try {
