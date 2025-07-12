@@ -9,9 +9,23 @@ class BaseService {
   // Tạo mới
   async create(data) {
     try {
+      console.log('🔄 BaseService.create() - Creating new document...');
+      console.log('🔄 Model name:', this.Model.modelName);
+      console.log('🔄 Data received:', JSON.stringify(data, null, 2));
+      
       const document = new this.Model(data);
-      return await document.save();
+      console.log('🔄 Document created, calling save()...');
+      
+      const result = await document.save();
+      console.log('✅ Document saved successfully');
+      return result;
     } catch (error) {
+      console.log('❌ BaseService.create() error:', error);
+      console.log('❌ Error message:', error.message);
+      console.log('❌ Error name:', error.name);
+      console.log('❌ Error stack:', error.stack);
+      console.log('❌ Full error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+      
       if (error.code === 11000) {
         const field = Object.keys(error.keyPattern)[0];
         throw new AppError(`${field} đã tồn tại`, 400);

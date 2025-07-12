@@ -90,8 +90,57 @@ class ProductVariantController extends BaseController {
     try {
       const { id } = req.params;
       const { quantityChange, operation } = req.body; // operation can be 'increase' or 'decrease'
-      const updatedVariant = await this.service.updateStock(id, quantityChange, operation);
+      const updatedVariant = await this.service.updateStockWithValidation(id, quantityChange, operation);
       ResponseHandler.success(res, productVariantMessages.UPDATE_SUCCESS, updatedVariant);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // New API endpoints for variant business rules
+  validateCartAddition = async (req, res, next) => {
+    try {
+      const { variantId, quantity } = req.body;
+      const result = await this.service.validateCartAddition(variantId, quantity);
+      ResponseHandler.success(res, 'Variant có thể thêm vào giỏ hàng', result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  checkProductOutOfStock = async (req, res, next) => {
+    try {
+      const { productId } = req.params;
+      const result = await this.service.checkProductOutOfStock(productId);
+      ResponseHandler.success(res, 'Kiểm tra tồn kho sản phẩm', result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getOutOfStockVariants = async (req, res, next) => {
+    try {
+      const queryOptions = {
+        page: req.query.page || PAGINATION.DEFAULT_PAGE,
+        limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+        product: req.query.product
+      };
+      const result = await this.service.getOutOfStockVariants(queryOptions);
+      ResponseHandler.success(res, 'Danh sách variant hết hàng', result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  validateVariantRequirements = async (req, res, next) => {
+    try {
+      const { product, color, size } = req.body;
+      // This will validate if the variant requirements are met
+      await this.service._validateReferences(product, color, size);
+      ResponseHandler.success(res, 'Variant requirements hợp lệ', { 
+        valid: true, 
+        message: 'Color và Size hợp lệ và đang hoạt động' 
+      });
     } catch (error) {
       next(error);
     }

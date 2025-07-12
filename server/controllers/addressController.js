@@ -73,7 +73,7 @@ class AddressController extends BaseController {
    */
   deleteAddress = async (req, res, next) => {
     try {
-      await this.service.deleteAddress(req.params.id, req.user.id);
+      await this.service.deleteAddress(req.params.id, req.user.id, null);
       ResponseHandler.success(res, addressMessages.ADDRESS_DELETED_SUCCESSFULLY);
     } catch (error) {
       next(error);
@@ -93,6 +93,36 @@ class AddressController extends BaseController {
       next(error);
     }
   };
+
+  /**
+   * @description Xóa một địa chỉ của người dùng hiện tại với địa chỉ thay thế
+   * @param {import('express').Request} req - Đối tượng request
+   * @param {import('express').Response} res - Đối tượng response
+   */
+  deleteAddressWithReplacement = async (req, res, next) => {
+    try {
+      const { newDefaultAddressId } = req.body;
+      await this.service.deleteAddress(req.params.id, req.user.id, newDefaultAddressId);
+      ResponseHandler.success(res, addressMessages.ADDRESS_DELETED_SUCCESSFULLY);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @description Lấy danh sách tỉnh/thành phố hợp lệ
+   * @param {import('express').Request} req - Đối tượng request
+   * @param {import('express').Response} res - Đối tượng response
+   */
+  getValidCities = async (req, res, next) => {
+    try {
+      const cities = await this.service.getValidCities();
+      ResponseHandler.success(res, 'Lấy danh sách tỉnh/thành phố thành công', cities);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   // Admin specific methods can be added here if needed, for example, to list all addresses
   // For now, address management is user-specific.
 }

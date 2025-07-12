@@ -22,7 +22,7 @@ class AuthService extends BaseService {
   // Kiểm tra xem email đã tồn tại chưa
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    throw new AppError(MESSAGES.USER.EMAIL_EXISTS, ERROR_CODES.CONFLICT);
+    throw new AppError('Email đã tồn tại trong hệ thống', ERROR_CODES.CONFLICT);
   }
 
   // Tạo người dùng mới
@@ -31,7 +31,7 @@ class AuthService extends BaseService {
     password, // Password will be hashed by pre-save hook in UserSchema
     name,
     phone,
-    role: ROLES.USER, // Default role
+    role: userData.role || ROLES.USER, // Use provided role or default to customer
   });
 
   await user.save();

@@ -7,7 +7,14 @@ const validateObjectId = require('../middlewares/validateObjectId');
 
 const colorController = new ColorController();
 
-// --- Tuyến đường công khai ---
+// --- Tuyến đường công khai (đặt trước các route có middleware) ---
+
+/**
+ * @route GET /api/colors/suggestions
+ * @description Lấy danh sách màu đề xuất cho admin UI
+ * @access Public
+ */
+router.get('/suggestions', colorController.getSuggestedColors);
 
 // @route GET /api/colors/public
 // @desc Lấy tất cả màu sắc (công khai, có thể phục vụ cho client lựa chọn)
@@ -46,5 +53,43 @@ router.put('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), colo
 // @note Service sẽ kiểm tra xem màu có đang được sử dụng không trước khi xóa
 // @access Private (Admin)
 router.delete('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), colorController.deleteColor);
+
+// --- Business Rules Endpoints (must come before generic routes) ---
+
+/**
+ * @route POST /api/colors/validate-name
+ * @description Kiểm tra tên màu sắc có hợp lệ và duy nhất không
+ * @access Public
+ * @body {String} name - Tên màu sắc cần kiểm tra
+ * @body {String} [excludeId] - ID màu sắc cần loại trừ khi kiểm tra (dùng khi update)
+ */
+router.post('/validate-name', colorController.validateColorName);
+
+/**
+ * @route GET /api/colors/:id/usage-stats
+ * @description Lấy thống kê sử dụng của màu sắc
+ * @access Private (Admin)
+ * @param {String} id - ID của màu sắc
+ */
+router.get(
+  '/:id/usage-stats',
+  authMiddleware,
+  adminMiddleware,
+  validateObjectId('id'),
+  colorController.getColorUsageStats
+);
+
+/**
+ * @route GET /api/colors/:id/can-delete
+ * @description Kiểm tra xem màu sắc có thể xóa không
+ * @access Private (Admin)
+ * @param {String} id - ID của màu sắc
+ */
+router.get(
+  '/:id/can-delete',
+  authMiddleware,
+  adminMiddleware,
+  colorController.checkColorDeletion
+);
 
 module.exports = router;

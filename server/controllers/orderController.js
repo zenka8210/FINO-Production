@@ -12,6 +12,10 @@ class OrderController extends BaseController {
   // Tạo đơn hàng mới
   createOrder = async (req, res, next) => {
     try {
+      console.log('🔍 Order controller received:', req.body);
+      console.log('🔍 PaymentMethod from body:', req.body.paymentMethod);
+      console.log('🔍 Type of paymentMethod:', typeof req.body.paymentMethod);
+      
       // Basic validation (more can be added with a validation middleware)
       if (!req.body.items || req.body.items.length === 0) {
         throw new AppError(orderMessages.ORDER_ITEMS_EMPTY, ERROR_CODES.BAD_REQUEST);
@@ -20,6 +24,7 @@ class OrderController extends BaseController {
         throw new AppError(orderMessages.ORDER_ADDRESS_REQUIRED, ERROR_CODES.BAD_REQUEST);
       }
       if (!req.body.paymentMethod) {
+        console.log('❌ PaymentMethod validation failed - value is:', req.body.paymentMethod);
         throw new AppError(orderMessages.ORDER_PAYMENT_METHOD_REQUIRED, ERROR_CODES.BAD_REQUEST);
       }
 

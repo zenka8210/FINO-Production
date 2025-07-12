@@ -31,6 +31,17 @@ router.get('/check-variant-stock/:variantId', validateObjectId('variantId'), pro
 // @access Public
 router.post('/validate-cart', productController.validateCartItems);
 
+// @route GET /api/products/:id/validate-display
+// @desc Kiểm tra sản phẩm có thể hiển thị hay không
+// @access Public
+router.get('/:id/validate-display', validateObjectId('id'), productController.validateProductDisplay);
+
+// @route POST /api/products/check-add-to-cart
+// @desc Kiểm tra có thể thêm vào giỏ hàng hay không
+// @body variantId, quantity
+// @access Public
+router.post('/check-add-to-cart', productController.preventOutOfStockAddToCart);
+
 // @route GET /api/products/public
 // @desc Lấy tất cả sản phẩm (công khai, có phân trang, tìm kiếm, lọc, sắp xếp)
 // @query includeVariants=true/false - để bao gồm/loại trừ các biến thể sản phẩm
@@ -79,5 +90,10 @@ router.put('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), prod
 // @note Service sẽ kiểm tra xem sản phẩm có biến thể không trước khi xóa
 // @access Private (Admin)
 router.delete('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), productController.deleteProduct);
+
+// @route GET /api/products/admin/out-of-stock
+// @desc Lấy tất cả sản phẩm hết hàng (Admin only)
+// @access Private (Admin)
+router.get('/admin/out-of-stock', authMiddleware, adminMiddleware, productController.getOutOfStockProducts);
 
 module.exports = router;

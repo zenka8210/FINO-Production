@@ -51,6 +51,18 @@ module.exports = {
     RESOURCE_DELETED: 'Xóa thành công',
     PAYMENT_SUCCESS: 'Thanh toán thành công',
     ORDER_PLACED: 'Đặt hàng thành công',
+
+    // User messages
+    USER: {
+      EMAIL_EXISTS: 'Email đã tồn tại trong hệ thống',
+      NOT_FOUND: 'Người dùng không tồn tại',
+      CREATED: 'Tạo người dùng thành công',
+      UPDATED: 'Cập nhật thông tin người dùng thành công',
+      DELETED: 'Xóa người dùng thành công',
+      PROFILE_UPDATED: 'Cập nhật hồ sơ thành công',
+      PASSWORD_CHANGED: 'Đổi mật khẩu thành công',
+      UNAUTHORIZED_ACCESS: 'Bạn không có quyền truy cập tài khoản này'
+    },
     ORDER_NOT_FOUND: 'Không tìm thấy đơn hàng',
     ORDER_UPDATED: 'Cập nhật đơn hàng thành công',
     ORDER_STATUS_UPDATED: 'Cập nhật trạng thái đơn hàng thành công',
@@ -70,6 +82,12 @@ module.exports = {
     PRODUCT_HAS_VARIANTS: 'Sản phẩm có biến thể, không thể xóa. Xóa các biến thể trước.',
     PRODUCT_FETCH_ALL_FAILED: 'Lấy danh sách sản phẩm thất bại',
     PRODUCT_FETCH_SINGLE_FAILED: 'Lấy chi tiết sản phẩm thất bại',
+    PRODUCT_CATEGORY_REQUIRED: 'Sản phẩm phải thuộc ít nhất 1 danh mục',
+    PRODUCT_MUST_HAVE_VARIANTS: 'Sản phẩm phải có ít nhất 1 variant',
+    PRODUCT_INVALID_SALE_PRICE: 'Giá khuyến mãi phải nhỏ hơn giá gốc',
+    PRODUCT_INVALID_SALE_PERIOD: 'Thời gian khuyến mãi không hợp lệ',
+    PRODUCT_OUT_OF_STOCK: 'Sản phẩm đã hết hàng',
+    PRODUCT_HIDDEN: 'Sản phẩm đã bị ẩn',
 
     // ProductVariant messages
     PRODUCT_VARIANT_CREATED: 'Tạo biến thể sản phẩm thành công',
@@ -317,7 +335,13 @@ module.exports = {
       STATUS_UPDATE_FAILED: 'PRODUCT_STATUS_UPDATE_FAILED',
       HAS_VARIANTS: 'PRODUCT_HAS_VARIANTS',
       FETCH_ALL_FAILED: 'PRODUCT_FETCH_ALL_FAILED',
-      FETCH_SINGLE_FAILED: 'PRODUCT_FETCH_SINGLE_FAILED'
+      FETCH_SINGLE_FAILED: 'PRODUCT_FETCH_SINGLE_FAILED',
+      CATEGORY_REQUIRED: 'PRODUCT_CATEGORY_REQUIRED',
+      MUST_HAVE_VARIANTS: 'PRODUCT_MUST_HAVE_VARIANTS',
+      INVALID_SALE_PRICE: 'PRODUCT_INVALID_SALE_PRICE',
+      INVALID_SALE_PERIOD: 'PRODUCT_INVALID_SALE_PERIOD',
+      OUT_OF_STOCK: 'PRODUCT_OUT_OF_STOCK',
+      HIDDEN: 'PRODUCT_HIDDEN'
     },
     PRODUCT_VARIANT: {
       NOT_FOUND: 'PRODUCT_VARIANT_NOT_FOUND',
@@ -362,7 +386,11 @@ module.exports = {
       CREATE_FAILED: 'ADDRESS_CREATE_FAILED',
       UPDATE_FAILED: 'ADDRESS_UPDATE_FAILED',
       DELETE_FAILED: 'ADDRESS_DELETE_FAILED',
-      SET_DEFAULT_FAILED: 'ADDRESS_SET_DEFAULT_FAILED'
+      SET_DEFAULT_FAILED: 'ADDRESS_SET_DEFAULT_FAILED',
+      MAX_LIMIT_REACHED: 'ADDRESS_MAX_LIMIT_REACHED',
+      PERMISSION_DENIED: 'ADDRESS_PERMISSION_DENIED',
+      CANNOT_DELETE_DEFAULT: 'CANNOT_DELETE_DEFAULT_ADDRESS',
+      INVALID_REPLACEMENT: 'INVALID_REPLACEMENT_ADDRESS'
     },
       // Voucher specific error codes
     VOUCHER: {
@@ -687,7 +715,10 @@ module.exports = {
     ADDRESS_DELETED_SUCCESSFULLY: 'Xóa địa chỉ thành công.',
     ADDRESS_SET_AS_DEFAULT_SUCCESSFULLY: 'Đặt làm địa chỉ mặc định thành công.',
     MAX_ADDRESSES_REACHED: 'Đã đạt số lượng địa chỉ tối đa cho phép.',
-    ADDRESS_BELONGS_TO_ANOTHER_USER: 'Địa chỉ này thuộc về người dùng khác.'
+    ADDRESS_BELONGS_TO_ANOTHER_USER: 'Địa chỉ này thuộc về người dùng khác.',
+    CANNOT_DELETE_DEFAULT_WITHOUT_REPLACEMENT: 'Không thể xóa địa chỉ mặc định. Vui lòng chọn địa chỉ thay thế trước khi xóa.',
+    INVALID_REPLACEMENT_ADDRESS: 'Địa chỉ thay thế không hợp lệ hoặc không thuộc về bạn.',
+    ADDRESS_UPDATE_FAILED: 'Cập nhật địa chỉ thất bại.'
   },
 
   // Đơn hàng

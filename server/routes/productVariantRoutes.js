@@ -7,6 +7,60 @@ const validateObjectId = require('../middlewares/validateObjectId');
 const router = express.Router();
 const productVariantController = new ProductVariantController();
 
+// --- Business Rules Endpoints (must come before generic routes) ---
+
+/**
+ * @route POST /api/v1/product-variants/validate-cart-addition
+ * @description Kiểm tra xem variant có thể thêm vào giỏ hàng không
+ * @access Public
+ * @body {String} variantId - ID của variant
+ * @body {Number} quantity - Số lượng muốn thêm
+ */
+router.post(
+  '/validate-cart-addition',
+  productVariantController.validateCartAddition
+);
+
+/**
+ * @route POST /api/v1/product-variants/validate-requirements
+ * @description Kiểm tra color và size có hợp lệ không
+ * @access Public
+ * @body {String} product - ID của sản phẩm
+ * @body {String} color - ID của màu sắc
+ * @body {String} size - ID của kích thước
+ */
+router.post(
+  '/validate-requirements',
+  productVariantController.validateVariantRequirements
+);
+
+/**
+ * @route GET /api/v1/product-variants/admin/out-of-stock
+ * @description Lấy danh sách tất cả variant hết hàng (Admin)
+ * @access Private (Admin)
+ * @query {Number} [page] - Trang hiện tại
+ * @query {Number} [limit] - Số lượng kết quả mỗi trang
+ * @query {String} [product] - Lọc theo ID sản phẩm
+ */
+router.get(
+  '/admin/out-of-stock',
+  protect,
+  restrictToAdmin,
+  productVariantController.getOutOfStockVariants
+);
+
+/**
+ * @route GET /api/v1/product-variants/product/:productId/stock-status
+ * @description Kiểm tra tình trạng tồn kho của tất cả variant của một sản phẩm
+ * @access Public
+ * @param {String} productId - ID của sản phẩm
+ */
+router.get(
+  '/product/:productId/stock-status',
+  validateObjectId('productId'),
+  productVariantController.checkProductOutOfStock
+);
+
 // --- Admin Routes ---
 
 /**
@@ -51,17 +105,19 @@ router.get(
 );
 
 /**
- * @route GET /api/v1/product-variants/admin/:id
- * @description Lấy chi tiết một biến thể sản phẩm bằng ID (yêu cầu quyền admin).
+ * @route PUT /api/v1/product-variants/:id/stock
+ * @description Cập nhật tồn kho cho biến thể sản phẩm (yêu cầu quyền admin).
  * @access Private (Admin)
  * @param {String} id - ID của biến thể sản phẩm.
+ * @body {Number} quantityChange - Số lượng thay đổi.
+ * @body {String} operation - Loại thao tác ('increase' hoặc 'decrease').
  */
-router.get(
-  '/admin/:id',
+router.put(
+  '/:id/stock',
   protect,
   restrictToAdmin,
   validateObjectId('id'),
-  productVariantController.getProductVariantById
+  productVariantController.updateStock
 );
 
 /**
@@ -96,22 +152,6 @@ router.delete(
   restrictToAdmin,
   validateObjectId('id'),
   productVariantController.deleteProductVariantById
-);
-
-/**
- * @route PATCH /api/v1/product-variants/:id/stock
- * @description Cập nhật số lượng tồn kho cho một biến thể sản phẩm (yêu cầu quyền admin).
- * @access Private (Admin)
- * @param {String} id - ID của biến thể sản phẩm.
- * @body {Number} quantityChange - Số lượng thay đổi (có thể âm để giảm).
- * @body {String} [operation='decrease'] - Thao tác ('increase' hoặc 'decrease').
- */
-router.patch(
-  '/:id/stock',
-  protect,
-  restrictToAdmin,
-  validateObjectId('id'),
-  productVariantController.updateStock
 );
 
 // --- Public Routes ---

@@ -79,6 +79,49 @@ class CategoryController extends BaseController {
       next(error);
     }
   };
+
+  // Validate category name
+  validateCategoryName = async (req, res, next) => {
+    try {
+      const { name, excludeId } = req.body;
+      const result = await this.service.validateCategoryName(name, excludeId);
+      ResponseHandler.success(res, 'Tên danh mục hợp lệ', result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Check if category can be deleted
+  checkCategoryDeletion = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const result = await this.service.canDeleteCategory(id);
+      ResponseHandler.success(res, 'Kiểm tra xóa danh mục', result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Get category tree
+  getCategoryTree = async (req, res, next) => {
+    try {
+      const tree = await this.service.getCategoryTree();
+      ResponseHandler.success(res, 'Cây danh mục', { tree });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Get category usage statistics
+  getCategoryUsageStats = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const stats = await this.service.getCategoryUsageStats(id);
+      ResponseHandler.success(res, 'Thống kê sử dụng danh mục', stats);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = CategoryController;

@@ -179,6 +179,60 @@ class ProductController extends BaseController {
         }
     };
 
+    // Validate product for display
+    validateProductDisplay = async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const validation = await this.service.validateProductForDisplay(id);
+            ResponseHandler.success(res, 'Kiểm tra hiển thị sản phẩm thành công', validation);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // Get all out of stock products (Admin only)
+    getOutOfStockProducts = async (req, res, next) => {
+        try {
+            const queryOptions = {
+                page: req.query.page || PAGINATION.DEFAULT_PAGE,
+                limit: req.query.limit || PAGINATION.DEFAULT_LIMIT
+            };
+            const result = await this.service.getOutOfStockProducts(queryOptions);
+            ResponseHandler.success(res, 'Lấy danh sách sản phẩm hết hàng thành công', result);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // Add out of stock variant to cart (should fail)
+    preventOutOfStockAddToCart = async (req, res, next) => {
+        try {
+            const { variantId, quantity = 1 } = req.body;
+            
+            if (!variantId) {
+                throw new AppError('Variant ID là bắt buộc', 'VARIANT_ID_REQUIRED', 400);
+            }
+
+            const stockCheck = await this.service.checkVariantStock(variantId, quantity);
+            
+            if (!stockCheck.canOrder) {
+                throw new AppError(
+                    `Sản phẩm đã hết hàng. Còn lại: ${stockCheck.availableStock}, yêu cầu: ${quantity}`,
+                    400,
+                    'OUT_OF_STOCK'
+                );
+            }
+
+            ResponseHandler.success(res, 'Có thể thêm vào giỏ hàng', {
+                canAddToCart: true,
+                availableStock: stockCheck.availableStock,
+                requestedQuantity: quantity
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
 }
 
 module.exports = ProductController;

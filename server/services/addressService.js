@@ -3,6 +3,7 @@ const Address = require('../models/AddressSchema');
 const User = require('../models/UserSchema');
 const { AppError } = require('../middlewares/errorHandler');
 const { addressMessages, ERROR_CODES } = require('../config/constants');
+const AddressValidator = require('../utils/addressValidator');
 
 const MAX_ADDRESSES_PER_USER = 5; // Giới hạn số lượng địa chỉ mỗi người dùng
 
@@ -26,6 +27,12 @@ class AddressService extends BaseService {
     const user = await User.findById(userId);
     if (!user) {
       throw new AppError('Người dùng không tồn tại.', 404, ERROR_CODES.USER.NOT_FOUND);
+    }
+
+    // Validate address format
+    const validation = AddressValidator.validateAddress(addressData);
+    if (!validation.isValid) {
+      throw new AppError(validation.errors.join(' '), 400, ERROR_CODES.VALIDATION_ERROR);
     }
 
     const userAddressesCount = await Address.countDocuments({ user: userId });
@@ -101,6 +108,20 @@ class AddressService extends BaseService {
       throw new AppError(addressMessages.ADDRESS_BELONGS_TO_ANOTHER_USER, 403, ERROR_CODES.ADDRESS.PERMISSION_DENIED);
     }
 
+    // Validate address format if address components are being updated
+    if (updateData.city || updateData.district || updateData.ward) {
+      const addressToValidate = {
+        city: updateData.city || address.city,
+        district: updateData.district || address.district,
+        ward: updateData.ward || address.ward
+      };
+      
+      const validation = AddressValidator.validateAddress(addressToValidate);
+      if (!validation.isValid) {
+        throw new AppError(validation.errors.join(' '), 400, ERROR_CODES.VALIDATION_ERROR);
+      }
+    }
+
     // Xử lý isDefault khi cập nhật
     if (updateData.isDefault === true && !address.isDefault) {
       // Nếu đang set địa chỉ này làm mặc định (và nó chưa phải mặc định)
@@ -129,10 +150,11 @@ class AddressService extends BaseService {
    * @description Xóa một địa chỉ
    * @param {string} addressId - ID của địa chỉ cần xóa
    * @param {string} userId - ID của người dùng (để kiểm tra quyền sở hữu)
+   * @param {string} newDefaultAddressId - ID của địa chỉ thay thế (bắt buộc nếu xóa địa chỉ mặc định)
    * @returns {Promise<void>}
    * @throws {AppError} Nếu không tìm thấy địa chỉ hoặc người dùng không có quyền
    */
-  async deleteAddress(addressId, userId) {
+  async deleteAddress(addressId, userId, newDefaultAddressId = null) {
     const address = await Address.findById(addressId);
     if (!address) {
       throw new AppError(addressMessages.ADDRESS_NOT_FOUND, 404, ERROR_CODES.ADDRESS.NOT_FOUND);
@@ -141,16 +163,46 @@ class AddressService extends BaseService {
       throw new AppError(addressMessages.ADDRESS_BELONGS_TO_ANOTHER_USER, 403, ERROR_CODES.ADDRESS.PERMISSION_DENIED);
     }
 
-    await Address.findByIdAndDelete(addressId);
-
-    // Nếu địa chỉ bị xóa là địa chỉ mặc định, và còn địa chỉ khác, đặt địa chỉ gần nhất làm mặc định
+    // Kiểm tra nếu đây là địa chỉ mặc định
     if (address.isDefault) {
-      const remainingAddresses = await Address.find({ user: userId }).sort({ createdAt: -1 });
-      if (remainingAddresses.length > 0) {
-        remainingAddresses[0].isDefault = true;
-        await remainingAddresses[0].save();
+      const remainingAddresses = await Address.find({ 
+        user: userId, 
+        _id: { $ne: addressId } 
+      });
+      
+      // Nếu còn địa chỉ khác nhưng không có địa chỉ thay thế được chỉ định
+      if (remainingAddresses.length > 0 && !newDefaultAddressId) {
+        throw new AppError(
+          'Không thể xóa địa chỉ mặc định. Vui lòng chọn địa chỉ thay thế trước khi xóa.', 
+          400, 
+          ERROR_CODES.ADDRESS.CANNOT_DELETE_DEFAULT
+        );
+      }
+      
+      // Nếu có địa chỉ thay thế được chỉ định, kiểm tra tính hợp lệ
+      if (newDefaultAddressId) {
+        const newDefaultAddress = await Address.findOne({
+          _id: newDefaultAddressId,
+          user: userId,
+          _id: { $ne: addressId }
+        });
+        
+        if (!newDefaultAddress) {
+          throw new AppError(
+            'Địa chỉ thay thế không hợp lệ hoặc không thuộc về bạn.',
+            400,
+            ERROR_CODES.ADDRESS.INVALID_REPLACEMENT
+          );
+        }
+        
+        // Đặt địa chỉ thay thế làm mặc định
+        await Address.updateMany({ user: userId, isDefault: true }, { $set: { isDefault: false } });
+        newDefaultAddress.isDefault = true;
+        await newDefaultAddress.save();
       }
     }
+
+    await Address.findByIdAndDelete(addressId);
   }
 
   /**
@@ -181,6 +233,14 @@ class AddressService extends BaseService {
     await addressToSetDefault.save();
 
     return addressToSetDefault;
+  }
+
+  /**
+   * @description Lấy danh sách tỉnh/thành phố hợp lệ
+   * @returns {Promise<Array<string>>} Danh sách tỉnh/thành phố
+   */
+  async getValidCities() {
+    return AddressValidator.getValidCities();
   }
 }
 

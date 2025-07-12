@@ -57,6 +57,46 @@ class ColorController extends BaseController {
       next(error);
     }
   };
+
+  // Business Rules Endpoints
+  validateColorName = async (req, res, next) => {
+    try {
+      const { name, excludeId } = req.body;
+      await this.service.validateColorName(name, excludeId);
+      ResponseHandler.success(res, 'Tên màu sắc hợp lệ', { valid: true });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getColorUsageStats = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const stats = await this.service.getColorUsageStats(id);
+      ResponseHandler.success(res, 'Thống kê sử dụng màu sắc', stats);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  checkColorDeletion = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const result = await this.service.canDeleteColor(id);
+      ResponseHandler.success(res, 'Kiểm tra xóa màu', result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getSuggestedColors = async (req, res, next) => {
+    try {
+      const suggestedColors = await this.service.getSuggestedColors();
+      ResponseHandler.success(res, 'Danh sách màu đề xuất', { suggestedColors });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = ColorController;

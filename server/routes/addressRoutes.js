@@ -17,6 +17,9 @@ const addressController = new AddressController();
 // Tất cả các route dưới đây yêu cầu người dùng phải đăng nhập
 router.use(protect);
 
+// GET /api/addresses/cities - Lấy danh sách tỉnh/thành phố hợp lệ (public endpoint)
+router.get('/cities', addressController.getValidCities);
+
 /**
  * @swagger
  * /api/addresses:
@@ -181,6 +184,9 @@ router.route('/:id')
  *         description: Không tìm thấy địa chỉ
  */
 router.patch('/:id/set-default', validateObjectId('id'), addressController.setDefaultAddress); // Corrected usage
+
+// DELETE with replacement - Xóa địa chỉ với chỉ định địa chỉ thay thế
+router.delete('/:id/with-replacement', validateObjectId('id'), addressController.deleteAddressWithReplacement);
 
 // Admin routes for addresses (e.g., listing all addresses for all users) are not implemented here
 // as the current focus is on user-specific address management.

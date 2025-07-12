@@ -68,6 +68,28 @@ class BannerController extends BaseController {
             next(error);
         }
     };
+
+    // Get banners with detailed status information (Admin)
+    getBannersWithStatus = async (req, res, next) => {
+        try {
+            const queryOptions = req.query;
+            const result = await this.service.getBannersWithStatus(queryOptions);
+            ResponseHandler.success(res, 'Lấy danh sách banner với trạng thái thành công', result);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // Validate banner link
+    validateBannerLink = async (req, res, next) => {
+        try {
+            const { link } = req.body;
+            await this.service.validateBannerLink(link);
+            ResponseHandler.success(res, 'Link banner hợp lệ', { valid: true });
+        } catch (error) {
+            next(error);
+        }
+    };
 }
 
 module.exports = BannerController;

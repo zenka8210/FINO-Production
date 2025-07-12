@@ -9,11 +9,25 @@ const validateObjectId = require('../middlewares/validateObjectId');
 // --- Public Routes ---
 
 /**
+ * @route   GET /api/categories/tree
+ * @desc    Lấy cây danh mục phân cấp
+ * @access  Public
+ */
+router.get('/tree', categoryController.getCategoryTree);
+
+/**
  * @route   GET /api/categories/parents
  * @desc    Lấy tất cả danh mục cha (không có parent)
  * @access  Public
  */
 router.get('/parents', categoryController.getParentCategories);
+
+/**
+ * @route   POST /api/categories/validate-name
+ * @desc    Kiểm tra tên danh mục có hợp lệ và duy nhất không
+ * @access  Public
+ */
+router.post('/validate-name', categoryController.validateCategoryName);
 
 /**
  * @route   GET /api/categories/:parentId/children
@@ -73,5 +87,19 @@ router.put('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), cate
  * @access  Private (Admin)
  */
 router.delete('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), categoryController.deleteCategory);
+
+/**
+ * @route   GET /api/categories/:id/usage-stats
+ * @desc    Lấy thống kê sử dụng của danh mục
+ * @access  Private (Admin)
+ */
+router.get('/:id/usage-stats', authMiddleware, adminMiddleware, validateObjectId('id'), categoryController.getCategoryUsageStats);
+
+/**
+ * @route   GET /api/categories/:id/can-delete
+ * @desc    Kiểm tra xem danh mục có thể xóa không
+ * @access  Private (Admin)
+ */
+router.get('/:id/can-delete', authMiddleware, adminMiddleware, validateObjectId('id'), categoryController.checkCategoryDeletion);
 
 module.exports = router;

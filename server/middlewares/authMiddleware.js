@@ -19,7 +19,7 @@ const authMiddleware = async (req, res, next) => {
     const user = await User.findById(decoded.id || decoded.userId).select('-password'); 
 
     if (!user) {
-      return next(new AppError(MESSAGES.USER_NOT_FOUND || 'Token không hợp lệ, người dùng không tồn tại', ERROR_CODES.UNAUTHORIZED));
+      return next(new AppError(MESSAGES.USER.NOT_FOUND || 'Token không hợp lệ, người dùng không tồn tại', ERROR_CODES.UNAUTHORIZED));
     }
 
     // if (!user.isActive) {

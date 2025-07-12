@@ -57,6 +57,73 @@ class SizeController extends BaseController {
       next(error);
     }
   };
+
+  // Business Rules Endpoints
+  validateSizeName = async (req, res, next) => {
+    try {
+      const { name, excludeId } = req.body;
+      this.service.validateSizeName(name);
+      await this.service.validateSizeUniqueness(name, excludeId);
+      ResponseHandler.success(res, 'Tên kích thước hợp lệ', { valid: true });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getSizeUsageStats = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const stats = await this.service.getSizeUsageStats(id);
+      ResponseHandler.success(res, 'Thống kê sử dụng kích thước', stats);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getValidSizesByCategory = async (req, res, next) => {
+    try {
+      const { category } = req.params;
+      const validSizes = this.service.getValidSizesByCategory(category);
+      ResponseHandler.success(res, 'Danh sách kích thước hợp lệ theo danh mục', { category, validSizes });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  checkSizeDeletion = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      await this.service.canDeleteSize(id);
+      ResponseHandler.success(res, 'Kích thước có thể xóa', { canDelete: true });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getAllValidSizes = async (req, res, next) => {
+    try {
+      const validSizes = this.service.constructor.VALID_SIZES;
+      ResponseHandler.success(res, 'Danh sách tất cả kích thước hợp lệ', { validSizes });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getSuggestedSizes = async (req, res, next) => {
+    try {
+      const { category } = req.params;
+      const suggestedSizes = category 
+        ? await this.service.getSuggestedSizesByCategory(category)
+        : await this.service.getAllSuggestedSizes();
+      
+      ResponseHandler.success(res, 'Danh sách size đề xuất', { 
+        category: category || 'all',
+        suggestedSizes 
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = SizeController;

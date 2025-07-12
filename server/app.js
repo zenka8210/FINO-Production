@@ -29,6 +29,7 @@ const sizeRoutes = require('./routes/sizeRoutes');
 const wishListRoutes = require('./routes/wishListRoutes');
 const statisticsRoutes = require('./routes/statisticsRoutes');
 const productVariantRoutes = require('./routes/productVariantRoutes');
+const cartRoutes = require('./routes/cartRoutes');
 
 // Routes
 app.use('/api/orders', orderRoutes);
@@ -47,6 +48,7 @@ app.use('/api/sizes', sizeRoutes);
 app.use('/api/wishlist', wishListRoutes);
 app.use('/api/statistics', statisticsRoutes);
 app.use('/api/product-variants', productVariantRoutes);
+app.use('/api/cart', cartRoutes);
 
 app.get('/', (req, res) => {
   res.send('Welcome to E-commerce API System!');

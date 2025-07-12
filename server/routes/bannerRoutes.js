@@ -11,6 +11,16 @@ const validateObjectId = require('../middlewares/validateObjectId');
 // @access Public
 router.get('/active', bannerController.getActiveClientBanners);
 
+// @route GET /api/banners/admin/status
+// @desc Lấy tất cả banner với thông tin trạng thái chi tiết (cho admin)
+// @access Private (Admin)
+router.get('/admin/status', authMiddleware, adminMiddleware, bannerController.getBannersWithStatus);
+
+// @route POST /api/banners/validate-link
+// @desc Kiểm tra tính hợp lệ của link banner
+// @access Private (Admin)
+router.post('/validate-link', authMiddleware, adminMiddleware, bannerController.validateBannerLink);
+
 // @route GET /api/banners
 // @desc Lấy tất cả banner (cho admin, có phân trang, tìm kiếm)
 // @access Private (Admin)

@@ -1,5 +1,6 @@
 const BaseService = require('./baseService');
 const Category = require('../models/CategorySchema');
+const Product = require('../models/ProductSchema');
 const { AppError } = require('../middlewares/errorHandler');
 const { MESSAGES, ERROR_CODES } = require('../config/constants');
 
@@ -101,13 +102,9 @@ class CategoryService extends BaseService {
 
     async deleteCategory(categoryId) {
         try {
-            // Check if category has child categories
-            const childCategories = await Category.countDocuments({ parent: categoryId });
-            if (childCategories > 0) {
-                throw new AppError('Không thể xóa danh mục có chứa danh mục con.', 'CATEGORY_HAS_CHILDREN', 400);
-            }
-            // Add check for products associated with this category if necessary in the future
-
+            // Use the static method to check if category can be deleted
+            await Category.canDeleteCategory(categoryId);
+            
             const category = await Category.findByIdAndDelete(categoryId);
             if (!category) {
                 throw new AppError(MESSAGES.CATEGORY_NOT_FOUND, ERROR_CODES.CATEGORY.NOT_FOUND, 404);
@@ -115,8 +112,81 @@ class CategoryService extends BaseService {
             return { message: MESSAGES.CATEGORY_DELETED };
         } catch (error) {
             if (error instanceof AppError) throw error;
+            if (error.message.includes('Không thể xóa')) {
+                throw new AppError(error.message, 'CATEGORY_CANNOT_DELETE', 400);
+            }
             throw new AppError(MESSAGES.CATEGORY_DELETE_FAILED, ERROR_CODES.CATEGORY.DELETE_FAILED, 500);
         }
+    }
+
+    // Check if category can be deleted (for validation before delete)
+    async canDeleteCategory(categoryId) {
+        try {
+            await Category.canDeleteCategory(categoryId);
+            return { canDelete: true, message: 'Danh mục có thể xóa' };
+        } catch (error) {
+            return { canDelete: false, message: error.message };
+        }
+    }
+
+    // Get category tree structure
+    async getCategoryTree() {
+        try {
+            return await Category.getCategoryTree();
+        } catch (error) {
+            throw new AppError('Lỗi lấy cây danh mục', 'FETCH_CATEGORY_TREE_FAILED', 500);
+        }
+    }
+
+    // Get category usage statistics
+    async getCategoryUsageStats(categoryId) {
+        try {
+            const category = await Category.findById(categoryId);
+            if (!category) {
+                throw new AppError(MESSAGES.CATEGORY_NOT_FOUND, ERROR_CODES.CATEGORY.NOT_FOUND, 404);
+            }
+
+            const [productsCount, childCategoriesCount] = await Promise.all([
+                Product.countDocuments({ category: categoryId }),
+                Category.countDocuments({ parent: categoryId })
+            ]);
+
+            return {
+                category: category.name,
+                productsCount,
+                childCategoriesCount,
+                canDelete: productsCount === 0 && childCategoriesCount === 0
+            };
+        } catch (error) {
+            if (error instanceof AppError) throw error;
+            throw new AppError('Lỗi lấy thống kê danh mục', 'CATEGORY_STATS_FAILED', 500);
+        }
+    }
+
+    // Validate category name
+    async validateCategoryName(name, excludeId = null) {
+        if (!name || typeof name !== 'string') {
+            throw new AppError('Tên danh mục không hợp lệ', 400);
+        }
+
+        name = name.trim();
+
+        if (name.length < 2 || name.length > 100) {
+            throw new AppError('Tên danh mục phải từ 2-100 ký tự', 400);
+        }
+
+        // Check uniqueness
+        const filter = { name: { $regex: new RegExp(`^${name}$`, 'i') } };
+        if (excludeId) {
+            filter._id = { $ne: excludeId };
+        }
+
+        const existingCategory = await Category.findOne(filter);
+        if (existingCategory) {
+            throw new AppError('Tên danh mục đã tồn tại', 'CATEGORY_NAME_EXISTS', 400);
+        }
+
+        return { valid: true, message: 'Tên danh mục hợp lệ' };
     }
 
     // Specific method to get only parent categories (categories with no parent)

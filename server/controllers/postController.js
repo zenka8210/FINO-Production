@@ -11,14 +11,16 @@ class PostController extends BaseController {
   // Lấy tất cả bài viết (có phân trang và tìm kiếm)
   getAllPosts = async (req, res, next) => {
     try {
-      const { page, limit, sort, title, author } = req.query;
+      const { page, limit, sort, title, author, isPublished } = req.query;
       const options = {
         page: parseInt(page) || undefined,
         limit: parseInt(limit) || undefined,
         sort: sort ? JSON.parse(sort) : undefined,
-        filter: { title, author },
+        filter: { title, author, isPublished },
       };
-      const result = await this.service.getAllPosts(options);
+      
+      // Pass user role để service biết có filter published hay không
+      const result = await this.service.getAllPosts(options, req.user?.role);
       
       if (result.pagination) {
         ResponseHandler.paginatedResponse(res, MESSAGES.POST_RETRIEVED || 'Lấy danh sách bài viết thành công', result.data, result.pagination);
@@ -64,6 +66,41 @@ class PostController extends BaseController {
     try {
       await this.service.deletePost(req.params.id, req.user._id, req.user.role);
       ResponseHandler.success(res, MESSAGES.POST_DELETED);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Lấy bài viết đã xuất bản (public endpoint)
+  getPublishedPosts = async (req, res, next) => {
+    try {
+      const { page, limit, author } = req.query;
+      const options = { page: parseInt(page), limit: parseInt(limit), author };
+      const result = await this.service.getPublishedPosts(options);
+      
+      ResponseHandler.paginatedResponse(res, 'Lấy danh sách bài viết đã xuất bản thành công', result.data, result.pagination);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Admin ẩn/hiện bài viết
+  togglePostVisibility = async (req, res, next) => {
+    try {
+      const result = await this.service.togglePostVisibility(req.params.id, req.user.role);
+      ResponseHandler.success(res, result.message, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Admin cập nhật trạng thái xuất bản
+  updatePublishStatus = async (req, res, next) => {
+    try {
+      const { isPublished } = req.body;
+      const post = await this.service.updatePublishStatus(req.params.id, isPublished, req.user.role);
+      const message = isPublished ? 'Bài viết đã được xuất bản' : 'Bài viết đã được ẩn';
+      ResponseHandler.success(res, message, post);
     } catch (error) {
       next(error);
     }

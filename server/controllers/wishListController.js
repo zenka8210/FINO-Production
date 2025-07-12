@@ -4,7 +4,8 @@ const ResponseHandler = require('../services/responseHandler');
 
 class WishListController extends BaseController {
   constructor() {
-    super(new WishListService());
+    const wishListService = new WishListService();
+    super(wishListService);
   }
 
   // Lấy wishlist của user hiện tại
@@ -20,13 +21,18 @@ class WishListController extends BaseController {
   // Thêm sản phẩm vào wishlist
   addToWishList = async (req, res, next) => {
     try {
-      const { productId } = req.body;
+      const { productId, variantId } = req.body;
       
       if (!productId) {
         return ResponseHandler.badRequest(res, 'Thiếu productId');
       }
+      
+      // Check empty string variantId
+      if (variantId === '') {
+        return ResponseHandler.badRequest(res, 'variantId không được để trống');
+      }
 
-      const wishlist = await this.service.addToWishList(req.user._id, productId);
+      const wishlist = await this.service.addToWishList(req.user._id, productId, variantId);
       ResponseHandler.success(res, 'Thêm vào danh sách yêu thích thành công', wishlist);
     } catch (error) {
       next(error);
@@ -36,8 +42,8 @@ class WishListController extends BaseController {
   // Xóa sản phẩm khỏi wishlist
   removeFromWishList = async (req, res, next) => {
     try {
-      const { productId } = req.params;
-      const wishlist = await this.service.removeFromWishList(req.user._id, productId);
+      const { id } = req.params; // Item ID từ URL
+      const wishlist = await this.service.removeFromWishListByItemId(req.user._id, id);
       ResponseHandler.success(res, 'Xóa khỏi danh sách yêu thích thành công', wishlist);
     } catch (error) {
       next(error);
@@ -58,7 +64,8 @@ class WishListController extends BaseController {
   checkInWishList = async (req, res, next) => {
     try {
       const { productId } = req.params;
-      const isInWishList = await this.service.isInWishList(req.user._id, productId);
+      const { variantId } = req.query;
+      const isInWishList = await this.service.isInWishList(req.user._id, productId, variantId);
       ResponseHandler.success(res, 'Kiểm tra wishlist thành công', { isInWishList });
     } catch (error) {
       next(error);
@@ -68,14 +75,14 @@ class WishListController extends BaseController {
   // Thêm nhiều sản phẩm vào wishlist
   addMultipleToWishList = async (req, res, next) => {
     try {
-      const { productIds } = req.body;
+      const { items } = req.body;
       
-      if (!Array.isArray(productIds) || productIds.length === 0) {
+      if (!Array.isArray(items) || items.length === 0) {
         return ResponseHandler.badRequest(res, 'Danh sách sản phẩm không hợp lệ');
       }
 
-      const wishlist = await this.service.addMultipleToWishList(req.user._id, productIds);
-      ResponseHandler.success(res, 'Thêm nhiều sản phẩm vào wishlist thành công', wishlist);
+      const result = await this.service.addMultipleToWishList(req.user._id, items);
+      ResponseHandler.success(res, 'Thêm nhiều sản phẩm vào wishlist thành công', result);
     } catch (error) {
       next(error);
     }
@@ -94,29 +101,14 @@ class WishListController extends BaseController {
   // Toggle sản phẩm trong wishlist
   toggleWishList = async (req, res, next) => {
     try {
-      const { productId } = req.body;
+      const { productId, variantId } = req.body;
       
       if (!productId) {
         return ResponseHandler.badRequest(res, 'Thiếu productId');
       }
 
-      const isInWishList = await this.service.isInWishList(req.user._id, productId);
-      
-      let wishlist;
-      let message;
-
-      if (isInWishList) {
-        wishlist = await this.service.removeFromWishList(req.user._id, productId);
-        message = 'Đã xóa khỏi danh sách yêu thích';
-      } else {
-        wishlist = await this.service.addToWishList(req.user._id, productId);
-        message = 'Đã thêm vào danh sách yêu thích';
-      }
-
-      ResponseHandler.success(res, message, {
-        wishlist,
-        action: isInWishList ? 'removed' : 'added'
-      });
+      const result = await this.service.toggleWishList(req.user._id, productId, variantId);
+      ResponseHandler.success(res, 'Toggle wishlist thành công', result);
     } catch (error) {
       next(error);
     }
@@ -137,18 +129,13 @@ class WishListController extends BaseController {
     try {
       const { page, limit, userId } = req.query;
       
-      const filter = {};
-      if (userId) filter.user = userId;
-
       const options = {
         page: parseInt(page) || 1,
         limit: parseInt(limit) || 20,
-        filter,
-        populate: 'user products',
-        sort: { updatedAt: -1 }
+        userId
       };
 
-      const result = await this.service.getAll(options);
+      const result = await this.service.getAllWishLists(options);
       ResponseHandler.success(res, 'Lấy danh sách wishlist thành công', result);
     } catch (error) {
       next(error);

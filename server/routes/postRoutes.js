@@ -8,9 +8,14 @@ const adminMiddleware = require('../middlewares/adminMiddleware');
 
 
 // @route GET /api/posts
-// @desc Lấy tất cả bài viết (public)
+// @desc Lấy tất cả bài viết (admin only)
+// @access Private (Admin)
+router.get('/', authMiddleware, adminMiddleware, postController.getAllPosts);
+
+// @route GET /api/posts/published
+// @desc Lấy bài viết đã xuất bản (public endpoint)
 // @access Public
-router.get('/', postController.getAllPosts);
+router.get('/published', postController.getPublishedPosts);
 
 // @route GET /api/posts/:id
 // @desc Lấy chi tiết bài viết (public)
@@ -36,5 +41,15 @@ router.put('/:id', validateObjectId('id'), authMiddleware, postController.update
 // @access Private (Author or Admin)
 router.delete('/:id', validateObjectId('id'), authMiddleware, postController.deletePost);
 
+// Admin routes
+// @route PATCH /api/posts/:id/toggle-visibility
+// @desc Admin ẩn/hiện bài viết
+// @access Private (Admin only)
+router.patch('/:id/toggle-visibility', validateObjectId('id'), authMiddleware, adminMiddleware, postController.togglePostVisibility);
+
+// @route PATCH /api/posts/:id/publish-status
+// @desc Admin cập nhật trạng thái xuất bản
+// @access Private (Admin only)
+router.patch('/:id/publish-status', validateObjectId('id'), authMiddleware, adminMiddleware, postController.updatePublishStatus);
 
 module.exports = router;

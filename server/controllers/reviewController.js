@@ -88,7 +88,8 @@ class ReviewController extends BaseController {
   canReviewProduct = async (req, res, next) => {
     try {
       const { productId } = req.params;
-      const result = await this.service.canUserReview(req.user._id, productId);
+      const { orderId } = req.query; // Optional order ID
+      const result = await this.service.canUserReview(req.user._id, productId, orderId);
       ResponseHandler.success(res, 'Kiểm tra quyền đánh giá thành công', result);
     } catch (error) {
       next(error);
@@ -150,7 +151,7 @@ class ReviewController extends BaseController {
   // Admin: Xóa review
   adminDeleteReview = async (req, res, next) => {
     try {
-      await this.service.deleteById(req.params.id);
+      await this.service.adminDeleteReview(req.params.id);
       ResponseHandler.success(res, 'Xóa đánh giá thành công');
     } catch (error) {
       next(error);
