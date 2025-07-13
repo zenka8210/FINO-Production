@@ -21,25 +21,49 @@ class UserController extends BaseController {
 
   getAllUsers = async (req, res, next) => {
     try {
-      // Sử dụng method cũ stable
-      const queryOptions = {
-        page: req.query.page || PAGINATION.DEFAULT_PAGE,
-        limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
-        search: req.query.search,
-        role: req.query.role,
-        isActive: req.query.isActive,
-        sortBy: req.query.sortBy || 'createdAt',
-        sortOrder: req.query.sortOrder || 'desc'
-      };
-      const result = await this.service.getAllUsers(queryOptions);
-      
-      return res.status(200).json({
-        success: true,
-        message: userMessages.FETCH_ALL_SUCCESS,
-        data: result.data,
-        pagination: result.pagination
-      });
+      // Use new QueryBuilder with improved safety
+      if (req.createQueryBuilder) {
+        const User = require('../models/UserSchema');
+        const queryBuilder = req.createQueryBuilder(User);
+        
+        // Configure search and filters for users
+        const result = await queryBuilder
+          .search(['name', 'email', 'username'])
+          .applyFilters({
+            role: { type: 'exact' },
+            isActive: { type: 'boolean' },
+            isVerified: { type: 'boolean' }
+          })
+          .execute();
+        
+        return res.status(200).json({
+          success: true,
+          message: userMessages.FETCH_ALL_SUCCESS,
+          data: result.data,
+          pagination: result.pagination
+        });
+      } else {
+        // Fallback to legacy method if middleware not available
+        const queryOptions = {
+          page: req.query.page || PAGINATION.DEFAULT_PAGE,
+          limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+          search: req.query.search,
+          role: req.query.role,
+          isActive: req.query.isActive,
+          sortBy: req.query.sortBy || 'createdAt',
+          sortOrder: req.query.sortOrder || 'desc'
+        };
+        const result = await this.service.getAllUsers(queryOptions);
+        
+        return res.status(200).json({
+          success: true,
+          message: userMessages.FETCH_ALL_SUCCESS,
+          data: result.data,
+          pagination: result.pagination
+        });
+      }
     } catch (error) {
+      console.error('❌ UserController.getAllUsers error:', error.message);
       next(error);
     }
   };
@@ -113,6 +137,16 @@ class UserController extends BaseController {
     try {
       const updatedUser = await this.service.toggleUserActiveStatusByAdmin(req.params.id);
       ResponseHandler.success(res, userMessages.STATUS_UPDATE_SUCCESS, updatedUser);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // --- User Statistics (Admin Dashboard) ---
+  getUserStatistics = async (req, res, next) => {
+    try {
+      const statistics = await this.service.getUserStatistics();
+      ResponseHandler.success(res, 'Thống kê người dùng được lấy thành công', statistics);
     } catch (error) {
       next(error);
     }

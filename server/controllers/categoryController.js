@@ -1,5 +1,6 @@
 const BaseController = require('./baseController');
 const CategoryService = require('../services/categoryService');
+const Category = require('../models/CategorySchema');
 const ResponseHandler = require('../services/responseHandler');
 const { QueryUtils } = require('../utils/queryUtils');
 
@@ -12,11 +13,26 @@ class CategoryController extends BaseController {
 
     getAllCategories = async (req, res, next) => {
         try {
-            // Sử dụng method cũ stable
-            const queryOptions = req.query;
-            const result = await this.service.getAllCategories(queryOptions);
-            ResponseHandler.success(res, 'Lấy danh sách danh mục thành công', result);
+            // Use QueryBuilder if available, otherwise fallback to legacy
+            if (req.createQueryBuilder) {
+                const result = await req.createQueryBuilder(Category)
+                    .search(['name', 'description'])
+                    .applyFilters({
+                        isActive: { type: 'boolean' },
+                        parent: { type: 'objectId' },
+                        level: { type: 'number' }
+                    })
+                    .execute();
+                
+                ResponseHandler.success(res, 'Lấy danh sách danh mục thành công', result);
+            } else {
+                // Fallback to legacy method
+                const queryOptions = req.query;
+                const result = await this.service.getAllCategories(queryOptions);
+                ResponseHandler.success(res, 'Lấy danh sách danh mục thành công', result);
+            }
         } catch (error) {
+            console.error('❌ CategoryController.getAllCategories error:', error.message);
             next(error);
         }
     };

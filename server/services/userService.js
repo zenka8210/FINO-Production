@@ -432,6 +432,122 @@ class UserService extends BaseService {
     }
     return addressToSetDefault;
   }
+
+  /**
+   * Get comprehensive user statistics for admin dashboard
+   * @returns {Promise<Object>} User statistics including totals, role distribution, monthly data, active users
+   */
+  async getUserStatistics() {
+    try {
+      // Get total users count
+      const totalUsers = await User.countDocuments();
+      
+      // Get users by role distribution
+      const roleDistribution = await User.aggregate([
+        {
+          $group: {
+            _id: '$role',
+            count: { $sum: 1 }
+          }
+        }
+      ]);
+
+      // Get monthly user registrations for last 12 months
+      const twelveMonthsAgo = new Date();
+      twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+      const monthlyRegistrations = await User.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: twelveMonthsAgo }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: '$createdAt' },
+              month: { $month: '$createdAt' }
+            },
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $sort: {
+            '_id.year': 1,
+            '_id.month': 1
+          }
+        }
+      ]);
+
+      // Get active users in last 30 days (users created or updated recently)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const recentActiveUsers = await User.countDocuments({
+        $or: [
+          { createdAt: { $gte: thirtyDaysAgo } },
+          { updatedAt: { $gte: thirtyDaysAgo } }
+        ],
+        isActive: true
+      });
+
+      // Get users by status
+      const activeUsers = await User.countDocuments({ isActive: true });
+      const inactiveUsers = await User.countDocuments({ isActive: false });
+
+      // Format role distribution for easier frontend consumption
+      const formattedRoleDistribution = {};
+      roleDistribution.forEach(role => {
+        formattedRoleDistribution[role._id] = role.count;
+      });
+
+      // Fill in missing months with 0 for complete 12-month data
+      const completeMonthlyData = [];
+      for (let i = 11; i >= 0; i--) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - i);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        
+        const existingData = monthlyRegistrations.find(
+          item => item._id.year === year && item._id.month === month
+        );
+        
+        completeMonthlyData.push({
+          year,
+          month,
+          monthName: date.toLocaleString('vi-VN', { month: 'long' }),
+          count: existingData ? existingData.count : 0
+        });
+      }
+
+      // Additional insights
+      const insights = {
+        averageUsersPerMonth: Math.round(completeMonthlyData.reduce((sum, month) => sum + month.count, 0) / 12),
+        mostActiveMonth: completeMonthlyData.reduce((max, month) => 
+          month.count > max.count ? month : max, { count: 0 }
+        ),
+        growthTrend: completeMonthlyData.length >= 2 ? 
+          completeMonthlyData[completeMonthlyData.length - 1].count - 
+          completeMonthlyData[completeMonthlyData.length - 2].count : 0
+      };
+
+      return {
+        overview: {
+          totalUsers,
+          activeUsers,
+          inactiveUsers,
+          recentActiveUsers: recentActiveUsers
+        },
+        roleDistribution: formattedRoleDistribution,
+        monthlyRegistrations: completeMonthlyData,
+        insights,
+        generatedAt: new Date()
+      };
+    } catch (error) {
+      throw new AppError(`Lỗi khi lấy thống kê người dùng: ${error.message}`, ERROR_CODES.INTERNAL_SERVER_ERROR);
+    }
+  }
 }
 
 module.exports = UserService;

@@ -1,5 +1,6 @@
 const BaseController = require('./baseController');
 const SizeService = require('../services/sizeService');
+const Size = require('../models/SizeSchema');
 const ResponseHandler = require('../services/responseHandler');
 const { MESSAGES, PAGINATION } = require('../config/constants');
 const { QueryBuilder } = require('../middlewares/queryMiddleware');
@@ -13,15 +14,11 @@ class SizeController extends BaseController {
 
     getAllSizes = async (req, res, next) => {
         try {
-            // Sử dụng method cũ stable
-            const queryOptions = {
-                page: req.query.page || PAGINATION.DEFAULT_PAGE,
-                limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
-                name: req.query.name,
-                sortBy: req.query.sortBy || 'createdAt',
-                sortOrder: req.query.sortOrder || 'desc'
-            };
-            const result = await this.service.getAllSizes(queryOptions);
+            const result = await req.createQueryBuilder(Size)
+                .search(['name', 'description'])
+                .applyFilters()
+                .execute();
+
             ResponseHandler.success(res, 'Lấy danh sách kích thước thành công', result);
         } catch (error) {
             next(error);

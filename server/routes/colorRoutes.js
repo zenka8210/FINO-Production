@@ -30,7 +30,7 @@ router.get('/search', colorController.findByNameOrSuggest);
  * @description Lấy danh sách màu sắc cho client (không cần auth)
  * @access Public
  */
-router.get('/public', colorController.getAllColors);
+router.get('/public', queryParserMiddleware(), colorController.getAllColors);
 
 /**
  * @route GET /api/colors/public/:id
@@ -55,7 +55,7 @@ router.post('/validate-name', colorController.validateColorName);
  * @description Lấy tất cả màu sắc với phân trang và tìm kiếm
  * @access Private (Admin)
  */
-router.get('/', authMiddleware, adminMiddleware, colorController.getAllColors);
+router.get('/', authMiddleware, adminMiddleware, queryParserMiddleware(), colorController.getAllColors);
 
 /**
  * @route GET /api/colors/:id

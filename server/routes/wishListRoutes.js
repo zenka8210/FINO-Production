@@ -73,11 +73,12 @@ router.post('/multiple', authenticateToken, restrictAdminWishlistCRUD, wishListC
 
 // ============= ADMIN ROUTES (read-only access) =============
 
-// GET /api/wishlist/admin/stats - Get wishlist statistics (admin)
+// GET /api/wishlist/admin/stats - Get wishlist statistics with optional limit parameter (admin)
+// Query params: ?limit=N (default: 10) for top N products
 router.get('/admin/stats', authenticateToken, adminMiddleware, wishListController.getWishListStats);
 
 // GET /api/wishlist/admin/all - Get all wishlist items (admin)
-router.get('/admin/all', authenticateToken, adminMiddleware, wishListController.getAllWishLists);
+router.get('/admin/all', authenticateToken, adminMiddleware, queryParserMiddleware(), wishListController.getAllWishLists);
 
 // GET /api/wishlist/admin/user/:userId - Get specific user's wishlist (admin)
 router.get('/admin/user/:userId', authenticateToken, adminMiddleware, validateObjectId('userId'), wishListController.getUserWishListByAdmin);

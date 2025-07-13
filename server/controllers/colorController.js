@@ -1,5 +1,6 @@
 const BaseController = require('./baseController');
 const ColorService = require('../services/colorService');
+const Color = require('../models/ColorSchema');
 const ResponseHandler = require('../services/responseHandler');
 const { MESSAGES, PAGINATION } = require('../config/constants');
 const { QueryBuilder } = require('../middlewares/queryMiddleware');
@@ -13,16 +14,12 @@ class ColorController extends BaseController {
 
   getAllColors = async (req, res, next) => {
     try {
-      // Sử dụng method cũ stable
-      const queryOptions = {
-        page: req.query.page || PAGINATION.DEFAULT_PAGE,
-        limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
-        name: req.query.name,
-        sortBy: req.query.sortBy || 'createdAt',
-        sortOrder: req.query.sortOrder || 'desc'
-      };
-      const result = await this.service.getAllColors(queryOptions);
-      ResponseHandler.success(res, 'Lấy danh sách màu sắc thành công', result);
+      const result = await req.createQueryBuilder(Color)
+        .search(['name', 'hexCode'])
+        .applyFilters()
+        .execute();
+
+      return ResponseHandler.success(res, 'Lấy danh sách màu sắc thành công', result);
     } catch (error) {
       next(error);
     }

@@ -65,6 +65,18 @@ router.get(
 );
 
 /**
+ * @route GET /api/v1/product-variants/admin/statistics
+ * @description Lấy thống kê tổng quan về variants cho admin dashboard
+ * @access Private (Admin)
+ */
+router.get(
+  '/admin/statistics',
+  protect,
+  restrictToAdmin,
+  productVariantController.getVariantStatistics
+);
+
+/**
  * @route GET /api/v1/product-variants/product/:productId/stock-status
  * @description Kiểm tra tình trạng tồn kho của tất cả variant của một sản phẩm
  * @access Public
@@ -116,6 +128,7 @@ router.get(
   '/admin',
   protect,
   restrictToAdmin,
+  queryParserMiddleware(),
   productVariantController.getAllProductVariants
 );
 
@@ -187,6 +200,7 @@ router.delete(
  */
 router.get(
   '/',
+  queryParserMiddleware(),
   productVariantController.getAllProductVariants
 );
 

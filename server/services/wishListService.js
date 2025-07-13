@@ -360,11 +360,12 @@ class WishListService extends BaseService {
     }
 
     /**
-     * Thống kê wishlist (Admin only)
+     * Thống kê wishlist (Admin only) - Enhanced với category stats
      */
-    async getWishListStats() {
+    async getWishListStats(limit = 10) {
         try {
-            const stats = await WishList.aggregate([
+            // 1. Thống kê tổng quan
+            const totalStats = await WishList.aggregate([
                 {
                     $group: {
                         _id: null,
@@ -375,16 +376,17 @@ class WishListService extends BaseService {
                 }
             ]);
 
+            // 2. Top N sản phẩm được wishlist nhiều nhất
             const topProducts = await WishList.aggregate([
                 { $unwind: '$items' },
                 {
                     $group: {
                         _id: '$items.product',
-                        count: { $sum: 1 }
+                        wishlistCount: { $sum: 1 }
                     }
                 },
-                { $sort: { count: -1 } },
-                { $limit: 10 },
+                { $sort: { wishlistCount: -1 } },
+                { $limit: parseInt(limit) },
                 {
                     $lookup: {
                         from: 'products',
@@ -395,24 +397,103 @@ class WishListService extends BaseService {
                 },
                 { $unwind: '$product' },
                 {
+                    $lookup: {
+                        from: 'categories',
+                        localField: 'product.category',
+                        foreignField: '_id',
+                        as: 'category'
+                    }
+                },
+                {
+                    $addFields: {
+                        category: { $arrayElemAt: ['$category', 0] }
+                    }
+                },
+                {
                     $project: {
+                        _id: 1,
                         productName: '$product.name',
                         productPrice: '$product.price',
-                        wishlistCount: '$count'
+                        productImage: { $arrayElemAt: ['$product.images', 0] },
+                        categoryName: '$category.name',
+                        categoryId: '$product.category',
+                        wishlistCount: 1,
+                        isActive: '$product.isActive'
+                    }
+                }
+            ]);
+
+            // 3. Thống kê theo category
+            const categoryStats = await WishList.aggregate([
+                { $unwind: '$items' },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: 'items.product',
+                        foreignField: '_id',
+                        as: 'product'
+                    }
+                },
+                { $unwind: '$product' },
+                {
+                    $lookup: {
+                        from: 'categories',
+                        localField: 'product.category',
+                        foreignField: '_id',
+                        as: 'category'
+                    }
+                },
+                { $unwind: '$category' },
+                {
+                    $group: {
+                        _id: '$category._id',
+                        categoryName: { $first: '$category.name' },
+                        wishlistCount: { $sum: 1 },
+                        uniqueProducts: { $addToSet: '$product._id' }
+                    }
+                },
+                {
+                    $addFields: {
+                        uniqueProductsCount: { $size: '$uniqueProducts' }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        categoryName: 1,
+                        wishlistCount: 1,
+                        uniqueProductsCount: 1
+                    }
+                },
+                { $sort: { wishlistCount: -1 } }
+            ]);
+
+            // 4. Tính tổng số lượt wishlist toàn hệ thống
+            const totalWishlistsCount = await WishList.aggregate([
+                {
+                    $group: {
+                        _id: null,
+                        totalWishlists: { $sum: { $size: '$items' } }
                     }
                 }
             ]);
 
             return {
-                summary: stats[0] || {
+                overview: totalStats[0] || {
                     totalWishLists: 0,
                     totalItems: 0,
                     avgItemsPerWishList: 0
                 },
-                topProducts
+                totalWishlists: totalWishlistsCount[0]?.totalWishlists || 0,
+                topProducts,
+                categoryStats,
+                metadata: {
+                    generatedAt: new Date(),
+                    topProductsLimit: parseInt(limit)
+                }
             };
         } catch (error) {
-            throw new AppError('Lỗi khi lấy thống kê wishlist', 500);
+            throw new AppError(`Lỗi khi lấy thống kê wishlist: ${error.message}`, 500);
         }
     }
 

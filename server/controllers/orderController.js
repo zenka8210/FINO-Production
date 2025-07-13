@@ -1,6 +1,8 @@
 const BaseController = require('./baseController');
 const OrderService = require('../services/orderService');
 const ResponseHandler = require('../services/responseHandler');
+const Order = require('../models/OrderSchema');
+const { QueryBuilder } = require('../middlewares/queryMiddleware');
 const { orderMessages, PAGINATION, ERROR_CODES } = require('../config/constants');
 const { AppError } = require('../middlewares/errorHandler');
 const { QueryUtils } = require('../utils/queryUtils');
@@ -73,17 +75,38 @@ class OrderController extends BaseController {
   // Admin: Lấy tất cả đơn hàng
   getOrders = async (req, res, next) => {
     try {
-      // Sử dụng method cũ stable
-      const queryOptions = {
-        page: req.query.page || PAGINATION.DEFAULT_PAGE,
-        limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
-        status: req.query.status,
-        sortBy: req.query.sortBy || 'createdAt',
-        sortOrder: req.query.sortOrder || 'desc'
-      };
-      const result = await this.service.getAllOrders(queryOptions);
-      ResponseHandler.success(res, orderMessages.ORDERS_FETCHED_SUCCESSFULLY, result);
+      // Use new QueryBuilder with improved safety
+      if (req.createQueryBuilder) {
+        const Order = require('../models/OrderSchema');
+        const queryBuilder = req.createQueryBuilder(Order);
+        
+        // Configure search and filters for orders
+        const result = await queryBuilder
+          .search(['orderNumber'])
+          .applyFilters({
+            status: { type: 'exact' },
+            userId: { type: 'objectId', field: 'user' },
+            minTotal: { type: 'range', field: 'totalAmount' },
+            maxTotal: { type: 'range', field: 'totalAmount' },
+            paymentMethod: { type: 'exact' }
+          })
+          .execute();
+        
+        ResponseHandler.success(res, orderMessages.ORDERS_FETCHED_SUCCESSFULLY, result);
+      } else {
+        // Fallback to legacy method if middleware not available
+        const queryOptions = {
+          page: req.query.page || PAGINATION.DEFAULT_PAGE,
+          limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+          status: req.query.status,
+          sortBy: req.query.sortBy || 'createdAt',
+          sortOrder: req.query.sortOrder || 'desc'
+        };
+        const result = await this.service.getAllOrders(queryOptions);
+        ResponseHandler.success(res, orderMessages.ORDERS_FETCHED_SUCCESSFULLY, result);
+      }
     } catch (error) {
+      console.error('❌ OrderController.getOrders error:', error.message);
       next(error);
     }
   };
@@ -300,6 +323,61 @@ class OrderController extends BaseController {
       // Pass userId to check voucher usage
       const orderTotal = await this.service.calculateOrderTotal(req.body, req.user._id);
       ResponseHandler.success(res, 'Tính tổng tiền đơn hàng thành công', orderTotal);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // ============= ADMIN QUERY MIDDLEWARE METHODS =============
+
+  // GET /api/orders/admin/all - Get all orders with Query Middleware
+  getAllOrders = async (req, res, next) => {
+    try {
+      if (req.createQueryBuilder) {
+        const result = await req.createQueryBuilder(Order)
+          .search(['orderCode', 'user.email', 'user.name'])
+          .applyFilters({
+            status: { type: 'string' },
+            paymentStatus: { type: 'string' },
+            user: { type: 'objectId' },
+            'finalTotal[min]': { type: 'number' },
+            'finalTotal[max]': { type: 'number' },
+            'total[min]': { type: 'number' },
+            'total[max]': { type: 'number' }
+          })
+          .execute();
+        
+        ResponseHandler.success(res, 'Orders retrieved successfully', result);
+      } else {
+        // Fallback to legacy method
+        const orders = await Order.find()
+          .populate(['user', 'address', 'voucher', 'paymentMethod', 'items.productVariant'])
+          .sort({ createdAt: -1 });
+        ResponseHandler.success(res, 'Orders retrieved successfully', orders);
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // ============= ORDER STATISTICS METHODS =============
+
+  // GET /api/orders/admin/statistics - Get order statistics for admin dashboard
+  getOrderStatistics = async (req, res, next) => {
+    try {
+      const statistics = await this.service.getOrderStatistics();
+      ResponseHandler.success(res, 'Order statistics retrieved successfully', statistics);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // GET /api/orders/admin/trends - Get order trends
+  getOrderTrends = async (req, res, next) => {
+    try {
+      const days = parseInt(req.query.days) || 30;
+      const trends = await this.service.getOrderTrends(days);
+      ResponseHandler.success(res, 'Order trends retrieved successfully', trends);
     } catch (error) {
       next(error);
     }

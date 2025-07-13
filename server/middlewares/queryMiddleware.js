@@ -38,6 +38,16 @@ class QueryBuilder {
     }
 
     /**
+     * Set base filter conditions
+     * @param {Object} baseFilter - Base filter object
+     * @returns {QueryBuilder}
+     */
+    setBaseFilter(baseFilter = {}) {
+        this.filter = { ...this.filter, ...baseFilter };
+        return this;
+    }
+
+    /**
      * Parse pagination parameters
      * @returns {QueryBuilder}
      */
@@ -52,20 +62,31 @@ class QueryBuilder {
      */
     sortBy() {
         if (this.queryParams.sort) {
-            // Format: "field1:asc,field2:desc" or "field1,-field2"
+            // Handle different sort formats
             const sortString = this.queryParams.sort;
-            const sortFields = sortString.split(',');
             
-            sortFields.forEach(field => {
-                if (field.includes(':')) {
-                    const [fieldName, order] = field.split(':');
-                    this.sort[fieldName.trim()] = order.toLowerCase() === 'desc' ? -1 : 1;
-                } else if (field.startsWith('-')) {
-                    this.sort[field.substring(1)] = -1;
-                } else {
-                    this.sort[field] = 1;
-                }
-            });
+            // Support multiple formats:
+            // 1. "field1:asc,field2:desc" 
+            // 2. "field1,-field2"
+            // 3. "field" with separate order parameter
+            if (sortString.includes(',') || sortString.includes(':') || sortString.startsWith('-')) {
+                const sortFields = sortString.split(',');
+                
+                sortFields.forEach(field => {
+                    if (field.includes(':')) {
+                        const [fieldName, order] = field.split(':');
+                        this.sort[fieldName.trim()] = order.toLowerCase() === 'desc' ? -1 : 1;
+                    } else if (field.startsWith('-')) {
+                        this.sort[field.substring(1)] = -1;
+                    } else {
+                        this.sort[field] = 1;
+                    }
+                });
+            } else {
+                // Single field with separate order parameter (e.g., sort=name&order=asc)
+                const order = this.queryParams.order || this.queryParams.sortOrder || 'asc';
+                this.sort[sortString] = order.toLowerCase() === 'desc' ? -1 : 1;
+            }
         } else {
             // Default sort by creation date
             const sortBy = this.queryParams.sortBy || 'createdAt';
@@ -98,6 +119,32 @@ class QueryBuilder {
     }
 
     /**
+     * Parse nested filter syntax like filter[isActive]=true or filter[rating][min]=4
+     * Converts to flat queryParams for easier processing
+     */
+    parseNestedFilters() {
+        const originalParams = { ...this.queryParams };
+        
+        Object.keys(originalParams).forEach(key => {
+            // Handle filter[field]=value syntax
+            if (key.startsWith('filter[') && key.endsWith(']')) {
+                const fieldName = key.slice(7, -1); // Remove 'filter[' and ']'
+                this.queryParams[fieldName] = originalParams[key];
+                delete this.queryParams[key];
+            }
+            
+            // Handle filter[field][operator]=value syntax (e.g., filter[rating][min]=4)
+            const nestedMatch = key.match(/^filter\[([^\]]+)\]\[([^\]]+)\]$/);
+            if (nestedMatch) {
+                const [, fieldName, operator] = nestedMatch;
+                const newKey = `${operator}${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}`; // minRating, maxPrice, etc.
+                this.queryParams[newKey] = originalParams[key];
+                delete this.queryParams[key];
+            }
+        });
+    }
+
+    /**
      * Handle text search across multiple fields
      * @param {Array<string>} fields - Fields to search in
      * @returns {QueryBuilder}
@@ -112,44 +159,54 @@ class QueryBuilder {
     }
 
     /**
-     * Handle dynamic filtering
+     * Handle dynamic filtering - SAFER VERSION with nested filter support
      * @param {Object} filterConfig - Configuration for field filtering
      * @returns {QueryBuilder}
      */
     applyFilters(filterConfig = {}) {
-        const excludedParams = ['page', 'limit', 'sort', 'sortBy', 'sortOrder', 'select', 'populate', 'search'];
-        
-        Object.keys(this.queryParams).forEach(key => {
-            if (!excludedParams.includes(key) && this.queryParams[key] !== undefined) {
-                const value = this.queryParams[key];
-                const config = filterConfig[key] || {};
+        try {
+            const excludedParams = ['page', 'limit', 'sort', 'sortBy', 'sortOrder', 'order', 'select', 'populate', 'search'];
+            
+            // Parse nested filter syntax like filter[isActive]=true
+            this.parseNestedFilters();
+            
+            Object.keys(this.queryParams).forEach(key => {
+                if (!excludedParams.includes(key) && this.queryParams[key] !== undefined && this.queryParams[key] !== '') {
+                    const value = this.queryParams[key];
+                    const config = filterConfig[key] || {};
 
-                // Handle different filter types
-                switch (config.type) {
-                    case 'range':
-                        this.handleRangeFilter(key, value, config);
-                        break;
-                    case 'array':
-                        this.handleArrayFilter(key, value, config);
-                        break;
-                    case 'boolean':
-                        this.handleBooleanFilter(key, value);
-                        break;
-                    case 'regex':
-                        this.handleRegexFilter(key, value, config);
-                        break;
-                    case 'objectId':
-                        this.handleObjectIdFilter(key, value);
-                        break;
-                    case 'date':
-                        this.handleDateFilter(key, value, config);
-                        break;
-                    default:
-                        // Exact match by default
-                        this.filter[config.field || key] = value;
+                    // Handle different filter types with safety checks
+                    switch (config.type) {
+                        case 'range':
+                            this.handleRangeFilter(key, value, config);
+                            break;
+                        case 'array':
+                            this.handleArrayFilter(key, value, config);
+                            break;
+                        case 'boolean':
+                            this.handleBooleanFilter(key, value);
+                            break;
+                        case 'regex':
+                            this.handleRegexFilter(key, value, config);
+                            break;
+                        case 'objectId':
+                            this.handleObjectIdFilter(key, value);
+                            break;
+                        case 'date':
+                            this.handleDateFilter(key, value, config);
+                            break;
+                        default:
+                            // Exact match by default - with safety check
+                            if (value !== null && value !== undefined) {
+                                this.filter[config.field || key] = value;
+                            }
+                    }
                 }
-            }
-        });
+            });
+        } catch (error) {
+            console.error('❌ ApplyFilters error:', error.message);
+            // Don't break the chain - just log error
+        }
         return this;
     }
 
@@ -228,88 +285,81 @@ class QueryBuilder {
     }
 
     /**
-     * Build and execute the query
+     * Build and execute the query - IMPROVED VERSION
      * @returns {Promise<Object>} Query results with pagination info
      */
     async execute() {
-        const skip = (this.page - 1) * this.limit;
+        try {
+            // Auto-process sort and other parameters if not explicitly called
+            this.sortBy();
+            this.selectFields();
+            this.populateFields();
+            
+            const skip = (this.page - 1) * this.limit;
 
-        // Build the main query
-        this.mongooseQuery = this.model.find(this.filter);
+            // Build the main query
+            this.mongooseQuery = this.model.find(this.filter);
 
-        // Apply select, populate, sort, skip, limit
-        if (this.select) this.mongooseQuery.select(this.select);
-        if (this.populate) this.mongooseQuery.populate(this.populate);
-        
-        this.mongooseQuery
-            .sort(this.sort)
-            .skip(skip)
-            .limit(this.limit);
+            // Apply select, populate, sort, skip, limit with safety checks
+            if (this.select && typeof this.select === 'string') {
+                this.mongooseQuery.select(this.select);
+            }
+            
+            if (this.populate && typeof this.populate === 'string') {
+                this.mongooseQuery.populate(this.populate);
+            }
+            
+            this.mongooseQuery
+                .sort(this.sort)
+                .skip(skip)
+                .limit(this.limit);
 
-        // Execute query and count in parallel
-        const [data, total] = await Promise.all([
-            this.mongooseQuery.exec(),
-            this.model.countDocuments(this.filter)
-        ]);
+            // Execute query and count in parallel with timeout protection
+            const queryPromise = this.mongooseQuery.exec();
+            const countPromise = this.model.countDocuments(this.filter);
 
-        return {
-            data,
-            pagination: {
-                page: this.page,
-                limit: this.limit,
-                total,
-                totalPages: Math.ceil(total / this.limit),
-                hasNextPage: this.page < Math.ceil(total / this.limit),
-                hasPrevPage: this.page > 1,
-                nextPage: this.page < Math.ceil(total / this.limit) ? this.page + 1 : null,
-                prevPage: this.page > 1 ? this.page - 1 : null
-            },
-            filter: this.filter,
-            sort: this.sort
-        };
+            // Add timeout protection (10 seconds)
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Query timeout after 10s')), 10000)
+            );
+
+            const [data, total] = await Promise.race([
+                Promise.all([queryPromise, countPromise]),
+                timeoutPromise
+            ]);
+
+            return {
+                data,
+                pagination: {
+                    page: this.page,
+                    limit: this.limit,
+                    total,
+                    totalPages: Math.ceil(total / this.limit),
+                    hasNextPage: this.page < Math.ceil(total / this.limit),
+                    hasPrevPage: this.page > 1,
+                    nextPage: this.page < Math.ceil(total / this.limit) ? this.page + 1 : null,
+                    prevPage: this.page > 1 ? this.page - 1 : null
+                },
+                filter: this.filter,
+                sort: this.sort
+            };
+        } catch (error) {
+            console.error('❌ QueryBuilder execute error:', error.message);
+            throw error;
+        }
     }
 }
 
 /**
- * Express middleware for parsing query parameters
+ * Express middleware for parsing query parameters - SIMPLIFIED VERSION
  * @param {Object} options - Configuration options
  * @returns {Function} Express middleware function
  */
 const queryParserMiddleware = (options = {}) => {
     return (req, res, next) => {
-        console.log('🔍 QueryParserMiddleware START for:', req.url);
-        
         try {
-            // Attach parsed query options to request
-            req.queryOptions = {
-                page: parseInt(req.query.page) || PAGINATION.DEFAULT_PAGE,
-                limit: Math.min(
-                    parseInt(req.query.limit) || PAGINATION.DEFAULT_LIMIT,
-                    PAGINATION.MAX_LIMIT
-                ),
-                sort: req.query.sort,
-                sortBy: req.query.sortBy,
-                sortOrder: req.query.sortOrder,
-                select: req.query.select,
-                populate: req.query.populate,
-                search: req.query.search,
-                filters: { ...req.query }
-            };
-
-            // Remove pagination/sorting params from filters
-            delete req.queryOptions.filters.page;
-            delete req.queryOptions.filters.limit;
-            delete req.queryOptions.filters.sort;
-            delete req.queryOptions.filters.sortBy;
-            delete req.queryOptions.filters.sortOrder;
-            delete req.queryOptions.filters.select;
-            delete req.queryOptions.filters.populate;
-            delete req.queryOptions.filters.search;
-
-            // Create factory function for QueryBuilder
+            // Simply create factory function for QueryBuilder - MUCH FASTER
             req.createQueryBuilder = (model) => new QueryBuilder(model, req.query);
-
-            console.log('✅ QueryParserMiddleware COMPLETED for:', req.url);
             next();
         } catch (error) {
             console.error('❌ QueryParserMiddleware ERROR:', error.message);

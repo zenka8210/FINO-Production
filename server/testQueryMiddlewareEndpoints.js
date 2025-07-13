@@ -116,11 +116,24 @@ async function testQueryMiddlewareEndpoints() {
     // Payment Methods with Query Middleware
     'GET /payment-methods?page=1&limit=5': '❌',
     'GET /payment-methods?filter[isActive]=true': '❌',
-    'GET /payment-methods?sort=order&order=asc': '❌',
+    'GET /payment-methods?sort=createdAt&order=asc': '❌',
     
     // Wish Lists with Query Middleware
     'GET /wishlists?page=1&limit=5': '❌',
-    'GET /wishlists?search=list': '❌'
+    'GET /wishlists?search=list': '❌',
+    
+    // Carts with Query Middleware
+    'GET /cart/admin/all?page=1&limit=5': '❌',
+    'GET /cart/admin/all?search=cart': '❌',
+    'GET /cart/admin/all?sort=createdAt&order=desc': '❌',
+    'GET /cart/admin/all?filter[type]=cart': '❌',
+    'GET /cart/admin/orders?page=1&limit=5': '❌',
+    'GET /cart/admin/orders?filter[status]=pending': '❌',
+    'GET /cart/admin/active-carts?page=1&limit=5': '❌',
+    
+    // Cart Statistics
+    'GET /cart/admin/statistics': '❌',
+    'GET /cart/admin/trends?days=7': '❌'
   };
 
   try {
@@ -352,20 +365,56 @@ async function testQueryMiddlewareEndpoints() {
     if (categoriesSearch.success) {
       results['GET /categories?search=electronics'] = '✅';
       console.log(chalk.green('   ✅ Categories search'));
+    } else {
+      console.log(chalk.red('   ❌ Categories search failed'));
+    }
+
+    const categoriesSort = await apiRequest('GET', '/categories?sort=name&order=asc', null, adminToken);
+    if (categoriesSort.success && categoriesSort.data?.data?.sort) {
+      results['GET /categories?sort=name&order=asc'] = '✅';
+      console.log(chalk.green('   ✅ Categories sort'));
+    } else {
+      console.log(chalk.red('   ❌ Categories sort failed'));
+    }
+
+    const categoriesFilter = await apiRequest('GET', '/categories?filter[isActive]=true', null, adminToken);
+    if (categoriesFilter.success) {
+      results['GET /categories?filter[isActive]=true'] = '✅';
+      console.log(chalk.green('   ✅ Categories filter'));
+    } else {
+      console.log(chalk.red('   ❌ Categories filter failed'));
     }
 
     // Reviews Tests
     console.log(chalk.cyan('\n18. Testing Reviews'));
-    const reviewsPagination = await apiRequest('GET', '/reviews?page=1&limit=5', null, adminToken);
+    const reviewsPagination = await apiRequest('GET', '/reviews/admin/all?page=1&limit=5', null, adminToken);
     if (reviewsPagination.success) {
       results['GET /reviews?page=1&limit=5'] = '✅';
       console.log(chalk.green('   ✅ Reviews pagination'));
     }
 
-    const reviewsSearch = await apiRequest('GET', '/reviews?search=good', null, adminToken);
+    const reviewsSearch = await apiRequest('GET', '/reviews/admin/all?search=good', null, adminToken);
     if (reviewsSearch.success) {
       results['GET /reviews?search=good'] = '✅';
       console.log(chalk.green('   ✅ Reviews search'));
+    } else {
+      console.log(chalk.red('   ❌ Reviews search failed'));
+    }
+
+    const reviewsSort = await apiRequest('GET', '/reviews/admin/all?sort=rating&order=desc', null, adminToken);
+    if (reviewsSort.success && reviewsSort.data?.data?.sort) {
+      results['GET /reviews?sort=rating&order=desc'] = '✅';
+      console.log(chalk.green('   ✅ Reviews sort'));
+    } else {
+      console.log(chalk.red('   ❌ Reviews sort failed'));
+    }
+
+    const reviewsFilter = await apiRequest('GET', '/reviews/admin/all?filter[rating][min]=4', null, adminToken);
+    if (reviewsFilter.success) {
+      results['GET /reviews?filter[rating][min]=4'] = '✅';
+      console.log(chalk.green('   ✅ Reviews filter'));
+    } else {
+      console.log(chalk.red('   ❌ Reviews filter failed'));
     }
 
     // Posts Tests
@@ -376,12 +425,52 @@ async function testQueryMiddlewareEndpoints() {
       console.log(chalk.green('   ✅ Posts pagination'));
     }
 
+    const postsSearch = await apiRequest('GET', '/posts?search=technology', null, adminToken);
+    if (postsSearch.success) {
+      results['GET /posts?search=technology'] = '✅';
+      console.log(chalk.green('   ✅ Posts search'));
+    } else {
+      console.log(chalk.red('   ❌ Posts search failed'));
+    }
+
+    const postsSort = await apiRequest('GET', '/posts?sort=createdAt&order=desc', null, adminToken);
+    if (postsSort.success && postsSort.data?.data?.sort) {
+      results['GET /posts?sort=createdAt&order=desc'] = '✅';
+      console.log(chalk.green('   ✅ Posts sort'));
+    } else {
+      console.log(chalk.red('   ❌ Posts sort failed'));
+    }
+
+    const postsFilter = await apiRequest('GET', '/posts?filter[isPublished]=true', null, adminToken);
+    if (postsFilter.success) {
+      results['GET /posts?filter[isPublished]=true'] = '✅';
+      console.log(chalk.green('   ✅ Posts filter'));
+    } else {
+      console.log(chalk.red('   ❌ Posts filter failed'));
+    }
+
     // Banners Tests
     console.log(chalk.cyan('\n20. Testing Banners'));
     const bannersPagination = await apiRequest('GET', '/banners?page=1&limit=3', null, adminToken);
     if (bannersPagination.success) {
       results['GET /banners?page=1&limit=3'] = '✅';
       console.log(chalk.green('   ✅ Banners pagination'));
+    }
+
+    const bannersFilter = await apiRequest('GET', '/banners?filter[isActive]=true', null, adminToken);
+    if (bannersFilter.success) {
+      results['GET /banners?filter[isActive]=true'] = '✅';
+      console.log(chalk.green('   ✅ Banners filter'));
+    } else {
+      console.log(chalk.red('   ❌ Banners filter failed'));
+    }
+
+    const bannersSort = await apiRequest('GET', '/banners?sort=order&order=asc', null, adminToken);
+    if (bannersSort.success && bannersSort.data?.data?.sort) {
+      results['GET /banners?sort=order&order=asc'] = '✅';
+      console.log(chalk.green('   ✅ Banners sort'));
+    } else {
+      console.log(chalk.red('   ❌ Banners sort failed'));
     }
 
     // Colors Tests
@@ -392,12 +481,44 @@ async function testQueryMiddlewareEndpoints() {
       console.log(chalk.green('   ✅ Colors pagination'));
     }
 
+    const colorsSearch = await apiRequest('GET', '/colors?search=red', null, adminToken);
+    if (colorsSearch.success) {
+      results['GET /colors?search=red'] = '✅';
+      console.log(chalk.green('   ✅ Colors search'));
+    } else {
+      console.log(chalk.red('   ❌ Colors search failed'));
+    }
+
+    const colorsSort = await apiRequest('GET', '/colors?sort=name&order=asc', null, adminToken);
+    if (colorsSort.success && colorsSort.data?.data?.sort) {
+      results['GET /colors?sort=name&order=asc'] = '✅';
+      console.log(chalk.green('   ✅ Colors sort'));
+    } else {
+      console.log(chalk.red('   ❌ Colors sort failed'));
+    }
+
     // Sizes Tests
     console.log(chalk.cyan('\n22. Testing Sizes'));
     const sizesPagination = await apiRequest('GET', '/sizes?page=1&limit=5', null, adminToken);
     if (sizesPagination.success) {
       results['GET /sizes?page=1&limit=5'] = '✅';
       console.log(chalk.green('   ✅ Sizes pagination'));
+    }
+
+    const sizesSearch = await apiRequest('GET', '/sizes?search=large', null, adminToken);
+    if (sizesSearch.success) {
+      results['GET /sizes?search=large'] = '✅';
+      console.log(chalk.green('   ✅ Sizes search'));
+    } else {
+      console.log(chalk.red('   ❌ Sizes search failed'));
+    }
+
+    const sizesSort = await apiRequest('GET', '/sizes?sort=order&order=asc', null, adminToken);
+    if (sizesSort.success && sizesSort.data?.data?.sort) {
+      results['GET /sizes?sort=order&order=asc'] = '✅';
+      console.log(chalk.green('   ✅ Sizes sort'));
+    } else {
+      console.log(chalk.red('   ❌ Sizes sort failed'));
     }
 
     // Product Variants Tests
@@ -408,12 +529,44 @@ async function testQueryMiddlewareEndpoints() {
       console.log(chalk.green('   ✅ Product Variants pagination'));
     }
 
+    const variantsSearch = await apiRequest('GET', '/product-variants?search=variant', null, adminToken);
+    if (variantsSearch.success) {
+      results['GET /product-variants?search=variant'] = '✅';
+      console.log(chalk.green('   ✅ Product Variants search'));
+    } else {
+      console.log(chalk.red('   ❌ Product Variants search failed'));
+    }
+
+    const variantsFilter = await apiRequest('GET', '/product-variants?filter[stock][min]=1', null, adminToken);
+    if (variantsFilter.success) {
+      results['GET /product-variants?filter[stock][min]=1'] = '✅';
+      console.log(chalk.green('   ✅ Product Variants filter'));
+    } else {
+      console.log(chalk.red('   ❌ Product Variants filter failed'));
+    }
+
     // Vouchers Tests
     console.log(chalk.cyan('\n24. Testing Vouchers'));
     const vouchersPagination = await apiRequest('GET', '/vouchers?page=1&limit=5', null, adminToken);
     if (vouchersPagination.success) {
       results['GET /vouchers?page=1&limit=5'] = '✅';
       console.log(chalk.green('   ✅ Vouchers pagination'));
+    }
+
+    const vouchersSearch = await apiRequest('GET', '/vouchers?search=SAVE', null, adminToken);
+    if (vouchersSearch.success) {
+      results['GET /vouchers?search=SAVE'] = '✅';
+      console.log(chalk.green('   ✅ Vouchers search'));
+    } else {
+      console.log(chalk.red('   ❌ Vouchers search failed'));
+    }
+
+    const vouchersFilter = await apiRequest('GET', '/vouchers?filter[isActive]=true', null, adminToken);
+    if (vouchersFilter.success) {
+      results['GET /vouchers?filter[isActive]=true'] = '✅';
+      console.log(chalk.green('   ✅ Vouchers filter'));
+    } else {
+      console.log(chalk.red('   ❌ Vouchers filter failed'));
     }
 
     // Payment Methods Tests
@@ -424,12 +577,111 @@ async function testQueryMiddlewareEndpoints() {
       console.log(chalk.green('   ✅ Payment Methods pagination'));
     }
 
+    const paymentMethodsFilter = await apiRequest('GET', '/payment-methods?filter[isActive]=true', null, adminToken);
+    if (paymentMethodsFilter.success) {
+      results['GET /payment-methods?filter[isActive]=true'] = '✅';
+      console.log(chalk.green('   ✅ Payment Methods filter'));
+    } else {
+      console.log(chalk.red('   ❌ Payment Methods filter failed'));
+    }
+
+    const paymentMethodsSort = await apiRequest('GET', '/payment-methods?sort=createdAt&order=asc', null, adminToken);
+    if (paymentMethodsSort.success && paymentMethodsSort.data?.data?.data) {
+      results['GET /payment-methods?sort=createdAt&order=asc'] = '✅';
+      console.log(chalk.green('   ✅ Payment Methods sort'));
+    } else {
+      console.log(chalk.red('   ❌ Payment Methods sort failed'));
+    }
+
     // Wish Lists Tests (if routes exist)
     console.log(chalk.cyan('\n26. Testing Wish Lists'));
     const wishlistsPagination = await apiRequest('GET', '/wishlist/admin/all?page=1&limit=5', null, adminToken);
     if (wishlistsPagination.success) {
       results['GET /wishlists?page=1&limit=5'] = '✅';
       console.log(chalk.green('   ✅ Wish Lists pagination'));
+    }
+
+    const wishlistsSearch = await apiRequest('GET', '/wishlist/admin/all?search=list', null, adminToken);
+    if (wishlistsSearch.success) {
+      results['GET /wishlists?search=list'] = '✅';
+      console.log(chalk.green('   ✅ Wish Lists search'));
+    } else {
+      console.log(chalk.red('   ❌ Wish Lists search failed'));
+    }
+
+    // Carts Tests (if routes exist)
+    console.log(chalk.cyan('\n27. Testing Carts'));
+    const cartsPagination = await apiRequest('GET', '/cart/admin/all?page=1&limit=5', null, adminToken);
+    if (cartsPagination.success) {
+      results['GET /cart/admin/all?page=1&limit=5'] = '✅';
+      console.log(chalk.green('   ✅ Carts pagination'));
+    } else {
+      console.log(chalk.red('   ❌ Carts pagination failed'));
+    }
+
+    const cartsSearch = await apiRequest('GET', '/cart/admin/all?search=cart', null, adminToken);
+    if (cartsSearch.success) {
+      results['GET /cart/admin/all?search=cart'] = '✅';
+      console.log(chalk.green('   ✅ Carts search'));
+    }
+
+    const cartsSort = await apiRequest('GET', '/cart/admin/all?sort=createdAt&order=desc', null, adminToken);
+    if (cartsSort.success && cartsSort.data?.data?.data) {
+      results['GET /cart/admin/all?sort=createdAt&order=desc'] = '✅';
+      console.log(chalk.green('   ✅ Carts sort'));
+    } else {
+      console.log(chalk.red('   ❌ Carts sort failed'));
+    }
+
+    const cartsFilter = await apiRequest('GET', '/cart/admin/all?filter[type]=cart', null, adminToken);
+    if (cartsFilter.success && cartsFilter.data?.data?.data) {
+      results['GET /cart/admin/all?filter[type]=cart'] = '✅';
+      console.log(chalk.green('   ✅ Carts filter'));
+    } else {
+      console.log(chalk.red('   ❌ Carts filter failed'));
+    }
+
+    const cartOrdersPagination = await apiRequest('GET', '/cart/admin/orders?page=1&limit=5', null, adminToken);
+    if (cartOrdersPagination.success) {
+      results['GET /cart/admin/orders?page=1&limit=5'] = '✅';
+      console.log(chalk.green('   ✅ Orders pagination'));
+    }
+
+    const cartOrdersFilter = await apiRequest('GET', '/cart/admin/orders?filter[status]=pending', null, adminToken);
+    if (cartOrdersFilter.success && cartOrdersFilter.data?.data?.data) {
+      results['GET /cart/admin/orders?filter[status]=pending'] = '✅';
+      console.log(chalk.green('   ✅ Orders filter'));
+    } else {
+      console.log(chalk.red('   ❌ Orders filter failed'));
+    }
+
+    const activeCartsPagination = await apiRequest('GET', '/cart/admin/active-carts?page=1&limit=5', null, adminToken);
+    if (activeCartsPagination.success) {
+      results['GET /cart/admin/active-carts?page=1&limit=5'] = '✅';
+      console.log(chalk.green('   ✅ Active Carts pagination'));
+    }
+
+    console.log(chalk.cyan('\n28. Testing Cart Statistics'));
+    const cartStatistics = await apiRequest('GET', '/cart/admin/statistics', null, adminToken);
+    if (cartStatistics.success) {
+      results['GET /cart/admin/statistics'] = '✅';
+      console.log(chalk.green('   ✅ Cart Statistics'));
+      console.log('   📊 Statistics Preview:', {
+        totalCarts: cartStatistics.data?.data?.summary?.totalCarts || 0,
+        totalUsers: cartStatistics.data?.data?.summary?.totalUsersWithCart || 0,
+        abandonedCarts: cartStatistics.data?.data?.summary?.abandonedCarts || 0,
+        topProducts: cartStatistics.data?.data?.topProductsInCart?.length || 0
+      });
+    } else {
+      console.log(chalk.red('   ❌ Cart Statistics failed'));
+    }
+
+    const cartTrends = await apiRequest('GET', '/cart/admin/trends?days=7', null, adminToken);
+    if (cartTrends.success) {
+      results['GET /cart/admin/trends?days=7'] = '✅';
+      console.log(chalk.green('   ✅ Cart Trends (7 days)'));
+    } else {
+      console.log(chalk.red('   ❌ Cart Trends failed'));
     }
 
   } catch (error) {
@@ -464,7 +716,8 @@ async function testQueryMiddlewareEndpoints() {
     'Product Variants': [],
     'Vouchers': [],
     'Payment Methods': [],
-    'Wish Lists': []
+    'Wish Lists': [],
+    'Carts': []
   };
 
   Object.entries(results).forEach(([endpoint, status]) => {
@@ -481,6 +734,7 @@ async function testQueryMiddlewareEndpoints() {
     else if (endpoint.includes('/vouchers')) collections['Vouchers'].push(`${status} ${endpoint}`);
     else if (endpoint.includes('/payment-methods')) collections['Payment Methods'].push(`${status} ${endpoint}`);
     else if (endpoint.includes('/wishlists')) collections['Wish Lists'].push(`${status} ${endpoint}`);
+    else if (endpoint.includes('/cart')) collections['Carts'].push(`${status} ${endpoint}`);
   });
 
   Object.entries(collections).forEach(([collection, tests]) => {

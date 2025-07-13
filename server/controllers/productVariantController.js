@@ -1,5 +1,6 @@
 const BaseController = require('./baseController');
 const ProductVariantService = require('../services/productVariantService');
+const ProductVariant = require('../models/ProductVariantSchema');
 const ResponseHandler = require('../services/responseHandler');
 const { productVariantMessages, generalMessages, PAGINATION } = require('../config/constants');
 const { QueryUtils } = require('../utils/queryUtils');
@@ -20,20 +21,42 @@ class ProductVariantController extends BaseController {
 
   getAllProductVariants = async (req, res, next) => {
     try {
-      // Sử dụng method cũ stable
-      const queryOptions = {
-        page: req.query.page || PAGINATION.DEFAULT_PAGE,
-        limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
-        productId: req.query.productId,
-        colorId: req.query.colorId,
-        sizeId: req.query.sizeId,
-        isActive: req.query.isActive,
-        sortBy: req.query.sortBy || 'createdAt',
-        sortOrder: req.query.sortOrder || 'desc'
-      };
-      const result = await this.service.getAllProductVariants(queryOptions);
-      ResponseHandler.success(res, productVariantMessages.FETCH_ALL_SUCCESS, result);
+      // Use new QueryBuilder with improved safety
+      if (req.createQueryBuilder) {
+        const queryBuilder = req.createQueryBuilder(ProductVariant);
+        
+        // Configure search and filters for product variants
+        const result = await queryBuilder
+          .search(['sku'])
+          .applyFilters({
+            productId: { type: 'objectId', field: 'product' },
+            colorId: { type: 'objectId', field: 'color' },
+            sizeId: { type: 'objectId', field: 'size' },
+            minStock: { type: 'range', field: 'stock' },
+            maxStock: { type: 'range', field: 'stock' },
+            isInStock: { type: 'boolean' },
+            isActive: { type: 'boolean' }
+          })
+          .execute();
+        
+        ResponseHandler.success(res, productVariantMessages.FETCH_ALL_SUCCESS, result);
+      } else {
+        // Fallback to legacy method if middleware not available
+        const queryOptions = {
+          page: req.query.page || PAGINATION.DEFAULT_PAGE,
+          limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+          productId: req.query.productId,
+          colorId: req.query.colorId,
+          sizeId: req.query.sizeId,
+          isActive: req.query.isActive,
+          sortBy: req.query.sortBy || 'createdAt',
+          sortOrder: req.query.sortOrder || 'desc'
+        };
+        const result = await this.service.getAllProductVariants(queryOptions);
+        ResponseHandler.success(res, productVariantMessages.FETCH_ALL_SUCCESS, result);
+      }
     } catch (error) {
+      console.error('❌ ProductVariantController.getAllProductVariants error:', error.message);
       next(error);
     }
   };
@@ -82,6 +105,16 @@ class ProductVariantController extends BaseController {
     try {
       await this.service.deleteProductVariantById(req.params.id);
       ResponseHandler.success(res, productVariantMessages.VARIANT_DELETED_SUCCESSFULLY);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Get variant statistics for admin
+  getVariantStatistics = async (req, res, next) => {
+    try {
+      const statistics = await this.service.getVariantStatistics();
+      ResponseHandler.success(res, 'Lấy thống kê variant thành công', statistics);
     } catch (error) {
       next(error);
     }

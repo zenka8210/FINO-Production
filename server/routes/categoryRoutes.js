@@ -49,7 +49,7 @@ router.get('/:id/ancestors', validateObjectId('id'), categoryController.getCateg
  * @desc    Lấy tất cả danh mục công khai
  * @access  Public
  */
-router.get('/public', categoryController.getAllCategories);
+router.get('/public', queryParserMiddleware(), categoryController.getAllCategories);
 
 /**
  * @route   GET /api/categories/:id/public
@@ -65,7 +65,7 @@ router.get('/:id/public', validateObjectId('id'), categoryController.getCategory
  * @desc    Lấy tất cả danh mục (admin - có phân trang, tìm kiếm, filter)
  * @access  Private (Admin)
  */
-router.get('/', authMiddleware, adminMiddleware, categoryController.getAllCategories);
+router.get('/', authMiddleware, adminMiddleware, queryParserMiddleware(), categoryController.getAllCategories);
 
 /**
  * @route   GET /api/categories/:id

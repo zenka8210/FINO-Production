@@ -1,7 +1,9 @@
 const BaseController = require('./baseController');
 const WishListService = require('../services/wishListService');
+const WishList = require('../models/WishListSchema');
 const ResponseHandler = require('../services/responseHandler');
 const { QueryBuilder } = require('../middlewares/queryMiddleware');
+const { PAGINATION } = require('../config/constants');
 
 class WishListController extends BaseController {
     constructor() {
@@ -291,7 +293,8 @@ class WishListController extends BaseController {
      */
     getWishListStats = async (req, res, next) => {
         try {
-            const stats = await this.service.getWishListStats();
+            const { limit = 10 } = req.query;
+            const stats = await this.service.getWishListStats(limit);
             ResponseHandler.success(res, 'Lấy thống kê wishlist thành công', stats);
         } catch (error) {
             next(error);
@@ -299,20 +302,38 @@ class WishListController extends BaseController {
     };
 
     /**
-     * Lấy tất cả wishlist (Admin only) - Revert to stable version
+     * Lấy tất cả wishlist (Admin only)
      */
     getAllWishLists = async (req, res, next) => {
         try {
-            const queryOptions = {
-                page: req.query.page || PAGINATION.DEFAULT_PAGE,
-                limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
-                userId: req.query.userId,
-                sortBy: req.query.sortBy || 'createdAt',
-                sortOrder: req.query.sortOrder || 'desc'
-            };
-            const result = await this.service.getAllWishLists(queryOptions);
-            ResponseHandler.success(res, 'Lấy danh sách wishlist thành công', result);
+            // Use new QueryBuilder with improved safety
+            if (req.createQueryBuilder) {
+                const queryBuilder = req.createQueryBuilder(WishList);
+                
+                // Configure search and filters for wishlists
+                const result = await queryBuilder
+                    .search(['name'])
+                    .applyFilters({
+                        userId: { type: 'objectId', field: 'user' },
+                        isPublic: { type: 'boolean' }
+                    })
+                    .execute();
+                
+                ResponseHandler.success(res, 'Lấy danh sách wishlist thành công', result);
+            } else {
+                // Fallback to legacy method if middleware not available
+                const queryOptions = {
+                    page: req.query.page || PAGINATION.DEFAULT_PAGE,
+                    limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+                    userId: req.query.userId,
+                    sortBy: req.query.sortBy || 'createdAt',
+                    sortOrder: req.query.sortOrder || 'desc'
+                };
+                const result = await this.service.getAllWishLists(queryOptions);
+                ResponseHandler.success(res, 'Lấy danh sách wishlist thành công', result);
+            }
         } catch (error) {
+            console.error('❌ WishListController.getAllWishLists error:', error.message);
             next(error);
         }
     };

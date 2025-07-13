@@ -15,7 +15,7 @@ const sizeController = new SizeController();
  * @description Get all sizes (public, can be used by client for selection)
  * @access Public
  */
-router.get('/public', sizeController.getAllSizes);
+router.get('/public', queryParserMiddleware(), sizeController.getAllSizes);
 
 /**
  * @route GET /api/sizes/public/:id
@@ -111,7 +111,7 @@ router.get(
  * @query {String} [sortBy=name] - Sort field
  * @query {String} [sortOrder=asc] - Sort order (asc/desc)
  */
-router.get('/', authMiddleware, adminMiddleware, sizeController.getAllSizes);
+router.get('/', authMiddleware, adminMiddleware, queryParserMiddleware(), sizeController.getAllSizes);
 
 /**
  * @route GET /api/sizes/:id

@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const CartController = require('../controllers/cartController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const adminMiddleware = require('../middlewares/adminMiddleware');
+const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
 const validateObjectId = require('../middlewares/validateObjectId');
 
 const cartController = new CartController();
@@ -95,5 +97,77 @@ router.post('/calculate-total', cartController.calculateTotal);
  * @body {String} [voucher] - Voucher ID for discount
  */
 router.post('/checkout', cartController.checkout);
+
+// ============= ADMIN ROUTES WITH QUERY MIDDLEWARE =============
+
+/**
+ * @route GET /api/cart/admin/all
+ * @description Get all carts (both cart and order types) with pagination, search, sort, filter
+ * @access Private (Admin only)
+ * @query {Number} [page=1] - Page number
+ * @query {Number} [limit=10] - Items per page
+ * @query {String} [search] - Search in orderCode, user email, user name
+ * @query {String} [sort] - Sort field
+ * @query {String} [order=desc] - Sort order (asc/desc)
+ * @query {String} [filter[type]] - Filter by type (cart/order)
+ * @query {String} [filter[status]] - Filter by status
+ * @query {String} [filter[paymentStatus]] - Filter by payment status
+ * @query {String} [filter[user]] - Filter by user ID
+ * @query {Number} [filter[finalTotal][min]] - Min final total
+ * @query {Number} [filter[finalTotal][max]] - Max final total
+ */
+router.get('/admin/all', 
+  authMiddleware, 
+  adminMiddleware, 
+  queryParserMiddleware(), 
+  cartController.getAllCarts
+);
+
+/**
+ * @route GET /api/cart/admin/orders
+ * @description Get all orders (type='order') with pagination, search, sort, filter
+ * @access Private (Admin only)
+ */
+router.get('/admin/orders', 
+  authMiddleware, 
+  adminMiddleware, 
+  queryParserMiddleware(), 
+  cartController.getAllOrders
+);
+
+/**
+ * @route GET /api/cart/admin/active-carts
+ * @description Get all active carts (type='cart') with pagination, search, sort, filter
+ * @access Private (Admin only)
+ */
+router.get('/admin/active-carts', 
+  authMiddleware, 
+  adminMiddleware, 
+  queryParserMiddleware(), 
+  cartController.getAllActiveCarts
+);
+
+/**
+ * @route GET /api/cart/admin/statistics
+ * @description Get cart statistics for admin dashboard
+ * @access Private (Admin only)
+ */
+router.get('/admin/statistics', 
+  authMiddleware, 
+  adminMiddleware, 
+  cartController.getCartStatistics
+);
+
+/**
+ * @route GET /api/cart/admin/trends
+ * @description Get cart activity trends
+ * @access Private (Admin only)
+ * @query {Number} [days=30] - Number of days for trend analysis
+ */
+router.get('/admin/trends', 
+  authMiddleware, 
+  adminMiddleware, 
+  cartController.getCartTrends
+);
 
 module.exports = router;

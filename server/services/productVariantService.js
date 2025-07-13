@@ -434,38 +434,177 @@ class ProductVariantService extends BaseService {
    * Enhanced stock update with validation
    */
   async updateStockWithValidation(variantId, quantityChange, operation = 'decrease') {
-    const variant = await this.Model.findById(variantId);
-    if (!variant) {
-      throw new AppError(productVariantMessages.VARIANT_NOT_FOUND, 404);
+    try {
+      const variant = await this.updateStock(variantId, quantityChange, operation);
+      
+      // Log the stock update for tracking
+      console.log(`Stock updated for variant ${variantId}: ${operation} ${quantityChange}, new stock: ${variant.stock}`);
+      
+      return variant;
+    } catch (error) {
+      throw error;
     }
+  }
 
-    let newStock;
-    if (operation === 'decrease') {
-      if (variant.stock < quantityChange) {
-        throw new AppError(`Không đủ hàng để trừ. Hiện có: ${variant.stock}, yêu cầu trừ: ${quantityChange}`, 400, 'INSUFFICIENT_STOCK');
-      }
-      newStock = variant.stock - quantityChange;
-    } else if (operation === 'increase') {
-      newStock = variant.stock + quantityChange;
-    } else {
-      throw new AppError('Thao tác không hợp lệ. Chỉ cho phép "increase" hoặc "decrease"', 400, 'INVALID_OPERATION');
+  /**
+   * Get product variant statistics for admin
+   * @returns {Object} Variant statistics
+   */
+  async getVariantStatistics() {
+    try {
+      // 1. Tổng số variant
+      const totalVariants = await this.Model.countDocuments({});
+      
+      // 2. Số variant theo trạng thái stock
+      const stockSummary = await this.Model.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalVariants: { $sum: 1 },
+            inStock: { $sum: { $cond: [{ $gt: ['$stock', 0] }, 1, 0] } },
+            outOfStock: { $sum: { $cond: [{ $eq: ['$stock', 0] }, 1, 0] } },
+            lowStock: { $sum: { $cond: [{ $and: [{ $gt: ['$stock', 0] }, { $lt: ['$stock', 10] }] }, 1, 0] } },
+            totalStockValue: { $sum: { $multiply: ['$stock', '$price'] } },
+            averagePrice: { $avg: '$price' },
+            minPrice: { $min: '$price' },
+            maxPrice: { $max: '$price' }
+          }
+        }
+      ]);
+
+      // 3. Top 10 variant bán chạy (cần tính từ OrderDetails)
+      const Order = require('../models/OrderSchema');
+      const topSellingVariants = await Order.aggregate([
+        { $unwind: '$items' },
+        {
+          $group: {
+            _id: '$items.productVariant',
+            totalSold: { $sum: '$items.quantity' },
+            totalRevenue: { $sum: { $multiply: ['$items.quantity', '$items.price'] } },
+            orderCount: { $sum: 1 }
+          }
+        },
+        {
+          $lookup: {
+            from: 'productvariants',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'variantInfo'
+          }
+        },
+        { $unwind: '$variantInfo' },
+        {
+          $lookup: {
+            from: 'products',
+            localField: 'variantInfo.product',
+            foreignField: '_id',
+            as: 'productInfo'
+          }
+        },
+        { $unwind: '$productInfo' },
+        {
+          $project: {
+            variantId: '$_id',
+            productName: '$productInfo.name',
+            sku: '$variantInfo.sku',
+            currentStock: '$variantInfo.stock',
+            price: '$variantInfo.price',
+            totalSold: 1,
+            totalRevenue: 1,
+            orderCount: 1
+          }
+        },
+        { $sort: { totalSold: -1 } },
+        { $limit: 10 }
+      ]);
+
+      // 4. Variants theo sản phẩm
+      const variantsByProduct = await this.Model.aggregate([
+        {
+          $group: {
+            _id: '$product',
+            variantCount: { $sum: 1 },
+            totalStock: { $sum: '$stock' },
+            averagePrice: { $avg: '$price' },
+            inStockCount: { $sum: { $cond: [{ $gt: ['$stock', 0] }, 1, 0] } }
+          }
+        },
+        {
+          $lookup: {
+            from: 'products',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'product'
+          }
+        },
+        { $unwind: '$product' },
+        {
+          $project: {
+            productId: '$_id',
+            productName: '$product.name',
+            variantCount: 1,
+            totalStock: 1,
+            averagePrice: 1,
+            inStockCount: 1,
+            outOfStockCount: { $subtract: ['$variantCount', '$inStockCount'] }
+          }
+        },
+        { $sort: { variantCount: -1 } }
+      ]);
+
+      // 5. Low stock variants (dưới 10)
+      const lowStockVariants = await this.Model.find({ 
+        stock: { $gt: 0, $lt: 10 } 
+      })
+      .populate('product', 'name')
+      .populate('color', 'name')
+      .populate('size', 'name')
+      .select('sku stock price product color size')
+      .sort({ stock: 1 });
+
+      return {
+        overview: stockSummary[0] || {
+          totalVariants: 0,
+          inStock: 0,
+          outOfStock: 0,
+          lowStock: 0,
+          totalStockValue: 0,
+          averagePrice: 0,
+          minPrice: 0,
+          maxPrice: 0
+        },
+        topSellingVariants,
+        variantsByProduct,
+        lowStockVariants: lowStockVariants.map(variant => ({
+          _id: variant._id,
+          sku: variant.sku,
+          productName: variant.product?.name,
+          color: variant.color?.name,
+          size: variant.size?.name,
+          currentStock: variant.stock,
+          price: variant.price,
+          needsRestocking: variant.stock < 5
+        })),
+        insights: {
+          variantDistribution: {
+            products: variantsByProduct.length,
+            averageVariantsPerProduct: variantsByProduct.length > 0 
+              ? (totalVariants / variantsByProduct.length).toFixed(2) 
+              : 0
+          },
+          stockHealth: {
+            stockCoverage: totalVariants > 0 
+              ? ((stockSummary[0]?.inStock || 0) / totalVariants * 100).toFixed(2) + '%'
+              : '0%',
+            needsAttention: lowStockVariants.length,
+            criticalStock: lowStockVariants.filter(v => v.stock < 5).length
+          }
+        },
+        generatedAt: new Date()
+      };
+    } catch (error) {
+      throw new AppError(`Lỗi khi tạo thống kê variant: ${error.message}`, 500, 'VARIANT_STATISTICS_FAILED');
     }
-
-    // Ensure stock doesn't go negative
-    if (newStock < 0) {
-      throw new AppError('Tồn kho không được âm', 400, 'NEGATIVE_STOCK');
-    }
-
-    variant.stock = newStock;
-    await variant.save();
-
-    // Check if product should be hidden after stock update
-    const stockCheck = await this.checkProductOutOfStock(variant.product);
-    
-    return {
-      variant: await variant.populate('product color size'),
-      stockInfo: stockCheck
-    };
   }
 }
 

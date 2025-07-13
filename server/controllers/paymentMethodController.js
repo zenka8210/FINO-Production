@@ -1,6 +1,7 @@
 const BaseController = require('./baseController');
 const PaymentMethodService = require('../services/paymentMethodService');
 const ResponseHandler = require('../services/responseHandler');
+const PaymentMethod = require('../models/PaymentMethodSchema');
 const { QueryBuilder } = require('../middlewares/queryMiddleware');
 const { PAGINATION } = require('../config/constants');
 
@@ -48,16 +49,13 @@ class PaymentMethodController extends BaseController {
     // Get payment methods with filters - Revert to stable version
     getPaymentMethodsWithFilters = async (req, res, next) => {
         try {
-            // Sử dụng method cũ stable
-            const queryOptions = {
-                page: req.query.page || PAGINATION.DEFAULT_PAGE,
-                limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
-                isActive: req.query.isActive,
-                sortBy: req.query.sortBy || 'createdAt',
-                sortOrder: req.query.sortOrder || 'desc'
-            };
-            const result = await this.service.getAllPaymentMethods(queryOptions);
-            ResponseHandler.success(res, result, 'Payment methods retrieved successfully');
+            // Dùng QueryBuilder cho consistency
+            const result = await req.createQueryBuilder(PaymentMethod)
+                .search(['method'])
+                .applyFilters()
+                .execute();
+                
+            ResponseHandler.success(res, 'Payment methods retrieved successfully', result);
         } catch (error) {
             next(error);
         }
@@ -149,15 +147,12 @@ class PaymentMethodController extends BaseController {
     // Get all payment methods (admin) - Revert to stable version
     getAllPaymentMethods = async (req, res, next) => {
         try {
-            const queryOptions = {
-                page: req.query.page || PAGINATION.DEFAULT_PAGE,
-                limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
-                isActive: req.query.isActive,
-                sortBy: req.query.sortBy || 'createdAt',
-                sortOrder: req.query.sortOrder || 'desc'
-            };
-            const result = await this.service.getAllPaymentMethods(queryOptions);
-            ResponseHandler.success(res, result, 'All payment methods retrieved successfully');
+            const result = await req.createQueryBuilder(PaymentMethod)
+                .search(['method'])
+                .applyFilters()
+                .execute();
+
+            ResponseHandler.success(res, 'All payment methods retrieved successfully', result);
         } catch (error) {
             next(error);
         }
@@ -175,7 +170,7 @@ class PaymentMethodController extends BaseController {
 
             const result = await this.service.getAll(options);
             
-            ResponseHandler.success(res, result, 'All payment methods retrieved successfully');
+            ResponseHandler.success(res, 'All payment methods retrieved successfully', result);
         } catch (error) {
             next(error);
         }

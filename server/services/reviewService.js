@@ -296,40 +296,142 @@ class ReviewService extends BaseService {
     });
   }
 
-  // Get review statistics
+  // Get review statistics - Enhanced version with more comprehensive data
   async getReviewStats() {
-    const stats = await this.Model.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalReviews: { $sum: 1 },
-          averageRating: { $avg: '$rating' },
-          ratingCounts: {
-            $push: '$rating'
+    try {
+      // Get overall statistics
+      const [overallStats] = await this.Model.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalReviews: { $sum: 1 },
+            averageRating: { $avg: '$rating' },
+            ratingCounts: { $push: '$rating' }
           }
         }
+      ]);
+
+      // Get top rated products
+      const topRatedProducts = await this.Model.aggregate([
+        {
+          $group: {
+            _id: '$product',
+            averageRating: { $avg: '$rating' },
+            totalReviews: { $sum: 1 }
+          }
+        },
+        {
+          $lookup: {
+            from: 'products',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'productInfo'
+          }
+        },
+        {
+          $unwind: '$productInfo'
+        },
+        {
+          $match: {
+            totalReviews: { $gte: 2 } // Ít nhất 2 review để có ý nghĩa
+          }
+        },
+        {
+          $sort: { averageRating: -1, totalReviews: -1 }
+        },
+        {
+          $limit: 10
+        },
+        {
+          $project: {
+            productId: '$_id',
+            productName: '$productInfo.name',
+            averageRating: { $round: ['$averageRating', 2] },
+            totalReviews: 1
+          }
+        }
+      ]);
+
+      // Get lowest rated products (products with many low ratings)
+      const lowestRatedProducts = await this.Model.aggregate([
+        {
+          $group: {
+            _id: '$product',
+            averageRating: { $avg: '$rating' },
+            totalReviews: { $sum: 1 },
+            lowRatingCount: {
+              $sum: {
+                $cond: [{ $lte: ['$rating', 2] }, 1, 0]
+              }
+            }
+          }
+        },
+        {
+          $lookup: {
+            from: 'products',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'productInfo'
+          }
+        },
+        {
+          $unwind: '$productInfo'
+        },
+        {
+          $match: {
+            totalReviews: { $gte: 3 }, // Ít nhất 3 review
+            lowRatingCount: { $gte: 2 } // Ít nhất 2 review thấp
+          }
+        },
+        {
+          $sort: { averageRating: 1, lowRatingCount: -1 }
+        },
+        {
+          $limit: 10
+        },
+        {
+          $project: {
+            productId: '$_id',
+            productName: '$productInfo.name',
+            averageRating: { $round: ['$averageRating', 2] },
+            totalReviews: 1,
+            lowRatingCount: 1,
+            lowRatingPercentage: {
+              $round: [
+                { $multiply: [{ $divide: ['$lowRatingCount', '$totalReviews'] }, 100] },
+                1
+              ]
+            }
+          }
+        }
+      ]);
+
+      if (!overallStats) {
+        return {
+          totalReviews: 0,
+          averageRating: 0,
+          ratingDistribution: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 },
+          topRatedProducts: [],
+          lowestRatedProducts: []
+        };
       }
-    ]);
 
-    if (stats.length === 0) {
+      // Count rating distribution
+      const distribution = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
+      overallStats.ratingCounts.forEach(rating => {
+        distribution[rating.toString()]++;
+      });
+
       return {
-        totalReviews: 0,
-        averageRating: 0,
-        ratingDistribution: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 }
+        totalReviews: overallStats.totalReviews,
+        averageRating: Math.round(overallStats.averageRating * 100) / 100,
+        ratingDistribution: distribution,
+        topRatedProducts,
+        lowestRatedProducts
       };
+    } catch (error) {
+      throw new AppError(`Failed to get review statistics: ${error.message}`, ERROR_CODES.INTERNAL_ERROR);
     }
-
-    // Count rating distribution
-    const distribution = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
-    stats[0].ratingCounts.forEach(rating => {
-      distribution[rating.toString()]++;
-    });
-
-    return {
-      totalReviews: stats[0].totalReviews,
-      averageRating: Math.round(stats[0].averageRating * 10) / 10,
-      ratingDistribution: distribution
-    };
   }
 
   // Get reviews by user for admin

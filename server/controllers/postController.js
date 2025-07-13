@@ -1,5 +1,6 @@
 const BaseController = require('./baseController');
 const PostService = require('../services/postService');
+const Post = require('../models/PostSchema');
 const ResponseHandler = require('../services/responseHandler');
 const { MESSAGES, ERROR_CODES } = require('../config/constants');
 const { QueryUtils } = require('../utils/queryUtils');
@@ -12,15 +13,38 @@ class PostController extends BaseController {
   // Lấy tất cả bài viết (có phân trang và tìm kiếm)
   getAllPosts = async (req, res, next) => {
     try {
-      // Sử dụng Query Middleware mới
-      const result = await this.service.getAllPostsWithQuery(req.query, req.user?.role);
-      
-      if (result.pagination) {
-        ResponseHandler.paginatedResponse(res, MESSAGES.POST_RETRIEVED || 'Lấy danh sách bài viết thành công', result.data, result.pagination);
+      // Use new QueryBuilder with improved safety
+      if (req.createQueryBuilder) {
+        const queryBuilder = req.createQueryBuilder(Post);
+        
+        // Configure search and filters for posts
+        const result = await queryBuilder
+          .search(['title', 'content', 'excerpt'])
+          .applyFilters({
+            isPublished: { type: 'boolean' },
+            category: { type: 'exact' },
+            author: { type: 'objectId' },
+            featured: { type: 'boolean' }
+          })
+          .execute();
+        
+        if (result.pagination) {
+          ResponseHandler.paginatedResponse(res, MESSAGES.POST_RETRIEVED || 'Lấy danh sách bài viết thành công', result.data, result.pagination);
+        } else {
+          ResponseHandler.success(res, MESSAGES.POST_RETRIEVED || 'Lấy danh sách bài viết thành công', result.data);
+        }
       } else {
-        ResponseHandler.success(res, MESSAGES.POST_RETRIEVED || 'Lấy danh sách bài viết thành công', result.data);
+        // Fallback to legacy method if middleware not available
+        const result = await this.service.getAllPostsWithQuery(req.query, req.user?.role);
+        
+        if (result.pagination) {
+          ResponseHandler.paginatedResponse(res, MESSAGES.POST_RETRIEVED || 'Lấy danh sách bài viết thành công', result.data, result.pagination);
+        } else {
+          ResponseHandler.success(res, MESSAGES.POST_RETRIEVED || 'Lấy danh sách bài viết thành công', result.data);
+        }
       }
     } catch (error) {
+      console.error('❌ PostController.getAllPosts error:', error.message);
       next(error);
     }
   };

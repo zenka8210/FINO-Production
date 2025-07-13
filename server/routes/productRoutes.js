@@ -13,7 +13,7 @@ const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
 // @desc Lấy sản phẩm có sẵn (chỉ sản phẩm còn hàng)
 // @query includeVariants=true/false - để bao gồm/loại trừ các biến thể sản phẩm
 // @access Public
-router.get('/available', productController.getAvailableProducts);
+router.get('/available', queryParserMiddleware(), productController.getAvailableProducts);
 
 // @route GET /api/products/check-availability/:id
 // @desc Kiểm tra tồn kho sản phẩm
@@ -47,7 +47,7 @@ router.post('/check-add-to-cart', productController.preventOutOfStockAddToCart);
 // @desc Lấy tất cả sản phẩm (công khai, có phân trang, tìm kiếm, lọc, sắp xếp)
 // @query includeVariants=true/false - để bao gồm/loại trừ các biến thể sản phẩm
 // @access Public
-router.get('/public', productController.getAllProducts);
+router.get('/public', queryParserMiddleware(), productController.getAllProducts);
 
 // @route GET /api/products/public-display
 // @desc Lấy sản phẩm cho hiển thị công khai (homepage, product listing) - chỉ sản phẩm active và có stock
@@ -67,7 +67,7 @@ router.get('/category/:categoryId/public', validateObjectId('categoryId'), produ
 // @desc Lấy tất cả sản phẩm (cho admin, có phân trang, tìm kiếm, lọc, sắp xếp)
 // @query includeVariants=true/false - để bao gồm/loại trừ các biến thể sản phẩm
 // @access Private (Admin)
-router.get('/', authMiddleware, adminMiddleware, productController.getAllProducts);
+router.get('/', authMiddleware, adminMiddleware, queryParserMiddleware(), productController.getAllProducts);
 
 // @route GET /api/products/:id
 // @desc Lấy chi tiết sản phẩm bằng ID (cho admin)
@@ -100,6 +100,11 @@ router.get('/admin/out-of-stock', authMiddleware, adminMiddleware, productContro
 // @desc Lấy thông báo về sản phẩm hết hàng cho admin
 // @access Admin
 router.get('/admin/out-of-stock-notification', authMiddleware, adminMiddleware, productController.getOutOfStockNotification);
+
+// @route GET /api/products/admin/statistics
+// @desc Lấy thống kê tổng quan về sản phẩm cho admin dashboard
+// @access Admin
+router.get('/admin/statistics', authMiddleware, adminMiddleware, productController.getProductStatistics);
 
 // @route GET /api/products/:id/validate-display-admin
 // @desc Kiểm tra validation sản phẩm cho admin (có thể hiển thị hay không)

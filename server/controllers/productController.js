@@ -1,5 +1,6 @@
 const BaseController = require('./baseController');
 const ProductService = require('../services/productService');
+const Product = require('../models/ProductSchema');
 const ResponseHandler = require('../services/responseHandler');
 const { MESSAGES, PAGINATION } = require('../config/constants');
 const { AppError } = require('../middlewares/errorHandler');
@@ -11,20 +12,41 @@ class ProductController extends BaseController {
         super(new ProductService());
     }    getAllProducts = async (req, res, next) => {
         try {
-            // Sử dụng method cũ stable
-            const queryOptions = {
-                page: req.query.page || PAGINATION.DEFAULT_PAGE,
-                limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
-                name: req.query.name,
-                category: req.query.category,
-                minPrice: req.query.minPrice,
-                maxPrice: req.query.maxPrice,
-                sortBy: req.query.sortBy || 'createdAt',
-                sortOrder: req.query.sortOrder || 'desc'
-            };
-            const result = await this.service.getAllProducts(queryOptions);
-            ResponseHandler.success(res, MESSAGES.PRODUCTS_FETCHED, result);
+            // Use new QueryBuilder with improved safety
+            if (req.createQueryBuilder) {
+                const Product = require('../models/ProductSchema');
+                const queryBuilder = req.createQueryBuilder(Product);
+                
+                // Configure search and filters for products
+                const result = await queryBuilder
+                    .search(['name', 'description'])
+                    .applyFilters({
+                        category: { type: 'objectId' },
+                        minPrice: { type: 'range', field: 'price' },
+                        maxPrice: { type: 'range', field: 'price' },
+                        brand: { type: 'regex' },
+                        status: { type: 'exact' }
+                    })
+                    .execute();
+                
+                ResponseHandler.success(res, MESSAGES.PRODUCTS_FETCHED, result);
+            } else {
+                // Fallback to legacy method if middleware not available
+                const queryOptions = {
+                    page: req.query.page || PAGINATION.DEFAULT_PAGE,
+                    limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+                    name: req.query.name,
+                    category: req.query.category,
+                    minPrice: req.query.minPrice,
+                    maxPrice: req.query.maxPrice,
+                    sortBy: req.query.sortBy || 'createdAt',
+                    sortOrder: req.query.sortOrder || 'desc'
+                };
+                const result = await this.service.getAllProducts(queryOptions);
+                ResponseHandler.success(res, MESSAGES.PRODUCTS_FETCHED, result);
+            }
         } catch (error) {
+            console.error('❌ ProductController.getAllProducts error:', error.message);
             next(error);
         }
     };
@@ -193,20 +215,35 @@ class ProductController extends BaseController {
     // Get available products only (public endpoint)
     getAvailableProducts = async (req, res, next) => {
         try {
-            const queryOptions = {
-                page: req.query.page || PAGINATION.DEFAULT_PAGE,
-                limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
-                name: req.query.name,
-                category: req.query.category,
-                minPrice: req.query.minPrice,
-                maxPrice: req.query.maxPrice,
-                sortBy: req.query.sortBy,
-                sortOrder: req.query.sortOrder,
-                includeVariants: req.query.includeVariants,
-                includeOutOfStock: false // Always exclude out of stock
-            };
-            const result = await this.service.getAllProducts(queryOptions);
-            ResponseHandler.success(res, 'Lấy sản phẩm có sẵn thành công', result);
+            // Use QueryBuilder if available, otherwise fallback to legacy
+            if (req.createQueryBuilder) {
+                const result = await req.createQueryBuilder(Product)
+                    .setBaseFilter({ isActive: true })
+                    .search(['name', 'description'])
+                    .applyFilters({
+                        'category': 'category',
+                        'price': 'price'
+                    })
+                    .execute();
+
+                ResponseHandler.success(res, 'Lấy sản phẩm có sẵn thành công', result);
+            } else {
+                // Fallback to legacy method
+                const queryOptions = {
+                    page: req.query.page || PAGINATION.DEFAULT_PAGE,
+                    limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+                    name: req.query.name,
+                    category: req.query.category,
+                    minPrice: req.query.minPrice,
+                    maxPrice: req.query.maxPrice,
+                    sortBy: req.query.sortBy,
+                    sortOrder: req.query.sortOrder,
+                    includeVariants: req.query.includeVariants,
+                    includeOutOfStock: false // Always exclude out of stock
+                };
+                const result = await this.service.getAllProducts(queryOptions);
+                ResponseHandler.success(res, 'Lấy sản phẩm có sẵn thành công', result);
+            }
         } catch (error) {
             next(error);
         }
@@ -217,8 +254,15 @@ class ProductController extends BaseController {
         try {
             const { items } = req.body; // Array of {variantId, quantity}
             
-            if (!items || !Array.isArray(items) || items.length === 0) {
-                throw new AppError('Items không hợp lệ', 'INVALID_ITEMS', 400);
+            if (!items || !Array.isArray(items)) {
+                throw new AppError('Items phải là một mảng', 400, 'INVALID_ITEMS');
+            }
+
+            if (items.length === 0) {
+                return ResponseHandler.success(res, 'Giỏ hàng trống', {
+                    valid: true,
+                    items: []
+                });
             }
 
             const validationResults = [];
@@ -230,12 +274,12 @@ class ProductController extends BaseController {
                     validationResults.push({
                         variantId: item.variantId,
                         requestedQuantity: item.quantity,
-                        valid: stockCheck.canOrder,
-                        availableStock: stockCheck.availableStock,
-                        variant: stockCheck.variant
+                        valid: stockCheck.available,
+                        availableStock: stockCheck.currentStock,
+                        variant: stockCheck.variantInfo
                     });
                     
-                    if (!stockCheck.canOrder) {
+                    if (!stockCheck.available) {
                         allValid = false;
                     }
                 } catch (error) {
@@ -301,6 +345,15 @@ class ProductController extends BaseController {
         }
     };
 
+    // Get comprehensive product statistics for admin dashboard
+    getProductStatistics = async (req, res, next) => {
+        try {
+            const statistics = await this.service.getProductStatistics();
+            ResponseHandler.success(res, 'Lấy thống kê sản phẩm thành công', statistics);
+        } catch (error) {
+            next(error);
+        }
+    };
 }
 
 module.exports = ProductController;

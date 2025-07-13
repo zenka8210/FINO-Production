@@ -19,7 +19,7 @@ router.get('/type/:type', paymentMethodController.getPaymentMethodsByType);
 router.use(authenticateToken, adminMiddleware);
 
 // GET /api/payment-methods - Get all payment methods with filters
-router.get('/', paymentMethodController.getPaymentMethodsWithFilters);
+router.get('/', queryParserMiddleware(), paymentMethodController.getPaymentMethodsWithFilters);
 
 // GET /api/payment-methods/stats - Get payment method statistics
 router.get('/stats', paymentMethodController.getPaymentMethodStats);

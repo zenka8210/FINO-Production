@@ -9,8 +9,8 @@ const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
 const reviewController = new ReviewController();
 
 // Public routes
-// GET /api/reviews/product/:productId - Get reviews for a product
-router.get('/product/:productId', validateObjectId('productId'), reviewController.getProductReviews);
+// GET /api/reviews/product/:productId - Get reviews for a product with query middleware
+router.get('/product/:productId', validateObjectId('productId'), queryParserMiddleware(), reviewController.getProductReviews);
 
 // GET /api/reviews/product/:productId/stats - Get product rating statistics
 router.get('/product/:productId/stats', validateObjectId('productId'), reviewController.getProductReviewStats);
@@ -18,8 +18,8 @@ router.get('/product/:productId/stats', validateObjectId('productId'), reviewCon
 // User routes - require authentication
 router.use(authenticateToken);
 
-// GET /api/reviews - Get current user's reviews
-router.get('/', reviewController.getUserReviews);
+// GET /api/reviews - Get current user's reviews with query middleware
+router.get('/', queryParserMiddleware(), reviewController.getUserReviews);
 
 // GET /api/reviews/can-review/:productId - Check if user can review a product
 router.get('/can-review/:productId', validateObjectId('productId'), reviewController.canReviewProduct);
@@ -35,7 +35,7 @@ router.delete('/:id', validateObjectId('id'), reviewController.deleteReview);
 
 // Admin routes
 // GET /api/reviews/admin/all - Get all reviews (admin)
-router.get('/admin/all', authenticateToken, adminMiddleware, reviewController.getAllReviews);
+router.get('/admin/all', authenticateToken, adminMiddleware, queryParserMiddleware(), reviewController.getAllReviews);
 
 // GET /api/reviews/admin/stats - Get review statistics (admin)
 router.get('/admin/stats', authenticateToken, adminMiddleware, reviewController.getReviewStats);

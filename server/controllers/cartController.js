@@ -1,6 +1,8 @@
 const BaseController = require('./baseController');
 const CartService = require('../services/cartService');
 const ResponseHandler = require('../services/responseHandler');
+const Cart = require('../models/CartSchema'); // Updated to use new CartSchema
+const { QueryBuilder } = require('../middlewares/queryMiddleware');
 const { MESSAGES, ERROR_CODES } = require('../config/constants');
 const { AppError } = require('../middlewares/errorHandler');
 
@@ -144,6 +146,120 @@ class CartController extends BaseController {
       const { address, voucher } = req.body;
       const calculation = await this.service.calculateCartTotal(req.user._id, { address, voucher });
       ResponseHandler.success(res, 'Cart total calculated', calculation);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // ============= ADMIN METHODS WITH QUERY MIDDLEWARE =============
+
+  // GET /api/cart/admin/all - Get all carts with Query Middleware
+  getAllCarts = async (req, res, next) => {
+    try {
+      // Use QueryBuilder if available
+      if (req.createQueryBuilder) {
+        const result = await req.createQueryBuilder(Cart)
+          .search(['orderCode', 'user.email', 'user.name'])
+          .applyFilters({
+            type: { type: 'string' },
+            status: { type: 'string' },
+            paymentStatus: { type: 'string' },
+            user: { type: 'objectId' },
+            'finalTotal[min]': { type: 'number' },
+            'finalTotal[max]': { type: 'number' },
+            'total[min]': { type: 'number' }, 
+            'total[max]': { type: 'number' }
+          })
+          .execute();
+        
+        ResponseHandler.success(res, 'Carts retrieved successfully', result);
+      } else {
+        // Fallback to legacy method
+        const carts = await Cart.find()
+          .populate(['user', 'address', 'voucher', 'paymentMethod', 'items.productVariant'])
+          .sort({ createdAt: -1 });
+        ResponseHandler.success(res, 'Carts retrieved successfully', carts);
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // GET /api/cart/admin/orders - Get all orders (type='order') with Query Middleware
+  getAllOrders = async (req, res, next) => {
+    try {
+      if (req.createQueryBuilder) {
+        const result = await req.createQueryBuilder(Cart)
+          .search(['orderCode', 'user.email', 'user.name'])
+          .applyFilters({
+            type: { type: 'string', default: 'order' },
+            status: { type: 'string' },
+            paymentStatus: { type: 'string' },
+            user: { type: 'objectId' },
+            'finalTotal[min]': { type: 'number' },
+            'finalTotal[max]': { type: 'number' }
+          })
+          .execute();
+        
+        ResponseHandler.success(res, 'Orders retrieved successfully', result);
+      } else {
+        // Fallback to legacy method
+        const orders = await Cart.find({ type: 'order' })
+          .populate(['user', 'address', 'voucher', 'paymentMethod', 'items.productVariant'])
+          .sort({ createdAt: -1 });
+        ResponseHandler.success(res, 'Orders retrieved successfully', orders);
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // GET /api/cart/admin/active-carts - Get all active carts (type='cart') with Query Middleware
+  getAllActiveCarts = async (req, res, next) => {
+    try {
+      if (req.createQueryBuilder) {
+        const result = await req.createQueryBuilder(Cart)
+          .search(['user.email', 'user.name'])
+          .applyFilters({
+            type: { type: 'string', default: 'cart' },
+            status: { type: 'string', default: 'cart' },
+            user: { type: 'objectId' },
+            'total[min]': { type: 'number' },
+            'total[max]': { type: 'number' }
+          })
+          .execute();
+        
+        ResponseHandler.success(res, 'Active carts retrieved successfully', result);
+      } else {
+        // Fallback to legacy method
+        const carts = await Cart.find({ type: 'cart', status: 'cart' })
+          .populate(['user', 'items.productVariant'])
+          .sort({ updatedAt: -1 });
+        ResponseHandler.success(res, 'Active carts retrieved successfully', carts);
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // ============= CART STATISTICS METHODS =============
+
+  // GET /api/cart/admin/statistics - Get cart statistics for admin dashboard
+  getCartStatistics = async (req, res, next) => {
+    try {
+      const statistics = await this.service.getCartStatistics();
+      ResponseHandler.success(res, 'Cart statistics retrieved successfully', statistics);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // GET /api/cart/admin/trends - Get cart activity trends
+  getCartTrends = async (req, res, next) => {
+    try {
+      const days = parseInt(req.query.days) || 30;
+      const trends = await this.service.getCartActivityTrends(days);
+      ResponseHandler.success(res, 'Cart trends retrieved successfully', trends);
     } catch (error) {
       next(error);
     }

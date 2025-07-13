@@ -11,7 +11,7 @@ const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
 // @route GET /api/posts
 // @desc Lấy tất cả bài viết (admin only)
 // @access Private (Admin)
-router.get('/', authMiddleware, adminMiddleware, postController.getAllPosts);
+router.get('/', authMiddleware, adminMiddleware, queryParserMiddleware(), postController.getAllPosts);
 
 // @route GET /api/posts/published
 // @desc Lấy bài viết đã xuất bản (public endpoint)

@@ -35,10 +35,32 @@ router.get('/:productId/can-review', validateObjectId('productId'), orderControl
 
 // ========== ADMIN ROUTES ==========
 // GET /api/orders/admin/all - Get all orders with filters (admin)
-router.get('/admin/all', authenticateToken, adminMiddleware, queryParserMiddleware, orderController.getOrders);
+router.get('/admin/all', authenticateToken, adminMiddleware, queryParserMiddleware(), orderController.getOrders);
 
 // GET /api/orders/admin/stats - Get order statistics (admin)
 router.get('/admin/stats', authenticateToken, adminMiddleware, orderController.getOrderStats);
+
+/**
+ * @route GET /api/orders/admin/statistics
+ * @description Get comprehensive order statistics for admin dashboard
+ * @access Private (Admin only)
+ */
+router.get('/admin/statistics', authenticateToken, adminMiddleware, orderController.getOrderStatistics);
+
+/**
+ * @route GET /api/orders/admin/trends
+ * @description Get order trends by date range
+ * @access Private (Admin only)
+ * @query {Number} [days=30] - Number of days for trend analysis
+ */
+router.get('/admin/trends', authenticateToken, adminMiddleware, orderController.getOrderTrends);
+
+/**
+ * @route GET /api/orders/admin/all-with-query
+ * @description Get all orders with Query Middleware (pagination, search, sort, filter)
+ * @access Private (Admin only)
+ */
+router.get('/admin/all-with-query', authenticateToken, adminMiddleware, queryParserMiddleware(), orderController.getAllOrders);
 
 // GET /api/orders/admin/search - Search orders (admin)
 router.get('/admin/search', authenticateToken, adminMiddleware, orderController.searchOrders);

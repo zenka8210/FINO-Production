@@ -44,7 +44,21 @@ router.get(
   '/',
   protect,
   restrictToAdmin,
+  queryParserMiddleware(),
   userController.getAllUsers
+);
+
+/**
+ * @route GET /api/users/stats
+ * @description Lấy thống kê người dùng hệ thống cho admin dashboard
+ * @access Private (Admin)
+ * @returns {Object} Statistics including total users, role distribution, monthly registrations, active users
+ */
+router.get(
+  '/stats',
+  protect,
+  restrictToAdmin,
+  userController.getUserStatistics
 );
 
 /**

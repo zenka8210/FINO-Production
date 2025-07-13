@@ -1,5 +1,6 @@
 const BaseController = require('./baseController');
 const VoucherService = require('../services/voucherService');
+const Voucher = require('../models/VoucherSchema');
 const ResponseHandler = require('../services/responseHandler');
 const { MESSAGES, PAGINATION, voucherMessages, ERROR_CODES } = require('../config/constants');
 const { AppError } = require('../middlewares/errorHandler');
@@ -49,18 +50,39 @@ class VoucherController extends BaseController {
    */
   getAllVouchers = async (req, res, next) => {
     try {
-      // Sử dụng method cũ stable
-      const queryOptions = {
-        page: req.query.page || PAGINATION.DEFAULT_PAGE,
-        limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
-        code: req.query.code,
-        isActive: req.query.isActive,
-        sortBy: req.query.sortBy || 'createdAt',
-        sortOrder: req.query.sortOrder || 'desc'
-      };
-      const result = await this.service.getAllVouchers(queryOptions);
-      ResponseHandler.success(res, MESSAGES.FETCH_SUCCESS, result);
+      // Use new QueryBuilder with improved safety
+      if (req.createQueryBuilder) {
+        const queryBuilder = req.createQueryBuilder(Voucher);
+        
+        // Configure search and filters for vouchers
+        const result = await queryBuilder
+          .search(['code', 'name', 'description'])
+          .applyFilters({
+            isActive: { type: 'boolean' },
+            type: { type: 'exact' },
+            minValue: { type: 'range', field: 'discountValue' },
+            maxValue: { type: 'range', field: 'discountValue' },
+            validFrom: { type: 'date', field: 'startDate' },
+            validTo: { type: 'date', field: 'endDate' }
+          })
+          .execute();
+        
+        ResponseHandler.success(res, MESSAGES.FETCH_SUCCESS, result);
+      } else {
+        // Fallback to legacy method if middleware not available
+        const queryOptions = {
+          page: req.query.page || PAGINATION.DEFAULT_PAGE,
+          limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+          code: req.query.code,
+          isActive: req.query.isActive,
+          sortBy: req.query.sortBy || 'createdAt',
+          sortOrder: req.query.sortOrder || 'desc'
+        };
+        const result = await this.service.getAllVouchers(queryOptions);
+        ResponseHandler.success(res, MESSAGES.FETCH_SUCCESS, result);
+      }
     } catch (error) {
+      console.error('❌ VoucherController.getAllVouchers error:', error.message);
       next(error);
     }
   };

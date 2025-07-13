@@ -1,7 +1,9 @@
 const BaseController = require('./baseController');
 const ReviewService = require('../services/reviewService');
+const Review = require('../models/ReviewSchema');
 const ResponseHandler = require('../services/responseHandler');
 const { QueryUtils } = require('../utils/queryUtils');
+const { PAGINATION } = require('../config/constants');
 
 class ReviewController extends BaseController {
   constructor() {
@@ -58,14 +60,38 @@ class ReviewController extends BaseController {
   // Lấy reviews của user hiện tại
   getUserReviews = async (req, res, next) => {
     try {
-      const { page, limit } = req.query;
-      const options = {
-        page: parseInt(page) || 1,
-        limit: parseInt(limit) || 10
-      };
+      // Use new QueryBuilder if available
+      if (req.createQueryBuilder) {
+        const queryBuilder = req.createQueryBuilder(Review);
+        
+        // Add user filter to only get current user's reviews
+        const userFilter = { user: req.user._id };
+        
+        const result = await queryBuilder
+          .setBaseFilter(userFilter)
+          .search(['comment'])
+          .applyFilters({
+            productId: { type: 'objectId', field: 'product' },
+            orderId: { type: 'objectId', field: 'order' },
+            rating: { type: 'exact' },
+            minRating: { type: 'range', field: 'rating', operator: 'gte' },
+            maxRating: { type: 'range', field: 'rating', operator: 'lte' }
+          })
+          .populateFields()
+          .execute();
+        
+        ResponseHandler.success(res, 'Lấy đánh giá của bạn thành công', result);
+      } else {
+        // Fallback to legacy method
+        const { page, limit } = req.query;
+        const options = {
+          page: parseInt(page) || 1,
+          limit: parseInt(limit) || 10
+        };
 
-      const result = await this.service.getUserReviews(req.user._id, options);
-      ResponseHandler.success(res, 'Lấy đánh giá của bạn thành công', result);
+        const result = await this.service.getUserReviews(req.user._id, options);
+        ResponseHandler.success(res, 'Lấy đánh giá của bạn thành công', result);
+      }
     } catch (error) {
       next(error);
     }
@@ -113,21 +139,43 @@ class ReviewController extends BaseController {
     }
   };
 
-  // Admin: Lấy tất cả reviews - Revert to stable version
+  // Admin: Lấy tất cả reviews
   getAllReviews = async (req, res, next) => {
     try {
-      const queryOptions = {
-        page: req.query.page || PAGINATION.DEFAULT_PAGE,
-        limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
-        productId: req.query.productId,
-        userId: req.query.userId,
-        rating: req.query.rating,
-        sortBy: req.query.sortBy || 'createdAt',
-        sortOrder: req.query.sortOrder || 'desc'
-      };
-      const result = await this.service.getAllReviews(queryOptions);
-      ResponseHandler.success(res, 'Lấy danh sách đánh giá thành công', result);
+      // Use new QueryBuilder with improved safety
+      if (req.createQueryBuilder) {
+        const queryBuilder = req.createQueryBuilder(Review);
+        
+        // Configure search and filters for reviews
+        const result = await queryBuilder
+          .search(['comment'])
+          .applyFilters({
+            productId: { type: 'objectId', field: 'product' },
+            userId: { type: 'objectId', field: 'user' },
+            rating: { type: 'exact' },
+            minRating: { type: 'range', field: 'rating' },
+            maxRating: { type: 'range', field: 'rating' },
+            isVerified: { type: 'boolean' }
+          })
+          .execute();
+        
+        ResponseHandler.success(res, 'Lấy danh sách đánh giá thành công', result);
+      } else {
+        // Fallback to legacy method if middleware not available
+        const queryOptions = {
+          page: req.query.page || PAGINATION.DEFAULT_PAGE,
+          limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+          productId: req.query.productId,
+          userId: req.query.userId,
+          rating: req.query.rating,
+          sortBy: req.query.sortBy || 'createdAt',
+          sortOrder: req.query.sortOrder || 'desc'
+        };
+        const result = await this.service.getAllReviews(queryOptions);
+        ResponseHandler.success(res, 'Lấy danh sách đánh giá thành công', result);
+      }
     } catch (error) {
+      console.error('❌ ReviewController.getAllReviews error:', error.message);
       next(error);
     }
   };

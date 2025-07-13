@@ -40,7 +40,7 @@ router.get('/:id/check-status', validateObjectId('id'), bannerController.checkBa
 // @route GET /api/banners
 // @desc Lấy tất cả banner (cho admin, có phân trang, tìm kiếm)
 // @access Private (Admin)
-router.get('/', authMiddleware, adminMiddleware, bannerController.getAllBanners);
+router.get('/', authMiddleware, adminMiddleware, queryParserMiddleware(), bannerController.getAllBanners);
 
 // @route GET /api/banners/:id
 // @desc Lấy chi tiết banner bằng ID (cho admin)

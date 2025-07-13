@@ -68,7 +68,7 @@ const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
  *                 pagination:
  *                   $ref: '#/components/schemas/Pagination'
  */
-router.get('/', voucherController.getAllVouchers);
+router.get('/', queryParserMiddleware(), voucherController.getAllVouchers);
 
 /**
  * @swagger
@@ -382,7 +382,7 @@ router.post('/admin', protect, admin, voucherController.createVoucher); // Uncom
  *       401:
  *         description: Không có quyền truy cập
  */
-router.get('/admin', protect, admin, voucherController.getAllVouchers);
+router.get('/admin', protect, admin, queryParserMiddleware(), voucherController.getAllVouchers);
 
 
 /**

@@ -1,5 +1,6 @@
 const BaseService = require('./baseService');
-const CartOrder = require('../models/CartOrderSchema'); // Updated to use CartOrderSchema
+const Order = require('../models/OrderSchema'); // Use Order model for orders
+const Cart = require('../models/CartSchema'); // For cart operations
 const Address = require('../models/AddressSchema');
 const VoucherService = require('./voucherService');
 const { AppError } = require('../middlewares/errorHandler');
@@ -9,7 +10,7 @@ const { QueryUtils } = require('../utils/queryUtils');
 
 class OrderService extends BaseService {
   constructor() {
-    super(CartOrder); // Updated to use CartOrder
+    super(Order); // Use Order model
     this.voucherService = new VoucherService();
   }  // Create new order
   async createOrder(userId, orderData) {
@@ -618,6 +619,279 @@ class OrderService extends BaseService {
         ERROR_CODES.ORDER.FETCH_FAILED,
         500
       );
+    }
+  }
+
+  // ============= ORDER STATISTICS METHODS =============
+
+  // Get comprehensive order statistics for admin dashboard
+  async getOrderStatistics() {
+    try {
+      const currentDate = new Date();
+      const twelveMonthsAgo = new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), 1);
+
+      // Main order statistics aggregation
+      const statistics = await Order.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalOrders: { $sum: 1 },
+            totalRevenue: {
+              $sum: {
+                $cond: [
+                  { $eq: ['$paymentStatus', 'paid'] },
+                  '$finalTotal',
+                  0
+                ]
+              }
+            },
+            totalDeliveredOrders: {
+              $sum: {
+                $cond: [
+                  { $eq: ['$status', 'delivered'] },
+                  1,
+                  0
+                ]
+              }
+            },
+            pendingOrders: {
+              $sum: {
+                $cond: [{ $eq: ['$status', 'pending'] }, 1, 0]
+              }
+            },
+            processingOrders: {
+              $sum: {
+                $cond: [{ $eq: ['$status', 'processing'] }, 1, 0]
+              }
+            },
+            shippedOrders: {
+              $sum: {
+                $cond: [{ $eq: ['$status', 'shipped'] }, 1, 0]
+              }
+            },
+            deliveredOrders: {
+              $sum: {
+                $cond: [{ $eq: ['$status', 'delivered'] }, 1, 0]
+              }
+            },
+            cancelledOrders: {
+              $sum: {
+                $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0]
+              }
+            },
+            averageOrderValue: { $avg: '$finalTotal' },
+            totalCustomers: { $addToSet: '$user' }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            totalOrders: 1,
+            totalRevenue: 1,
+            totalDeliveredOrders: 1,
+            ordersByStatus: {
+              pending: '$pendingOrders',
+              processing: '$processingOrders',
+              shipped: '$shippedOrders',
+              delivered: '$deliveredOrders',
+              cancelled: '$cancelledOrders'
+            },
+            averageOrderValue: { $round: ['$averageOrderValue', 0] },
+            totalCustomers: { $size: '$totalCustomers' }
+          }
+        }
+      ]);
+
+      // Monthly revenue for the last 12 months
+      const monthlyRevenue = await Order.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: twelveMonthsAgo },
+            paymentStatus: 'paid'
+          }
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: '$createdAt' },
+              month: { $month: '$createdAt' }
+            },
+            revenue: { $sum: '$finalTotal' },
+            orderCount: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { '_id.year': 1, '_id.month': 1 }
+        },
+        {
+          $project: {
+            _id: 0,
+            year: '$_id.year',
+            month: '$_id.month',
+            monthName: {
+              $arrayElemAt: [
+                ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                '$_id.month'
+              ]
+            },
+            revenue: { $round: ['$revenue', 0] },
+            orderCount: 1
+          }
+        }
+      ]);
+
+      // Top selling products (from order items)
+      const topProducts = await Order.aggregate([
+        {
+          $match: {
+            status: { $in: ['delivered', 'shipped', 'processing'] }
+          }
+        },
+        {
+          $unwind: '$items'
+        },
+        {
+          $group: {
+            _id: '$items.productVariant',
+            totalQuantity: { $sum: '$items.quantity' },
+            totalRevenue: { $sum: '$items.totalPrice' },
+            orderCount: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { totalQuantity: -1 }
+        },
+        {
+          $limit: 10
+        },
+        {
+          $lookup: {
+            from: 'productvariants',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'productVariant'
+          }
+        },
+        {
+          $unwind: { path: '$productVariant', preserveNullAndEmptyArrays: true }
+        },
+        {
+          $lookup: {
+            from: 'products',
+            localField: 'productVariant.product',
+            foreignField: '_id',
+            as: 'product'
+          }
+        },
+        {
+          $unwind: { path: '$product', preserveNullAndEmptyArrays: true }
+        },
+        {
+          $project: {
+            productVariantId: '$_id',
+            productId: '$product._id',
+            productName: '$product.name',
+            productImage: { $arrayElemAt: ['$product.images', 0] },
+            totalQuantity: 1,
+            totalRevenue: { $round: ['$totalRevenue', 0] },
+            orderCount: 1
+          }
+        }
+      ]);
+
+      const baseStats = statistics[0] || {
+        totalOrders: 0,
+        totalRevenue: 0,
+        totalDeliveredOrders: 0,
+        ordersByStatus: {
+          pending: 0,
+          processing: 0,
+          shipped: 0,
+          delivered: 0,
+          cancelled: 0
+        },
+        averageOrderValue: 0,
+        totalCustomers: 0
+      };
+
+      return {
+        summary: {
+          totalOrders: baseStats.totalOrders,
+          totalRevenue: baseStats.totalRevenue,
+          totalDeliveredOrders: baseStats.totalDeliveredOrders,
+          averageOrderValue: baseStats.averageOrderValue,
+          totalCustomers: baseStats.totalCustomers,
+          completionRate: baseStats.totalOrders > 0 ? 
+            Math.round((baseStats.totalDeliveredOrders / baseStats.totalOrders) * 10000) / 100 : 0
+        },
+        ordersByStatus: baseStats.ordersByStatus,
+        monthlyRevenue: monthlyRevenue,
+        topSellingProducts: topProducts,
+        lastUpdated: new Date()
+      };
+
+    } catch (error) {
+      throw new AppError(`Error getting order statistics: ${error.message}`, ERROR_CODES.INTERNAL_ERROR);
+    }
+  }
+
+  // Get order trends by date range
+  async getOrderTrends(days = 30) {
+    try {
+      const endDate = new Date();
+      const startDate = new Date(endDate.getTime() - days * 24 * 60 * 60 * 1000);
+
+      const trends = await Order.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: startDate, $lte: endDate }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              date: {
+                $dateToString: {
+                  format: '%Y-%m-%d',
+                  date: '$createdAt'
+                }
+              }
+            },
+            totalOrders: { $sum: 1 },
+            totalRevenue: {
+              $sum: {
+                $cond: [
+                  { $eq: ['$paymentStatus', 'paid'] },
+                  '$finalTotal',
+                  0
+                ]
+              }
+            },
+            deliveredOrders: {
+              $sum: {
+                $cond: [{ $eq: ['$status', 'delivered'] }, 1, 0]
+              }
+            }
+          }
+        },
+        {
+          $sort: { '_id.date': 1 }
+        },
+        {
+          $project: {
+            _id: 0,
+            date: '$_id.date',
+            totalOrders: 1,
+            totalRevenue: { $round: ['$totalRevenue', 0] },
+            deliveredOrders: 1
+          }
+        }
+      ]);
+
+      return trends;
+    } catch (error) {
+      throw new AppError(`Error getting order trends: ${error.message}`, ERROR_CODES.INTERNAL_ERROR);
     }
   }
 }

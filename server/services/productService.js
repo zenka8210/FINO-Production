@@ -618,6 +618,209 @@ class ProductService extends BaseService {
             throw error;
         }
     }
+
+    /**
+     * Get comprehensive product statistics for admin dashboard
+     * @returns {Object} Statistical data for admin
+     */
+    async getProductStatistics() {
+        try {
+            // 1. Tổng số sản phẩm
+            const totalProducts = await Product.countDocuments({});
+            
+            // 2. Tổng số variant từ ProductVariant model
+            const totalVariants = await ProductVariant.countDocuments({});
+            
+            // 3. Top sản phẩm bán chạy nhất dựa trên Order
+            // (Cần import Order model để tính toán)
+            const Order = require('../models/OrderSchema');
+            const topSellingProducts = await Order.aggregate([
+                { $unwind: '$items' },
+                {
+                    $lookup: {
+                        from: 'productvariants',
+                        localField: 'items.productVariant',
+                        foreignField: '_id',
+                        as: 'variantInfo'
+                    }
+                },
+                { $unwind: '$variantInfo' },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: 'variantInfo.product',
+                        foreignField: '_id',
+                        as: 'productInfo'
+                    }
+                },
+                { $unwind: '$productInfo' },
+                {
+                    $group: {
+                        _id: '$variantInfo.product',
+                        name: { $first: '$productInfo.name' },
+                        totalSold: { $sum: '$items.quantity' },
+                        totalRevenue: { $sum: { $multiply: ['$items.quantity', '$items.price'] } },
+                        orderCount: { $sum: 1 }
+                    }
+                },
+                { $sort: { totalSold: -1 } },
+                { $limit: 10 }
+            ]);
+
+            // 4. Tồn kho của từng product (tính tổng stock từ các variant)
+            const productStockSummary = await ProductVariant.aggregate([
+                {
+                    $group: {
+                        _id: '$product',
+                        totalStock: { $sum: '$stock' },
+                        variantCount: { $sum: 1 },
+                        inStockVariants: {
+                            $sum: { $cond: [{ $gt: ['$stock', 0] }, 1, 0] }
+                        },
+                        outOfStockVariants: {
+                            $sum: { $cond: [{ $eq: ['$stock', 0] }, 1, 0] }
+                        },
+                        lowestStock: { $min: '$stock' },
+                        highestStock: { $max: '$stock' }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'product'
+                    }
+                },
+                { $unwind: '$product' },
+                {
+                    $project: {
+                        _id: 1,
+                        name: '$product.name',
+                        category: '$product.category',
+                        isActive: '$product.isActive',
+                        totalStock: 1,
+                        variantCount: 1,
+                        inStockVariants: 1,
+                        outOfStockVariants: 1,
+                        lowestStock: 1,
+                        highestStock: 1,
+                        stockStatus: {
+                            $cond: {
+                                if: { $eq: ['$totalStock', 0] },
+                                then: 'out_of_stock',
+                                else: {
+                                    $cond: {
+                                        if: { $lt: ['$totalStock', 10] },
+                                        then: 'low_stock',
+                                        else: 'in_stock'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                { $sort: { totalStock: 1 } }
+            ]);
+
+            // 5. Danh sách sản phẩm có tồn kho thấp (dưới 10 sản phẩm)
+            const lowStockProducts = productStockSummary.filter(p => p.totalStock > 0 && p.totalStock < 10);
+
+            // 6. Số lượng sản phẩm theo category
+            const productsByCategory = await Product.aggregate([
+                {
+                    $lookup: {
+                        from: 'categories',
+                        localField: 'category',
+                        foreignField: '_id',
+                        as: 'categoryInfo'
+                    }
+                },
+                { $unwind: '$categoryInfo' },
+                {
+                    $group: {
+                        _id: '$category',
+                        categoryName: { $first: '$categoryInfo.name' },
+                        productCount: { $sum: 1 },
+                        activeProducts: {
+                            $sum: { $cond: [{ $eq: ['$isActive', true] }, 1, 0] }
+                        },
+                        inactiveProducts: {
+                            $sum: { $cond: [{ $eq: ['$isActive', false] }, 1, 0] }
+                        }
+                    }
+                },
+                { $sort: { productCount: -1 } }
+            ]);
+
+            // 7. Tính toán thống kê tổng quan
+            const activeProducts = await Product.countDocuments({ isActive: true });
+            const inactiveProducts = await Product.countDocuments({ isActive: false });
+            
+            const outOfStockProductsCount = productStockSummary.filter(p => p.totalStock === 0).length;
+            const lowStockProductsCount = lowStockProducts.length;
+            const inStockProductsCount = productStockSummary.filter(p => p.totalStock > 0).length;
+
+            // 8. Tính tổng giá trị tồn kho
+            const totalInventoryValue = await ProductVariant.aggregate([
+                {
+                    $group: {
+                        _id: null,
+                        totalValue: { $sum: { $multiply: ['$stock', '$price'] } }
+                    }
+                }
+            ]);
+
+            return {
+                overview: {
+                    totalProducts,
+                    totalVariants,
+                    activeProducts,
+                    inactiveProducts,
+                    totalInventoryValue: totalInventoryValue[0]?.totalValue || 0
+                },
+                stockSummary: {
+                    inStockProducts: inStockProductsCount,
+                    outOfStockProducts: outOfStockProductsCount,
+                    lowStockProducts: lowStockProductsCount,
+                    lowStockThreshold: 10
+                },
+                topSellingProducts: topSellingProducts.map(product => ({
+                    _id: product._id,
+                    name: product.name,
+                    totalSold: product.totalSold,
+                    totalRevenue: product.totalRevenue,
+                    orderCount: product.orderCount
+                })),
+                productStockDetails: productStockSummary,
+                lowStockProducts: lowStockProducts.map(product => ({
+                    _id: product._id,
+                    name: product.name,
+                    totalStock: product.totalStock,
+                    variantCount: product.variantCount,
+                    stockStatus: product.stockStatus
+                })),
+                productsByCategory: productsByCategory.map(cat => ({
+                    _id: cat._id,
+                    categoryName: cat.categoryName,
+                    productCount: cat.productCount,
+                    activeProducts: cat.activeProducts,
+                    inactiveProducts: cat.inactiveProducts
+                })),
+                generatedAt: new Date(),
+                summary: {
+                    message: `Hệ thống có ${totalProducts} sản phẩm với ${totalVariants} biến thể. ${outOfStockProductsCount} sản phẩm hết hàng, ${lowStockProductsCount} sản phẩm sắp hết hàng.`,
+                    recommendations: [
+                        ...(lowStockProductsCount > 0 ? [`Cần nhập thêm hàng cho ${lowStockProductsCount} sản phẩm sắp hết hàng`] : []),
+                        ...(outOfStockProductsCount > 0 ? [`Có ${outOfStockProductsCount} sản phẩm đã hết hàng cần được bổ sung`] : []),
+                        ...(inactiveProducts > 0 ? [`Xem xét kích hoạt lại ${inactiveProducts} sản phẩm đang ẩn`] : [])
+                    ]
+                }
+            };
+        } catch (error) {
+            throw new AppError(`Lỗi khi tạo thống kê sản phẩm: ${error.message}`, 500, 'STATISTICS_GENERATION_FAILED');
+        }
+    }
 }
 
 module.exports = ProductService;

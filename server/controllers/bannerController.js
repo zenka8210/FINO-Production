@@ -1,8 +1,9 @@
 const BaseController = require('./baseController');
 const BannerService = require('../services/bannerService');
+const Banner = require('../models/BannerSchema');
 const ResponseHandler = require('../services/responseHandler');
 const { MESSAGES, PAGINATION } = require('../config/constants');
-const { QueryUtils } = require('../utils/queryUtils');
+const { QueryBuilder } = require('../middlewares/queryMiddleware');
 
 class BannerController extends BaseController {
     constructor() {
@@ -11,15 +12,11 @@ class BannerController extends BaseController {
 
     getAllBanners = async (req, res, next) => {
         try {
-            // Sử dụng method cũ stable
-            const queryOptions = {
-                page: req.query.page || PAGINATION.DEFAULT_PAGE,
-                limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
-                isActive: req.query.isActive,
-                sortBy: req.query.sortBy || 'createdAt',
-                sortOrder: req.query.sortOrder || 'desc'
-            };
-            const result = await this.service.getAllBanners(queryOptions);
+            const result = await req.createQueryBuilder(Banner)
+                .search(['title', 'description'])
+                .applyFilters()
+                .execute();
+
             ResponseHandler.success(res, 'Lấy danh sách banner thành công', result);
         } catch (error) {
             next(error);
