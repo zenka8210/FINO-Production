@@ -5,6 +5,7 @@ const productController = new ProductController();
 const authMiddleware = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
 const validateObjectId = require('../middlewares/validateObjectId');
+const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
 
 // --- Tuyến đường công khai ---
 
@@ -34,7 +35,7 @@ router.post('/validate-cart', productController.validateCartItems);
 // @route GET /api/products/:id/validate-display
 // @desc Kiểm tra sản phẩm có thể hiển thị hay không
 // @access Public
-router.get('/:id/validate-display', validateObjectId('id'), productController.validateProductDisplay);
+router.get('/:id/validate-display', validateObjectId('id'), productController.validateProductForDisplay);
 
 // @route POST /api/products/check-add-to-cart
 // @desc Kiểm tra có thể thêm vào giỏ hàng hay không
@@ -48,11 +49,10 @@ router.post('/check-add-to-cart', productController.preventOutOfStockAddToCart);
 // @access Public
 router.get('/public', productController.getAllProducts);
 
-// @route GET /api/products/public/:id
-// @desc Lấy chi tiết một sản phẩm bằng ID (công khai)
-// @query includeVariants=true/false - để bao gồm/loại trừ các biến thể sản phẩm
+// @route GET /api/products/public-display
+// @desc Lấy sản phẩm cho hiển thị công khai (homepage, product listing) - chỉ sản phẩm active và có stock
 // @access Public
-router.get('/public/:id', validateObjectId('id'), productController.getProductById);
+router.get('/public-display', productController.getPublicProducts);
 
 // @route GET /api/products/category/:categoryId/public
 // @desc Lấy sản phẩm theo danh mục (công khai)
@@ -95,5 +95,15 @@ router.delete('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), p
 // @desc Lấy tất cả sản phẩm hết hàng (Admin only)
 // @access Private (Admin)
 router.get('/admin/out-of-stock', authMiddleware, adminMiddleware, productController.getOutOfStockProducts);
+
+// @route GET /api/products/admin/out-of-stock-notification
+// @desc Lấy thông báo về sản phẩm hết hàng cho admin
+// @access Admin
+router.get('/admin/out-of-stock-notification', authMiddleware, adminMiddleware, productController.getOutOfStockNotification);
+
+// @route GET /api/products/:id/validate-display-admin
+// @desc Kiểm tra validation sản phẩm cho admin (có thể hiển thị hay không)
+// @access Admin
+router.get('/:id/validate-display-admin', authMiddleware, adminMiddleware, validateObjectId('id'), productController.validateProductForDisplay);
 
 module.exports = router;

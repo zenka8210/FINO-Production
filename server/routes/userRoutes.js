@@ -4,6 +4,7 @@ const userController = new UserController();
 const protect = require('../middlewares/authMiddleware'); // Corrected: authMiddleware is the protect middleware
 const restrictToAdmin = require('../middlewares/adminMiddleware'); // Corrected: restrictToAdmin is from adminMiddleware
 const validateObjectId = require('../middlewares/validateObjectId');
+const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
 
 const router = express.Router();
 
@@ -177,7 +178,18 @@ router.put(
 router.post(
   '/me/addresses',
   protect,
+  (req, res, next) => {
+    console.log('[DEBUG] userRoutes /me/addresses called');
+    next();
+  },
   userController.addUserAddress
+);
+
+// Test route để debug
+router.post(
+  '/me/addresses-debug',
+  protect,
+  userController.debugAddUserAddress
 );
 
 /**

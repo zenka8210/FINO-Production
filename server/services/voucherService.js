@@ -2,6 +2,7 @@ const BaseService = require('./baseService');
 const Voucher = require('../models/VoucherSchema');
 const { AppError } = require('../middlewares/errorHandler');
 const { MESSAGES, ERROR_CODES, PAGINATION, voucherMessages } = require('../config/constants');
+const { QueryBuilder } = require('../middlewares/queryMiddleware');
 
 /**
  * @class VoucherService
@@ -328,6 +329,26 @@ class VoucherService extends BaseService {
       };
     } catch (error) {
       return { canUse: false, reason: error.message };
+    }
+  }
+
+  /**
+   * Get all vouchers using new Query Middleware
+   * @param {Object} queryParams - Query parameters from request
+   * @returns {Object} Query results with pagination
+   */
+  async getAllVouchersWithQuery(queryParams) {
+    try {
+      // Sử dụng QueryUtils với pre-configured setup cho Voucher
+      const result = await QueryUtils.getVouchers(Voucher, queryParams);
+      
+      return result;
+    } catch (error) {
+      throw new AppError(
+        `Error fetching vouchers: ${error.message}`,
+        ERROR_CODES.VOUCHER?.FETCH_FAILED || 'VOUCHER_FETCH_FAILED',
+        500
+      );
     }
   }
 }

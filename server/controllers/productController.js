@@ -3,11 +3,34 @@ const ProductService = require('../services/productService');
 const ResponseHandler = require('../services/responseHandler');
 const { MESSAGES, PAGINATION } = require('../config/constants');
 const { AppError } = require('../middlewares/errorHandler');
+const { QueryUtils } = require('../utils/queryUtils');
+const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
 
 class ProductController extends BaseController {
     constructor() {
         super(new ProductService());
     }    getAllProducts = async (req, res, next) => {
+        try {
+            // Sử dụng method cũ stable
+            const queryOptions = {
+                page: req.query.page || PAGINATION.DEFAULT_PAGE,
+                limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+                name: req.query.name,
+                category: req.query.category,
+                minPrice: req.query.minPrice,
+                maxPrice: req.query.maxPrice,
+                sortBy: req.query.sortBy || 'createdAt',
+                sortOrder: req.query.sortOrder || 'desc'
+            };
+            const result = await this.service.getAllProducts(queryOptions);
+            ResponseHandler.success(res, MESSAGES.PRODUCTS_FETCHED, result);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // Giữ lại method cũ để backward compatibility
+    getAllProductsLegacy = async (req, res, next) => {
         try {
             const queryOptions = {
                 page: req.query.page || PAGINATION.DEFAULT_PAGE,
@@ -41,6 +64,13 @@ class ProductController extends BaseController {
     createProduct = async (req, res, next) => {
         try {
             const productData = req.body;
+            
+            // Validate product data before creation
+            const validation = await this.service.validateProductData(productData);
+            if (!validation.isValid) {
+                throw new AppError(validation.errors.join('; '), 400);
+            }
+            
             const newProduct = await this.service.createProduct(productData);
             ResponseHandler.created(res, MESSAGES.PRODUCT_CREATED, newProduct);
         } catch (error) {
@@ -52,6 +82,13 @@ class ProductController extends BaseController {
         try {
             const { id } = req.params;
             const updateData = req.body;
+            
+            // Validate product data before update
+            const validation = await this.service.validateProductData(updateData);
+            if (!validation.isValid) {
+                throw new AppError(validation.errors.join('; '), 400);
+            }
+            
             const updatedProduct = await this.service.updateProduct(id, updateData);
             ResponseHandler.success(res, MESSAGES.PRODUCT_UPDATED, updatedProduct);
         } catch (error) {
@@ -88,12 +125,54 @@ class ProductController extends BaseController {
         }
     };
 
+    // Get products for public display (homepage, product listing)
+    getPublicProducts = async (req, res, next) => {
+        try {
+            const queryOptions = {
+                page: req.query.page || PAGINATION.DEFAULT_PAGE,
+                limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+                name: req.query.name,
+                category: req.query.category,
+                minPrice: req.query.minPrice,
+                maxPrice: req.query.maxPrice,
+                sortBy: req.query.sortBy,
+                sortOrder: req.query.sortOrder
+            };
+            
+            const result = await this.service.getPublicProducts(queryOptions);
+            ResponseHandler.success(res, 'Public products fetched successfully', result);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // Validate product for display (admin use)
+    validateProductForDisplay = async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const validation = await this.service.validateProductForDisplay(id);
+            ResponseHandler.success(res, 'Product validation completed', validation);
+        } catch (error) {
+            next(error);
+        }
+    };
+
     // Check product availability
     checkProductAvailability = async (req, res, next) => {
         try {
             const { id } = req.params;
             const availability = await this.service.checkProductAvailability(id);
-            ResponseHandler.success(res, 'Kiểm tra tồn kho sản phẩm thành công', availability);
+            ResponseHandler.success(res, 'Product availability checked', availability);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // Get admin notification about out of stock products
+    getOutOfStockNotification = async (req, res, next) => {
+        try {
+            const notification = await this.service.getOutOfStockNotification();
+            ResponseHandler.success(res, 'Out of stock notification retrieved', notification);
         } catch (error) {
             next(error);
         }
@@ -179,17 +258,6 @@ class ProductController extends BaseController {
         }
     };
 
-    // Validate product for display
-    validateProductDisplay = async (req, res, next) => {
-        try {
-            const { id } = req.params;
-            const validation = await this.service.validateProductForDisplay(id);
-            ResponseHandler.success(res, 'Kiểm tra hiển thị sản phẩm thành công', validation);
-        } catch (error) {
-            next(error);
-        }
-    };
-
     // Get all out of stock products (Admin only)
     getOutOfStockProducts = async (req, res, next) => {
         try {
@@ -215,9 +283,9 @@ class ProductController extends BaseController {
 
             const stockCheck = await this.service.checkVariantStock(variantId, quantity);
             
-            if (!stockCheck.canOrder) {
+            if (!stockCheck.available) {
                 throw new AppError(
-                    `Sản phẩm đã hết hàng. Còn lại: ${stockCheck.availableStock}, yêu cầu: ${quantity}`,
+                    `Sản phẩm đã hết hàng. Còn lại: ${stockCheck.currentStock}, yêu cầu: ${quantity}`,
                     400,
                     'OUT_OF_STOCK'
                 );
@@ -225,7 +293,7 @@ class ProductController extends BaseController {
 
             ResponseHandler.success(res, 'Có thể thêm vào giỏ hàng', {
                 canAddToCart: true,
-                availableStock: stockCheck.availableStock,
+                availableStock: stockCheck.currentStock,
                 requestedQuantity: quantity
             });
         } catch (error) {

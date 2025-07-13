@@ -14,11 +14,15 @@ const addressController = new AddressController();
  *   description: Quản lý địa chỉ người dùng (Người dùng chỉ quản lý địa chỉ của chính mình)
  */
 
-// Tất cả các route dưới đây yêu cầu người dùng phải đăng nhập
-router.use(protect);
-
+// Public endpoints (no authentication required)
 // GET /api/addresses/cities - Lấy danh sách tỉnh/thành phố hợp lệ (public endpoint)
 router.get('/cities', addressController.getValidCities);
+
+// GET /api/addresses/guidance - Lấy hướng dẫn nhập địa chỉ (public endpoint)
+router.get('/guidance', addressController.getInputGuidance);
+
+// POST /api/addresses/validate - Validate và preview địa chỉ trước khi lưu (public endpoint)
+router.post('/validate', addressController.validateAndPreview);
 
 /**
  * @swagger
@@ -63,8 +67,8 @@ router.get('/cities', addressController.getValidCities);
  *         description: Chưa đăng nhập
  */
 router.route('/')
-  .post(addressController.createAddress)
-  .get(addressController.getUserAddresses);
+  .post(protect, addressController.createAddress)
+  .get(protect, addressController.getUserAddresses);
 
 /**
  * @swagger
@@ -150,9 +154,9 @@ router.route('/')
  *         description: Không tìm thấy địa chỉ
  */
 router.route('/:id')
-  .get(validateObjectId('id'), addressController.getAddressById) // Corrected usage
-  .put(validateObjectId('id'), addressController.updateAddress) // Corrected usage
-  .delete(validateObjectId('id'), addressController.deleteAddress); // Corrected usage
+  .get(protect, validateObjectId('id'), addressController.getAddressById) // Corrected usage
+  .put(protect, validateObjectId('id'), addressController.updateAddress) // Corrected usage
+  .delete(protect, validateObjectId('id'), addressController.deleteAddress); // Corrected usage
 
 /**
  * @swagger
@@ -183,10 +187,10 @@ router.route('/:id')
  *       404:
  *         description: Không tìm thấy địa chỉ
  */
-router.patch('/:id/set-default', validateObjectId('id'), addressController.setDefaultAddress); // Corrected usage
+router.patch('/:id/set-default', protect, validateObjectId('id'), addressController.setDefaultAddress); // Corrected usage
 
 // DELETE with replacement - Xóa địa chỉ với chỉ định địa chỉ thay thế
-router.delete('/:id/with-replacement', validateObjectId('id'), addressController.deleteAddressWithReplacement);
+router.delete('/:id/with-replacement', protect, validateObjectId('id'), addressController.deleteAddressWithReplacement);
 
 // Admin routes for addresses (e.g., listing all addresses for all users) are not implemented here
 // as the current focus is on user-specific address management.

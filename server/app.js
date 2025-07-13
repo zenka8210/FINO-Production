@@ -1,6 +1,8 @@
 require('dotenv').config({ path: __dirname + '/.env' });
 const express = require('express');
 const mongoose = require('mongoose');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
 
 // Import middlewares và services
 const { errorHandler } = require('./middlewares/errorHandler');
@@ -11,6 +13,21 @@ const dbUri = process.env.DB_URI;
 
 // Middlewares
 app.use(express.json());
+
+// Session middleware for wishlist guest functionality
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key-here',
+    resave: false,
+    saveUninitialized: true,
+    store: MongoStore.create({
+        mongoUrl: dbUri || 'mongodb://localhost:27017/asm'
+    }),
+    cookie: {
+        secure: false, // Set to true in production with HTTPS
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
 
 // Route imports
 const orderRoutes = require('./routes/orderRoutes');
@@ -52,6 +69,41 @@ app.use('/api/cart', cartRoutes);
 
 app.get('/', (req, res) => {
   res.send('Welcome to E-commerce API System!');
+});
+
+// DEBUG ENDPOINT để test Query Middleware
+app.get('/debug/products', async (req, res) => {
+  try {
+    const Product = require('./models/ProductSchema');
+    console.log('🔍 Debug: Testing product count...');
+    const count = await Product.countDocuments();
+    console.log('✅ Product count:', count);
+    
+    console.log('🔍 Debug: Testing QueryUtils...');
+    const { QueryUtils } = require('./utils/queryUtils');
+    const result = await QueryUtils.getProducts(Product, { page: 1, limit: 3 });
+    console.log('✅ QueryUtils result:', {
+      dataLength: result.data.length,
+      total: result.pagination.total
+    });
+    
+    res.json({
+      success: true,
+      productCount: count,
+      queryResult: {
+        dataLength: result.data.length,
+        total: result.pagination.total,
+        sample: result.data[0] || null
+      }
+    });
+  } catch (error) {
+    console.error('❌ Debug error:', error.message);
+    res.json({
+      success: false,
+      error: error.message,
+      stack: error.stack
+    });
+  }
 });
 
 // Error handling middleware (phải đặt cuối cùng sau tất cả routes)

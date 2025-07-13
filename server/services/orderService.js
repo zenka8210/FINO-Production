@@ -5,24 +5,28 @@ const VoucherService = require('./voucherService');
 const { AppError } = require('../middlewares/errorHandler');
 const { orderMessages, ERROR_CODES, PAGINATION } = require('../config/constants');
 const ShippingUtils = require('./shippingUtils');
+const { QueryUtils } = require('../utils/queryUtils');
 
 class OrderService extends BaseService {
   constructor() {
-    super(CartOrder); // Updated to use CartOrder model
+    super(CartOrder); // Updated to use CartOrder
     this.voucherService = new VoucherService();
   }  // Create new order
   async createOrder(userId, orderData) {
     try {
-      // Get shipping address to calculate shipping fee
+      // 1. Check stock availability first
+      await this.checkStockAvailability(orderData.items);
+      
+      // 2. Get shipping address to calculate shipping fee
       const address = await Address.findById(orderData.address);
       if (!address) {
         throw new AppError(orderMessages.ADDRESS_NOT_FOUND_OR_NOT_OWNED, ERROR_CODES.ORDER.CREATE_FAILED);
       }
 
-      // Calculate shipping fee based on address
+      // 3. Calculate shipping fee based on address
       const shippingFee = ShippingUtils.calculateShippingFee(address);
       
-      // Calculate total from items
+      // 4. Calculate total from items
       let total = 0;
       if (orderData.items && orderData.items.length > 0) {
         total = orderData.items.reduce((sum, item) => {
@@ -30,10 +34,12 @@ class OrderService extends BaseService {
         }, 0);
       }
 
-      // Handle voucher if provided
+      // 5. Handle voucher if provided
       let discountAmount = 0;
       let voucherId = null;
-      let voucherResult = null;      if (orderData.voucherCode) {
+      let voucherResult = null;
+      
+      if (orderData.voucherCode) {
         try {
           // Apply voucher to get discount amount (pass userId for usage checking)
           voucherResult = await this.voucherService.applyVoucher(orderData.voucherCode, total, userId);
@@ -47,10 +53,15 @@ class OrderService extends BaseService {
         }
       }
 
-      // Calculate final total: original total - discount + shipping fee
+      // 6. Calculate final total: original total - discount + shipping fee
       const finalTotal = total - discountAmount + shippingFee;
 
+      // 7. Generate order code
+      const orderCode = await this.generateOrderCode();
+
+      // 8. Create the order
       const newOrder = await this.create({
+        orderCode,
         user: userId,
         items: orderData.items,
         address: orderData.address,
@@ -63,7 +74,16 @@ class OrderService extends BaseService {
         status: 'pending'
       });
 
-      // Return order with voucher details if applied
+      // 9. Get user email for sending confirmation
+      const User = require('../models/UserSchema');
+      const user = await User.findById(userId);
+      
+      // 10. Send order confirmation email
+      if (user && user.email) {
+        await this.sendOrderConfirmationEmail(newOrder, user.email);
+      }
+
+      // 11. Return order with voucher details if applied
       const result = {
         ...newOrder.toObject(),
         voucherDetails: voucherResult ? {
@@ -121,16 +141,38 @@ class OrderService extends BaseService {
     }
   }
 
-  // Update order status (admin only)
-  async updateOrderStatus(orderId, newStatus) {
-    // Consider adding a check here if the newStatus is a valid order status from constants.ORDER_STATUS
+  // Update order status (Admin only - restricted to status updates only)
+  async updateOrderStatus(orderId, newStatus, adminId) {
     const order = await this.getById(orderId);
     if (!order) {
       throw new AppError(orderMessages.ORDER_NOT_FOUND, ERROR_CODES.ORDER.NOT_FOUND);
     }
-    return await this.updateById(orderId, { status: newStatus });
+
+    // Validate status transition
+    const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+    if (!validStatuses.includes(newStatus)) {
+      throw new AppError('Trạng thái đơn hàng không hợp lệ', ERROR_CODES.BAD_REQUEST);
+    }
+
+    // Business rule: Can't change status of already delivered orders
+    if (order.status === 'delivered' && newStatus !== 'delivered') {
+      throw new AppError('Không thể thay đổi trạng thái đơn hàng đã giao', ERROR_CODES.BAD_REQUEST);
+    }
+
+    // Business rule: Can't change status of cancelled orders
+    if (order.status === 'cancelled' && newStatus !== 'cancelled') {
+      throw new AppError('Không thể thay đổi trạng thái đơn hàng đã hủy', ERROR_CODES.BAD_REQUEST);
+    }
+
+    // Admin can only update status, not other fields
+    const updateData = { 
+      status: newStatus,
+      updatedBy: adminId
+    };
+
+    return await this.updateById(orderId, updateData);
   }
-  // Cancel order (user)
+  // Cancel order (user or admin with restrictions)
   async cancelOrder(orderId, userId, reason = null) {
     let query = { _id: orderId };
     
@@ -144,9 +186,17 @@ class OrderService extends BaseService {
       throw new AppError(orderMessages.ORDER_NOT_FOUND_OR_NOT_OWNED, ERROR_CODES.ORDER.NOT_FOUND);
     }
 
-    // Consider using constants for 'pending' and 'cancelled' statuses
-    if (order.status !== 'pending') {
-      throw new AppError(orderMessages.ORDER_CANCELLATION_NOT_ALLOWED, ERROR_CODES.BAD_REQUEST);
+    // Check if admin can cancel this order (only pending/processing)
+    if (!userId) { // Admin cancellation
+      const canCancel = await this.adminCanCancelOrder(orderId);
+      if (!canCancel) {
+        throw new AppError('Admin chỉ có thể hủy đơn hàng ở trạng thái pending hoặc processing', ERROR_CODES.BAD_REQUEST);
+      }
+    } else {
+      // User can only cancel their own pending orders
+      if (order.status !== 'pending') {
+        throw new AppError(orderMessages.ORDER_CANCELLATION_NOT_ALLOWED, ERROR_CODES.BAD_REQUEST);
+      }
     }
 
     const updateData = { status: 'cancelled' };
@@ -444,7 +494,7 @@ class OrderService extends BaseService {
       const finalTotal = total - discountAmount + shippingFee;
 
       return {
-        subtotal: total,
+        total: total, // Changed from subtotal to total for consistency
         discountAmount,
         shippingFee,
         finalTotal,
@@ -459,6 +509,115 @@ class OrderService extends BaseService {
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw new AppError('Không thể tính tổng tiền đơn hàng', ERROR_CODES.BAD_REQUEST, 400, error.message);
+    }
+  }
+
+  // ============= BUSINESS LOGIC METHODS (moved from schema) =============
+
+  // Generate order code
+  async generateOrderCode() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    
+    // Format: DH + YYYYMMDD + 5 digit counter
+    const prefix = `DH${year}${month}${day}`;
+    
+    // Tìm order cuối cùng trong ngày
+    const lastOrder = await this.Model.findOne({
+      orderCode: { $regex: `^${prefix}` }
+    }).sort({ orderCode: -1 });
+    
+    let counter = 1;
+    if (lastOrder) {
+      const lastCounter = parseInt(lastOrder.orderCode.slice(-5));
+      counter = lastCounter + 1;
+    }
+    
+    const orderCode = prefix + String(counter).padStart(5, '0');
+    return orderCode;
+  }
+
+  // Check stock availability
+  async checkStockAvailability(items) {
+    const ProductVariant = require('../models/ProductVariantSchema');
+    
+    for (const item of items) {
+      const variant = await ProductVariant.findById(item.productVariant);
+      if (!variant) {
+        throw new AppError(`Product variant ${item.productVariant} không tồn tại`, ERROR_CODES.BAD_REQUEST);
+      }
+      
+      if (variant.stock < item.quantity) {
+        throw new AppError(`Sản phẩm ${variant.product} không đủ số lượng. Còn lại: ${variant.stock}, yêu cầu: ${item.quantity}`, ERROR_CODES.BAD_REQUEST);
+      }
+    }
+    
+    return true;
+  }
+
+  // Check if order can be reviewed
+  canOrderBeReviewed(order) {
+    return order.status === 'delivered';
+  }
+
+  // Send order confirmation email
+  async sendOrderConfirmationEmail(order, userEmail) {
+    try {
+      // TODO: Implement email service integration
+      console.log(`📧 Sending order confirmation email to ${userEmail} for order ${order.orderCode}`);
+      
+      // For now, just log the email content
+      const emailContent = {
+        to: userEmail,
+        subject: `Xác nhận đơn hàng ${order.orderCode}`,
+        html: `
+          <h2>Cảm ơn bạn đã đặt hàng!</h2>
+          <p>Mã đơn hàng: <strong>${order.orderCode}</strong></p>
+          <p>Tổng tiền: <strong>${order.finalTotal?.toLocaleString('vi-VN')} VNĐ</strong></p>
+          <p>Trạng thái: <strong>${order.status}</strong></p>
+          <p>Chúng tôi sẽ xử lý đơn hàng của bạn trong thời gian sớm nhất.</p>
+        `
+      };
+      
+      console.log('📧 Email content:', emailContent);
+      
+      return { success: true, message: 'Email sent successfully' };
+    } catch (error) {
+      console.error('❌ Failed to send email:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Admin can only cancel orders in pending/processing status
+  async adminCanCancelOrder(orderId) {
+    const order = await this.getById(orderId);
+    if (!order) {
+      throw new AppError(orderMessages.ORDER_NOT_FOUND, ERROR_CODES.ORDER.NOT_FOUND);
+    }
+    
+    const cancellableStatuses = ['pending', 'processing'];
+    return cancellableStatuses.includes(order.status);
+  }
+
+  /**
+   * Get all orders using new Query Middleware
+   * @param {Object} queryParams - Query parameters from request
+   * @returns {Object} Query results with pagination
+   */
+  async getAllOrdersWithQuery(queryParams) {
+    try {
+      // Sử dụng QueryUtils với pre-configured setup cho Order
+      const result = await QueryUtils.getOrders(CartOrder, queryParams);
+      
+      return result;
+    } catch (error) {
+      throw new AppError(
+        `Error fetching orders: ${error.message}`,
+        ERROR_CODES.ORDER.FETCH_FAILED,
+        500
+      );
     }
   }
 }

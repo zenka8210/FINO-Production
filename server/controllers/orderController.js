@@ -3,6 +3,7 @@ const OrderService = require('../services/orderService');
 const ResponseHandler = require('../services/responseHandler');
 const { orderMessages, PAGINATION, ERROR_CODES } = require('../config/constants');
 const { AppError } = require('../middlewares/errorHandler');
+const { QueryUtils } = require('../utils/queryUtils');
 
 class OrderController extends BaseController {
   constructor() {
@@ -71,6 +72,24 @@ class OrderController extends BaseController {
 
   // Admin: Lấy tất cả đơn hàng
   getOrders = async (req, res, next) => {
+    try {
+      // Sử dụng method cũ stable
+      const queryOptions = {
+        page: req.query.page || PAGINATION.DEFAULT_PAGE,
+        limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+        status: req.query.status,
+        sortBy: req.query.sortBy || 'createdAt',
+        sortOrder: req.query.sortOrder || 'desc'
+      };
+      const result = await this.service.getAllOrders(queryOptions);
+      ResponseHandler.success(res, orderMessages.ORDERS_FETCHED_SUCCESSFULLY, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Giữ lại method cũ để backward compatibility
+  getOrdersLegacy = async (req, res, next) => {
     try {
       const { page, limit, status, paymentMethod, userId, startDate, endDate } = req.query;
       

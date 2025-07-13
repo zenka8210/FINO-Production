@@ -4,10 +4,31 @@ const Order = require('../models/OrderSchema');
 const mongoose = require('mongoose');
 const { AppError } = require('../middlewares/errorHandler');
 const { MESSAGES, ERROR_CODES } = require('../config/constants');
+const { QueryUtils } = require('../utils/queryUtils');
 
 class ReviewService extends BaseService {
   constructor() {
     super(Review);
+  }
+
+  /**
+   * Get product reviews using new Query Middleware
+   * @param {Object} queryParams - Query parameters from request
+   * @returns {Object} Query results with pagination
+   */
+  async getProductReviewsWithQuery(queryParams) {
+    try {
+      // Sử dụng QueryUtils với pre-configured setup cho Review
+      const result = await QueryUtils.getReviews(Review, queryParams);
+      
+      return result;
+    } catch (error) {
+      throw new AppError(
+        `Error fetching reviews: ${error.message}`,
+        ERROR_CODES.REVIEW?.FETCH_FAILED || 'REVIEW_FETCH_FAILED',
+        500
+      );
+    }
   }
 
   // Get reviews for a product
@@ -252,6 +273,16 @@ class ReviewService extends BaseService {
     return await this.deleteById(reviewId);
   }
 
+  // Admin: Approve review
+  async approveReview(reviewId) {
+    const review = await this.getById(reviewId);
+    if (!review) {
+      throw new AppError('Đánh giá không tồn tại', ERROR_CODES.NOT_FOUND);
+    }
+    
+    return await this.updateById(reviewId, { isApproved: true });
+  }
+
   // Get pending reviews (if approval system is needed)
   async getPendingReviews(options = {}) {
     const { page = 1, limit = 20 } = options;
@@ -312,6 +343,22 @@ class ReviewService extends BaseService {
       populate: 'product order',
       sort: { createdAt: -1 }
     });
+  }
+
+  /**
+   * Get all reviews using new Query Middleware (Admin)
+   * @param {Object} queryBuilder - QueryBuilder instance
+   * @returns {Object} Query results with pagination
+   */
+  async getAllReviewsWithQuery(queryParams) {
+    try {
+      // Sử dụng QueryUtils với pre-configured setup cho Review
+      const result = await QueryUtils.getReviews(Review, queryParams);
+      
+      return result;
+    } catch (error) {
+      throw new AppError(`Failed to get all reviews: ${error.message}`, ERROR_CODES.INTERNAL_ERROR);
+    }
   }
 }
 

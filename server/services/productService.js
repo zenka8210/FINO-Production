@@ -4,11 +4,47 @@ const ProductVariant = require('../models/ProductVariantSchema');
 const Category = require('../models/CategorySchema');
 const { AppError } = require('../middlewares/errorHandler');
 const { MESSAGES, ERROR_CODES, PAGINATION } = require('../config/constants');
+const { QueryUtils } = require('../utils/queryUtils');
 
 class ProductService extends BaseService {
     constructor() {
         super(Product);
     }
+
+    /**
+     * Get all products using new Query Middleware
+     * @param {Object} queryParams - Query parameters from request
+     * @returns {Object} Query results with pagination
+     */
+    async getAllProductsWithQuery(queryParams) {
+        try {
+            // Sử dụng QueryUtils với pre-configured setup cho Product
+            const result = await QueryUtils.getProducts(Product, queryParams);
+            
+            // TODO: Thêm logic kiểm tra stock sau nếu cần
+            // if (queryParams.includeOutOfStock === 'false') {
+            //     const productsWithStock = [];
+            //     for (const product of result.data) {
+            //         const hasStock = await this.checkProductAvailability(product._id);
+            //         if (hasStock.available) {
+            //             productsWithStock.push(product);
+            //         }
+            //     }
+            //     result.data = productsWithStock;
+            //     result.pagination.total = productsWithStock.length;
+            //     result.pagination.totalPages = Math.ceil(productsWithStock.length / result.pagination.limit);
+            // }
+
+            return result;
+        } catch (error) {
+            throw new AppError(
+                `Error fetching products: ${error.message}`,
+                ERROR_CODES.PRODUCT.FETCH_FAILED,
+                500
+            );
+        }
+    }
+
     async getAllProducts(queryOptions) {
         const {
             page = PAGINATION.DEFAULT_PAGE,
@@ -236,324 +272,350 @@ class ProductService extends BaseService {
     }
 
     /**
-     * Validate that product has at least one variant before allowing it to be visible
+     * Validate if product meets business requirements for display
+     * @param {string} productId - Product ID
+     * @returns {Object} Validation result with canDisplay boolean and reasons
      */
     async validateProductForDisplay(productId) {
-        try {
-            const product = await Product.findById(productId);
-            if (!product) {
-                throw new AppError(MESSAGES.PRODUCT_NOT_FOUND, ERROR_CODES.PRODUCT.NOT_FOUND, 404);
-            }
-
-            // Check if product is active
-            if (!product.isActive) {
-                return { canDisplay: false, reason: 'Sản phẩm đã bị ẩn' };
-            }
-
-            // Check if product has at least one variant
-            const variantsCount = await ProductVariant.countDocuments({ product: productId, isActive: true });
-            if (variantsCount === 0) {
-                return { canDisplay: false, reason: 'Sản phẩm phải có ít nhất 1 variant' };
-            }
-
-            // Check if all variants are out of stock
-            const inStockVariants = await ProductVariant.countDocuments({ 
-                product: productId, 
-                isActive: true, 
-                stock: { $gt: 0 } 
-            });
-            
-            if (inStockVariants === 0) {
-                return { canDisplay: false, reason: 'Tất cả variants đã hết hàng' };
-            }
-
-            return { canDisplay: true, reason: null };
-        } catch (error) {
-            if (error instanceof AppError) throw error;
-            throw new AppError('Lỗi kiểm tra hiển thị sản phẩm', 'PRODUCT_DISPLAY_VALIDATION_FAILED', 500);
+        const product = await Product.findById(productId).populate('category');
+        
+        if (!product) {
+            return { canDisplay: false, reasons: ['Product not found'] };
         }
+        
+        const reasons = [];
+        
+        // Check if product is active
+        if (!product.isActive) {
+            reasons.push('Product is inactive');
+        }
+        
+        // Check if product belongs to at least 1 category
+        if (!product.category) {
+            reasons.push('Product must belong to at least 1 category');
+        }
+        
+        // Check if product has at least 1 variant
+        const variants = await ProductVariant.find({ product: productId });
+        if (variants.length === 0) {
+            reasons.push('Product must have at least 1 variant');
+        }
+        
+        // Check if all variants are out of stock
+        const inStockVariants = variants.filter(variant => variant.stock > 0);
+        if (variants.length > 0 && inStockVariants.length === 0) {
+            reasons.push('All variants are out of stock');
+        }
+        
+        return {
+            canDisplay: reasons.length === 0,
+            reasons: reasons,
+            totalVariants: variants.length,
+            inStockVariants: inStockVariants.length,
+            outOfStockVariants: variants.length - inStockVariants.length
+        };
     }
-
+    
     /**
-     * Get all products that have all variants out of stock
+     * Check product availability for purchase
+     * @param {string} productId - Product ID 
+     * @returns {Object} Availability info
      */
-    async getOutOfStockProducts(queryOptions = {}) {
-        try {
-            const {
-                page = PAGINATION.DEFAULT_PAGE,
-                limit = PAGINATION.DEFAULT_LIMIT
-            } = queryOptions;
-
-            const skip = (parseInt(page) - 1) * parseInt(limit);
-
-            // Aggregate to find products where all variants are out of stock
-            const outOfStockProducts = await Product.aggregate([
-                {
-                    $lookup: {
-                        from: 'productvariants',
-                        localField: '_id',
-                        foreignField: 'product',
-                        as: 'variants'
-                    }
-                },
-                {
-                    $match: {
-                        $and: [
-                            { 'variants.0': { $exists: true } }, // Has at least one variant
-                            {
-                                $expr: {
-                                    $eq: [
-                                        { $size: { $filter: { input: '$variants', cond: { $gt: ['$$this.stock', 0] } } } },
-                                        0
-                                    ]
-                                }
-                            }
-                        ]
-                    }
-                },
-                {
-                    $lookup: {
-                        from: 'categories',
-                        localField: 'category',
-                        foreignField: '_id',
-                        as: 'category'
-                    }
-                },
-                {
-                    $unwind: '$category'
-                },
-                { $skip: skip },
-                { $limit: parseInt(limit) }
+    async checkProductAvailability(productId) {
+        const variants = await ProductVariant.find({ product: productId })
+            .populate([
+                { path: 'color', select: 'name hexCode' },
+                { path: 'size', select: 'name' }
             ]);
-
-            const total = await Product.aggregate([
-                {
-                    $lookup: {
-                        from: 'productvariants',
-                        localField: '_id',
-                        foreignField: 'product',
-                        as: 'variants'
-                    }
-                },
-                {
-                    $match: {
-                        $and: [
-                            { 'variants.0': { $exists: true } },
-                            {
-                                $expr: {
-                                    $eq: [
-                                        { $size: { $filter: { input: '$variants', cond: { $gt: ['$$this.stock', 0] } } } },
-                                        0
-                                    ]
-                                }
-                            }
-                        ]
-                    }
-                },
-                { $count: 'total' }
-            ]);
-
-            const totalCount = total.length > 0 ? total[0].total : 0;
-
-            return {
-                data: outOfStockProducts,
-                total: totalCount,
-                page: parseInt(page),
-                limit: parseInt(limit),
-                totalPages: Math.ceil(totalCount / parseInt(limit))
-            };
-        } catch (error) {
-            throw new AppError('Lỗi lấy danh sách sản phẩm hết hàng', 'OUT_OF_STOCK_PRODUCTS_FAILED', 500);
-        }
+        
+        const totalStock = variants.reduce((sum, variant) => sum + variant.stock, 0);
+        const availableVariants = variants.filter(variant => variant.stock > 0);
+        
+        return {
+            available: totalStock > 0,
+            totalStock: totalStock,
+            totalVariants: variants.length,
+            availableVariants: availableVariants.length,
+            outOfStockVariants: variants.length - availableVariants.length,
+            variants: variants.map(variant => ({
+                _id: variant._id,
+                color: variant.color,
+                size: variant.size,
+                stock: variant.stock,
+                isInStock: variant.stock > 0,
+                price: variant.price
+            }))
+        };
     }
-
-    // Keep specific methods if they offer distinct logic or are widely used
-    // For example, getting products by category with variants is a common use case
-    async getProductsByCategory(categoryId, queryOptions) {
+    
+    /**
+     * Get products for public display (homepage, product listing)
+     * Filters out hidden products and products with no stock
+     * @param {Object} queryOptions - Query parameters
+     * @returns {Object} Products with pagination
+     */
+    async getPublicProducts(queryOptions) {
         const {
             page = PAGINATION.DEFAULT_PAGE,
             limit = PAGINATION.DEFAULT_LIMIT,
-            // other specific filters for this function if needed
+            name,
+            category,
+            minPrice,
+            maxPrice,
+            sortBy = 'createdAt',
+            sortOrder = 'desc'
         } = queryOptions;
-
-        const categoryExists = await Category.findById(categoryId);
-        if (!categoryExists) {
-            throw new AppError(MESSAGES.CATEGORY_NOT_FOUND, ERROR_CODES.CATEGORY.NOT_FOUND, 404);
+        
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const filter = { isActive: true }; // Only active products
+        
+        if (name) {
+            filter.name = { $regex: name, $options: 'i' };
         }
-
-        return this.getAllProducts({
-            ...queryOptions,
-            category: categoryId,
-            includeVariants: queryOptions.includeVariants === undefined ? true : queryOptions.includeVariants // Default to true if not specified
-        });
+        if (category) {
+            filter.category = category;
+        }
+        if (minPrice || maxPrice) {
+            filter.price = {};
+            if (minPrice) filter.price.$gte = parseFloat(minPrice);
+            if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
+        }
+        
+        // Get all products that match basic criteria
+        const allProducts = await Product.find(filter)
+            .populate('category')
+            .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 });
+        
+        // Filter products that can be displayed
+        const displayableProducts = [];
+        
+        for (const product of allProducts) {
+            const validation = await this.validateProductForDisplay(product._id);
+            if (validation.canDisplay) {
+                const stockInfo = await this.checkProductAvailability(product._id);
+                displayableProducts.push({
+                    ...product.toObject(),
+                    stockInfo: stockInfo
+                });
+            }
+        }
+        
+        // Apply pagination to filtered results
+        const total = displayableProducts.length;
+        const paginatedProducts = displayableProducts.slice(skip, skip + parseInt(limit));
+        
+        return {
+            products: paginatedProducts,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(total / parseInt(limit)),
+                totalItems: total,
+                itemsPerPage: parseInt(limit),
+                hasNextPage: skip + parseInt(limit) < total,
+                hasPrevPage: parseInt(page) > 1
+            }
+        };
+    }
+    
+    /**
+     * Get admin notification about out of stock products
+     * @returns {Object} Notification data
+     */
+    async getOutOfStockNotification() {
+        const products = await Product.find({ isActive: true }).populate('category');
+        const outOfStockProducts = [];
+        
+        for (const product of products) {
+            const stockInfo = await this.checkProductAvailability(product._id);
+            if (!stockInfo.available && stockInfo.totalVariants > 0) {
+                outOfStockProducts.push({
+                    _id: product._id,
+                    name: product.name,
+                    category: product.category.name,
+                    totalVariants: stockInfo.totalVariants,
+                    outOfStockVariants: stockInfo.outOfStockVariants
+                });
+            }
+        }
+        
+        return {
+            hasOutOfStockProducts: outOfStockProducts.length > 0,
+            outOfStockCount: outOfStockProducts.length,
+            products: outOfStockProducts,
+            message: outOfStockProducts.length > 0 
+                ? `Có ${outOfStockProducts.length} sản phẩm đã hết hàng hoàn toàn`
+                : 'Tất cả sản phẩm đều còn hàng'
+        };
+    }
+    
+    /**
+     * Get out of stock products for admin
+     * @param {Object} queryOptions - Query parameters
+     * @returns {Object} Out of stock products with pagination
+     */
+    async getOutOfStockProducts(queryOptions) {
+        const {
+            page = PAGINATION.DEFAULT_PAGE,
+            limit = PAGINATION.DEFAULT_LIMIT,
+            name,
+            category,
+            sortBy = 'createdAt',
+            sortOrder = 'desc'
+        } = queryOptions;
+        
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const filter = { isActive: true };
+        
+        if (name) {
+            filter.name = { $regex: name, $options: 'i' };
+        }
+        if (category) {
+            filter.category = category;
+        }
+        
+        const allProducts = await Product.find(filter)
+            .populate('category')
+            .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 });
+        
+        // Filter only out of stock products
+        const outOfStockProducts = [];
+        
+        for (const product of allProducts) {
+            const stockInfo = await this.checkProductAvailability(product._id);
+            if (!stockInfo.available && stockInfo.totalVariants > 0) {
+                outOfStockProducts.push({
+                    ...product.toObject(),
+                    stockInfo: stockInfo
+                });
+            }
+        }
+        
+        // Apply pagination
+        const total = outOfStockProducts.length;
+        const paginatedProducts = outOfStockProducts.slice(skip, skip + parseInt(limit));
+        
+        return {
+            products: paginatedProducts,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(total / parseInt(limit)),
+                totalItems: total,
+                itemsPerPage: parseInt(limit),
+                hasNextPage: skip + parseInt(limit) < total,
+                hasPrevPage: parseInt(page) > 1
+            }
+        };
     }
 
     /**
-     * Check if a product has available stock
-     * @param {string} productId - Product ID
-     * @returns {Promise<object>} Availability information
+     * Validate product data before create/update
+     * @param {Object} productData - Product data to validate
+     * @returns {Object} Validation result
      */
-    async checkProductAvailability(productId) {
-        try {
-            const variants = await ProductVariant.find({ product: productId })
-                .populate('color', 'name hexCode')
-                .populate('size', 'name');
-
-            if (!variants || variants.length === 0) {
-                return {
-                    available: false,
-                    totalStock: 0,
-                    availableVariants: 0,
-                    outOfStockVariants: 0,
-                    variants: []
-                };
+    async validateProductData(productData) {
+        const errors = [];
+        
+        // Check category exists
+        if (productData.category) {
+            const categoryExists = await Category.findById(productData.category);
+            if (!categoryExists) {
+                errors.push('Category does not exist');
             }
-
-            let totalStock = 0;
-            let availableVariants = 0;
-            let outOfStockVariants = 0;
+        } else {
+            errors.push('Product must belong to at least 1 category');
+        }
+        
+        // Validate sale price and dates
+        if (productData.salePrice !== undefined) {
+            if (productData.salePrice >= productData.price) {
+                errors.push('Sale price must be less than original price');
+            }
             
-            const variantDetails = variants.map(variant => {
-                const stock = variant.stock || 0;
-                totalStock += stock;
+            if (productData.saleStartDate && productData.saleEndDate) {
+                const startDate = new Date(productData.saleStartDate);
+                const endDate = new Date(productData.saleEndDate);
+                const now = new Date();
                 
-                if (stock > 0) {
-                    availableVariants++;
-                } else {
-                    outOfStockVariants++;
+                if (startDate >= endDate) {
+                    errors.push('Sale start date must be before end date');
                 }
                 
-                return {
-                    _id: variant._id,
-                    color: variant.color,
-                    size: variant.size,
-                    price: variant.price,
-                    stock: stock,
-                    available: stock > 0
-                };
-            });
-
-            return {
-                available: totalStock > 0,
-                totalStock,
-                availableVariants,
-                outOfStockVariants,
-                variants: variantDetails
-            };
-        } catch (error) {
-            throw new AppError("Lỗi kiểm tra tồn kho sản phẩm", 'STOCK_CHECK_FAILED', 500);
+                if (endDate <= now) {
+                    errors.push('Sale end date must be in the future');
+                }
+            } else if (productData.salePrice) {
+                errors.push('Sale start and end dates are required when setting sale price');
+            }
         }
+        
+        return {
+            isValid: errors.length === 0,
+            errors: errors
+        };
     }
 
     /**
-     * Check if a specific variant has enough stock for order
-     * @param {string} variantId - Product Variant ID
-     * @param {number} quantity - Requested quantity
-     * @returns {Promise<object>} Stock availability
+     * Check variant stock availability
      */
     async checkVariantStock(variantId, quantity = 1) {
         try {
             const variant = await ProductVariant.findById(variantId)
-                .populate('product', 'name')
+                .populate('product', 'name isActive')
                 .populate('color', 'name')
                 .populate('size', 'name');
-
+            
             if (!variant) {
-                throw new AppError("Variant không tồn tại", 'VARIANT_NOT_FOUND', 404);
+                throw new AppError('Product variant not found', ERROR_CODES.NOT_FOUND);
             }
-
-            const availableStock = variant.stock || 0;
-            const canOrder = availableStock >= quantity;
-
+            
+            if (!variant.product.isActive) {
+                return {
+                    available: false,
+                    reason: 'Product is not active',
+                    currentStock: variant.stock
+                };
+            }
+            
+            const available = variant.stock >= quantity;
+            
             return {
-                canOrder,
-                availableStock,
+                available,
+                reason: available ? 'In stock' : 'Insufficient stock',
+                currentStock: variant.stock,
                 requestedQuantity: quantity,
-                variant: {
-                    _id: variant._id,
-                    product: variant.product,
-                    color: variant.color,
-                    size: variant.size,
+                variantInfo: {
+                    id: variant._id,
+                    product: variant.product.name,
+                    color: variant.color.name,
+                    size: variant.size.name,
                     price: variant.price
                 }
             };
         } catch (error) {
-            if (error instanceof AppError) throw error;
-            throw new AppError("Lỗi kiểm tra tồn kho variant", 'VARIANT_STOCK_CHECK_FAILED', 500);
-        }
-    }
-
-    /**
-     * Reserve stock for order (decrease stock)
-     * @param {Array} orderItems - Array of {variantId, quantity}
-     * @returns {Promise<Array>} Updated variants
-     */
-    async reserveStock(orderItems) {
-        const session = await ProductVariant.startSession();
-        session.startTransaction();
-
-        try {
-            const updatedVariants = [];
-
-            for (const item of orderItems) {
-                const { variantId, quantity } = item;
-
-                // Check stock availability
-                const stockCheck = await this.checkVariantStock(variantId, quantity);
-                
-                if (!stockCheck.canOrder) {
-                    throw new AppError(
-                        `Không đủ hàng cho ${stockCheck.variant.product.name} - ${stockCheck.variant.color.name} - ${stockCheck.variant.size.name}. Còn lại: ${stockCheck.availableStock}, yêu cầu: ${quantity}`,
-                        'INSUFFICIENT_STOCK',
-                        400
-                    );
-                }
-
-                // Update stock
-                const updatedVariant = await ProductVariant.findByIdAndUpdate(
-                    variantId,
-                    { $inc: { stock: -quantity } },
-                    { new: true, session }
-                );
-
-                updatedVariants.push(updatedVariant);
-            }
-
-            await session.commitTransaction();
-            return updatedVariants;
-
-        } catch (error) {
-            await session.abortTransaction();
             throw error;
-        } finally {
-            session.endSession();
         }
     }
-
+    
     /**
-     * Restore stock when order is cancelled
-     * @param {Array} orderItems - Array of {variantId, quantity}
-     * @returns {Promise<Array>} Updated variants
+     * Get products by category
      */
-    async restoreStock(orderItems) {
+    async getProductsByCategory(categoryId, queryOptions = {}) {
         try {
-            const updatedVariants = [];
-
-            for (const item of orderItems) {
-                const { variantId, quantity } = item;
-
-                const updatedVariant = await ProductVariant.findByIdAndUpdate(
-                    variantId,
-                    { $inc: { stock: quantity } },
-                    { new: true }
-                );
-
-                updatedVariants.push(updatedVariant);
+            // Validate category exists
+            const category = await Category.findById(categoryId);
+            if (!category) {
+                throw new AppError('Category not found', ERROR_CODES.NOT_FOUND);
             }
-
-            return updatedVariants;
+            
+            // Use existing getAllProducts method with category filter
+            const options = {
+                ...queryOptions,
+                category: categoryId
+            };
+            
+            return await this.getAllProducts(options);
         } catch (error) {
-            throw new AppError("Lỗi khôi phục tồn kho", 'STOCK_RESTORE_FAILED', 500);
+            throw error;
         }
     }
 }

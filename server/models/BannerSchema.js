@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const BannerSchema = new mongoose.Schema({
   image: { type: String, required: true },
   title: { type: String },
-  description: { type: String },
   link: { 
     type: String, 
     required: [true, 'Link là bắt buộc'],
@@ -24,51 +23,35 @@ const BannerSchema = new mongoose.Schema({
       message: 'Format link không hợp lệ. Link phải là đường dẫn đến sản phẩm, danh mục hoặc URL hợp lệ'
     }
   },
-  isActive: { type: Boolean, default: true },
+  startDate: { 
+    type: Date, 
+    required: [true, 'Ngày bắt đầu là bắt buộc'],
+    default: Date.now
+  },
+  endDate: { 
+    type: Date, 
+    required: [true, 'Ngày kết thúc là bắt buộc'],
+    validate: {
+      validator: function(v) {
+        return v > this.startDate;
+      },
+      message: 'Ngày kết thúc phải sau ngày bắt đầu'
+    }
+  }
 }, { 
-  timestamps: true,
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true }
+  timestamps: true
 });
 
-// Virtual fields để tính toán dựa trên timestamps
-BannerSchema.virtual('startDate').get(function() {
-  return this.createdAt; // Sử dụng createdAt làm ngày bắt đầu
-});
-
-BannerSchema.virtual('endDate').get(function() {
-  // Mặc định banner có hiệu lực 30 ngày từ khi tạo
-  const endDate = new Date(this.createdAt);
-  endDate.setDate(endDate.getDate() + 30);
-  return endDate;
-});
-
-// Instance methods
-BannerSchema.methods.isExpired = function() {
-  return new Date() > this.endDate;
-};
-
-BannerSchema.methods.isCurrentlyActive = function() {
-  const now = new Date();
-  return this.isActive && now >= this.startDate && now <= this.endDate;
-};
-
-// Static methods
-BannerSchema.statics.getActiveBanners = function() {
-  const now = new Date();
-  return this.find({
-    isActive: true,
-    createdAt: { $lte: now },
-    // Filter out banners older than 30 days
-    createdAt: { $gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000) }
-  }).sort({ createdAt: -1 });
-};
-
-// Pre-save middleware to enforce link requirement
+// Pre-save middleware to enforce link requirement and date validation
 BannerSchema.pre('save', function(next) {
   if (!this.link || !this.link.trim()) {
     return next(new Error('Link là bắt buộc'));
   }
+  
+  if (this.endDate <= this.startDate) {
+    return next(new Error('Ngày kết thúc phải sau ngày bắt đầu'));
+  }
+  
   next();
 });
 

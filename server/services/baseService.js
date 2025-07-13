@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const { AppError } = require('../middlewares/errorHandler');
+const { createQueryBuilder } = require('../middlewares/queryMiddleware');
+const { QueryUtils } = require('../utils/queryUtils');
 
 class BaseService {
   constructor(Model) {
@@ -34,7 +36,7 @@ class BaseService {
     }
   }
 
-  // Lấy tất cả với phân trang
+  // Lấy tất cả với phân trang (Enhanced with QueryBuilder)
   async getAll(options = {}) {
     const {
       page = 1,
@@ -42,9 +44,39 @@ class BaseService {
       sort = { createdAt: -1 },
       filter = {},
       populate = '',
-      select = ''
+      select = '',
+      searchFields = [],
+      filterConfig = {}
     } = options;
 
+    // Use the new QueryBuilder for enhanced functionality
+    if (searchFields.length > 0 || Object.keys(filterConfig).length > 0) {
+      const queryParams = {
+        page,
+        limit,
+        sort: sort,
+        select,
+        populate,
+        ...filter
+      };
+
+      const builder = createQueryBuilder(this.Model, queryParams)
+        .paginate()
+        .sortBy()
+        .selectFields()
+        .populateFields()
+        .search(searchFields)
+        .applyFilters(filterConfig);
+
+      // Override sort if provided in options
+      if (sort) {
+        builder.sort = sort;
+      }
+
+      return await builder.execute();
+    }
+
+    // Fallback to legacy implementation
     const skip = (page - 1) * limit;
     
     const query = this.Model.find(filter);
@@ -66,6 +98,11 @@ class BaseService {
         pages: Math.ceil(total / limit)
       }
     };
+  }
+
+  // Enhanced paginated query using QueryUtils
+  async getPaginated(queryParams, options = {}) {
+    return await QueryUtils.paginatedQuery(this.Model, queryParams, options);
   }
 
   // Lấy theo ID

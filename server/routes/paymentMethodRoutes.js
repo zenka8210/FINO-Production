@@ -4,6 +4,7 @@ const PaymentMethodController = require('../controllers/paymentMethodController'
 const authenticateToken = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
 const validateObjectId = require('../middlewares/validateObjectId');
+const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
 
 const paymentMethodController = new PaymentMethodController();
 

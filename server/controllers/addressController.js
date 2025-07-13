@@ -110,7 +110,7 @@ class AddressController extends BaseController {
   };
 
   /**
-   * @description Lấy danh sách tỉnh/thành phố hợp lệ
+   * @description Lấy danh sách tỉnh/thành phố hợp lệ với hướng dẫn
    * @param {import('express').Request} req - Đối tượng request
    * @param {import('express').Response} res - Đối tượng response
    */
@@ -118,6 +118,34 @@ class AddressController extends BaseController {
     try {
       const cities = await this.service.getValidCities();
       ResponseHandler.success(res, 'Lấy danh sách tỉnh/thành phố thành công', cities);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @description Lấy hướng dẫn nhập địa chỉ
+   * @param {import('express').Request} req - Đối tượng request
+   * @param {import('express').Response} res - Đối tượng response
+   */
+  getInputGuidance = async (req, res, next) => {
+    try {
+      const guidance = await this.service.getInputGuidance();
+      ResponseHandler.success(res, 'Lấy hướng dẫn nhập địa chỉ thành công', guidance);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @description Validate và preview địa chỉ trước khi lưu
+   * @param {import('express').Request} req - Đối tượng request
+   * @param {import('express').Response} res - Đối tượng response
+   */
+  validateAndPreview = async (req, res, next) => {
+    try {
+      const validation = await this.service.validateAndPreview(req.body);
+      ResponseHandler.success(res, 'Validation hoàn thành', validation);
     } catch (error) {
       next(error);
     }

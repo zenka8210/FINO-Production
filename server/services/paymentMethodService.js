@@ -2,6 +2,7 @@ const BaseService = require('./baseService');
 const PaymentMethod = require('../models/PaymentMethodSchema');
 const { AppError } = require('../middlewares/errorHandler');
 const { MESSAGES, ERROR_CODES } = require('../config/constants');
+const { QueryBuilder } = require('../middlewares/queryMiddleware');
 
 class PaymentMethodService extends BaseService {
     constructor() {
@@ -97,6 +98,65 @@ class PaymentMethodService extends BaseService {
     // Update payment method configuration
     async updatePaymentMethodConfig(id, config) {
         return await this.updateById(id, { config });
+    }
+
+    // New method with Query Middleware
+    async getPaymentMethodsWithQuery(queryParams) {
+        try {
+            // Sử dụng QueryUtils với pre-configured setup cho PaymentMethod
+            const result = await QueryUtils.getPaymentMethods(PaymentMethod, queryParams);
+            
+            return result;
+        } catch (error) {
+            throw new AppError(`Failed to get payment methods: ${error.message}`, ERROR_CODES.INTERNAL_ERROR);
+        }
+    }
+
+    // New method for getAllPaymentMethods with Query Middleware
+    async getAllPaymentMethodsWithQuery(queryParams) {
+        try {
+            // Sử dụng QueryUtils với pre-configured setup cho PaymentMethod
+            const result = await QueryUtils.getPaymentMethods(PaymentMethod, queryParams);
+            
+            return result;
+        } catch (error) {
+            throw new AppError(`Failed to get all payment methods: ${error.message}`, ERROR_CODES.INTERNAL_ERROR);
+        }
+    }
+
+    // Get all payment methods with pagination - stable version
+    async getAllPaymentMethods(options = {}) {
+        const { page = 1, limit = 10, isActive, type, sortBy = 'order', sortOrder = 'asc' } = options;
+        const skip = (page - 1) * limit;
+
+        // Build filter
+        const filter = {};
+        if (isActive !== undefined) filter.isActive = isActive;
+        if (type) filter.type = type;
+
+        // Build sort
+        const sort = {};
+        sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+        const [data, total] = await Promise.all([
+            this.Model.find(filter)
+                .sort(sort)
+                .skip(skip)
+                .limit(limit),
+            this.Model.countDocuments(filter)
+        ]);
+
+        return {
+            data,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit),
+                hasNextPage: page < Math.ceil(total / limit),
+                hasPrevPage: page > 1
+            }
+        };
     }
 }
 

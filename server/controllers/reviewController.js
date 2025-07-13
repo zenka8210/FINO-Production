@@ -1,6 +1,7 @@
 const BaseController = require('./baseController');
 const ReviewService = require('../services/reviewService');
 const ResponseHandler = require('../services/responseHandler');
+const { QueryUtils } = require('../utils/queryUtils');
 
 class ReviewController extends BaseController {
   constructor() {
@@ -9,6 +10,22 @@ class ReviewController extends BaseController {
 
   // Lấy reviews theo sản phẩm
   getProductReviews = async (req, res, next) => {
+    try {
+      const { productId } = req.params;
+      
+      // Thêm productId vào query params để filter
+      const queryParams = { ...req.query, product: productId };
+      
+      // Sử dụng Query Middleware mới
+      const result = await this.service.getProductReviewsWithQuery(queryParams);
+      ResponseHandler.success(res, 'Lấy đánh giá sản phẩm thành công', result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Giữ lại method cũ để backward compatibility
+  getProductReviewsLegacy = async (req, res, next) => {
     try {
       const { productId } = req.params;
       const { page, limit, rating, sort } = req.query;
@@ -96,8 +113,27 @@ class ReviewController extends BaseController {
     }
   };
 
-  // Admin: Lấy tất cả reviews
+  // Admin: Lấy tất cả reviews - Revert to stable version
   getAllReviews = async (req, res, next) => {
+    try {
+      const queryOptions = {
+        page: req.query.page || PAGINATION.DEFAULT_PAGE,
+        limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+        productId: req.query.productId,
+        userId: req.query.userId,
+        rating: req.query.rating,
+        sortBy: req.query.sortBy || 'createdAt',
+        sortOrder: req.query.sortOrder || 'desc'
+      };
+      const result = await this.service.getAllReviews(queryOptions);
+      ResponseHandler.success(res, 'Lấy danh sách đánh giá thành công', result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Admin: Lấy tất cả reviews - Legacy version (preserved for backward compatibility)
+  getAllReviewsLegacy = async (req, res, next) => {
     try {
       const { page, limit, rating, isVerified, product, user } = req.query;
       
@@ -111,7 +147,7 @@ class ReviewController extends BaseController {
         page: parseInt(page) || 1,
         limit: parseInt(limit) || 20,
         filter,
-        populate: 'user product productVariant',
+        populate: 'user product', // Removed productVariant as it's not in Review schema
         sort: { createdAt: -1 }
       };
 

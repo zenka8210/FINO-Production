@@ -4,6 +4,7 @@ const ReviewController = require('../controllers/reviewController');
 const authenticateToken = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
 const validateObjectId = require('../middlewares/validateObjectId');
+const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
 
 const reviewController = new ReviewController();
 
@@ -33,21 +34,19 @@ router.put('/:id', validateObjectId('id'), reviewController.updateReview);
 router.delete('/:id', validateObjectId('id'), reviewController.deleteReview);
 
 // Admin routes
-router.use(adminMiddleware);
-
 // GET /api/reviews/admin/all - Get all reviews (admin)
-router.get('/admin/all', reviewController.getAllReviews);
+router.get('/admin/all', authenticateToken, adminMiddleware, reviewController.getAllReviews);
 
 // GET /api/reviews/admin/stats - Get review statistics (admin)
-router.get('/admin/stats', reviewController.getReviewStats);
+router.get('/admin/stats', authenticateToken, adminMiddleware, reviewController.getReviewStats);
 
 // GET /api/reviews/admin/pending - Get pending reviews (admin)
-router.get('/admin/pending', reviewController.getPendingReviews);
+router.get('/admin/pending', authenticateToken, adminMiddleware, reviewController.getPendingReviews);
 
 // PUT /api/reviews/admin/:id/approve - Approve review (admin)
-router.put('/admin/:id/approve', validateObjectId('id'), reviewController.approveReview);
+router.put('/admin/:id/approve', authenticateToken, adminMiddleware, validateObjectId('id'), reviewController.approveReview);
 
 // DELETE /api/reviews/admin/:id - Delete any review (admin)
-router.delete('/admin/:id', validateObjectId('id'), reviewController.adminDeleteReview);
+router.delete('/admin/:id', authenticateToken, adminMiddleware, validateObjectId('id'), reviewController.adminDeleteReview);
 
 module.exports = router;

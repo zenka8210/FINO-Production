@@ -140,6 +140,16 @@ module.exports = {
     CART_EMPTY: 'Giỏ hàng trống',
     CART_ITEM_NOT_FOUND: 'Không tìm thấy sản phẩm trong giỏ hàng',
 
+    // Cart Order messages
+    CART_CREATED: 'Tạo giỏ hàng thành công',
+    ORDER_CREATED: 'Tạo đơn hàng thành công',
+    CART_ORDER_UPDATED: 'Cập nhật giỏ hàng/đơn hàng thành công',
+    CART_ORDER_DELETED: 'Xóa giỏ hàng/đơn hàng thành công',
+    CART_ORDER_NOT_FOUND: 'Không tìm thấy giỏ hàng/đơn hàng',
+    ORDER_STATUS_UPDATED: 'Cập nhật trạng thái đơn hàng thành công',
+    CART_ORDER_CONVERTED: 'Chuyển đổi giỏ hàng thành đơn hàng thành công',
+    STOCK_AVAILABILITY_CHECKED: 'Kiểm tra tồn kho thành công',
+
     // Address messages
     ADDRESS_CREATED: 'Tạo địa chỉ thành công',
     ADDRESS_UPDATED: 'Cập nhật địa chỉ thành công',
@@ -456,8 +466,10 @@ module.exports = {
       AUTH_FAILED: 'USER_AUTH_FAILED', // More specific than general AUTH_FAILED
       STATUS_UPDATE_FAILED: 'USER_STATUS_UPDATE_FAILED',
       EMAIL_EXISTS: 'USER_EMAIL_EXISTS', // Replacing USER_EMAIL_EXISTS
+      EMAIL_IMMUTABLE: 'USER_EMAIL_IMMUTABLE', // Cannot change email after creation
       ROLE_UPDATE_FAILED: 'USER_ROLE_UPDATE_FAILED',
       CANNOT_DELETE_SELF: 'USER_CANNOT_DELETE_SELF',
+      CANNOT_DELETE_LAST_ADDRESS: 'USER_CANNOT_DELETE_LAST_ADDRESS', // Must have at least one address
       PASSWORD_TOO_SHORT: 'USER_PASSWORD_TOO_SHORT',
       INVALID_CURRENT_PASSWORD: 'USER_INVALID_CURRENT_PASSWORD',
       PROFILE_UPDATE_FAILED: 'USER_PROFILE_UPDATE_FAILED',
@@ -714,11 +726,18 @@ module.exports = {
     ADDRESS_UPDATED_SUCCESSFULLY: 'Cập nhật địa chỉ thành công.',
     ADDRESS_DELETED_SUCCESSFULLY: 'Xóa địa chỉ thành công.',
     ADDRESS_SET_AS_DEFAULT_SUCCESSFULLY: 'Đặt làm địa chỉ mặc định thành công.',
-    MAX_ADDRESSES_REACHED: 'Đã đạt số lượng địa chỉ tối đa cho phép.',
+    MAX_ADDRESSES_REACHED: 'Đã đạt số lượng địa chỉ tối đa cho phép (5 địa chỉ).',
     ADDRESS_BELONGS_TO_ANOTHER_USER: 'Địa chỉ này thuộc về người dùng khác.',
     CANNOT_DELETE_DEFAULT_WITHOUT_REPLACEMENT: 'Không thể xóa địa chỉ mặc định. Vui lòng chọn địa chỉ thay thế trước khi xóa.',
     INVALID_REPLACEMENT_ADDRESS: 'Địa chỉ thay thế không hợp lệ hoặc không thuộc về bạn.',
-    ADDRESS_UPDATE_FAILED: 'Cập nhật địa chỉ thất bại.'
+    ADDRESS_UPDATE_FAILED: 'Cập nhật địa chỉ thất bại.',
+    ADDRESS_VALIDATION_FAILED: 'Dữ liệu địa chỉ không hợp lệ.',
+    CITY_INVALID: 'Tỉnh/thành phố không hợp lệ.',
+    DISTRICT_INVALID: 'Quận/huyện không hợp lệ.',
+    WARD_INVALID: 'Phường/xã không hợp lệ.',
+    PHONE_INVALID: 'Số điện thoại không hợp lệ.',
+    FULL_NAME_REQUIRED: 'Họ tên người nhận là bắt buộc.',
+    ADDRESS_LINE_REQUIRED: 'Địa chỉ chi tiết là bắt buộc.'
   },
 
   // Đơn hàng

@@ -2,6 +2,7 @@ const BaseService = require('./baseService');
 const Post = require('../models/PostSchema');
 const { MESSAGES, ERROR_CODES, ROLES } = require('../config/constants');
 const { AppError } = require('../middlewares/errorHandler'); // Thay đổi đường dẫn import AppError
+const { QueryUtils } = require('../utils/queryUtils');
 
 class PostService extends BaseService {
   constructor() {
@@ -45,8 +46,13 @@ class PostService extends BaseService {
     }
   }
 
-  async createPost(authorId, postData) {
+  async createPost(authorId, postData, userRole) {
     try {
+      // Chỉ admin mới có quyền tạo bài viết
+      if (userRole !== ROLES.ADMIN) {
+        throw new AppError('Chỉ admin mới có quyền tạo bài viết', ERROR_CODES.FORBIDDEN);
+      }
+
       const newPost = new Post({
         ...postData,
         author: authorId,
@@ -54,6 +60,7 @@ class PostService extends BaseService {
       await newPost.save();
       return newPost.populate('author', 'name email');
     } catch (error) {
+      if (error instanceof AppError) throw error;
       if (error.name === 'ValidationError') {
         // Lấy chi tiết lỗi validation
         const errors = Object.values(error.errors).map(err => ({ field: err.path, message: err.message }));
@@ -169,8 +176,10 @@ class PostService extends BaseService {
       post.isPublished = !post.isPublished;
       await post.save();
       
+      const populatedPost = await post.populate('author', 'name email');
+      
       return {
-        ...post.populate('author', 'name email').toObject(),
+        ...populatedPost.toObject(),
         message: post.isPublished ? 'Bài viết đã được hiển thị' : 'Bài viết đã được ẩn'
       };
     } catch (error) {
@@ -250,6 +259,32 @@ class PostService extends BaseService {
       };
     } catch (error) {
       throw new AppError(MESSAGES.POST_RETRIEVAL_FAILED || 'Lấy danh sách bài viết thất bại', ERROR_CODES.INTERNAL_ERROR);
+    }
+  }
+
+  /**
+   * Get all posts using new Query Middleware
+   * @param {Object} queryParams - Query parameters from request
+   * @param {String} userRole - User role to determine access level
+   * @returns {Object} Query results with pagination
+   */
+  async getAllPostsWithQuery(queryParams, userRole) {
+    try {
+      // Nếu không phải admin, chỉ show published posts
+      if (userRole !== ROLES.ADMIN) {
+        queryParams.isPublished = 'true';
+      }
+
+      // Sử dụng QueryUtils với pre-configured setup cho Post
+      const result = await QueryUtils.getPosts(Post, queryParams);
+      
+      return result;
+    } catch (error) {
+      throw new AppError(
+        `Error fetching posts: ${error.message}`,
+        ERROR_CODES.POST?.FETCH_FAILED || 'POST_FETCH_FAILED',
+        500
+      );
     }
   }
 }

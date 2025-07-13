@@ -29,10 +29,10 @@ class AddressService extends BaseService {
       throw new AppError('Người dùng không tồn tại.', 404, ERROR_CODES.USER.NOT_FOUND);
     }
 
-    // Validate address format
+    // Validate and normalize address format
     const validation = AddressValidator.validateAddress(addressData);
     if (!validation.isValid) {
-      throw new AppError(validation.errors.join(' '), 400, ERROR_CODES.VALIDATION_ERROR);
+      throw new AppError(validation.errors.join('; '), 400, ERROR_CODES.VALIDATION_ERROR);
     }
 
     const userAddressesCount = await Address.countDocuments({ user: userId });
@@ -40,25 +40,27 @@ class AddressService extends BaseService {
       throw new AppError(addressMessages.MAX_ADDRESSES_REACHED, 400, ERROR_CODES.ADDRESS.MAX_LIMIT_REACHED);
     }
 
-    const newAddressPayload = {
+    // Use normalized data if available
+    const normalizedAddressData = {
       ...addressData,
+      ...validation.normalizedData, // Override with normalized city, district, ward
       user: userId,
     };
 
     // Xử lý isDefault
     if (addressData.isDefault) {
       await Address.updateMany({ user: userId, isDefault: true }, { $set: { isDefault: false } });
-      newAddressPayload.isDefault = true;
+      normalizedAddressData.isDefault = true;
     } else {
       // Nếu không có địa chỉ nào khác và đây không được set là default, thì tự động set nó là default
       if (userAddressesCount === 0) {
-        newAddressPayload.isDefault = true;
+        normalizedAddressData.isDefault = true;
       } else {
-        newAddressPayload.isDefault = false;
+        normalizedAddressData.isDefault = false;
       }
     }
 
-    const newAddress = new Address(newAddressPayload);
+    const newAddress = new Address(normalizedAddressData);
     await newAddress.save();
     return newAddress;
   }
@@ -113,12 +115,20 @@ class AddressService extends BaseService {
       const addressToValidate = {
         city: updateData.city || address.city,
         district: updateData.district || address.district,
-        ward: updateData.ward || address.ward
+        ward: updateData.ward || address.ward,
+        fullName: updateData.fullName || address.fullName,
+        phone: updateData.phone || address.phone,
+        addressLine: updateData.addressLine || address.addressLine
       };
       
       const validation = AddressValidator.validateAddress(addressToValidate);
       if (!validation.isValid) {
-        throw new AppError(validation.errors.join(' '), 400, ERROR_CODES.VALIDATION_ERROR);
+        throw new AppError(validation.errors.join('; '), 400, ERROR_CODES.VALIDATION_ERROR);
+      }
+      
+      // Apply normalized data
+      if (validation.normalizedData) {
+        Object.assign(updateData, validation.normalizedData);
       }
     }
 
@@ -236,11 +246,38 @@ class AddressService extends BaseService {
   }
 
   /**
-   * @description Lấy danh sách tỉnh/thành phố hợp lệ
-   * @returns {Promise<Array<string>>} Danh sách tỉnh/thành phố
+   * @description Lấy danh sách tỉnh/thành phố hợp lệ với hướng dẫn
+   * @returns {Promise<object>} Danh sách tỉnh/thành phố và hướng dẫn
    */
   async getValidCities() {
     return AddressValidator.getValidCities();
+  }
+
+  /**
+   * @description Lấy hướng dẫn nhập địa chỉ
+   * @returns {Promise<object>} Hướng dẫn nhập địa chỉ
+   */
+  async getInputGuidance() {
+    return AddressValidator.getInputGuidance();
+  }
+
+  /**
+   * @description Validate và preview địa chỉ trước khi lưu
+   * @param {object} addressData - Dữ liệu địa chỉ cần validate
+   * @returns {Promise<object>} Kết quả validate và dữ liệu đã chuẩn hóa
+   */
+  async validateAndPreview(addressData) {
+    const validation = AddressValidator.validateAddress(addressData);
+    return {
+      isValid: validation.isValid,
+      errors: validation.errors,
+      normalizedData: validation.normalizedData,
+      suggestions: validation.suggestions,
+      preview: validation.isValid ? {
+        fullAddress: `${validation.normalizedData.addressLine || addressData.addressLine}, ${validation.normalizedData.ward || addressData.ward}, ${validation.normalizedData.district || addressData.district}, ${validation.normalizedData.city || addressData.city}`,
+        recipient: `${addressData.fullName} - ${addressData.phone}`
+      } : null
+    };
   }
 }
 

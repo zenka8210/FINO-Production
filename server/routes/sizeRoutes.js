@@ -4,114 +4,152 @@ const SizeController = require('../controllers/sizeController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
 const validateObjectId = require('../middlewares/validateObjectId');
+const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
 
 const sizeController = new SizeController();
 
-// --- Tuyến đường công khai (đặt trước các route có middleware) ---
+// ============= PUBLIC ROUTES (No Authentication Required) =============
+
+/**
+ * @route GET /api/sizes/public
+ * @description Get all sizes (public, can be used by client for selection)
+ * @access Public
+ */
+router.get('/public', sizeController.getAllSizes);
+
+/**
+ * @route GET /api/sizes/public/:id
+ * @description Get size details by ID (public)
+ * @access Public
+ */
+router.get('/public/:id', validateObjectId('id'), sizeController.getSizeById);
+
+/**
+ * @route GET /api/sizes/enums
+ * @description Get size enums (S, M, L, XL, Free Size...)
+ * @access Public
+ * @query {String} [category] - Category filter (clothing, shoes, accessories, all)
+ */
+router.get('/enums', sizeController.getSizeEnums);
+
+/**
+ * @route GET /api/sizes/enums/all
+ * @description Get all available size enums
+ * @access Public
+ */
+router.get('/enums/all', sizeController.getAllSizeEnums);
 
 /**
  * @route GET /api/sizes/suggestions
- * @description Lấy danh sách size đề xuất cho admin UI (tất cả categories)
+ * @description Get size suggestions by category
  * @access Public
+ * @query {String} [category] - Category (clothing, shoes, accessories)
  */
-router.get('/suggestions', sizeController.getSuggestedSizes);
+router.get('/suggestions', sizeController.getSizeSuggestions);
 
 /**
- * @route GET /api/sizes/suggestions/:category  
- * @description Lấy danh sách size đề xuất theo category
+ * @route GET /api/sizes/search
+ * @description Find size by name or get suggestions
  * @access Public
+ * @query {String} name - Size name to search
  */
-router.get('/suggestions/:category', sizeController.getSuggestedSizes);
+router.get('/search', sizeController.findByNameOrSuggest);
 
-/**
- * @route GET /api/sizes/valid-sizes
- * @description Lấy tất cả kích thước hợp lệ (for validation)
- * @access Public
- */
-router.get('/valid-sizes', sizeController.getAllValidSizes);
-
-/**
- * @route GET /api/sizes/valid-sizes/:category
- * @description Lấy danh sách kích thước hợp lệ theo danh mục
- * @access Public
- */
-router.get('/valid-sizes/:category', sizeController.getValidSizesByCategory);
-
-// @route GET /api/sizes/public
-// @desc Lấy tất cả kích thước (công khai, có thể phục vụ cho client lựa chọn)
-// @access Public
-router.get('/public', sizeController.getAllSizes);
-
-// @route GET /api/sizes/public/:id
-// @desc Lấy chi tiết một kích thước bằng ID (công khai)
-// @access Public
-router.get('/public/:id', validateObjectId('id'), sizeController.getSizeById);
-
-// --- Tuyến đường cho quản trị viên (Yêu cầu xác thực và quyền admin) ---
-
-// @route GET /api/sizes
-// @desc Lấy tất cả kích thước (cho admin, có phân trang, tìm kiếm theo tên)
-// @access Private (Admin)
-router.get('/', authMiddleware, adminMiddleware, sizeController.getAllSizes);
-
-// @route GET /api/sizes/:id
-// @desc Lấy chi tiết kích thước bằng ID (cho admin)
-// @access Private (Admin)
-router.get('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), sizeController.getSizeById);
-
-// @route POST /api/sizes
-// @desc Tạo kích thước mới (cho admin)
-// @access Private (Admin)
-router.post('/', authMiddleware, adminMiddleware, sizeController.createSize);
-
-// @route PUT /api/sizes/:id
-// @desc Cập nhật kích thước bằng ID (cho admin)
-// @access Private (Admin)
-router.put('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), sizeController.updateSize);
-
-// @route DELETE /api/sizes/:id
-// @desc Xóa kích thước bằng ID (cho admin)
-// @note Service sẽ kiểm tra xem kích thước có đang được sử dụng không trước khi xóa
-// @access Private (Admin)
-router.delete('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), sizeController.deleteSize);
-
-// --- Business Rules Endpoints (must come before generic routes) ---
+// ============= BUSINESS LOGIC ROUTES =============
 
 /**
  * @route POST /api/sizes/validate-name
- * @description Kiểm tra tên kích thước có hợp lệ và duy nhất không
+ * @description Validate size name (uniqueness and format)
  * @access Public
- * @body {String} name - Tên kích thước cần kiểm tra
- * @body {String} [excludeId] - ID kích thước cần loại trừ khi kiểm tra (dùng khi update)
+ * @body {String} name - Size name to validate
+ * @body {String} [excludeId] - Size ID to exclude from uniqueness check (for updates)
  */
 router.post('/validate-name', sizeController.validateSizeName);
 
 /**
+ * @route GET /api/sizes/:id/validate-for-use
+ * @description Validate if size can be used (exists and valid)
+ * @access Public
+ */
+router.get('/:id/validate-for-use', validateObjectId('id'), sizeController.validateSizeForUse);
+
+/**
  * @route GET /api/sizes/:id/usage-stats
- * @description Lấy thống kê sử dụng của kích thước
+ * @description Get size usage statistics
  * @access Private (Admin)
- * @param {String} id - ID của kích thước
  */
 router.get(
-  '/:id/usage-stats',
-  authMiddleware,
-  adminMiddleware,
-  validateObjectId('id'),
-  sizeController.getSizeUsageStats
+    '/:id/usage-stats',
+    authMiddleware,
+    adminMiddleware,
+    validateObjectId('id'),
+    sizeController.getSizeUsageStats
 );
 
 /**
  * @route GET /api/sizes/:id/can-delete
- * @description Kiểm tra xem kích thước có thể xóa không
+ * @description Check if size can be deleted
  * @access Private (Admin)
- * @param {String} id - ID của kích thước
  */
 router.get(
-  '/:id/can-delete',
-  authMiddleware,
-  adminMiddleware,
-  validateObjectId('id'),
-  sizeController.checkSizeDeletion
+    '/:id/can-delete',
+    authMiddleware,
+    adminMiddleware,
+    validateObjectId('id'),
+    sizeController.canDeleteSize
 );
+
+// ============= ADMIN ROUTES (Authentication + Admin Permission Required) =============
+
+/**
+ * @route GET /api/sizes
+ * @description Get all sizes with admin features (pagination, search, sorting)
+ * @access Private (Admin)
+ * @query {Number} [page=1] - Page number
+ * @query {Number} [limit=10] - Items per page
+ * @query {String} [search] - Search by name
+ * @query {String} [sortBy=name] - Sort field
+ * @query {String} [sortOrder=asc] - Sort order (asc/desc)
+ */
+router.get('/', authMiddleware, adminMiddleware, sizeController.getAllSizes);
+
+/**
+ * @route GET /api/sizes/:id
+ * @description Get size details by ID (admin)
+ * @access Private (Admin)
+ */
+router.get('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), sizeController.getSizeById);
+
+/**
+ * @route POST /api/sizes
+ * @description Create new size
+ * @access Private (Admin)
+ * @body {String} name - Size name (required)
+ */
+router.post('/', authMiddleware, adminMiddleware, sizeController.createSize);
+
+/**
+ * @route PUT /api/sizes/:id
+ * @description Update size by ID
+ * @access Private (Admin)
+ * @body {String} [name] - Size name
+ */
+router.put('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), sizeController.updateSize);
+
+/**
+ * @route DELETE /api/sizes/:id
+ * @description Delete size by ID
+ * @note Service will check if size is being used before deletion
+ * @access Private (Admin)
+ */
+router.delete('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), sizeController.deleteSize);
+
+/**
+ * @route POST /api/sizes/bulk-create-enum
+ * @description Bulk create sizes from enum list
+ * @access Private (Admin)
+ * @body {String} [category=clothing] - Category to create sizes for
+ */
+router.post('/bulk-create-enum', authMiddleware, adminMiddleware, sizeController.bulkCreateSizesFromEnum);
 
 module.exports = router;

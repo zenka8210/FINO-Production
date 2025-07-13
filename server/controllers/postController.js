@@ -2,6 +2,7 @@ const BaseController = require('./baseController');
 const PostService = require('../services/postService');
 const ResponseHandler = require('../services/responseHandler');
 const { MESSAGES, ERROR_CODES } = require('../config/constants');
+const { QueryUtils } = require('../utils/queryUtils');
 
 class PostController extends BaseController {
   constructor() {
@@ -10,6 +11,22 @@ class PostController extends BaseController {
 
   // Lấy tất cả bài viết (có phân trang và tìm kiếm)
   getAllPosts = async (req, res, next) => {
+    try {
+      // Sử dụng Query Middleware mới
+      const result = await this.service.getAllPostsWithQuery(req.query, req.user?.role);
+      
+      if (result.pagination) {
+        ResponseHandler.paginatedResponse(res, MESSAGES.POST_RETRIEVED || 'Lấy danh sách bài viết thành công', result.data, result.pagination);
+      } else {
+        ResponseHandler.success(res, MESSAGES.POST_RETRIEVED || 'Lấy danh sách bài viết thành công', result.data);
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Giữ lại method cũ để backward compatibility
+  getAllPostsLegacy = async (req, res, next) => {
     try {
       const { page, limit, sort, title, author, isPublished } = req.query;
       const options = {
@@ -34,7 +51,7 @@ class PostController extends BaseController {
   // Tạo bài viết mới
   createPost = async (req, res, next) => {
     try {
-      const post = await this.service.createPost(req.user._id, req.body);
+      const post = await this.service.createPost(req.user._id, req.body, req.user.role);
       ResponseHandler.created(res, MESSAGES.POST_CREATED, post);
     } catch (error) {
       next(error);

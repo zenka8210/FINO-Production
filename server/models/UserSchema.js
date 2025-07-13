@@ -12,6 +12,15 @@ const UserSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 
+// Middleware to prevent email modification after creation
+UserSchema.pre('save', function(next) {
+  if (!this.isNew && this.isModified('email')) {
+    const error = new Error('Email không thể được thay đổi sau khi tạo tài khoản');
+    error.name = 'ValidationError';
+    return next(error);
+  }
+  next();
+});
 // Middleware hash password trước khi lưu
 UserSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();

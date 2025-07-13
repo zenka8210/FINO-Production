@@ -33,13 +33,38 @@ class CartService extends BaseService {
   // Add item to cart
   async addItemToCart(userId, productVariantId, quantity) {
     // Validate product variant exists and has stock
-    const variant = await ProductVariant.findById(productVariantId);
+    const variant = await ProductVariant.findById(productVariantId)
+      .populate('product', 'name isActive')
+      .populate('color', 'name')
+      .populate('size', 'name');
+      
     if (!variant) {
       throw new AppError('Product variant not found', ERROR_CODES.NOT_FOUND);
     }
     
+    // Check if product is active
+    if (!variant.product.isActive) {
+      throw new AppError('Product is not available', ERROR_CODES.BAD_REQUEST);
+    }
+    
+    // Check if variant is active
+    if (!variant.isActive) {
+      throw new AppError('Product variant is not available', ERROR_CODES.BAD_REQUEST);
+    }
+    
+    // Prevent adding out of stock variants to cart
+    if (variant.stock <= 0) {
+      throw new AppError(
+        `${variant.product.name} (${variant.color.name} - ${variant.size.name}) is out of stock and cannot be added to cart`, 
+        ERROR_CODES.BAD_REQUEST
+      );
+    }
+    
     if (variant.stock < quantity) {
-      throw new AppError(`Only ${variant.stock} items available in stock`, ERROR_CODES.BAD_REQUEST);
+      throw new AppError(
+        `Only ${variant.stock} items available for ${variant.product.name} (${variant.color.name} - ${variant.size.name})`, 
+        ERROR_CODES.BAD_REQUEST
+      );
     }
 
     const cart = await CartOrder.findOrCreateCart(userId);
@@ -57,13 +82,33 @@ class CartService extends BaseService {
 
     // Validate stock if increasing quantity
     if (newQuantity > 0) {
-      const variant = await ProductVariant.findById(productVariantId);
+      const variant = await ProductVariant.findById(productVariantId)
+        .populate('product', 'name isActive')
+        .populate('color', 'name')
+        .populate('size', 'name');
+        
       if (!variant) {
         throw new AppError('Product variant not found', ERROR_CODES.NOT_FOUND);
       }
       
+      // Check if product/variant is still active
+      if (!variant.product.isActive || !variant.isActive) {
+        throw new AppError('Product variant is no longer available', ERROR_CODES.BAD_REQUEST);
+      }
+      
+      // Prevent updating to out of stock variants
+      if (variant.stock <= 0) {
+        throw new AppError(
+          `${variant.product.name} (${variant.color.name} - ${variant.size.name}) is out of stock`, 
+          ERROR_CODES.BAD_REQUEST
+        );
+      }
+      
       if (variant.stock < newQuantity) {
-        throw new AppError(`Only ${variant.stock} items available in stock`, ERROR_CODES.BAD_REQUEST);
+        throw new AppError(
+          `Only ${variant.stock} items available for ${variant.product.name} (${variant.color.name} - ${variant.size.name})`, 
+          ERROR_CODES.BAD_REQUEST
+        );
       }
     }
 
@@ -183,11 +228,11 @@ class CartService extends BaseService {
       throw new AppError('Cart is empty', ERROR_CODES.BAD_REQUEST);
     }
 
-    let calculation = {
-      subtotal: cart.subtotal,
+    const calculation = {
+      total: cart.total, // Changed from subtotal to total
       discountAmount: 0,
       shippingFee: 0,
-      finalTotal: cart.subtotal
+      finalTotal: cart.total // Changed from subtotal to total
     };
 
     // Calculate shipping fee if address provided
@@ -201,12 +246,12 @@ class CartService extends BaseService {
     // Apply voucher if provided
     if (options.voucher) {
       const voucher = await Voucher.findById(options.voucher);
-      if (voucher && this.isVoucherValid(voucher, calculation.subtotal)) {
-        calculation.discountAmount = this.calculateVoucherDiscount(voucher, calculation.subtotal);
+      if (voucher && this.isVoucherValid(voucher, calculation.total)) {
+        calculation.discountAmount = this.calculateVoucherDiscount(voucher, calculation.total);
       }
     }
 
-    calculation.finalTotal = calculation.subtotal - calculation.discountAmount + calculation.shippingFee;
+    calculation.finalTotal = calculation.total - calculation.discountAmount + calculation.shippingFee;
     
     return calculation;
   }
@@ -221,22 +266,22 @@ class CartService extends BaseService {
   }
 
   // Check if voucher is valid
-  isVoucherValid(voucher, subtotal) {
+  isVoucherValid(voucher, total) {
     const now = new Date();
     
     return voucher.isActive &&
            voucher.startDate <= now &&
            voucher.endDate >= now &&
            voucher.usedCount < voucher.usageLimit &&
-           subtotal >= voucher.minOrderValue;
+           total >= voucher.minOrderValue;
   }
 
   // Calculate voucher discount
-  calculateVoucherDiscount(voucher, subtotal) {
+  calculateVoucherDiscount(voucher, total) {
     let discount = 0;
     
     if (voucher.discountType === 'percentage') {
-      discount = (subtotal * voucher.discountValue) / 100;
+      discount = (total * voucher.discountValue) / 100;
       if (voucher.maxDiscountAmount) {
         discount = Math.min(discount, voucher.maxDiscountAmount);
       }
@@ -244,7 +289,7 @@ class CartService extends BaseService {
       discount = voucher.discountValue;
     }
     
-    return Math.min(discount, subtotal); // Don't discount more than subtotal
+    return Math.min(discount, total); // Don't discount more than total
   }
 
   // Convert cart to order (checkout)

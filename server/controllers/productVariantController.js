@@ -2,6 +2,7 @@ const BaseController = require('./baseController');
 const ProductVariantService = require('../services/productVariantService');
 const ResponseHandler = require('../services/responseHandler');
 const { productVariantMessages, generalMessages, PAGINATION } = require('../config/constants');
+const { QueryUtils } = require('../utils/queryUtils');
 
 class ProductVariantController extends BaseController {
   constructor() {
@@ -18,6 +19,27 @@ class ProductVariantController extends BaseController {
   };
 
   getAllProductVariants = async (req, res, next) => {
+    try {
+      // Sử dụng method cũ stable
+      const queryOptions = {
+        page: req.query.page || PAGINATION.DEFAULT_PAGE,
+        limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+        productId: req.query.productId,
+        colorId: req.query.colorId,
+        sizeId: req.query.sizeId,
+        isActive: req.query.isActive,
+        sortBy: req.query.sortBy || 'createdAt',
+        sortOrder: req.query.sortOrder || 'desc'
+      };
+      const result = await this.service.getAllProductVariants(queryOptions);
+      ResponseHandler.success(res, productVariantMessages.FETCH_ALL_SUCCESS, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Giữ lại method cũ để backward compatibility
+  getAllProductVariantsLegacy = async (req, res, next) => {
     try {
       const queryOptions = {
         page: req.query.page || PAGINATION.DEFAULT_PAGE,
@@ -135,12 +157,35 @@ class ProductVariantController extends BaseController {
   validateVariantRequirements = async (req, res, next) => {
     try {
       const { product, color, size } = req.body;
-      // This will validate if the variant requirements are met
-      await this.service._validateReferences(product, color, size);
-      ResponseHandler.success(res, 'Variant requirements hợp lệ', { 
-        valid: true, 
-        message: 'Color và Size hợp lệ và đang hoạt động' 
+      
+      // Enhanced validation using new business rules method
+      const validationResult = await this.service.validateVariantBusinessRules(product, color, size);
+      
+      if (!validationResult.valid) {
+        return ResponseHandler.badRequest(res, 'Validation failed', {
+          errors: validationResult.errors,
+          details: validationResult.details
+        });
+      }
+      
+      ResponseHandler.success(res, 'Variant requirements hợp lệ', {
+        valid: true,
+        message: validationResult.message || 'Color và Size hợp lệ và đang hoạt động',
+        details: validationResult.details
       });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // New endpoint to check if variant can be safely deleted
+  checkVariantDeletion = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const ProductVariant = require('../models/ProductVariantSchema');
+      const result = await ProductVariant.canDeleteVariant(id);
+      
+      ResponseHandler.success(res, 'Kiểm tra khả năng xóa variant', result);
     } catch (error) {
       next(error);
     }

@@ -1,4 +1,5 @@
 const ResponseHandler = require('../services/responseHandler');
+const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
 
 class BaseController {
   constructor(service) {
@@ -15,21 +16,33 @@ class BaseController {
     }
   };
 
-  // Lấy tất cả
+  // Lấy tất cả với query middleware support
   getAll = async (req, res, next) => {
     try {
-      const { page, limit, sort, ...filter } = req.query;
-      const options = {
-        page: parseInt(page) || 1,
-        limit: parseInt(limit) || 10,
-        sort: sort ? JSON.parse(sort) : { createdAt: -1 },
-        filter,
-        populate: req.query.populate || '',
-        select: req.query.select || ''
-      };
+      // Use the enhanced getPaginated method if available
+      let result;
+      if (this.service.getPaginated) {
+        result = await this.service.getPaginated(req.query);
+      } else {
+        // Fallback to legacy method
+        const { page, limit, sort, ...filter } = req.query;
+        const options = {
+          page: parseInt(page) || 1,
+          limit: parseInt(limit) || 10,
+          sort: sort ? JSON.parse(sort) : { createdAt: -1 },
+          filter,
+          populate: req.query.populate || '',
+          select: req.query.select || ''
+        };
+        result = await this.service.getAll(options);
+      }
 
-      const result = await this.service.getAll(options);
-      ResponseHandler.success(res, 'Lấy danh sách thành công', result);
+      // Handle different response formats
+      if (result.data) {
+        ResponseHandler.success(res, 'Lấy danh sách thành công', result.data, result.pagination);
+      } else {
+        ResponseHandler.success(res, 'Lấy danh sách thành công', result);
+      }
     } catch (error) {
       next(error);
     }

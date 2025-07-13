@@ -31,7 +31,7 @@ class AuthService extends BaseService {
     password, // Password will be hashed by pre-save hook in UserSchema
     name,
     phone,
-    role: userData.role || ROLES.USER, // Use provided role or default to customer
+    role: userData.role || 'customer', // Default role is 'customer', admin only by explicit assignment
   });
 
   await user.save();

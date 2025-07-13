@@ -1,6 +1,8 @@
 const BaseController = require('./baseController');
 const PaymentMethodService = require('../services/paymentMethodService');
 const ResponseHandler = require('../services/responseHandler');
+const { QueryBuilder } = require('../middlewares/queryMiddleware');
+const { PAGINATION } = require('../config/constants');
 
 class PaymentMethodController extends BaseController {
     constructor() {
@@ -43,8 +45,43 @@ class PaymentMethodController extends BaseController {
         }
     };
 
-    // Get payment methods with filters
+    // Get payment methods with filters - Revert to stable version
     getPaymentMethodsWithFilters = async (req, res, next) => {
+        try {
+            // Sử dụng method cũ stable
+            const queryOptions = {
+                page: req.query.page || PAGINATION.DEFAULT_PAGE,
+                limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+                isActive: req.query.isActive,
+                sortBy: req.query.sortBy || 'createdAt',
+                sortOrder: req.query.sortOrder || 'desc'
+            };
+            const result = await this.service.getAllPaymentMethods(queryOptions);
+            ResponseHandler.success(res, result, 'Payment methods retrieved successfully');
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // New method with Query Middleware - Revert to stable version
+    async getPaymentMethodsWithQueryMiddleware(req, res) {
+        try {
+            const queryOptions = {
+                page: req.query.page || PAGINATION.DEFAULT_PAGE,
+                limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+                isActive: req.query.isActive,
+                sortBy: req.query.sortBy || 'createdAt',
+                sortOrder: req.query.sortOrder || 'desc'
+            };
+            const result = await this.service.getAllPaymentMethods(queryOptions);
+            return ResponseHandler.success(res, 'Payment methods retrieved successfully', result);
+        } catch (error) {
+            return ResponseHandler.error(res, error.message);
+        }
+    }
+
+    // Legacy method (preserved for backward compatibility)
+    async getPaymentMethodsWithFiltersLegacy(req, res) {
         try {
             const options = {
                 page: parseInt(req.query.page) || 1,
@@ -61,7 +98,7 @@ class PaymentMethodController extends BaseController {
         } catch (error) {
             next(error);
         }
-    };
+    }
 
     // Get payment method statistics
     getPaymentMethodStats = async (req, res, next) => {
@@ -109,8 +146,25 @@ class PaymentMethodController extends BaseController {
         }
     };
 
-    // Get all payment methods (admin)
+    // Get all payment methods (admin) - Revert to stable version
     getAllPaymentMethods = async (req, res, next) => {
+        try {
+            const queryOptions = {
+                page: req.query.page || PAGINATION.DEFAULT_PAGE,
+                limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+                isActive: req.query.isActive,
+                sortBy: req.query.sortBy || 'createdAt',
+                sortOrder: req.query.sortOrder || 'desc'
+            };
+            const result = await this.service.getAllPaymentMethods(queryOptions);
+            ResponseHandler.success(res, result, 'All payment methods retrieved successfully');
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // Get all payment methods (admin) - Legacy version (preserved for backward compatibility)
+    getAllPaymentMethodsLegacy = async (req, res, next) => {
         try {
             const options = {
                 page: parseInt(req.query.page) || 1,

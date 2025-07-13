@@ -5,6 +5,7 @@ const postController = new PostController();
 const authMiddleware = require('../middlewares/authMiddleware'); 
 const validateObjectId = require('../middlewares/validateObjectId');
 const adminMiddleware = require('../middlewares/adminMiddleware');
+const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
 
 
 // @route GET /api/posts
@@ -23,9 +24,9 @@ router.get('/published', postController.getPublishedPosts);
 router.get('/:id', validateObjectId('id'), postController.getPostById);
 
 // @route POST /api/posts
-// @desc Tạo bài viết mới (yêu cầu đăng nhập cho bất kỳ user nào)
-// @access Private (User)
-router.post('/', authMiddleware, postController.createPost);
+// @desc Tạo bài viết mới (chỉ admin)
+// @access Private (Admin only)
+router.post('/', authMiddleware, adminMiddleware, postController.createPost);
 
 // @route PUT /api/posts/:id
 // @desc Cập nhật bài viết 

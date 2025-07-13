@@ -5,6 +5,7 @@ const voucherController = new VoucherController(); // Instantiate controller
 const protect = require('../middlewares/authMiddleware'); // Changed: protect is the default export
 const admin = require('../middlewares/adminMiddleware'); // Changed: admin is the default export from its file
 const validateObjectId = require('../middlewares/validateObjectId');
+const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
 
 /**
  * @swagger

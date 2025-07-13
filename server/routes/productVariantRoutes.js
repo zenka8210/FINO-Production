@@ -3,6 +3,7 @@ const ProductVariantController = require('../controllers/productVariantControlle
 const protect = require('../middlewares/authMiddleware'); // Corrected: authMiddleware is the protect middleware
 const restrictToAdmin = require('../middlewares/adminMiddleware'); 
 const validateObjectId = require('../middlewares/validateObjectId');
+const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
 
 const router = express.Router();
 const productVariantController = new ProductVariantController();
@@ -32,6 +33,20 @@ router.post(
 router.post(
   '/validate-requirements',
   productVariantController.validateVariantRequirements
+);
+
+/**
+ * @route GET /api/v1/product-variants/:id/check-deletion
+ * @description Kiểm tra xem variant có thể xóa an toàn không
+ * @access Private (Admin)
+ * @param {String} id - ID của variant
+ */
+router.get(
+  '/:id/check-deletion',
+  protect,
+  restrictToAdmin,
+  validateObjectId('id'),
+  productVariantController.checkVariantDeletion
 );
 
 /**

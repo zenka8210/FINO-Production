@@ -1,7 +1,8 @@
 const BaseController = require('./baseController');
 const BannerService = require('../services/bannerService');
 const ResponseHandler = require('../services/responseHandler');
-const { MESSAGES } = require('../config/constants');
+const { MESSAGES, PAGINATION } = require('../config/constants');
+const { QueryUtils } = require('../utils/queryUtils');
 
 class BannerController extends BaseController {
     constructor() {
@@ -9,6 +10,24 @@ class BannerController extends BaseController {
     }
 
     getAllBanners = async (req, res, next) => {
+        try {
+            // Sử dụng method cũ stable
+            const queryOptions = {
+                page: req.query.page || PAGINATION.DEFAULT_PAGE,
+                limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+                isActive: req.query.isActive,
+                sortBy: req.query.sortBy || 'createdAt',
+                sortOrder: req.query.sortOrder || 'desc'
+            };
+            const result = await this.service.getAllBanners(queryOptions);
+            ResponseHandler.success(res, 'Lấy danh sách banner thành công', result);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // Giữ lại method cũ để backward compatibility
+    getAllBannersLegacy = async (req, res, next) => {
         try {
             const queryOptions = req.query;
             const result = await this.service.getAllBanners(queryOptions);
@@ -86,6 +105,38 @@ class BannerController extends BaseController {
             const { link } = req.body;
             await this.service.validateBannerLink(link);
             ResponseHandler.success(res, 'Link banner hợp lệ', { valid: true });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // Get banners by status
+    getBannersByStatus = async (req, res, next) => {
+        try {
+            const { status } = req.params;
+            const banners = await this.service.getBannersByStatus(status);
+            ResponseHandler.success(res, `Lấy danh sách banner ${status} thành công`, banners);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // Check if banner is active
+    checkBannerStatus = async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const isActive = await this.service.isBannerActive(id);
+            ResponseHandler.success(res, 'Kiểm tra trạng thái banner thành công', { isActive });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // Get banner statistics
+    getBannerStatistics = async (req, res, next) => {
+        try {
+            const statistics = await this.service.getBannerStatistics();
+            ResponseHandler.success(res, 'Lấy thống kê banner thành công', statistics);
         } catch (error) {
             next(error);
         }

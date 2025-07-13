@@ -12,29 +12,76 @@ const {
   generalMessages,
   PAGINATION
 } = require('../config/constants');
+const { QueryUtils } = require('../utils/queryUtils');
 
 class ProductVariantService extends BaseService {
   constructor() {
     super(ProductVariant);
   }
 
+  // Enhanced validation method using the new schema static method
   async _validateReferences(productId, colorId, sizeId) {
-    const product = await Product.findById(productId);
-    if (!product) {
-      throw new AppError(productMessages.PRODUCT_NOT_FOUND, 404);
+    const validationResult = await ProductVariant.validateVariantRequirements(productId, colorId, sizeId);
+    
+    if (!validationResult.valid) {
+      throw new AppError(
+        `Validation failed: ${validationResult.errors.join(', ')}`, 
+        400, 
+        'VARIANT_VALIDATION_FAILED'
+      );
     }
-    const color = await Color.findById(colorId);
-    if (!color) {
-      throw new AppError(colorMessages.COLOR_NOT_FOUND, 404);
-    }
-    const size = await Size.findById(sizeId);
-    if (!size) {
-      throw new AppError(sizeMessages.SIZE_NOT_FOUND, 404);
+    
+    return validationResult.details;
+  }
+
+  // Enhanced method to validate variant business requirements
+  async validateVariantBusinessRules(productId, colorId, sizeId) {
+    try {
+      const validationResult = await ProductVariant.validateVariantRequirements(productId, colorId, sizeId);
+      
+      if (!validationResult.valid) {
+        return {
+          valid: false,
+          errors: validationResult.errors,
+          details: validationResult.details || {}
+        };
+      }
+      
+      // Additional business rule: Check if this combination already exists
+      if (productId && colorId && sizeId) {
+        const existingVariant = await this.Model.findOne({
+          product: productId,
+          color: colorId,
+          size: sizeId
+        });
+        
+        if (existingVariant) {
+          return {
+            valid: false,
+            errors: ['Variant với combination Product + Color + Size này đã tồn tại'],
+            details: {
+              existingVariant: existingVariant._id,
+              ...validationResult.details
+            }
+          };
+        }
+      }
+      
+      return {
+        valid: true,
+        errors: [],
+        details: validationResult.details,
+        message: 'Tất cả requirements cho variant đều hợp lệ'
+      };
+    } catch (error) {
+      throw new AppError('Lỗi kiểm tra business rules của variant', 500, 'BUSINESS_RULE_CHECK_FAILED');
     }
   }
 
   async createProductVariant(data) {
-    const { product, color, size, price, stock, images } = data;
+    const { product, color, size, price, stock, images, sku } = data;
+    
+    // Validate using enhanced validation
     await this._validateReferences(product, color, size);
 
     // Check for existing variant with the same product, color, and size
@@ -43,7 +90,17 @@ class ProductVariantService extends BaseService {
       throw new AppError(productVariantMessages.VARIANT_EXISTS, 409);
     }
 
-    const newVariant = new this.Model({ product, color, size, price, stock, images });
+    // Create new variant - pre-save hook will run additional validations
+    const newVariant = new this.Model({ 
+      product, 
+      color, 
+      size, 
+      price, 
+      stock, 
+      images: images || [],
+      sku 
+    });
+    
     await newVariant.save();
     return newVariant.populate('product color size');
   }
@@ -96,6 +153,21 @@ class ProductVariantService extends BaseService {
       limit: parseInt(limit, 10),
       totalPages: Math.ceil(totalVariants / parseInt(limit, 10)),
     };
+  }
+
+  async getAllProductVariantsWithQuery(queryParams) {
+    try {
+      // Sử dụng QueryUtils với pre-configured setup cho ProductVariant
+      const result = await QueryUtils.getProductVariants(ProductVariant, queryParams);
+      
+      return result;
+    } catch (error) {
+      throw new AppError(
+        `Error fetching product variants: ${error.message}`,
+        'PRODUCT_VARIANT_FETCH_FAILED',
+        500
+      );
+    }
   }
 
   async getProductVariantById(id) {

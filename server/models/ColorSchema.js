@@ -24,10 +24,7 @@ const ColorSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  isActive: {
-    type: Boolean,
-    default: true
-  }
+  
 }, { timestamps: true });
 
 // Lấy gợi ý màu từ database + backup mặc định

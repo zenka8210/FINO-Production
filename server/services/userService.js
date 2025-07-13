@@ -4,6 +4,9 @@ const Address = require('../models/AddressSchema');
 const bcrypt = require('bcryptjs');
 const { AppError } = require('../middlewares/errorHandler');
 const { MESSAGES, ERROR_CODES, ROLES, PAGINATION, userMessages, authMessages } = require('../config/constants');
+const { QueryUtils } = require('../utils/queryUtils');
+
+const MAX_ADDRESSES_PER_USER = 5; // Giới hạn số lượng địa chỉ mỗi người dùng
 
 class UserService extends BaseService {
   constructor() {
@@ -89,6 +92,36 @@ class UserService extends BaseService {
   }
 
   /**
+   * Get all users using new Query Middleware
+   * @param {Object} queryParams - Query parameters from request
+   * @returns {Object} Query results with pagination
+   */
+  async getAllUsersWithQuery(queryParams) {
+    try {
+      // Sử dụng QueryUtils với pre-configured setup cho User
+      const result = await QueryUtils.getUsers(User, queryParams);
+      
+      // Security: Remove sensitive fields từ kết quả
+      if (result.data) {
+        result.data = result.data.map(user => {
+          const userObj = user.toObject ? user.toObject() : user;
+          delete userObj.password;
+          delete userObj.refreshToken;
+          return userObj;
+        });
+      }
+
+      return result;
+    } catch (error) {
+      throw new AppError(
+        `Error fetching users: ${error.message}`,
+        ERROR_CODES.USER.FETCH_FAILED,
+        500
+      );
+    }
+  }
+
+  /**
    * Get a user by ID (Admin or self).
    * @param {string} userId - The ID of the user.
    * @returns {Promise<User>} The user.
@@ -159,24 +192,31 @@ class UserService extends BaseService {
   /**
    * Update current logged-in user's profile.
    * @param {string} userId - The ID of the user.
-   * @param {Object} profileData - Data to update (name, phone).
+   * @param {Object} profileData - Data to update (name, phone only).
    * @returns {Promise<User>} The updated user profile.
    */
   async updateCurrentUserProfile(userId, profileData) {
+    // Explicitly prevent email updates first
+    if (profileData.email) {
+      throw new AppError('Email không thể được thay đổi', ERROR_CODES.BAD_REQUEST, ERROR_CODES.USER.EMAIL_IMMUTABLE);
+    }
+    
     const { name, phone } = profileData;
     const allowedUpdates = {};
     if (name !== undefined) allowedUpdates.name = name;
     if (phone !== undefined) allowedUpdates.phone = phone;
     // Email, role, password, isActive are not updatable here.
 
-    const user = await User.findByIdAndUpdate(userId, allowedUpdates, {
-      new: true,
-      runValidators: true,
-    }).select('-password');
-
+    const user = await User.findById(userId).select('-password');
     if (!user) {
       throw new AppError(userMessages.USER_NOT_FOUND, ERROR_CODES.NOT_FOUND, ERROR_CODES.USER.NOT_FOUND);
     }
+
+    // Apply updates manually and save to trigger middleware
+    if (name !== undefined) user.name = name;
+    if (phone !== undefined) user.phone = phone;
+    
+    await user.save();
     return user;
   }
 
@@ -251,15 +291,24 @@ class UserService extends BaseService {
    * @returns {Promise<Address>} The created address.
    */
   async addUserAddress(userId, addressData) {
+    console.log('[DEBUG UserService] addUserAddress called with userId:', userId);
     const user = await User.findById(userId);
     if (!user) {
       throw new AppError(userMessages.USER_NOT_FOUND, ERROR_CODES.NOT_FOUND, ERROR_CODES.USER.NOT_FOUND);
     }
 
+    // Kiểm tra giới hạn số lượng địa chỉ
+    const existingAddressesCount = await Address.countDocuments({ user: userId });
+    console.log(`[DEBUG] User ${userId} has ${existingAddressesCount} addresses, limit is ${MAX_ADDRESSES_PER_USER}`);
+    
+    if (existingAddressesCount >= MAX_ADDRESSES_PER_USER) {
+      console.log(`[DEBUG] Blocking address creation - limit reached`);
+      throw new AppError(`Không thể thêm địa chỉ. Tối đa ${MAX_ADDRESSES_PER_USER} địa chỉ cho mỗi người dùng.`, ERROR_CODES.BAD_REQUEST, ERROR_CODES.VALIDATION_ERROR);
+    }
+
     const newAddressData = { ...addressData, user: userId };
 
     // If this is the first address, make it default
-    const existingAddressesCount = await Address.countDocuments({ user: userId });
     if (existingAddressesCount === 0) {
       newAddressData.isDefault = true;
     } else if (newAddressData.isDefault) {
@@ -337,19 +386,31 @@ class UserService extends BaseService {
    * @returns {Promise<void>}
    */
   async deleteUserAddress(userId, addressId) {
-    const address = await Address.findOneAndDelete({ _id: addressId, user: userId });
+    const address = await Address.findOne({ _id: addressId, user: userId });
     if (!address) {
       throw new AppError(userMessages.ADDRESS_NOT_FOUND, ERROR_CODES.NOT_FOUND, ERROR_CODES.USER.ADDRESS_NOT_FOUND);
     }
 
-    // If the deleted address was default, and there are other addresses, set the most recent one as default.
+    // Check if this is the only address for the user
+    const userAddressCount = await Address.countDocuments({ user: userId });
+    if (userAddressCount <= 1) {
+      throw new AppError('Không thể xóa địa chỉ cuối cùng. Mỗi người dùng phải có ít nhất một địa chỉ.', ERROR_CODES.BAD_REQUEST, ERROR_CODES.USER.CANNOT_DELETE_LAST_ADDRESS);
+    }
+
+    // Bảo vệ xóa địa chỉ mặc định - phải chọn địa chỉ thay thế trước
     if (address.isDefault) {
-      const remainingAddresses = await Address.find({ user: userId }).sort({ createdAt: -1 });
-      if (remainingAddresses.length > 0) {
-        remainingAddresses[0].isDefault = true;
-        await remainingAddresses[0].save();
+      const otherDefaultAddress = await Address.findOne({ 
+        user: userId, 
+        _id: { $ne: addressId }, 
+        isDefault: true 
+      });
+      
+      if (!otherDefaultAddress) {
+        throw new AppError('Không thể xóa địa chỉ mặc định. Vui lòng chọn địa chỉ khác làm mặc định trước khi xóa.', ERROR_CODES.BAD_REQUEST, ERROR_CODES.USER.CANNOT_DELETE_DEFAULT);
       }
     }
+
+    await Address.findOneAndDelete({ _id: addressId, user: userId });
   }
 
   /**

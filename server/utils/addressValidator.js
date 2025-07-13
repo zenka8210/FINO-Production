@@ -1,11 +1,12 @@
 /**
  * Address Validation Utility
  * Validates Vietnamese address components (city, district, ward)
+ * Supports common Vietnamese address abbreviations for user convenience
  */
 
-// Danh sách tỉnh/thành phố Việt Nam (một số ví dụ - có thể mở rộng)
+// Danh sách tỉnh/thành phố Việt Nam đầy đủ
 const VALID_CITIES = [
-  'Hà Nội', 'TP. Hồ Chí Minh', 'Thành phố Hồ Chí Minh', 'Hồ Chí Minh',
+  'Hà Nội', 'TP. Hồ Chí Minh', 'Thành phố Hồ Chí Minh', 'Hồ Chí Minh', 'TPHCM',
   'Đà Nẵng', 'Hải Phòng', 'Cần Thơ', 'An Giang', 'Bà Rịa - Vũng Tàu',
   'Bắc Giang', 'Bắc Kạn', 'Bạc Liêu', 'Bắc Ninh', 'Bến Tre',
   'Bình Định', 'Bình Dương', 'Bình Phước', 'Bình Thuận', 'Cà Mau',
@@ -21,6 +22,45 @@ const VALID_CITIES = [
   'Yên Bái'
 ];
 
+// Từ viết tắt thành phố/tỉnh
+const CITY_ABBREVIATIONS = {
+  'tp': 'Thành phố',
+  'tp.': 'Thành phố',
+  'tphcm': 'TP. Hồ Chí Minh',
+  'hcm': 'TP. Hồ Chí Minh',
+  'hn': 'Hà Nội',
+  'dn': 'Đà Nẵng',
+  'hp': 'Hải Phòng',
+  'ct': 'Cần Thơ'
+};
+
+// Từ viết tắt quận/huyện
+const DISTRICT_ABBREVIATIONS = {
+  'q': 'Quận',
+  'q.': 'Quận',
+  'qu': 'Quận',
+  'quan': 'Quận',
+  'h': 'Huyện',
+  'h.': 'Huyện',
+  'huyen': 'Huyện',
+  'tx': 'Thị xã',
+  'tx.': 'Thị xã',
+  'tt': 'Thị trấn',
+  'tt.': 'Thị trấn'
+};
+
+// Từ viết tắt phường/xã
+const WARD_ABBREVIATIONS = {
+  'p': 'Phường',
+  'p.': 'Phường',
+  'phuong': 'Phường',
+  'x': 'Xã',
+  'x.': 'Xã',
+  'xa': 'Xã',
+  'tt': 'Thị trấn',
+  'tt.': 'Thị trấn'
+};
+
 // Từ khóa phổ biến cho quận/huyện
 const DISTRICT_KEYWORDS = [
   'Quận', 'Huyện', 'Thành phố', 'Thị xã', 'Thị trấn'
@@ -33,104 +73,253 @@ const WARD_KEYWORDS = [
 
 class AddressValidator {
   /**
-   * Validate city/province name
+   * Normalize and expand abbreviations in text
+   * @param {string} text - Text to normalize
+   * @param {object} abbreviations - Abbreviation mapping
+   * @returns {string} - Normalized text
+   */
+  static normalizeText(text, abbreviations) {
+    if (!text || typeof text !== 'string') {
+      return '';
+    }
+    
+    let normalized = text.trim();
+    
+    // Convert to lowercase for comparison
+    const lowerText = normalized.toLowerCase();
+    
+    // Check for abbreviations and expand them
+    for (const [abbr, full] of Object.entries(abbreviations)) {
+      const abbrLower = abbr.toLowerCase();
+      
+      // Handle exact matches and word boundary matches
+      if (lowerText === abbrLower) {
+        return full;
+      }
+      
+      // Handle abbreviations at the beginning of text
+      if (lowerText.startsWith(abbrLower + ' ')) {
+        return full + normalized.substring(abbr.length);
+      }
+      
+      // Handle abbreviations followed by numbers (e.g., "q1" -> "Quận 1")
+      const numberMatch = lowerText.match(new RegExp(`^${abbrLower}(\\d+)$`));
+      if (numberMatch) {
+        return `${full} ${numberMatch[1]}`;
+      }
+      
+      // Handle abbreviations followed by numbers with space (e.g., "q 1" -> "Quận 1")
+      const spaceNumberMatch = lowerText.match(new RegExp(`^${abbrLower}\\s+(\\d+)$`));
+      if (spaceNumberMatch) {
+        return `${full} ${spaceNumberMatch[1]}`;
+      }
+    }
+    
+    return normalized;
+  }
+
+  /**
+   * Validate and normalize city/province name
    * @param {string} city - City name to validate
-   * @returns {boolean} - True if valid
+   * @returns {object} - Validation result with normalized name
    */
   static validateCity(city) {
     if (!city || typeof city !== 'string') {
-      return false;
+      return { isValid: false, normalized: '', suggestion: 'Vui lòng nhập tên tỉnh/thành phố' };
     }
     
-    const normalizedCity = city.trim();
+    const normalized = this.normalizeText(city, CITY_ABBREVIATIONS);
     
-    // Check if city is in the valid list (case insensitive)
-    return VALID_CITIES.some(validCity => 
-      normalizedCity.toLowerCase() === validCity.toLowerCase()
+    // Check if normalized city is in the valid list (case insensitive)
+    const matchedCity = VALID_CITIES.find(validCity => 
+      normalized.toLowerCase() === validCity.toLowerCase()
     );
-  }
-
-  /**
-   * Validate district name format
-   * @param {string} district - District name to validate
-   * @returns {boolean} - True if valid
-   */
-  static validateDistrict(district) {
-    if (!district || typeof district !== 'string') {
-      return false;
+    
+    if (matchedCity) {
+      return { isValid: true, normalized: matchedCity };
     }
     
-    const normalizedDistrict = district.trim();
-    
-    // Check if district has valid keyword or follows naming pattern
-    const hasValidKeyword = DISTRICT_KEYWORDS.some(keyword =>
-      normalizedDistrict.toLowerCase().includes(keyword.toLowerCase())
-    );
-    
-    // Also accept districts without keywords but with proper length
-    const hasProperLength = normalizedDistrict.length >= 2 && normalizedDistrict.length <= 50;
-    
-    return hasValidKeyword || hasProperLength;
-  }
-
-  /**
-   * Validate ward name format
-   * @param {string} ward - Ward name to validate
-   * @returns {boolean} - True if valid
-   */
-  static validateWard(ward) {
-    if (!ward || typeof ward !== 'string') {
-      return false;
-    }
-    
-    const normalizedWard = ward.trim();
-    
-    // Check if ward has valid keyword or follows naming pattern
-    const hasValidKeyword = WARD_KEYWORDS.some(keyword =>
-      normalizedWard.toLowerCase().includes(keyword.toLowerCase())
-    );
-    
-    // Also accept wards without keywords but with proper length
-    const hasProperLength = normalizedWard.length >= 2 && normalizedWard.length <= 50;
-    
-    return hasValidKeyword || hasProperLength;
-  }
-
-  /**
-   * Validate full address object
-   * @param {object} addressData - Address data to validate
-   * @returns {object} - Validation result with details
-   */
-  static validateAddress(addressData) {
-    const errors = [];
-    
-    // Temporarily disable all validation for testing
-    // const cityField = addressData.city || addressData.province;
-    
-    // if (!this.validateCity(cityField)) {
-    //   errors.push('Tỉnh/Thành phố không hợp lệ. Vui lòng chọn tỉnh/thành phố Việt Nam.');
-    // }
-    
-    // if (!this.validateDistrict(addressData.district)) {
-    //   errors.push('Quận/Huyện không hợp lệ. Vui lòng nhập đúng tên quận/huyện.');
-    // }
-    
-    // if (!this.validateWard(addressData.ward)) {
-    //   errors.push('Phường/Xã không hợp lệ. Vui lòng nhập đúng tên phường/xã.');
-    // }
+    // Suggest similar cities
+    const suggestions = VALID_CITIES.filter(validCity =>
+      validCity.toLowerCase().includes(normalized.toLowerCase()) ||
+      normalized.toLowerCase().includes(validCity.toLowerCase())
+    ).slice(0, 3);
     
     return {
-      isValid: true, // Always valid for testing
-      errors
+      isValid: false,
+      normalized,
+      suggestion: suggestions.length > 0 
+        ? `Có thể bạn muốn nhập: ${suggestions.join(', ')}`
+        : 'Tỉnh/thành phố không hợp lệ. Ví dụ: "hn" → "Hà Nội", "tphcm" → "TP. Hồ Chí Minh"'
     };
   }
 
   /**
-   * Get list of valid cities
-   * @returns {Array<string>} - List of valid cities
+   * Validate and normalize district name
+   * @param {string} district - District name to validate
+   * @returns {object} - Validation result with normalized name
+   */
+  static validateDistrict(district) {
+    if (!district || typeof district !== 'string') {
+      return { isValid: false, normalized: '', suggestion: 'Vui lòng nhập tên quận/huyện' };
+    }
+    
+    const normalized = this.normalizeText(district, DISTRICT_ABBREVIATIONS);
+    
+    // Check if district has valid keyword
+    const hasValidKeyword = DISTRICT_KEYWORDS.some(keyword =>
+      normalized.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    // Check if it's a valid pattern (at least 2 characters)
+    const hasProperLength = normalized.length >= 2 && normalized.length <= 50;
+    
+    if (hasValidKeyword || hasProperLength) {
+      return { isValid: true, normalized };
+    }
+    
+    return {
+      isValid: false,
+      normalized,
+      suggestion: 'Ví dụ: "q1" → "Quận 1", "h.donga" → "Huyện Đống Đa"'
+    };
+  }
+
+  /**
+   * Validate and normalize ward name
+   * @param {string} ward - Ward name to validate
+   * @returns {object} - Validation result with normalized name
+   */
+  static validateWard(ward) {
+    if (!ward || typeof ward !== 'string') {
+      return { isValid: false, normalized: '', suggestion: 'Vui lòng nhập tên phường/xã' };
+    }
+    
+    const normalized = this.normalizeText(ward, WARD_ABBREVIATIONS);
+    
+    // Check if ward has valid keyword
+    const hasValidKeyword = WARD_KEYWORDS.some(keyword =>
+      normalized.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    // Check if it's a valid pattern (at least 2 characters)
+    const hasProperLength = normalized.length >= 2 && normalized.length <= 50;
+    
+    if (hasValidKeyword || hasProperLength) {
+      return { isValid: true, normalized };
+    }
+    
+    return {
+      isValid: false,
+      normalized,
+      suggestion: 'Ví dụ: "p1" → "Phường 1", "x.tanbien" → "Xã Tân Biên"'
+    };
+  }
+
+  /**
+   * Validate full address object with normalization
+   * @param {object} addressData - Address data to validate
+   * @returns {object} - Validation result with details and normalized data
+   */
+  static validateAddress(addressData) {
+    const errors = [];
+    const normalizedData = {};
+    const suggestions = [];
+    
+    // Validate city
+    const cityField = addressData.city || addressData.province;
+    const cityValidation = this.validateCity(cityField);
+    if (!cityValidation.isValid) {
+      errors.push(`Tỉnh/Thành phố: ${cityValidation.suggestion}`);
+    } else {
+      normalizedData.city = cityValidation.normalized;
+    }
+    
+    // Validate district
+    const districtValidation = this.validateDistrict(addressData.district);
+    if (!districtValidation.isValid) {
+      errors.push(`Quận/Huyện: ${districtValidation.suggestion}`);
+    } else {
+      normalizedData.district = districtValidation.normalized;
+    }
+    
+    // Validate ward
+    const wardValidation = this.validateWard(addressData.ward);
+    if (!wardValidation.isValid) {
+      errors.push(`Phường/Xã: ${wardValidation.suggestion}`);
+    } else {
+      normalizedData.ward = wardValidation.normalized;
+    }
+    
+    // Validate required fields
+    if (!addressData.fullName || addressData.fullName.trim().length < 2) {
+      errors.push('Họ tên người nhận phải có ít nhất 2 ký tự');
+    }
+    
+    if (!addressData.phone || !/^[0-9+\-\s()]{10,15}$/.test(addressData.phone.trim())) {
+      errors.push('Số điện thoại không hợp lệ (10-15 số)');
+    }
+    
+    if (!addressData.addressLine || addressData.addressLine.trim().length < 5) {
+      errors.push('Địa chỉ chi tiết phải có ít nhất 5 ký tự');
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+      normalizedData,
+      suggestions: [
+        'Mẹo: Bạn có thể dùng viết tắt như "q1" thay vì "Quận 1"',
+        'Ví dụ: "p.bennghe, q1, tphcm" sẽ được hiểu là "Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh"'
+      ]
+    };
+  }
+
+  /**
+   * Get list of valid cities with examples
+   * @returns {object} - Cities and abbreviation examples
    */
   static getValidCities() {
-    return [...VALID_CITIES];
+    return {
+      cities: [...VALID_CITIES],
+      abbreviationExamples: {
+        'Hà Nội': ['hn', 'hanoi'],
+        'TP. Hồ Chí Minh': ['tphcm', 'hcm', 'tp.hcm'],
+        'Đà Nẵng': ['dn', 'danang'],
+        'Cần Thơ': ['ct', 'cantho'],
+        'Hải Phòng': ['hp', 'haiphong']
+      },
+      commonPatterns: [
+        'Quận: q1, q.1, quan 1',
+        'Huyện: h.dongda, huyen dong da',
+        'Phường: p1, p.bennghe, phuong 1',
+        'Xã: x.tanbien, xa tan bien'
+      ]
+    };
+  }
+
+  /**
+   * Get address input guidance
+   * @returns {object} - Input guidance and examples
+   */
+  static getInputGuidance() {
+    return {
+      city: {
+        placeholder: 'VD: Hà Nội, TPHCM, hn, tphcm',
+        examples: ['Hà Nội', 'TP. Hồ Chí Minh', 'hn', 'tphcm'],
+        tips: 'Có thể viết tắt: hn = Hà Nội, tphcm = TP. Hồ Chí Minh'
+      },
+      district: {
+        placeholder: 'VD: Quận 1, q1, Huyện Đống Đa, h.dongda',
+        examples: ['Quận 1', 'q1', 'Huyện Đống Đa', 'h.dongda'],
+        tips: 'Có thể viết tắt: q1 = Quận 1, h.dongda = Huyện Đống Đa'
+      },
+      ward: {
+        placeholder: 'VD: Phường 1, p1, Xã Tân Biên, x.tanbien',
+        examples: ['Phường 1', 'p1', 'Xã Tân Biên', 'x.tanbien'],
+        tips: 'Có thể viết tắt: p1 = Phường 1, x.tanbien = Xã Tân Biên'
+      }
+    };
   }
 }
 

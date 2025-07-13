@@ -2,6 +2,7 @@ const BaseController = require('./baseController');
 const UserService = require('../services/userService');
 const ResponseHandler = require('../services/responseHandler');
 const { userMessages, PAGINATION } = require('../config/constants');
+const { QueryUtils } = require('../utils/queryUtils');
 
 class UserController extends BaseController {
   constructor() {
@@ -19,6 +20,32 @@ class UserController extends BaseController {
   };
 
   getAllUsers = async (req, res, next) => {
+    try {
+      // Sử dụng method cũ stable
+      const queryOptions = {
+        page: req.query.page || PAGINATION.DEFAULT_PAGE,
+        limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+        search: req.query.search,
+        role: req.query.role,
+        isActive: req.query.isActive,
+        sortBy: req.query.sortBy || 'createdAt',
+        sortOrder: req.query.sortOrder || 'desc'
+      };
+      const result = await this.service.getAllUsers(queryOptions);
+      
+      return res.status(200).json({
+        success: true,
+        message: userMessages.FETCH_ALL_SUCCESS,
+        data: result.data,
+        pagination: result.pagination
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Giữ lại method cũ để backward compatibility
+  getAllUsersLegacy = async (req, res, next) => {
     try {
       const queryOptions = {
         page: req.query.page || PAGINATION.DEFAULT_PAGE,
@@ -93,7 +120,8 @@ class UserController extends BaseController {
   // --- Current User Profile Management ---
   getCurrentUserProfile = async (req, res, next) => {
     try {
-      const userProfile = await this.service.getCurrentUserProfile(req.user.id);
+      const userId = req.user._id || req.user.id;
+      const userProfile = await this.service.getCurrentUserProfile(userId);
       ResponseHandler.success(res, userMessages.FETCH_PROFILE_SUCCESS, userProfile);
     } catch (error) {
       next(error);
@@ -102,7 +130,8 @@ class UserController extends BaseController {
 
   updateCurrentUserProfile = async (req, res, next) => {
     try {
-      const updatedProfile = await this.service.updateCurrentUserProfile(req.user.id, req.body);
+      const userId = req.user._id || req.user.id;
+      const updatedProfile = await this.service.updateCurrentUserProfile(userId, req.body);
       ResponseHandler.success(res, userMessages.PROFILE_UPDATE_SUCCESS, updatedProfile);
     } catch (error) {
       next(error);
@@ -112,18 +141,29 @@ class UserController extends BaseController {
   changeCurrentUserPassword = async (req, res, next) => {
     try {
       const { currentPassword, newPassword } = req.body;
-      await this.service.changeCurrentUserPassword(req.user.id, currentPassword, newPassword);
+      const userId = req.user._id || req.user.id;
+      await this.service.changeCurrentUserPassword(userId, currentPassword, newPassword);
       ResponseHandler.success(res, userMessages.PASSWORD_CHANGE_SUCCESS);
     } catch (error) {
       next(error);
     }
   };
 
-  // --- Current User Address Management ---
+  // --- Address Management ---
   addUserAddress = async (req, res, next) => {
     try {
-      const newAddress = await this.service.addUserAddress(req.user.id, req.body);
-      ResponseHandler.created(res, userMessages.ADDRESS_ADD_SUCCESS, newAddress);
+      const userId = req.user._id || req.user.id;
+      const address = await this.service.addUserAddress(userId, req.body);
+      ResponseHandler.created(res, userMessages.ADDRESS_CREATE_SUCCESS, address);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Test method để debug
+  debugAddUserAddress = async (req, res, next) => {
+    try {
+      ResponseHandler.success(res, 'DEBUG: UserController.debugAddUserAddress called!', { test: true });
     } catch (error) {
       next(error);
     }
@@ -131,8 +171,9 @@ class UserController extends BaseController {
 
   getUserAddresses = async (req, res, next) => {
     try {
-      const addresses = await this.service.getUserAddresses(req.user.id);
-      ResponseHandler.success(res, userMessages.FETCH_ALL_SUCCESS, addresses);
+      const userId = req.user._id || req.user.id;
+      const addresses = await this.service.getUserAddresses(userId);
+      ResponseHandler.success(res, userMessages.ADDRESS_GET_SUCCESS, addresses);
     } catch (error) {
       next(error);
     }
@@ -140,16 +181,18 @@ class UserController extends BaseController {
 
   getUserAddressById = async (req, res, next) => {
     try {
-      const address = await this.service.getUserAddressById(req.user.id, req.params.addressId);
-      ResponseHandler.success(res, userMessages.FETCH_ONE_SUCCESS, address);
+      const userId = req.user._id || req.user.id;
+      const address = await this.service.getUserAddressById(userId, req.params.addressId);
+      ResponseHandler.success(res, userMessages.ADDRESS_GET_SUCCESS, address);
     } catch (error) {
       next(error);
     }
   };
-  
+
   updateUserAddress = async (req, res, next) => {
     try {
-      const updatedAddress = await this.service.updateUserAddress(req.user.id, req.params.addressId, req.body);
+      const userId = req.user._id || req.user.id;
+      const updatedAddress = await this.service.updateUserAddress(userId, req.params.addressId, req.body);
       ResponseHandler.success(res, userMessages.ADDRESS_UPDATE_SUCCESS, updatedAddress);
     } catch (error) {
       next(error);
@@ -158,7 +201,8 @@ class UserController extends BaseController {
 
   deleteUserAddress = async (req, res, next) => {
     try {
-      await this.service.deleteUserAddress(req.user.id, req.params.addressId);
+      const userId = req.user._id || req.user.id;
+      await this.service.deleteUserAddress(userId, req.params.addressId);
       ResponseHandler.success(res, userMessages.ADDRESS_DELETE_SUCCESS);
     } catch (error) {
       next(error);
@@ -167,7 +211,8 @@ class UserController extends BaseController {
 
   setDefaultUserAddress = async (req, res, next) => {
     try {
-      const defaultAddress = await this.service.setDefaultUserAddress(req.user.id, req.params.addressId);
+      const userId = req.user._id || req.user.id;
+      const defaultAddress = await this.service.setDefaultUserAddress(userId, req.params.addressId);
       ResponseHandler.success(res, userMessages.ADDRESS_SET_DEFAULT_SUCCESS, defaultAddress);
     } catch (error) {
       next(error);

@@ -21,14 +21,6 @@ const CategorySchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
-  },
-  displayOrder: {
-    type: Number,
-    default: 0
-  },
-  level: {
-    type: Number,
-    default: 0 // 0 = root level, 1 = first child, etc.
   }
 }, { timestamps: true });
 
@@ -40,50 +32,5 @@ CategorySchema.pre('save', function(next) {
   }
   next();
 });
-
-// Business logic methods
-CategorySchema.statics.canDeleteCategory = async function(categoryId) {
-  const Product = require('./ProductSchema');
-  
-  // Check if category has child categories
-  const childCategories = await this.countDocuments({ parent: categoryId });
-  if (childCategories > 0) {
-    throw new Error('Không thể xóa danh mục có chứa danh mục con');
-  }
-  
-  // Check if category has products
-  const productsCount = await Product.countDocuments({ category: categoryId });
-  if (productsCount > 0) {
-    throw new Error(`Không thể xóa danh mục vì còn ${productsCount} sản phẩm đang sử dụng`);
-  }
-  
-  return true;
-};
-
-CategorySchema.statics.getCategoryTree = async function() {
-  const categories = await this.find({ isActive: true }).sort({ displayOrder: 1, name: 1 });
-  
-  // Build tree structure
-  const categoryMap = {};
-  const tree = [];
-  
-  // First pass: create map
-  categories.forEach(cat => {
-    categoryMap[cat._id] = { ...cat.toObject(), children: [] };
-  });
-  
-  // Second pass: build tree
-  categories.forEach(cat => {
-    if (cat.parent) {
-      if (categoryMap[cat.parent]) {
-        categoryMap[cat.parent].children.push(categoryMap[cat._id]);
-      }
-    } else {
-      tree.push(categoryMap[cat._id]);
-    }
-  });
-  
-  return tree;
-};
 
 module.exports = mongoose.model('Category', CategorySchema);

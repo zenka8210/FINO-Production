@@ -3,6 +3,7 @@ const VoucherService = require('../services/voucherService');
 const ResponseHandler = require('../services/responseHandler');
 const { MESSAGES, PAGINATION, voucherMessages, ERROR_CODES } = require('../config/constants');
 const { AppError } = require('../middlewares/errorHandler');
+const { QueryBuilder } = require('../middlewares/queryMiddleware');
 
 /**
  * @class VoucherController
@@ -47,6 +48,25 @@ class VoucherController extends BaseController {
    * @param {import('express').Response} res - Đối tượng response
    */
   getAllVouchers = async (req, res, next) => {
+    try {
+      // Sử dụng method cũ stable
+      const queryOptions = {
+        page: req.query.page || PAGINATION.DEFAULT_PAGE,
+        limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+        code: req.query.code,
+        isActive: req.query.isActive,
+        sortBy: req.query.sortBy || 'createdAt',
+        sortOrder: req.query.sortOrder || 'desc'
+      };
+      const result = await this.service.getAllVouchers(queryOptions);
+      ResponseHandler.success(res, MESSAGES.FETCH_SUCCESS, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Giữ lại method cũ để backward compatibility
+  getAllVouchersLegacy = async (req, res, next) => {
     try {
       const { page, limit, search, sort, isActive } = req.query;
       const options = {

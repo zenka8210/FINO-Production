@@ -1,222 +1,516 @@
 const BaseService = require('./baseService');
 const WishList = require('../models/WishListSchema');
+const Product = require('../models/ProductSchema');
+const ProductVariant = require('../models/ProductVariantSchema');
 const { AppError } = require('../middlewares/errorHandler');
+const { QueryBuilder } = require('../middlewares/queryMiddleware');
 
 class WishListService extends BaseService {
-  constructor() {
-    super(WishList);
-  }
-
-  // Get user wishlist with full validation
-  async getUserWishList(userId) {
-    return await WishList.findOrCreateUserWishList(userId);
-  }
-
-  // Add item to wishlist with business rules
-  async addToWishList(userId, productId, variantId = null) {
-    // Validate item addition
-    await WishList.validateItemAddition(productId, variantId);
-    
-    // Get or create wishlist
-    const wishlist = await WishList.findOrCreateUserWishList(userId);
-    
-    // Check for duplicates
-    const existingItem = wishlist.items.find(item => {
-      const sameProduct = item.product._id.toString() === productId.toString();
-      const sameVariant = (!variantId && !item.variant) || 
-                         (variantId && item.variant && item.variant._id.toString() === variantId.toString());
-      return sameProduct && sameVariant;
-    });
-    
-    if (existingItem) {
-      throw new AppError('Sản phẩm đã có trong wishlist', 400);
+    constructor() {
+        super(WishList);
     }
-    
-    // Add new item
-    const newItem = {
-      product: productId,
-      variant: variantId || null,
-      addedAt: new Date()
-    };
-    
-    wishlist.items.push(newItem);
-    await wishlist.save();
-    
-    // Return populated wishlist
-    return await WishList.findOrCreateUserWishList(userId);
-  }
 
-  // Remove item from wishlist
-  async removeFromWishList(userId, productId, variantId = null) {
-    const wishlist = await WishList.findOrCreateUserWishList(userId);
-    
-    const itemIndex = wishlist.items.findIndex(item => {
-      const sameProduct = item.product._id.toString() === productId.toString();
-      const sameVariant = (!variantId && !item.variant) || 
-                         (variantId && item.variant && item.variant._id.toString() === variantId.toString());
-      return sameProduct && sameVariant;
-    });
-    
-    if (itemIndex === -1) {
-      throw new AppError('Sản phẩm không có trong wishlist', 404);
+    // ============= USER WISHLIST OPERATIONS =============
+
+    /**
+     * Lấy wishlist của user (tạo mới nếu chưa có)
+     */
+    async getUserWishList(userId) {
+        try {
+            let wishlist = await WishList.findOne({ user: userId }).populate([
+                {
+                    path: 'items.product',
+                    select: 'name price images isActive category'
+                },
+                {
+                    path: 'items.variant',
+                    select: 'price stock color size images isActive'
+                }
+            ]);
+
+            if (!wishlist) {
+                wishlist = await WishList.create({ user: userId, items: [] });
+                // Populate sau khi tạo
+                wishlist = await WishList.findById(wishlist._id).populate([
+                    {
+                        path: 'items.product',
+                        select: 'name price images isActive category'
+                    },
+                    {
+                        path: 'items.variant',
+                        select: 'price stock color size images isActive'
+                    }
+                ]);
+            }
+
+            return wishlist;
+        } catch (error) {
+            throw new AppError('Lỗi khi lấy danh sách yêu thích', 500);
+        }
     }
-    
-    wishlist.items.splice(itemIndex, 1);
-    await wishlist.save();
-    
-    return await WishList.findOrCreateUserWishList(userId);
-  }
 
-  // Toggle item in wishlist
-  async toggleWishList(userId, productId, variantId = null) {
-    const wishlist = await WishList.findOrCreateUserWishList(userId);
-    
-    const existingItem = wishlist.items.find(item => {
-      const sameProduct = item.product._id.toString() === productId.toString();
-      const sameVariant = (!variantId && !item.variant) || 
-                         (variantId && item.variant && item.variant._id.toString() === variantId.toString());
-      return sameProduct && sameVariant;
-    });
-    
-    if (existingItem) {
-      return await this.removeFromWishList(userId, productId, variantId);
-    } else {
-      return await this.addToWishList(userId, productId, variantId);
+    /**
+     * Thêm sản phẩm vào wishlist
+     */
+    async addToWishList(userId, productId, variantId = null) {
+        try {
+            // Validate product and variant
+            await this.validateItemAddition(productId, variantId);
+
+            // Get or create wishlist
+            let wishlist = await WishList.findOne({ user: userId });
+            if (!wishlist) {
+                wishlist = await WishList.create({ user: userId, items: [] });
+            }
+
+            // Check for duplicates
+            const existingItemIndex = wishlist.items.findIndex(item => {
+                const productMatch = item.product.toString() === productId.toString();
+                const variantMatch = (!item.variant && !variantId) || 
+                                   (item.variant && variantId && item.variant.toString() === variantId.toString());
+                return productMatch && variantMatch;
+            });
+
+            if (existingItemIndex !== -1) {
+                throw new AppError('Sản phẩm đã có trong danh sách yêu thích', 400);
+            }
+
+            // Add new item
+            const newItem = { product: productId };
+            if (variantId) {
+                newItem.variant = variantId;
+            }
+
+            wishlist.items.push(newItem);
+            await wishlist.save();
+
+            // Return populated wishlist
+            return await this.getUserWishList(userId);
+        } catch (error) {
+            if (error instanceof AppError) throw error;
+            throw new AppError('Lỗi khi thêm sản phẩm vào danh sách yêu thích', 500);
+        }
     }
-  }
 
-  // Check if item is in wishlist
-  async isInWishList(userId, productId, variantId = null) {
-    const wishlist = await WishList.findOne({ user: userId });
-    if (!wishlist) return false;
-    
-    return wishlist.items.some(item => {
-      const sameProduct = item.product.toString() === productId.toString();
-      const sameVariant = (!variantId && !item.variant) || 
-                         (variantId && item.variant && item.variant.toString() === variantId.toString());
-      return sameProduct && sameVariant;
-    });
-  }
+    /**
+     * Xóa sản phẩm khỏi wishlist
+     */
+    async removeFromWishList(userId, productId, variantId = null) {
+        try {
+            const wishlist = await WishList.findOne({ user: userId });
+            if (!wishlist) {
+                throw new AppError('Danh sách yêu thích không tồn tại', 404);
+            }
 
-  // Get wishlist count
-  async getWishListCount(userId) {
-    const wishlist = await WishList.findOne({ user: userId });
-    return wishlist ? wishlist.items.length : 0;
-  }
+            const itemIndex = wishlist.items.findIndex(item => {
+                const productMatch = item.product.toString() === productId.toString();
+                const variantMatch = (!item.variant && !variantId) || 
+                                   (item.variant && variantId && item.variant.toString() === variantId.toString());
+                return productMatch && variantMatch;
+            });
 
-  // Clear user's entire wishlist
-  async clearWishList(userId) {
-    const wishlist = await WishList.findOrCreateUserWishList(userId);
-    wishlist.items = [];
-    await wishlist.save();
-    return await WishList.findOrCreateUserWishList(userId);
-  }
+            if (itemIndex === -1) {
+                throw new AppError('Sản phẩm không có trong danh sách yêu thích', 404);
+            }
 
-  // Add multiple items to wishlist
-  async addMultipleToWishList(userId, items) {
-    const results = [];
-    const errors = [];
-    
-    for (const item of items) {
-      try {
-        const { productId, variantId } = item;
-        await this.addToWishList(userId, productId, variantId);
-        results.push({ productId, variantId, success: true });
-      } catch (error) {
-        errors.push({ productId: item.productId, variantId: item.variantId, error: error.message });
-      }
+            wishlist.items.splice(itemIndex, 1);
+            await wishlist.save();
+
+            return await this.getUserWishList(userId);
+        } catch (error) {
+            if (error instanceof AppError) throw error;
+            throw new AppError('Lỗi khi xóa sản phẩm khỏi danh sách yêu thích', 500);
+        }
     }
-    
-    const wishlist = await WishList.findOrCreateUserWishList(userId);
-    return { wishlist, results, errors };
-  }
 
-  // Get wishlist statistics (for admin)
-  async getWishListStats() {
-    const stats = await WishList.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalWishlists: { $sum: 1 },
-          totalItems: { $sum: { $size: '$items' } },
-          avgItemsPerWishlist: { $avg: { $size: '$items' } }
-        }
-      }
-    ]);
-    
-    const topProducts = await WishList.aggregate([
-      { $unwind: '$items' },
-      { 
-        $group: {
-          _id: '$items.product',
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { count: -1 } },
-      { $limit: 10 },
-      {
-        $lookup: {
-          from: 'products',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'product'
-        }
-      },
-      { $unwind: '$product' },
-      {
-        $project: {
-          productId: '$_id',
-          productName: '$product.name',
-          wishlistCount: '$count'
-        }
-      }
-    ]);
-    
-    return {
-      overview: stats[0] || { totalWishlists: 0, totalItems: 0, avgItemsPerWishlist: 0 },
-      topProducts
-    };
-  }
+    /**
+     * Toggle sản phẩm trong wishlist
+     */
+    async toggleWishList(userId, productId, variantId = null) {
+        try {
+            const wishlist = await WishList.findOne({ user: userId });
+            
+            // Check if item exists
+            let itemExists = false;
+            if (wishlist) {
+                itemExists = wishlist.items.some(item => {
+                    const productMatch = item.product.toString() === productId.toString();
+                    const variantMatch = (!item.variant && !variantId) || 
+                                       (item.variant && variantId && item.variant.toString() === variantId.toString());
+                    return productMatch && variantMatch;
+                });
+            }
 
-  // Admin: Get all wishlists with pagination
-  async getAllWishLists(options = {}) {
-    const { page = 1, limit = 20, userId } = options;
-    const skip = (page - 1) * limit;
-    
-    const filter = {};
-    if (userId) filter.user = userId;
-    
-    const wishlists = await WishList.find(filter)
-      .populate([
-        {
-          path: 'user',
-          select: 'name email'
-        },
-        {
-          path: 'items.product',
-          select: 'name price images'
-        },
-        {
-          path: 'items.variant',
-          select: 'price stock color size'
+            if (itemExists) {
+                return await this.removeFromWishList(userId, productId, variantId);
+            } else {
+                return await this.addToWishList(userId, productId, variantId);
+            }
+        } catch (error) {
+            if (error instanceof AppError) throw error;
+            throw new AppError('Lỗi khi toggle wishlist', 500);
         }
-      ])
-      .sort({ updatedAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
-    
-    const total = await WishList.countDocuments(filter);
-    
-    return {
-      wishlists,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / limit)
-      }
-    };
-  }
+    }
+
+    /**
+     * Kiểm tra sản phẩm có trong wishlist không
+     */
+    async isInWishList(userId, productId, variantId = null) {
+        try {
+            const wishlist = await WishList.findOne({ user: userId });
+            if (!wishlist) return false;
+
+            return wishlist.items.some(item => {
+                const productMatch = item.product.toString() === productId.toString();
+                const variantMatch = (!item.variant && !variantId) || 
+                                   (item.variant && variantId && item.variant.toString() === variantId.toString());
+                return productMatch && variantMatch;
+            });
+        } catch (error) {
+            return false;
+        }
+    }
+
+    /**
+     * Lấy số lượng item trong wishlist
+     */
+    async getWishListCount(userId) {
+        try {
+            const wishlist = await WishList.findOne({ user: userId });
+            return wishlist ? wishlist.items.length : 0;
+        } catch (error) {
+            return 0;
+        }
+    }
+
+    /**
+     * Xóa toàn bộ wishlist
+     */
+    async clearWishList(userId) {
+        try {
+            const wishlist = await WishList.findOne({ user: userId });
+            if (!wishlist) {
+                throw new AppError('Danh sách yêu thích không tồn tại', 404);
+            }
+
+            wishlist.items = [];
+            await wishlist.save();
+
+            return wishlist;
+        } catch (error) {
+            if (error instanceof AppError) throw error;
+            throw new AppError('Lỗi khi xóa danh sách yêu thích', 500);
+        }
+    }
+
+    /**
+     * Thêm nhiều sản phẩm vào wishlist
+     */
+    async addMultipleToWishList(userId, items) {
+        const results = [];
+        const errors = [];
+
+        for (const item of items) {
+            try {
+                const { productId, variantId } = item;
+                await this.addToWishList(userId, productId, variantId);
+                results.push({ productId, variantId, success: true });
+            } catch (error) {
+                errors.push({ 
+                    productId: item.productId, 
+                    variantId: item.variantId, 
+                    error: error.message 
+                });
+            }
+        }
+
+        const wishlist = await this.getUserWishList(userId);
+        return { wishlist, results, errors };
+    }
+
+    /**
+     * Đồng bộ wishlist từ session (cho user vừa đăng nhập)
+     */
+    async syncWishListFromSession(userId, sessionItems = []) {
+        try {
+            if (!sessionItems.length) return await this.getUserWishList(userId);
+
+            const wishlist = await this.getUserWishList(userId);
+            
+            for (const sessionItem of sessionItems) {
+                try {
+                    // Validate each session item
+                    await this.validateItemAddition(sessionItem.product, sessionItem.variant);
+                    
+                    // Check if already exists
+                    const exists = wishlist.items.some(item => {
+                        const productMatch = item.product._id.toString() === sessionItem.product.toString();
+                        const variantMatch = (!item.variant && !sessionItem.variant) || 
+                                           (item.variant && sessionItem.variant && 
+                                            item.variant._id.toString() === sessionItem.variant.toString());
+                        return productMatch && variantMatch;
+                    });
+
+                    if (!exists) {
+                        const newItem = { product: sessionItem.product };
+                        if (sessionItem.variant) {
+                            newItem.variant = sessionItem.variant;
+                        }
+                        wishlist.items.push(newItem);
+                    }
+                } catch (itemError) {
+                    // Skip invalid items from session
+                    console.log('Skipping invalid session item:', itemError.message);
+                }
+            }
+
+            await wishlist.save();
+            return await this.getUserWishList(userId);
+        } catch (error) {
+            throw new AppError('Lỗi khi đồng bộ danh sách yêu thích', 500);
+        }
+    }
+
+    // ============= ADMIN OPERATIONS =============
+
+    /**
+     * Lấy tất cả wishlist (Admin only)
+     */
+    async getAllWishLists(queryOptions = {}) {
+        try {
+            const { page = 1, limit = 10, search, sortBy = 'createdAt', sortOrder = 'desc' } = queryOptions;
+            const skip = (page - 1) * limit;
+            
+            let filter = {};
+            
+            // Search by user name or email
+            if (search) {
+                const User = require('../models/UserSchema');
+                const users = await User.find({
+                    $or: [
+                        { name: { $regex: search, $options: 'i' } },
+                        { email: { $regex: search, $options: 'i' } }
+                    ]
+                }).select('_id');
+                
+                filter.user = { $in: users.map(u => u._id) };
+            }
+
+            const wishlists = await WishList.find(filter)
+                .populate({
+                    path: 'user',
+                    select: 'name email'
+                })
+                .populate({
+                    path: 'items.product',
+                    select: 'name price images'
+                })
+                .populate({
+                    path: 'items.variant',
+                    select: 'price color size'
+                })
+                .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
+                .skip(skip)
+                .limit(parseInt(limit));
+
+            const total = await WishList.countDocuments(filter);
+
+            return {
+                wishlists,
+                pagination: {
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    total,
+                    pages: Math.ceil(total / limit)
+                }
+            };
+        } catch (error) {
+            throw new AppError('Lỗi khi lấy danh sách wishlist', 500);
+        }
+    }
+
+    /**
+     * Lấy wishlist của user cụ thể (Admin only)
+     */
+    async getUserWishListByAdmin(userId) {
+        try {
+            const wishlist = await WishList.findOne({ user: userId })
+                .populate({
+                    path: 'user',
+                    select: 'name email'
+                })
+                .populate({
+                    path: 'items.product',
+                    select: 'name price images isActive category'
+                })
+                .populate({
+                    path: 'items.variant',
+                    select: 'price stock color size images isActive'
+                });
+
+            if (!wishlist) {
+                throw new AppError('Wishlist không tồn tại', 404);
+            }
+
+            return wishlist;
+        } catch (error) {
+            if (error instanceof AppError) throw error;
+            throw new AppError('Lỗi khi lấy wishlist của user', 500);
+        }
+    }
+
+    /**
+     * Thống kê wishlist (Admin only)
+     */
+    async getWishListStats() {
+        try {
+            const stats = await WishList.aggregate([
+                {
+                    $group: {
+                        _id: null,
+                        totalWishLists: { $sum: 1 },
+                        totalItems: { $sum: { $size: '$items' } },
+                        avgItemsPerWishList: { $avg: { $size: '$items' } }
+                    }
+                }
+            ]);
+
+            const topProducts = await WishList.aggregate([
+                { $unwind: '$items' },
+                {
+                    $group: {
+                        _id: '$items.product',
+                        count: { $sum: 1 }
+                    }
+                },
+                { $sort: { count: -1 } },
+                { $limit: 10 },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'product'
+                    }
+                },
+                { $unwind: '$product' },
+                {
+                    $project: {
+                        productName: '$product.name',
+                        productPrice: '$product.price',
+                        wishlistCount: '$count'
+                    }
+                }
+            ]);
+
+            return {
+                summary: stats[0] || {
+                    totalWishLists: 0,
+                    totalItems: 0,
+                    avgItemsPerWishList: 0
+                },
+                topProducts
+            };
+        } catch (error) {
+            throw new AppError('Lỗi khi lấy thống kê wishlist', 500);
+        }
+    }
+
+    /**
+     * Lấy tất cả wishlist với Query Middleware (Admin only)
+     */
+    async getAllWishListsWithQuery(queryParams) {
+        try {
+            // Sử dụng QueryUtils với pre-configured setup cho WishList
+            const result = await QueryUtils.getWishLists(WishList, queryParams);
+            
+            return result;
+        } catch (error) {
+            throw new AppError(
+                `Error fetching wishlists: ${error.message}`,
+                'WISHLIST_FETCH_FAILED',
+                500
+            );
+        }
+    }
+
+    // ============= VALIDATION HELPERS =============
+
+    /**
+     * Validate product and variant addition
+     */
+    async validateItemAddition(productId, variantId = null) {
+        // Check if product exists and is active
+        const product = await Product.findById(productId);
+        if (!product) {
+            throw new AppError('Sản phẩm không tồn tại', 404);
+        }
+
+        if (!product.isActive) {
+            throw new AppError('Sản phẩm đã bị ẩn, không thể thêm vào wishlist', 400);
+        }
+
+        // Check variant if provided
+        if (variantId) {
+            const variant = await ProductVariant.findById(variantId);
+            if (!variant) {
+                throw new AppError('Biến thể sản phẩm không tồn tại', 404);
+            }
+
+            if (variant.product.toString() !== productId.toString()) {
+                throw new AppError('Biến thể không thuộc về sản phẩm này', 400);
+            }
+
+            // Note: Cho phép thêm variant hết hàng (stock = 0) theo yêu cầu
+        }
+
+        return true;
+    }
+
+    // ============= SESSION HELPERS =============
+
+    /**
+     * Thêm item vào session wishlist
+     */
+    addToSessionWishList(sessionWishList = [], productId, variantId = null) {
+        const existingIndex = sessionWishList.findIndex(item => {
+            const productMatch = item.product.toString() === productId.toString();
+            const variantMatch = (!item.variant && !variantId) || 
+                               (item.variant && variantId && item.variant.toString() === variantId.toString());
+            return productMatch && variantMatch;
+        });
+
+        if (existingIndex !== -1) {
+            throw new AppError('Sản phẩm đã có trong danh sách yêu thích', 400);
+        }
+
+        const newItem = { product: productId };
+        if (variantId) {
+            newItem.variant = variantId;
+        }
+
+        sessionWishList.push(newItem);
+        return sessionWishList;
+    }
+
+    /**
+     * Xóa item khỏi session wishlist
+     */
+    removeFromSessionWishList(sessionWishList = [], productId, variantId = null) {
+        const itemIndex = sessionWishList.findIndex(item => {
+            const productMatch = item.product.toString() === productId.toString();
+            const variantMatch = (!item.variant && !variantId) || 
+                               (item.variant && variantId && item.variant.toString() === variantId.toString());
+            return productMatch && variantMatch;
+        });
+
+        if (itemIndex === -1) {
+            throw new AppError('Sản phẩm không có trong danh sách yêu thích', 404);
+        }
+
+        sessionWishList.splice(itemIndex, 1);
+        return sessionWishList;
+    }
 }
 
 module.exports = WishListService;

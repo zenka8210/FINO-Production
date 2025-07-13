@@ -21,31 +21,34 @@ const CartOrderSchema = new mongoose.Schema({
   // Common fields for both cart and order
   items: [CartItemSchema],
   
-  // Order-specific fields (null for cart)
+  // Order-specific fields (null for cart) - Aligned with OrderSchema
+  orderCode: { 
+    type: String, 
+    unique: true, 
+    sparse: true, // Only for orders, not carts
+    index: true // Optimize search like OrderSchema
+  },
   address: { type: mongoose.Schema.Types.ObjectId, ref: 'Address', default: null },
   voucher: { type: mongoose.Schema.Types.ObjectId, ref: 'Voucher', default: null },
   paymentMethod: { type: mongoose.Schema.Types.ObjectId, ref: 'PaymentMethod', default: null },
   
-  // Pricing fields
-  subtotal: { type: Number, default: 0 }, // Sum of all item totalPrices
-  discountAmount: { type: Number, default: 0 }, // From voucher
-  shippingFee: { type: Number, default: 0 }, // Calculated based on address
-  finalTotal: { type: Number, default: 0 }, // subtotal - discountAmount + shippingFee
+  // Pricing fields - Aligned with OrderSchema naming
+  total: { type: Number, default: 0 }, // Renamed from subtotal to match OrderSchema
+  discountAmount: { type: Number, default: 0 }, // From voucher - same as OrderSchema
+  shippingFee: { type: Number, default: 0 }, // Calculated based on address - same as OrderSchema
+  finalTotal: { type: Number, default: 0 }, // total - discountAmount + shippingFee - same as OrderSchema
   
-  // Status fields
+  // Status fields - Aligned with OrderSchema
   status: { 
     type: String, 
     enum: ['cart', 'pending', 'processing', 'shipped', 'delivered', 'cancelled'], 
     default: 'cart' 
   },
-  paymentStatus: { 
+  paymentStatus: { // Renamed from 'Status' to 'paymentStatus' for clarity
     type: String, 
-    enum: ['unpaid', 'paid', 'refunded'], 
+    enum: ['unpaid', 'paid', 'refunded'], // Added 'refunded' for better order management
     default: 'unpaid' 
   },
-  
-  // Order code (generated when cart becomes order)
-  orderCode: { type: String, unique: true, sparse: true }, // Only for orders, not carts
   
   // Metadata
   cartUpdatedAt: { type: Date, default: Date.now }, // Last cart update
@@ -53,18 +56,18 @@ const CartOrderSchema = new mongoose.Schema({
   
 }, { timestamps: true });
 
-// Indexes for performance
+// Indexes for performance - Same pattern as OrderSchema
 CartOrderSchema.index({ user: 1, type: 1 }); // Find user's cart/orders
 CartOrderSchema.index({ status: 1 }); // Filter by status
 CartOrderSchema.index({ orderCode: 1 }); // Quick order lookup
 
 // Pre-save middleware to calculate totals
 CartOrderSchema.pre('save', function(next) {
-  // Calculate subtotal
-  this.subtotal = this.items.reduce((sum, item) => sum + item.totalPrice, 0);
+  // Calculate total (renamed from subtotal to match OrderSchema)
+  this.total = this.items.reduce((sum, item) => sum + item.totalPrice, 0);
   
-  // Calculate final total
-  this.finalTotal = this.subtotal - this.discountAmount + this.shippingFee;
+  // Calculate final total - same formula as OrderSchema
+  this.finalTotal = this.total - this.discountAmount + this.shippingFee;
   
   // Update cart timestamp
   if (this.type === 'cart') {
@@ -82,8 +85,59 @@ CartOrderSchema.pre('save', function(next) {
   next();
 });
 
+// Static method to generate order code - Same as OrderSchema
+CartOrderSchema.statics.generateOrderCode = async function() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  
+  // Format: CO + YYYYMMDD + 5 digit counter (CO = Cart Order)
+  const prefix = `CO${year}${month}${day}`;
+  
+  // Find last order in day
+  const lastOrder = await this.findOne({
+    orderCode: { $regex: `^${prefix}` }
+  }).sort({ orderCode: -1 });
+  
+  let counter = 1;
+  if (lastOrder) {
+    const lastCounter = parseInt(lastOrder.orderCode.slice(-5));
+    counter = lastCounter + 1;
+  }
+  
+  const orderCode = prefix + String(counter).padStart(5, '0');
+  return orderCode;
+};
+
+// Static method to check stock availability - Same as OrderSchema
+CartOrderSchema.statics.checkStockAvailability = async function(items) {
+  const ProductVariant = require('./ProductVariantSchema');
+  
+  for (const item of items) {
+    const variant = await ProductVariant.findById(item.productVariant);
+    if (!variant) {
+      throw new Error(`Product variant ${item.productVariant} không tồn tại`);
+    }
+    
+    if (variant.stock < item.quantity) {
+      throw new Error(`Sản phẩm ${variant.product} không đủ số lượng. Còn lại: ${variant.stock}, yêu cầu: ${item.quantity}`);
+    }
+  }
+  
+  return true;
+};
+
+// Instance method to check if order can be reviewed - Same as OrderSchema
+CartOrderSchema.methods.canBeReviewed = function() {
+  return this.status === 'delivered';
+};
+
 // Methods
-CartOrderSchema.methods.convertToOrder = function(orderData) {
+CartOrderSchema.methods.convertToOrder = async function(orderData) {
+  // Check stock availability before converting
+  await this.constructor.checkStockAvailability(this.items);
+  
   this.type = 'order';
   this.status = 'pending';
   this.address = orderData.address;
@@ -93,8 +147,8 @@ CartOrderSchema.methods.convertToOrder = function(orderData) {
   this.shippingFee = orderData.shippingFee || 0;
   this.orderPlacedAt = new Date();
   
-  // Generate unique order code
-  this.orderCode = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
+  // Generate unique order code using static method
+  this.orderCode = await this.constructor.generateOrderCode();
   
   return this.save();
 };
