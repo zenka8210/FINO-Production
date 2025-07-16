@@ -1,0 +1,414 @@
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  
+  /* Brand Colors - Màu thương hiệu */
+  --brand-primary: #FF9800;
+  --brand-primary-light: #FFB74D;
+  --brand-primary-dark: #F57C00;
+  --brand-gradient: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-light));
+  --brand-gradient-hover: linear-gradient(135deg, var(--brand-primary-dark), var(--brand-primary));
+  
+  /* Button Colors */
+  --btn-primary-bg: var(--brand-gradient);
+  --btn-primary-hover: var(--brand-gradient-hover);
+  --btn-primary-shadow: rgba(255, 152, 0, 0.3);
+  --btn-primary-shadow-hover: rgba(255, 152, 0, 0.5);
+}
+
+
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Hệ thống Grid 12 cột */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -15px;
+}
+
+.col {
+  padding: 0 15px;
+  flex: 1;
+}
+
+/* Các cột từ 1-12 */
+.col-1 { flex: 0 0 8.333333%; max-width: 8.333333%; }
+.col-2 { flex: 0 0 16.666667%; max-width: 16.666667%; }
+.col-3 { flex: 0 0 25%; max-width: 25%; }
+.col-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+.col-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+.col-6 { flex: 0 0 50%; max-width: 50%; }
+.col-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+.col-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+.col-9 { flex: 0 0 75%; max-width: 75%; }
+.col-10 { flex: 0 0 83.333333%; max-width: 83.333333%; }
+.col-11 { flex: 0 0 91.666667%; max-width: 91.666667%; }
+.col-12 { flex: 0 0 100%; max-width: 100%; }
+
+/* Responsive cho tablet */
+@media (max-width: 768px) {
+  .col-md-1 { flex: 0 0 8.333333%; max-width: 8.333333%; }
+  .col-md-2 { flex: 0 0 16.666667%; max-width: 16.666667%; }
+  .col-md-3 { flex: 0 0 25%; max-width: 25%; }
+  .col-md-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+  .col-md-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+  .col-md-6 { flex: 0 0 50%; max-width: 50%; }
+  .col-md-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+  .col-md-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+  .col-md-9 { flex: 0 0 75%; max-width: 75%; }
+  .col-md-10 { flex: 0 0 83.333333%; max-width: 83.333333%; }
+  .col-md-11 { flex: 0 0 91.666667%; max-width: 91.666667%; }
+  .col-md-12 { flex: 0 0 100%; max-width: 100%; }
+}
+
+/* Responsive cho mobile */
+@media (max-width: 576px) {
+  .col-sm-1 { flex: 0 0 8.333333%; max-width: 8.333333%; }
+  .col-sm-2 { flex: 0 0 16.666667%; max-width: 16.666667%; }
+  .col-sm-3 { flex: 0 0 25%; max-width: 25%; }
+  .col-sm-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+  .col-sm-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+  .col-sm-6 { flex: 0 0 50%; max-width: 50%; }
+  .col-sm-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+  .col-sm-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+  .col-sm-9 { flex: 0 0 75%; max-width: 75%; }
+  .col-sm-10 { flex: 0 0 83.333333%; max-width: 83.333333%; }
+  .col-sm-11 { flex: 0 0 91.666667%; max-width: 91.666667%; }
+  .col-sm-12 { flex: 0 0 100%; max-width: 100%; }
+}
+
+/* Responsive spacing */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 10px;
+  }
+  
+  .row {
+    margin: 0 -10px;
+  }
+  
+  .col, [class*="col-"] {
+    padding: 0 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 0 5px;
+  }
+  
+  .row {
+    margin: 0 -5px;
+  }
+  
+  .col, [class*="col-"] {
+    padding: 0 5px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
+
+/* Brand Button Styles - Nút với màu thương hiệu thống nhất */
+.btn-brand, 
+.btn-primary,
+button.brand-btn,
+.brand-button,
+button[type="submit"],
+.submitBtn,
+.actionBtn {
+  background: var(--btn-primary-bg) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 12px var(--btn-primary-shadow) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.btn-brand::before,
+.btn-primary::before,
+button.brand-btn::before,
+.brand-button::before,
+button[type="submit"]::before,
+.submitBtn::before,
+.actionBtn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.btn-brand:hover,
+.btn-primary:hover,
+button.brand-btn:hover,
+.brand-button:hover,
+button[type="submit"]:hover,
+.submitBtn:hover,
+.actionBtn:hover {
+  background: var(--btn-primary-hover) !important;
+  box-shadow: 0 6px 20px var(--btn-primary-shadow-hover) !important;
+  transform: translateY(-2px) !important;
+}
+
+.btn-brand:hover::before,
+.btn-primary:hover::before,
+button.brand-btn:hover::before,
+.brand-button:hover::before,
+button[type="submit"]:hover::before,
+.submitBtn:hover::before,
+.actionBtn:hover::before {
+  left: 100%;
+}
+
+.btn-brand:disabled,
+.btn-primary:disabled,
+button.brand-btn:disabled,
+.brand-button:disabled {
+  background: #ccc !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Sizes for brand buttons */
+.btn-brand.btn-sm, .btn-primary.btn-sm {
+  padding: 8px 16px !important;
+  font-size: 0.9rem !important;
+}
+
+.btn-brand.btn-md, .btn-primary.btn-md {
+  padding: 12px 24px !important;
+  font-size: 1rem !important;
+}
+
+.btn-brand.btn-lg, .btn-primary.btn-lg {
+  padding: 16px 32px !important;
+  font-size: 1.1rem !important;
+}
+
+/* Đảm bảo buttons có kích thước đồng nhất */
+.btn-brand,
+.btn-secondary,
+.btn-primary {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+}
+
+/* Kích thước chuẩn cho các button */
+.btn-sm {
+  min-height: 32px !important;
+  padding: 6px 12px !important;
+}
+
+.btn-md {
+  min-height: 40px !important;
+  padding: 10px 16px !important;
+}
+
+.btn-lg {
+  min-height: 48px !important;
+  padding: 14px 24px !important;
+}
+
+/* Loại trừ một số button khỏi brand styling */
+.search-btn,
+.search-btn i,
+.hamburger,
+button.no-brand {
+  background: none !important;
+  color: #000 !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 6px !important;
+  font-size: 16px !important;
+}
+
+.search-btn:hover,
+.search-btn:hover i {
+  background: none !important;
+  color: #333 !important;
+  transform: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.search-btn:focus,
+.search-btn:active {
+  background: none !important;
+  color: #000 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Override mạnh mẽ cho search button */
+button.search-btn,
+.search-btn,
+button[type="submit"].search-btn {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #000 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  outline: none !important;
+  padding: 6px !important;
+  margin: 0 !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  min-height: auto !important;
+  height: auto !important;
+}
+
+button.search-btn:before,
+.search-btn:before,
+button[type="submit"].search-btn:before {
+  display: none !important;
+  content: none !important;
+}
+
+button.search-btn:hover,
+.search-btn:hover,
+button[type="submit"].search-btn:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #333 !important;
+  transform: none !important;
+  scale: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+button.search-btn i,
+.search-btn i {
+  color: inherit !important;
+  background: none !important;
+}
+
+/* Secondary button - ít nổi bật hơn brand button */
+.btn-secondary,
+button.btn-secondary {
+  background: #f8f9fa !important;
+  color: var(--brand-primary) !important;
+  border: 2px solid var(--brand-primary) !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.btn-secondary:hover,
+button.btn-secondary:hover {
+  background: var(--brand-primary-light) !important;
+  color: white !important;
+  border-color: var(--brand-primary-dark) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px var(--btn-primary-shadow) !important;
+}
+
+/* Nút Add to cart nổi bật hơn */
+.add-to-cart-primary {
+  background: var(--btn-primary-bg) !important;
+  box-shadow: 0 6px 20px var(--btn-primary-shadow) !important;
+  font-size: 1.05rem !important;
+  font-weight: bold !important;
+}
+
+.add-to-cart-primary:hover {
+  background: var(--btn-primary-hover) !important;
+  box-shadow: 0 8px 25px var(--btn-primary-shadow-hover) !important;
+  transform: translateY(-3px) scale(1.02) !important;
+}
+
+/* CSS toàn cục cho ảnh sản phẩm */
+img[alt*="sản phẩm"], 
+img[alt*="product"], 
+.product-image,
+.productImage {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+  object-position: center;
+  background: #f8f9fa;
+}
+
+/* Đảm bảo tất cả ảnh trong container sản phẩm có kích thước nhất quán */
+.productItem img,
+.product-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.3s ease;
+}
+
+/* CSS cho ảnh loading và error state */
+img {
+  transition: opacity 0.3s ease;
+}
+
+img[src=""],
+img:not([src]),
+img[src="#"] {
+  opacity: 0;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

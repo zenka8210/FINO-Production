@@ -1,0 +1,418 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.header h1 {
+  color: #333;
+  font-size: 2rem;
+  margin: 0;
+}
+
+.stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statNumber {
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--brand-color, #FF9800);
+}
+
+.statLabel {
+  display: block;
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.2rem;
+}
+
+.filters {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filterGroup label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.filterSelect,
+.searchInput {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  min-width: 200px;
+}
+
+.filterSelect:focus,
+.searchInput:focus {
+  outline: none;
+  border-color: var(--brand-color, #FF9800);
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
+}
+
+.reviewsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.reviewCard {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.reviewCard:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.reviewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.reviewInfo {
+  flex: 1;
+}
+
+.productName {
+  color: #333;
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.reviewMeta {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.username {
+  color: #666;
+  font-weight: 500;
+}
+
+.date {
+  color: #999;
+}
+
+.rating {
+  color: #ffc107;
+  font-size: 1rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actionBtn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.editBtn {
+  background: #007bff;
+  color: white;
+}
+
+.editBtn:hover {
+  background: #0056b3;
+}
+
+.deleteBtn {
+  background: #dc3545;
+  color: white;
+}
+
+.deleteBtn:hover {
+  background: #c82333;
+}
+
+.reviewContent {
+  margin-bottom: 0.5rem;
+}
+
+.reviewContent p {
+  margin: 0;
+  line-height: 1.6;
+  color: #333;
+}
+
+.updatedInfo {
+  font-size: 0.8rem;
+  color: #999;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+.emptyMessage {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  font-size: 1.1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.loadingMessage,
+.unauthorizedMessage {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.unauthorizedMessage {
+  color: #dc3545;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  border-radius: 4px;
+}
+
+.closeBtn:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.modalBody {
+  padding: 1.5rem;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.productInfo,
+.userInfo {
+  margin: 0;
+  padding: 0.5rem 0;
+  color: #666;
+  font-weight: 500;
+}
+
+.formSelect,
+.formTextarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.formSelect:focus,
+.formTextarea:focus {
+  outline: none;
+  border-color: var(--brand-color, #FF9800);
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.modalBtn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.cancelBtn {
+  background: #6c757d;
+  color: white;
+}
+
+.cancelBtn:hover {
+  background: #545b62;
+}
+
+.saveBtn {
+  background: var(--brand-color, #FF9800) !important;
+  color: white !important;
+}
+
+.saveBtn:hover {
+  background: #e68900 !important;
+}
+
+.saveBtn:disabled {
+  background: #ccc !important;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .stats {
+    flex-direction: row;
+    gap: 1rem;
+  }
+
+  .filters {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .filterSelect,
+  .searchInput {
+    min-width: 100%;
+  }
+
+  .reviewHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .reviewMeta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .modalContent {
+    margin: 1rem;
+    max-width: none;
+    width: auto;
+  }
+
+  .modalFooter {
+    flex-direction: column;
+  }
+
+  .modalBtn {
+    width: 100%;
+  }
+}

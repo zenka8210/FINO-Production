@@ -30,7 +30,10 @@ const SizeSchema = new mongoose.Schema({
       }
     ]
   },
-  
+  isActive: {
+    type: Boolean,
+    default: true
+  }
 }, { timestamps: true });
 
 // Index để đảm bảo uniqueness và tối ưu query

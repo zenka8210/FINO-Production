@@ -1,0 +1,16 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run app.js in server/",
+      "type": "shell",
+      "command": "node app.js",
+      "options": {
+        "cwd": "${workspaceFolder}/asm/server"
+      },
+      "problemMatcher": [],
+      "group": "build",
+      "detail": "Chạy file app.js trong đúng thư mục server/"
+    }
+  ]
+}

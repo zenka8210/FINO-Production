@@ -1,0 +1,485 @@
+.footer {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 50px 0 30px;
+  margin-top: 80px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.footerSection {
+  margin-bottom: 35px;
+  padding-right: 20px;
+}
+
+.footerSection h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #111827;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.footerSection h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+/* Logo Section */
+.logo {
+  margin-bottom: 20px;
+}
+
+.logo a {
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.logo h2 {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #111827;
+  margin-bottom: 0;
+  letter-spacing: 2px;
+  position: relative;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.logo h2::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+  transition: width 0.3s ease;
+}
+
+.logo a:hover h2::after {
+  width: 100%;
+}
+
+.logo a:hover h2 {
+  transform: translateY(-2px);
+}
+
+.contactInfo {
+  margin-bottom: 25px;
+}
+
+.contactInfo p {
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: #4b5563;
+  display: flex;
+  align-items: center;
+}
+
+.contactInfo i {
+  margin-right: 8px;
+  color: #3b82f6;
+  width: 16px;
+  font-size: 0.9rem;
+}
+
+/* Newsletter */
+.newsletter h4 {
+  color: #111827;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.newsletter p {
+  color: #4b5563;
+  font-size: 0.85rem;
+  margin-bottom: 15px;
+}
+
+.newsletterForm {
+  display: flex;
+  gap: 0;
+  margin-top: 15px;
+}
+
+.newsletterForm input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px 0 0 4px;
+  font-size: 0.85rem;
+  outline: none;
+  background: white;
+}
+
+.newsletterForm button {
+  padding: 10px 18px;
+  background: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.newsletterForm button:hover {
+  background: #d97706;
+}
+
+/* Links List */
+.footerSection ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footerSection ul li {
+  margin-bottom: 12px;
+}
+
+.footerSection ul li a {
+  color: #4b5563;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+  line-height: 1.5;
+}
+
+.footerSection ul li a:hover {
+  color: #111827;
+  text-decoration: none;
+}
+
+/* Store Locations */
+.storeLocation {
+  margin-bottom: 20px;
+}
+
+.storeLocation h4 {
+  font-size: 0.95rem;
+  color: #111827;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.storeLocation h4 i {
+  margin-right: 8px;
+  color: #3b82f6;
+}
+
+.storeLocation p {
+  color: #4b5563;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin-bottom: 0;
+}
+
+.newBadge {
+  background: #ef4444;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.viewAllStores {
+  color: #3b82f6;
+  text-decoration: underline;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-top: 15px;
+  display: inline-block;
+}
+
+.viewAllStores:hover {
+  color: #111827;
+  text-decoration: underline;
+}
+
+/* Social Icons */
+.socialSection {
+  margin-bottom: 30px;
+}
+
+.socialIcons {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.socialIcons a {
+  width: 40px;
+  height: 40px;
+  background: rgba(55, 65, 81, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #374151;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(55, 65, 81, 0.2);
+}
+
+.socialIcons a:hover {
+  background: #3b82f6;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+  border-color: #3b82f6;
+}
+
+/* Facebook hover */
+.socialIcons .facebook:hover {
+  background: #1877f2 !important;
+  box-shadow: 0 5px 15px rgba(24, 119, 242, 0.4) !important;
+  border-color: #1877f2 !important;
+}
+
+/* Instagram hover */
+.socialIcons .instagram:hover {
+  background: linear-gradient(45deg, #f77737, #bc5418) !important;
+  box-shadow: 0 5px 15px rgba(247, 119, 55, 0.4) !important;
+  border-color: #f77737 !important;
+}
+
+/* YouTube hover */
+.socialIcons .youtube:hover {
+  background: #ff0000 !important;
+  box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4) !important;
+  border-color: #ff0000 !important;
+}
+
+/* TikTok hover */
+.socialIcons .tiktok:hover {
+  background: #000000 !important;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4) !important;
+  border-color: #000000 !important;
+}
+
+.socialIcons i {
+  font-size: 1.2rem;
+}
+
+/* Payment Methods */
+.paymentMethods {
+  margin-bottom: 25px;
+}
+
+.paymentIcons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.vnpay, .cod {
+  background: white;
+  color: #1e40af;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 1px solid #d1d5db;
+}
+
+.vnpay {
+  background: #1e40af;
+  color: white;
+}
+
+/* Certifications */
+.certifications {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.certifications img {
+  height: 40px;
+  width: auto;
+  filter: brightness(0.9);
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.certifications img:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+/* Connect Section */
+.connectSection {
+  text-align: center;
+  padding: 30px 0;
+  border-top: 1px solid rgba(55, 65, 81, 0.2);
+  margin-top: 20px;
+}
+
+.connectSection h3 {
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+.socialIconsLarge {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.socialIconsLarge a {
+  width: 50px;
+  height: 50px;
+  background: rgba(55, 65, 81, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #374151;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(55, 65, 81, 0.2);
+}
+
+.socialIconsLarge a:hover {
+  background: #3b82f6;
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+  border-color: #3b82f6;
+}
+
+.socialIconsLarge i {
+  font-size: 1.4rem;
+}
+
+/* Footer Bottom */
+.footerBottom {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(55, 65, 81, 0.2);
+  margin-top: 20px;
+}
+
+.footerBottom p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.footerBottom a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.footerBottom a:hover {
+  color: #111827;
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .footer {
+    padding: 40px 0 20px;
+  }
+  
+  .connectSection {
+    padding: 20px 0;
+  }
+  
+  .socialIconsLarge {
+    gap: 15px;
+  }
+  
+  .socialIconsLarge a {
+    width: 45px;
+    height: 45px;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 30px 0 15px;
+  }
+  
+  .footerSection {
+    margin-bottom: 30px;
+  }
+  
+  .logo h2 {
+    font-size: 1.8rem;
+    text-align: center;
+  }
+  
+  .newsletterForm {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .newsletterForm input,
+  .newsletterForm button {
+    border-radius: 25px;
+  }
+  
+  .socialIcons {
+    justify-content: center;
+  }
+  
+  .socialIconsLarge {
+    gap: 12px;
+  }
+  
+  .socialIconsLarge a {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .paymentIcons {
+    justify-content: center;
+  }
+  
+  .certifications {
+    justify-content: center;
+  }
+  
+  .connectSection,
+  .footerBottom {
+    text-align: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .footer {
+    padding: 25px 0 15px;
+  }
+  
+  .footerSection h3 {
+    font-size: 1rem;
+    text-align: center;
+  }
+  
+  .logo h2 {
+    font-size: 1.6rem;
+  }
+  
+  .contactInfo,
+  .storeLocation {
+    text-align: center;
+  }
+  
+  .socialIconsLarge {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}

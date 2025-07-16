@@ -1,0 +1,54 @@
+/* CSS module cho trang quản lý người dùng */
+.adminContainer {
+  padding: 32px 24px;
+  background: #f4f7fa;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+.adminFormInput {
+  padding: 8px 12px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  font-size: 1rem;
+  background: #f7f9fb;
+  transition: border 0.15s;
+}
+.adminFormInput:focus {
+  border: 1.5px solid #1976d2;
+  outline: none;
+}
+.adminTable {
+  border-collapse: collapse;
+  width: 100%;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.adminTable th, .adminTable td {
+  padding: 12px 10px;
+  text-align: left;
+}
+.adminTable th {
+  background: #f7f9fb;
+  font-weight: 600;
+  color: #444;
+}
+.adminTable tr:nth-child(even) {
+  background: #f4f7fa;
+}
+:global(button) {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 16px;
+  margin-right: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+:global(button:hover), :global(button:focus) {
+  background: #1256a3;
+}

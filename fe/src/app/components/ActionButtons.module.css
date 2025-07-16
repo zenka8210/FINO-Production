@@ -1,0 +1,112 @@
+/* Action Buttons Component - Tái sử dụng thiết kế từ News Admin */
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.editBtn, .deleteBtn, .viewBtn, .actionBtn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+/* Nút Edit - Màu xanh dương */
+.editBtn {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.editBtn:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+/* Nút Delete - Màu đỏ */
+.deleteBtn {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.deleteBtn:hover {
+  background: #ef4444;
+  color: white;
+}
+
+.deleteBtn:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Nút View - Màu tím */
+.viewBtn {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.viewBtn:hover {
+  background: #8b5cf6;
+  color: white;
+}
+
+/* Các nút tùy chỉnh */
+.actionBtn.primary {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.actionBtn.primary:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+.actionBtn.secondary {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.actionBtn.secondary:hover {
+  background: #64748b;
+  color: white;
+}
+
+.actionBtn.danger {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.actionBtn.danger:hover {
+  background: #ef4444;
+  color: white;
+}
+
+.actionBtn.success {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.actionBtn.success:hover {
+  background: #22c55e;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .actions {
+    gap: 6px;
+  }
+  
+  .editBtn, .deleteBtn, .viewBtn, .actionBtn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+}

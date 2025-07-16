@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "name": "Quản trị viên",
+    "username": "admin",
+    "password": "123",
+    "role": "admin",
+    "firstName": "Admin",
+    "lastName": "System",
+    "email": "admin@store.com",
+    "phone": "0901234567",
+    "address": "123 Đường ABC",
+    "city": "Hà Nội",
+    "district": "Q1"
+  },
+  {
+    "id": 2,
+    "name": "abc",
+    "username": "abc",
+    "password": "123",
+    "role": "user",
+    "firstName": "Nguyễn",
+    "lastName": "Văn ABC",
+    "email": "abc@email.com",
+    "phone": "0912345678",
+    "address": "456 Đường XYZ",
+    "city": "Hồ Chí Minh",
+    "district": "Q2"
+  },
+  {
+    "id": 3,
+    "fullname": "Tuấn Kiệt",
+    "email": "kietdzpro321@gmail.com",
+    "username": "user123",
+    "password": "1",
+    "phone": "0967523280",
+    "address": "abc",
+    "role": "user",
+    "firstName": "Tuấn",
+    "lastName": "Kiệt",
+    "city": "Hà Nội",
+    "district": "Q1"
+  }
+]

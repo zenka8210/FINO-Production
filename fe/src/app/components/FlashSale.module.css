@@ -1,0 +1,480 @@
+.flashSaleContainer {
+  background: linear-gradient(135deg, var(--brand-color, #FF9800), #f57c00);
+  margin: 10px 0; /* Giảm từ 15px xuống 10px */
+  border-radius: 8px; /* Giảm từ 10px xuống 8px */
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(255, 152, 0, 0.25);
+}
+
+.header {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 12px; /* Giảm từ 15px xuống 12px */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px; /* Giảm từ 12px xuống 10px */
+}
+
+.titleSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.title {
+  margin: 0;
+  font-size: 18px; /* Giảm từ 20px xuống 18px */
+  font-weight: bold;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Giảm từ 6px xuống 5px */
+}
+
+.flashText {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.saleText {
+  color: #ffd700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.timerSection {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.timeBlock {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  text-align: center;
+  min-width: 60px;
+  color: white;
+}
+
+.timeNumber {
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.timeLabel {
+  display: block;
+  font-size: 10px;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+.viewAllSection {
+  margin-left: auto;
+}
+
+.viewAllLink {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 8px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.viewAllLink:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.productsSection {
+  position: relative;
+  padding: 12px; /* Giảm từ 15px xuống 12px */
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.navButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  color: #333;
+}
+
+.navButton:hover {
+  background: white;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.navButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.3 !important;
+}
+
+.navLeft {
+  left: 10px;
+}
+
+.navRight {
+  right: 10px;
+}
+
+.productsContainer {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scroll-behavior: smooth;
+}
+
+.productsContainer::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.productsGrid {
+  display: flex;
+  gap: 16px;
+  padding: 0 50px; /* Space for navigation buttons */
+  min-width: max-content;
+}
+
+.productCard {
+  background: white;
+  position: relative;
+  transition: transform 0.2s ease;
+  flex: 0 0 180px; /* Tăng từ 160px lên 180px */
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.productCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Override cho ProductItem trong FlashSale */
+.productCard .imageContainer {
+  height: 140px !important;
+  width: 100% !important;
+  position: relative !important;
+  overflow: hidden !important;
+  background: #f8f9fa !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.productCard .imageContainer img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+  transition: transform 0.3s ease !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  border: none !important;
+  outline: none !important;
+}
+
+.productCard:hover .imageContainer img {
+  transform: scale(1.05) !important;
+}
+
+.productCard .productInfo {
+  padding: 8px !important;
+}
+
+.productCard .productInfo h3 {
+  font-size: 0.85rem !important;
+  margin-bottom: 3px !important;
+  line-height: 1.2 !important;
+  height: 2em !important;
+  overflow: hidden !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  color: #333 !important;
+  font-weight: 600 !important;
+}
+
+.productCard .description {
+  font-size: 0.7rem !important;
+  margin-bottom: 4px !important;
+  color: #666 !important;
+  height: 1.2em !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+  line-height: 1.2 !important;
+}
+
+.productCard .price {
+  font-size: 0.9rem !important;
+  font-weight: bold !important;
+  color: var(--brand-color, #FF9800) !important;
+  margin-bottom: 6px !important;
+}
+
+/* Hiển thị nút trong FlashSale với style compact */
+.productCard .productInfo > div:last-child {
+  display: block !important;
+  margin-top: 6px !important;
+}
+
+/* Style cho nút trong Flash Sale */
+.productCard .btn-cart-primary,
+.productCard button[class*="btn-cart-primary"] {
+  width: 100% !important;
+  font-size: 0.7rem !important;
+  padding: 4px 8px !important;
+  height: 28px !important;
+  background: #fff !important;
+  color: var(--brand-color, #FF9800) !important;
+  border: 1px solid var(--brand-color, #FF9800) !important;
+  border-radius: 4px !important;
+  font-weight: normal !important;
+  text-transform: none !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+}
+
+.productCard .btn-cart-primary:hover,
+.productCard button[class*="btn-cart-primary"]:hover {
+  background: var(--brand-color, #FF9800) !important;
+  color: #fff !important;
+}
+
+/* Đảm bảo heart button vẫn hiển thị */
+.productCard .heartButton {
+  display: block !important;
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  z-index: 5 !important;
+}
+
+.discountBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #e74c3c;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(231, 76, 60, 0.2);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.4);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(231, 76, 60, 0.2);
+  }
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .productCard {
+    flex: 0 0 160px;
+  }
+  
+  .productCard .imageContainer {
+    height: 120px !important;
+  }
+  
+  .productCard .productInfo {
+    padding: 7px !important;
+  }
+  
+  .productCard .productInfo h3 {
+    font-size: 0.8rem !important;
+  }
+    .productCard .price {
+    font-size: 0.85rem !important;
+  }
+  
+  /* Responsive cho nút trong Flash Sale - Desktop nhỏ */
+  .productCard .btn-cart-primary,
+  .productCard button[class*="btn-cart-primary"] {
+    font-size: 0.65rem !important;
+    padding: 3px 6px !important;
+    height: 26px !important;
+  }
+  
+  .navButton {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .titleSection {
+    justify-content: center;
+  }
+  
+  .timerSection {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .timeBlock {
+    min-width: 50px;
+    padding: 6px 8px;
+  }
+  
+  .timeNumber {
+    font-size: 16px;
+  }
+  
+  .productCard {
+    flex: 0 0 140px;
+  }
+  
+  .productCard .imageContainer {
+    height: 110px !important;
+  }
+  
+  .productCard .productInfo {
+    padding: 6px !important;
+  }
+  
+  .productCard .productInfo h3 {
+    font-size: 0.75rem !important;
+    height: 1.8em !important;
+  }
+    .productCard .price {
+    font-size: 0.8rem !important;
+  }
+  
+  /* Responsive cho nút trong Flash Sale - Tablet */
+  .productCard .btn-cart-primary,
+  .productCard button[class*="btn-cart-primary"] {
+    font-size: 0.65rem !important;
+    padding: 3px 6px !important;
+    height: 24px !important;
+  }
+  
+  .productsGrid {
+    padding: 0 40px;
+  }
+  
+  .navButton {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .navLeft {
+    left: 5px;
+  }
+  
+  .navRight {
+    right: 5px;
+  }
+  
+  .title {
+    font-size: 20px;
+  }
+  
+  .viewAllSection {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .productCard {
+    flex: 0 0 120px;
+  }
+  
+  .productCard .imageContainer {
+    height: 100px !important;
+  }
+  
+  .productCard .productInfo {
+    padding: 5px !important;
+  }
+  
+  .productCard .productInfo h3 {
+    font-size: 0.7rem !important;
+    height: 1.6em !important;
+  }
+  
+  .productCard .description {
+    font-size: 0.6rem !important;
+  }
+    .productCard .price {
+    font-size: 0.75rem !important;
+  }
+  
+  /* Responsive cho nút trong Flash Sale - Mobile */
+  .productCard .btn-cart-primary,
+  .productCard button[class*="btn-cart-primary"] {
+    font-size: 0.6rem !important;
+    padding: 2px 4px !important;
+    height: 20px !important;
+  }
+  
+  .productsGrid {
+    padding: 0 35px;
+  }
+  
+  .timeBlock {
+    min-width: 45px;
+    padding: 4px 6px;
+  }
+  
+  .timeNumber {
+    font-size: 14px;
+  }
+  
+  .timeLabel {
+    font-size: 9px;
+  }
+}

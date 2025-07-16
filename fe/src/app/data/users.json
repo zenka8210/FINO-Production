@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "name": "Quản trị viên",
+    "username": "admin",
+    "password": "123",
+    "role": "admin",
+    "createdAt": "2025-06-01T09:00:00Z"
+  },
+  {
+    "id": 2,
+    "name": "abc",
+    "username": "abc",
+    "password": "123",
+    "role": "user",
+    "createdAt": "2025-06-02T10:00:00Z"
+  },  {
+    "id": 3,
+    "fullname": "Tuấn Kiệt",
+    "email": "kietdzpro321@gmail.com",
+    "username": "user123",
+    "password": "1",
+    "phone": "0967523280",
+    "address": "abc",
+    "role": "user",
+    "createdAt": "2025-06-03T11:00:00Z"
+  }
+]

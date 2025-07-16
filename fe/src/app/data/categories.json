@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "name": "Quần Áo",
+    "slug": "quan-ao",
+    "description": "Các loại quần áo",
+    "image": "/images/category-ao-thun-nam.jpg",
+    "isActive": true,
+    "displayOrder": 1,
+    "createdAt": "2025-06-15T10:00:00Z",
+    "updatedAt": "2025-06-25T12:26:13.151Z"
+  },
+  {
+    "id": 2,
+    "name": "Mũ Nón",
+    "slug": "mu-non",
+    "description": "Các loại mũ/nón",
+    "image": "/images/category-ao-thun-nu.jpg",
+    "isActive": true,
+    "displayOrder": 2,
+    "createdAt": "2025-06-15T10:00:00Z",
+    "updatedAt": "2025-06-25T12:26:50.481Z"
+  },
+  {
+    "id": 3,
+    "name": "Phụ kiện",
+    "slug": "phu-kien",
+    "description": "Các loại phụ kiện thời trang",
+    "image": "/images/category-phu-kien.jpg",
+    "isActive": true,
+    "displayOrder": 4,
+    "createdAt": "2025-06-15T10:00:00Z",
+    "updatedAt": "2025-06-25T12:28:35.627Z"
+  },
+  {
+    "id": 4,
+    "name": "BaLo",
+    "slug": "ba-lo",
+    "description": "Các loại ba lô",
+    "image": "/images/category-",
+    "isActive": true,
+    "displayOrder": 6,
+    "createdAt": "2025-06-15T10:00:00Z",
+    "updatedAt": "2025-06-25T12:28:27.300Z"
+  },
+  {
+    "id": 5,
+    "name": "Giày Dép",
+    "slug": "giay-dep",
+    "description": "Các loại giày/dép",
+    "image": "",
+    "isActive": true,
+    "displayOrder": 5,
+    "createdAt": "2025-06-25T12:27:27.945Z",
+    "updatedAt": "2025-06-25T12:27:27.945Z"
+  }
+]

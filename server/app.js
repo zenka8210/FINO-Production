@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const cors = require('cors');
 
 // Import middlewares và services
 const { errorHandler } = require('./middlewares/errorHandler');
@@ -10,6 +11,36 @@ const { errorHandler } = require('./middlewares/errorHandler');
 const app = express();
 const port = process.env.PORT || 3000;
 const dbUri = process.env.DB_URI;
+
+// CORS Configuration
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',  // Next.js default port
+    'http://localhost:3001',  // Alternate Next.js port
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    process.env.FRONTEND_URL, // Frontend URL từ .env
+    // Thêm domain production nếu có
+  ].filter(Boolean), // Loại bỏ undefined values
+  credentials: true, // Cho phép gửi cookies và headers xác thực
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'Cache-Control',
+    'Pragma'
+  ],
+  exposedHeaders: ['Set-Cookie'] // Cho phép frontend đọc Set-Cookie header
+};
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
 
 // Middlewares
 app.use(express.json());

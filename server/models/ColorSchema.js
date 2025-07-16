@@ -14,25 +14,20 @@ const ColorSchema = new mongoose.Schema({
       message: 'Tên màu sắc chỉ được chứa chữ cái, số, khoảng trắng và dấu gạch ngang'
     },
     minlength: [1, 'Tên màu sắc không được để trống'],
-    maxlength: [50, 'Tên màu sắc không được vượt quá 50 ký tự']
+    maxlength: [10, 'Tên màu sắc không được vượt quá 10 ký tự']
   },
-  description: {
-    type: String,
-    maxlength: [200, 'Mô tả không được vượt quá 200 ký tự']
-  },
-  displayOrder: {
-    type: Number,
-    default: 0
-  },
-  
+  isActive: {
+    type: Boolean,
+    default: true
+  }
 }, { timestamps: true });
 
 // Lấy gợi ý màu từ database + backup mặc định
 ColorSchema.statics.getSuggestedColors = async function() {
   try {
-    // Lấy top màu phổ biến từ database (theo usage hoặc displayOrder)
+    // Lấy top màu phổ biến từ database (theo usage hoặc createdAt)
     const existingColors = await this.find({ isActive: true })
-      .sort({ displayOrder: 1, createdAt: -1 })
+      .sort({ createdAt: -1 })
       .limit(20)
       .select('name')
       .lean();
@@ -59,7 +54,5 @@ ColorSchema.statics.getSuggestedColors = async function() {
     return ['Đen', 'Trắng', 'Xám', 'Đỏ', 'Xanh', 'Vàng'];
   }
 };
-
-module.exports = mongoose.model('Color', ColorSchema);
 
 module.exports = mongoose.model('Color', ColorSchema);

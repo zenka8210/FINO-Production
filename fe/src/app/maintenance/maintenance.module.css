@@ -1,0 +1,195 @@
+.maintenancePage {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+  
+  .header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+  
+  .header h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .header p {
+    color: #666;
+    font-size: 1.1rem;
+  }
+  
+  .guideContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+  
+  .guideSection {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  }
+  
+  .guideContent h2 {
+    color: #333;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #4a90e2;
+  }
+  
+  .guideDetails {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    align-items: center;
+  }
+  
+  .guideText ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .guideText ul li {
+    margin-bottom: 15px;
+    padding-left: 25px;
+    position: relative;
+    color: #444;
+    line-height: 1.6;
+  }
+  
+  .guideText ul li:before {
+    content: "✓";
+    color: #4a90e2;
+    position: absolute;
+    left: 0;
+  }
+  
+  .tipsList {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-top: 20px;
+  }
+  
+  .tipItem {
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+  }
+  
+  .tipItem:hover {
+    transform: translateY(-5px);
+  }
+  
+  .tipItem i {
+    font-size: 2rem;
+    color: #4a90e2;
+    margin-bottom: 15px;
+  }
+  
+  .tipItem h3 {
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .tipItem p {
+    color: #666;
+    line-height: 1.5;
+  }
+  
+  .maintenanceContainer {
+    max-width: 650px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 32px 20px 32px 20px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+  }
+  
+  .title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #1a237e;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+  
+  .imageWrap {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  
+  .image {
+    border-radius: 12px;
+    object-fit: cover;
+    max-width: 100%;
+    height: auto;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+  }
+  
+  .content {
+    font-size: 1.13rem;
+    color: #333;
+    line-height: 1.7;
+  }
+  
+  .content h2 {
+    margin-top: 30px;
+    color: #1976d2;
+    font-size: 1.18rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  
+  .content ul {
+    margin: 0 0 18px 22px;
+    padding: 0;
+  }
+  
+  .content li {
+    margin-bottom: 8px;
+    position: relative;
+    padding-left: 12px;
+  }
+  
+  .content li:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 6px;
+    height: 6px;
+    background: var(--btn-primary-bg);
+    border-radius: 50%;
+  }
+  
+  @media (max-width: 768px) {
+    .guideDetails {
+      grid-template-columns: 1fr;
+    }
+  
+    .tipsList {
+      grid-template-columns: 1fr;
+    }
+  
+    .guideSection {
+      padding: 20px;
+    }
+  }
+  
+  @media (max-width: 700px) {
+    .maintenanceContainer {
+      padding: 16px 4vw;
+    }
+    .title {
+      font-size: 1.3rem;
+    }
+  }

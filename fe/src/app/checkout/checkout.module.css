@@ -1,0 +1,314 @@
+.checkoutWrapper {
+  max-width: 600px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  padding: 40px 32px;
+}
+.progressBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 32px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 16px 10px 0 10px;
+  position: relative;
+}
+.step {
+  flex: 1;
+  text-align: center;
+  color: #bbb;
+  font-weight: 500;
+  position: relative;
+  font-size: 1.1rem;
+  z-index: 1;
+}
+.step.active {
+  color: #e53935;
+}
+.step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -12px;
+  width: 100%;
+  height: 2px;
+  background: #e0e0e0;
+  z-index: 0;
+  transform: translateX(0%);
+}
+.step.active:not(:last-child)::after {
+  background: #e53935;
+}
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 32px;
+  text-align: center;
+  color: #17a2b8;
+}
+.sectionTitle {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 18px 0 10px 0;
+  color: #e53935;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.form label {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 6px;
+}
+.input, .form input, .form textarea {
+  width: 100%;
+  padding: 12px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #f8f9fa;
+  transition: border 0.2s;
+}
+.input:focus, .form input:focus, .form textarea:focus {
+  border: 1.5px solid #e53935;
+  outline: none;
+}
+.genderRow {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+.genderRow label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+.row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.deliveryRow {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.addressGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.addressGrid select, .addressGrid input {
+  min-width: 0;
+}
+.invoiceRow {
+  margin: 10px 0;
+}
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 10px 0;
+}
+.total {
+  color: #e53935;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.submitBtn {
+  margin-top: 18px;
+  padding: 16px 0;
+  background: var(--btn-primary-bg);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  letter-spacing: 1px;
+}
+.submitBtn:hover {
+  background: var(--btn-primary-hover);
+}
+.note {
+  margin-top: 12px;
+  color: #888;
+  font-size: 0.95rem;
+  text-align: center;
+}
+.checkoutForm {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 32px 28px 24px 28px;
+  margin-bottom: 24px;
+}
+.checkoutForm h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: #222;
+}
+.checkoutForm input,
+.checkoutForm select,
+.checkoutForm textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  font-size: 1rem;
+  background: #f9fafb;
+  margin-bottom: 12px;
+  outline: none;
+  transition: border 0.2s;
+}
+.checkoutForm input:focus,
+.checkoutForm select:focus,
+.checkoutForm textarea:focus {
+  border: 1.5px solid #0070f3;
+  background: #fff;
+}
+.orderSummary {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 32px 28px 24px 28px;
+}
+.orderSummary h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: #222;
+}
+.orderSummary table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+.orderSummary th, .orderSummary td {
+  padding: 8px 4px;
+  font-size: 1rem;
+}
+.orderSummary th {
+  color: #222;
+  font-weight: 600;
+  background: #f8fafc;
+}
+.orderSummary tr:last-child td {
+  border-bottom: none;
+}
+.orderSummary tr {
+  border-bottom: 1px solid #f0f0f0;
+}
+.orderSummary button {
+  font-size: 1rem;
+  border-radius: 6px;
+  padding: 6px 16px;
+  border: none;
+  background: var(--btn-primary-bg);
+  color: #fff;
+  font-weight: 600;
+  margin-top: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.orderSummary button:hover {
+  background: var(--btn-primary-hover);
+}
+.orderSummary input[type="radio"] {
+  accent-color: #e11d48;
+  margin-right: 6px;
+}
+.orderSummary label {
+  font-size: 1rem;
+  margin-bottom: 4px;
+  display: block;
+  cursor: pointer;
+}
+.checkoutBtn {
+  background: var(--btn-primary-bg) !important;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding: 18px 0;
+  width: 100%;
+  box-shadow: 0 6px 20px var(--btn-primary-shadow);
+  cursor: pointer;
+  letter-spacing: 1px;
+  margin-top: 24px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.checkoutBtn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.checkoutBtn:hover::before {
+  left: 100%;
+}
+.checkoutBtn:hover {
+  background: var(--btn-primary-hover) !important;
+  box-shadow: 0 8px 28px var(--btn-primary-shadow-hover);
+  transform: translateY(-3px) scale(1.02);
+}
+@media (max-width: 1100px) {
+  .checkoutWrapper {
+    max-width: 98vw;
+    padding: 8px 2vw;
+  }
+}
+@media (max-width: 900px) {
+  .checkoutWrapper {
+    padding: 0 1vw;
+  }
+  .checkoutForm, .orderSummary {
+    padding: 12px 4px;
+  }
+}
+@media (max-width: 700px) {
+  .checkoutWrapper {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+  .checkoutForm, .orderSummary {
+    padding: 6px 2px;
+  }
+  .checkoutForm h2, .orderSummary h2 {
+    font-size: 1.1rem;
+  }
+  .row, .addressGrid {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+@media (max-width: 500px) {
+  .checkoutForm h2, .orderSummary h2 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+}

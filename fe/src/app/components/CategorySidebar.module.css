@@ -1,0 +1,143 @@
+.sidebar {
+  width: 280px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: linear-gradient(135deg, var(--brand-color, #FF9800), #f57c00);
+  color: white;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: bold;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.headerIcon {
+  font-size: 18px;
+}
+
+.categoryList {
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.categoryItem {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  text-decoration: none;
+  color: #374151;
+  border-bottom: 1px solid #f3f4f6;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.categoryItem:hover {
+  background: linear-gradient(90deg, #fff3e0 60%, #ffcc80 100%);
+  color: var(--brand-color, #FF9800);
+  transform: translateX(4px);
+  border-left: 3px solid var(--brand-color, #FF9800);
+}
+
+.categoryIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  color: white;
+  font-size: 16px;
+}
+
+.categoryName {  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Mobile styles */
+.mobileToggle {
+  display: none;
+  position: fixed;
+  top: 90px;
+  left: 20px;
+  background: var(--brand-color, #FF9800) !important;
+  color: white !important;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 1001;
+  box-shadow: 0 2px 10px rgba(255, 152, 0, 0.3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.mobileToggle:hover {
+  background: #e68900 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+@media (max-width: 768px) {
+  .mobileToggle {
+    display: flex;
+  }
+  
+  .overlay {
+    display: block;
+  }
+  
+  .sidebar {
+    display: none;
+  }
+  
+  .sidebar.open {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 1000;
+    background: white;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobileToggle {
+    display: none !important;
+  }
+  
+  .overlay {
+    display: none !important;
+  }
+  
+  .sidebar {
+    transform: translateX(0) !important; /* Đảm bảo sidebar luôn hiển thị trên desktop */
+  }
+}
