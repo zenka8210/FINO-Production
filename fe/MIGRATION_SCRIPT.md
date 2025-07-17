@@ -1,0 +1,26 @@
+Tôi đã hoàn thành toàn bộ các phần:
+
+- `services/`: chứa logic gọi API cho 17 route backend
+- `types/`: định nghĩa cấu trúc dữ liệu dựa trên schema BE
+- `contexts/`: chỉ giữ state và method cần thiết có tính global 
+- `hooks/`: đóng gói logic dùng lại, gọi service, xử lý loading/error...
+
+Bây giờ tôi đang build UI/UX component (trang sản phẩm, giỏ hàng, đăng nhập, đơn hàng, admin...)  
+Yêu cầu:
+
+1. Tùy từng component, hãy sử dụng `hooks`, `contexts`, hoặc `services` sao cho hợp lý nhất:
+   - Nếu component cần state toàn app  → dùng context
+   - Nếu cần fetch data, xử lý loading/error → dùng custom hook
+   - Nếu chỉ là hành động độc lập, không cần state → gọi trực tiếp service
+
+2. Nếu logic trong component trùng nhiều lần → đề xuất tách thành custom hook riêng
+
+3. Tránh trùng lặp logic gọi API giữa hook và context
+
+4. Ưu tiên clean code, dễ bảo trì, dễ đọc
+
+5. Component phải tối ưu theo UX:
+   - Có loading state
+   - Có thông báo lỗi/thành công (toast)
+   - Không render UI sai quyền (nếu chưa đăng nhập)
+

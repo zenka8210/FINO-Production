@@ -1,4 +1,10 @@
-/* CSS module cho trang quản lý sản phẩm riêng biệt */
+/* CSS module cho trang quản lý sản p.productAdminTable tr:nth-child(even) {
+  background: #f4f7fa;
+}
+
+.productAdminButton {
+  background: #1976d2;
+  color: #fff;êng biệt */
 .adminContainer {
   padding: 32px 24px;
   background: #f4f7fa;

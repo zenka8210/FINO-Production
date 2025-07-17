@@ -5,7 +5,7 @@ import "./globals.css";
 import AppMenu from "./components/menu";
 import AppFooter from "./components/footer";
 import ChatBox from "./components/ChatBox";
-import { AuthProvider } from "./context/AuthContext"; // 👉 Thêm dòng này
+import { AppProvider } from "../contexts"; // 👉 Cập nhật import
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,20 +36,20 @@ export default function RootLayout({
   return isAdminPage ? (
     <html lang="vi" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <AuthProvider>
+        <AppProvider>
           {children}
-        </AuthProvider>
+        </AppProvider>
       </body>
     </html>
   ) : (
     <html lang="vi" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <AuthProvider>
+        <AppProvider>
           <AppMenu />
           {children}
           <AppFooter />
           <ChatBox />
-        </AuthProvider>
+        </AppProvider>
       </body>
     </html>
   );

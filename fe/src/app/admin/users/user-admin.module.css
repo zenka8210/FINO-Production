@@ -1,4 +1,10 @@
-/* CSS module cho trang quản lý người dùng */
+/* CSS module cho trang quản lý người.userAdminTable tr:nth-child(even) {
+  background: #f4f7fa;
+}
+
+.userAdminButton {
+  background: #1976d2;
+  color: #fff;*/
 .adminContainer {
   padding: 32px 24px;
   background: #f4f7fa;

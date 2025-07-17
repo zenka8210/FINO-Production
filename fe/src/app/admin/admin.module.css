@@ -100,7 +100,8 @@
 .adminTable tr:nth-child(even) {
   background: #fef8f3;
 }
-:global(button) {
+
+.adminButton {
   background: var(--brand-color, #FF9800) !important;
   color: #fff !important;
   border: none;
