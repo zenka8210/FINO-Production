@@ -4,6 +4,14 @@
 # Node modules
 node_modules/
 
+# Next.js build files
+.next/
+out/
+
+# Build outputs
+build/
+dist/
+
 # Logs
 logs
 *.log
@@ -11,3 +19,22 @@ logs
 # Mac/Windows system files
 .DS_Store
 Thumbs.db
+
+# VSCode temporary files
+.vscode/tasks.json
+.vscode/launch.json
+
+# Temporary files
+*_new.*
+*_old.*
+*.tmp
+*.temp
+
+# Documentation that might be recreated
+**/TEMP_*.md
+**/TO_DELETE.*
+**/README-TO-DELETE.*
+
+# Upload directories that might contain user content
+**/uploads/
+**/public/uploads/
