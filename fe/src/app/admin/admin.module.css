@@ -114,7 +114,7 @@
   box-shadow: 0 2px 8px rgba(255, 152, 0, 0.08);
   transition: background 0.15s, box-shadow 0.15s;
 }
-:global(button:hover), :global(button:focus) {
+.adminSubmitButton:hover, .adminSubmitButton:focus {
   background: #e68900 !important;
   box-shadow: 0 4px 16px rgba(255, 152, 0, 0.13);
 }

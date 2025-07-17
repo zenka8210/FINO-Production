@@ -1,12 +1,15 @@
 'use client';
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/app/context/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
+import { orderService } from "@/services";
 import styles from "./checkout.module.css";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { cart } = useCart();
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -19,9 +22,6 @@ export default function CheckoutPage() {
     shipping: "economy",
     payment: "cod"
   });
-  const [cart] = useState([
-    { name: "Động cơ rèm tự động Tuya Smart Curtain Motor x 1", price: 1900000 }
-  ]);
   const [shippingFee, setShippingFee] = useState(20000);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -38,13 +38,13 @@ export default function CheckoutPage() {
     if (user) {
       setForm(prev => ({
         ...prev,
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
+        firstName: user.name?.split(' ')[0] || "",
+        lastName: user.name?.split(' ').slice(1).join(' ') || "",
         email: user.email || "",
         phone: user.phone || "",
         address: user.address || "",
-        city: user.city || "",
-        district: user.district || ""
+        city: "",
+        district: ""
       }));
     }
     
@@ -52,7 +52,7 @@ export default function CheckoutPage() {
   }, [user, router]);
 
   // Tính tổng tiền - lấy giảm giá từ localStorage nếu có
-  let subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+  let subtotal = cart?.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0;
   let discount = 0;
   let discountCode = "";
   
@@ -83,55 +83,31 @@ export default function CheckoutPage() {
       setTimeout(() => setError(""), 2500);
       return;
     }    try {
-      // Chuẩn bị dữ liệu đơn hàng
+      // Chuẩn bị dữ liệu đơn hàng theo đúng format CreateOrderRequest
+      if (!cart?.items || cart.items.length === 0) {
+        setError("Giỏ hàng trống!");
+        return;
+      }
+
       const orderData = {
-        userId: user.id || user.username, // Fallback to username if no id
-        customerInfo: {
-          firstName: form.firstName,
-          lastName: form.lastName,
-          email: form.email,
-          phone: form.phone,
-          address: form.address,
-          city: form.city,
-          district: form.district,
-          note: form.note
-        },
-        items: cart.map(item => ({
-          name: item.name,
-          price: item.price,
-          quantity: 1 // Hiện tại mặc định là 1, có thể cải thiện sau
+        items: cart.items.map(item => ({
+          productVariant: item.productVariant._id,
+          quantity: item.quantity
         })),
-        subtotal: subtotal,
-        shippingFee: shippingFee,
-        discount: discount,
-        discountCode: discountCode,
-        finalTotal: total,
-        shippingMethod: form.shipping,
-        paymentMethod: form.payment
+        address: `${form.address}, ${form.district}, ${form.city}`,
+        paymentMethod: form.payment,
+        voucher: discountCode || undefined
       };
 
       // Gửi đơn hàng lên API
-      const response = await fetch('/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData),
-      });
+      const result = await orderService.createOrder(orderData);
 
-      const result = await response.json();
-
-      if (result.success) {
-        // Xóa giỏ hàng và mã giảm giá sau khi đặt hàng thành công
-        localStorage.removeItem('cart');
-        localStorage.removeItem('cartDiscount');
-        
-        // Chuyển sang trang thành công với ID đơn hàng
-        router.push(`/checkout-success?orderId=${result.order.id}`);
-      } else {
-        setError("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!");
-        setTimeout(() => setError(""), 2500);
-      }
+      // Xóa giỏ hàng và mã giảm giá sau khi đặt hàng thành công
+      localStorage.removeItem('cart');
+      localStorage.removeItem('cartDiscount');
+      
+      // Chuyển sang trang thành công với ID đơn hàng
+      router.push(`/checkout-success?orderId=${result._id}`);
     } catch (error) {
       console.error('Error placing order:', error);
       setError("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!");
@@ -203,11 +179,11 @@ export default function CheckoutPage() {
                 <tr><th style={{textAlign:'left'}}>SẢN PHẨM</th></tr>
               </thead>
               <tbody>
-                {cart.map((item,i)=>(
+                {cart?.items?.map((item, i) => (
                   <tr key={i}>
-                    <td>{item.name}</td>
+                    <td>{item.productVariant.product.name} x {item.quantity}</td>
                   </tr>
-                ))}
+                )) || []}
                 <tr style={{fontWeight:600}}>
                   <td>Tạm tính: {subtotal.toLocaleString('vi-VN')} VND</td>
                 </tr>

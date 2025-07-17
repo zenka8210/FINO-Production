@@ -1,150 +1,213 @@
 'use client';
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts';
+import { useNotifications } from '@/hooks';
+import { validateRegisterForm, hasFormErrors, FormErrors } from '@/utils/validation';
+import FormError from '../components/FormError';
 import styles from './register.module.css';
+import Link from 'next/link';
 
-export default function RegisterForm() {
-  const [form, setForm] = useState({
-    fullName: "",
-    email: "",
-    username: "",
-    password: "",
-    confirmPassword: "",
-    phoneNumber: "",
-    address: ""
+export default function RegisterPage() {
+  const router = useRouter();
+  const { register } = useAuth();
+  const { success, error } = useNotifications();
+  
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    phone: ''
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const router = useRouter();
+  const [errors, setErrors] = useState<FormErrors>({});
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateField = (fieldName: string) => {
+    const formErrors = validateRegisterForm(
+      formData.name,
+      formData.email,
+      formData.password,
+      formData.confirmPassword,
+      formData.phone
+    );
+    
+    setErrors(prev => ({
+      ...prev,
+      [fieldName]: formErrors[fieldName]
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    if (form.password !== form.confirmPassword) {
-      setError("Mật khẩu xác nhận không khớp!");
+    console.log('Register form submitted');
+    
+    // Validate entire form
+    const formErrors = validateRegisterForm(
+      formData.name,
+      formData.email,
+      formData.password,
+      formData.confirmPassword,
+      formData.phone
+    );
+    
+    setErrors(formErrors);
+
+    if (hasFormErrors(formErrors)) {
+      error('Lỗi', 'Vui lòng sửa các lỗi trong form');
       return;
     }
+
     setLoading(true);
     try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullname: form.fullName,
-          email: form.email,
-          username: form.username,
-          password: form.password,
-          phone: form.phoneNumber,
-          address: form.address,
-          role: "user"
-        })
+      console.log('Attempting registration with:', { 
+        name: formData.name, 
+        email: formData.email, 
+        phone: formData.phone 
       });
-      const data = await res.json();
-      if (data.success) {
-        alert("Đăng ký thành công! Hãy đăng nhập.");
-        router.push("/login");
+      
+      await register({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone
+      });
+      
+      success('Thành công', 'Đăng ký thành công! Chào mừng bạn đến với FINO SHOP!');
+      router.push('/');
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      
+      // Handle specific API errors
+      if (err.message.includes('đã tồn tại')) {
+        setErrors({ email: 'Email đã được sử dụng' });
+      } else if (err.message.includes('số điện thoại')) {
+        setErrors({ phone: 'Số điện thoại đã được sử dụng' });
       } else {
-        setError(data.message || "Đăng ký thất bại!");
+        error('Lỗi đăng ký', err.message || 'Có lỗi xảy ra khi đăng ký');
       }
-    } catch (err) {
-      setError("Lỗi hệ thống!");
     } finally {
       setLoading(false);
     }
   };
+
   return (
-    <div className="container">
-      <div className="row">
-        <div className="col-6 col-md-8 col-sm-12" style={{margin: '0 auto'}}>
-          <div className={styles.container}>
-            <form className={styles.form} onSubmit={handleSubmit}>
-              <h2>Đăng Ký Tài Khoản</h2>
-              {error && <div style={{color:'red', marginBottom:8}}>{error}</div>}
-              <div className={styles.formGroup}>
-                <input
-                  type="text"
-                  name="fullName"
-                  placeholder="Họ và tên"
-                  required
-                  className={styles.input}
-                  value={form.fullName}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  required
-                  className={styles.input}
-                  value={form.email}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <input
-                  type="text"
-                  name="username"
-                  placeholder="Tên đăng nhập"
-                  required
-                  className={styles.input}
-                  value={form.username}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="Mật khẩu"
-                  required
-                  className={styles.input}
-                  value={form.password}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  placeholder="Xác nhận mật khẩu"
-                  required
-                  className={styles.input}
-                  value={form.confirmPassword}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  placeholder="Số điện thoại"
-                  required
-                  className={styles.input}
-                  value={form.phoneNumber}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <textarea
-                  name="address"
-                  placeholder="Địa chỉ"
-                  rows={3}
-                  className={styles.textarea}
-                  value={form.address}
-                  onChange={handleChange}
-                />
-              </div>
-              <button type="submit" className={styles.submitButton} disabled={loading}>
-                {loading ? "Đang đăng ký..." : "Đăng Ký"}
-              </button>
-            </form>
+    <div className={styles.registerContainer}>
+      <div className={styles.registerBox}>
+        <h1 className={styles.title}>Đăng Ký Tài Khoản</h1>
+        
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="name">Họ và tên</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              onBlur={() => validateField('name')}
+              className={errors.name ? styles.inputError : ''}
+              required
+              placeholder="Nhập họ và tên"
+            />
+            <FormError error={errors.name} />
           </div>
+
+          <div className={styles.inputGroup}>
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              onBlur={() => validateField('email')}
+              className={errors.email ? styles.inputError : ''}
+              required
+              placeholder="Nhập email"
+            />
+            <FormError error={errors.email} />
+          </div>
+
+          <div className={styles.inputGroup}>
+            <label htmlFor="phone">Số điện thoại</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              onBlur={() => validateField('phone')}
+              className={errors.phone ? styles.inputError : ''}
+              placeholder="Nhập số điện thoại"
+            />
+            <FormError error={errors.phone} />
+          </div>
+
+          <div className={styles.inputGroup}>
+            <label htmlFor="password">Mật khẩu</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              onBlur={() => validateField('password')}
+              className={errors.password ? styles.inputError : ''}
+              required
+              placeholder="Nhập mật khẩu"
+            />
+            <FormError error={errors.password} />
+          </div>
+
+          <div className={styles.inputGroup}>
+            <label htmlFor="confirmPassword">Xác nhận mật khẩu</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              onBlur={() => validateField('confirmPassword')}
+              className={errors.confirmPassword ? styles.inputError : ''}
+              required
+              placeholder="Nhập lại mật khẩu"
+            />
+            <FormError error={errors.confirmPassword} />
+          </div>
+
+          <button 
+            type="submit" 
+            className={styles.submitButton}
+            disabled={loading}
+          >
+            {loading ? 'Đang xử lý...' : 'Đăng Ký'}
+          </button>
+        </form>
+
+        <div className={styles.links}>
+          <p>
+            Đã có tài khoản?{' '}
+            <Link href="/login" className={styles.link}>
+              Đăng nhập ngay
+            </Link>
+          </p>
         </div>
       </div>
     </div>

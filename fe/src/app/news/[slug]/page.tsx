@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { postService } from '@/services';
+import { PostWithAuthor } from '@/types';
 import styles from './news-detail.module.css';
 
 interface NewsPost {
@@ -20,8 +22,8 @@ interface NewsPost {
 
 export default function NewsDetailPage() {
   const params = useParams();
-  const [news, setNews] = useState<NewsPost | null>(null);
-  const [relatedNews, setRelatedNews] = useState<NewsPost[]>([]);
+  const [news, setNews] = useState<PostWithAuthor | null>(null);
+  const [relatedNews, setRelatedNews] = useState<PostWithAuthor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,40 +38,29 @@ export default function NewsDetailPage() {
     setError(null);
 
     try {
-      // First, fetch all news to find by slug
-      const response = await fetch('/api/news?status=published&limit=100');
-      const data = await response.json();
-
-      if (data.success) {
-        const newsItem = data.data.find((item: NewsPost) => item.slug === slug);
+      // Get published posts and find by slug
+      const response = await postService.getPublishedPosts(1, 100);
+      console.log('Posts response:', response);
+      
+      // getPublishedPosts() returns PaginatedResponse<PostWithAuthor>
+      // Structure: { data: PostWithAuthor[], pagination: {} }
+      const postsArray = Array.isArray(response) ? response : 
+                        (response && Array.isArray(response.data)) ? response.data : [];
+      
+      const post = postsArray.find(p => p._id === slug);
+      
+      if (post) {
+        setNews(post);
         
-        if (newsItem) {
-          // Fetch full detail
-          const detailResponse = await fetch(`/api/news/${newsItem.id}`);
-          const detailData = await detailResponse.json();
-          
-          if (detailData.success) {
-            setNews(detailData.data);
-            
-            // Load related news (same category, different id)
-            const related = data.data
-              .filter((item: NewsPost) => 
-                item.category === newsItem.category && 
-                item.id !== newsItem.id
-              )
-              .slice(0, 3);
-            
-            setRelatedNews(related);
-          } else {
-            setError('Không tìm thấy bài viết');
-          }
-        } else {
-          setError('Không tìm thấy bài viết');
-        }
+        // Load related posts (exclude current post)
+        const relatedPosts = postsArray.filter(p => p._id !== post._id).slice(0, 4);
+        setRelatedNews(relatedPosts);
+      } else {
+        setError('Không tìm thấy bài viết.');
       }
     } catch (error) {
       console.error('Error loading news:', error);
-      setError('Có lỗi xảy ra khi tải bài viết');
+      setError('Không thể tải bài viết. Vui lòng thử lại sau.');
     } finally {
       setLoading(false);
     }
@@ -119,7 +110,7 @@ export default function NewsDetailPage() {
         <span>/</span>
         <Link href="/news">Tin tức</Link>
         <span>/</span>
-        <span>{news.category}</span>
+        <span>Tin tức</span>
       </nav>
 
       {/* Article */}
@@ -127,21 +118,21 @@ export default function NewsDetailPage() {
         {/* Header */}
         <header className={styles.articleHeader}>
           <div className={styles.categoryBadge}>
-            {news.category}
+            Tin tức
           </div>
           <h1 className={styles.title}>{news.title}</h1>
           <div className={styles.metadata}>
             <div className={styles.metaItem}>
               <span className={styles.metaLabel}>Ngày đăng:</span>
-              <span className={styles.metaValue}>{formatDate(news.date)}</span>
+              <span className={styles.metaValue}>{formatDate(news.createdAt)}</span>
             </div>
             <div className={styles.metaItem}>
               <span className={styles.metaLabel}>Tác giả:</span>
-              <span className={styles.metaValue}>{news.author}</span>
+              <span className={styles.metaValue}>{news.author.name}</span>
             </div>
             <div className={styles.metaItem}>
               <span className={styles.metaLabel}>Lượt xem:</span>
-              <span className={styles.metaValue}>{news.views}</span>
+              <span className={styles.metaValue}>1000</span>
             </div>
           </div>
         </header>
@@ -160,7 +151,7 @@ export default function NewsDetailPage() {
 
         {/* Excerpt */}
         <div className={styles.excerpt}>
-          {news.excerpt}
+          {news.describe}
         </div>
 
         {/* Content */}
@@ -212,8 +203,8 @@ export default function NewsDetailPage() {
           <div className={styles.relatedGrid}>
             {relatedNews.map(item => (
               <Link 
-                key={item.id} 
-                href={`/news/${item.slug}`}
+                key={item._id}
+                href={`/news/${item._id}`}
                 className={styles.relatedCard}
               >
                 <div className={styles.relatedImage}>
@@ -227,9 +218,9 @@ export default function NewsDetailPage() {
                 </div>
                 <div className={styles.relatedContent}>
                   <h4 className={styles.relatedCardTitle}>{item.title}</h4>
-                  <p className={styles.relatedExcerpt}>{item.excerpt}</p>
+                  <p className={styles.relatedExcerpt}>{item.describe}</p>
                   <div className={styles.relatedMeta}>
-                    <span>{formatDate(item.date)}</span>
+                    <span>{formatDate(item.createdAt)}</span>
                   </div>
                 </div>
               </Link>

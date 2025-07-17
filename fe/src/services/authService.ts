@@ -24,14 +24,18 @@ export class AuthService {
    */
   async register(userData: RegisterRequest): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>('/api/auth/register', userData);
+      console.log('AuthService register called with:', { email: userData.email });
+      const response = await apiClient.post<any>('/api/auth/register', userData);
+      console.log('Register response:', response);
       
-      if (response.success && response.data?.token) {
+      if (response?.success && response?.data?.token) {
         apiClient.setAuthToken(response.data.token);
       }
       
-      return response.data || response;
+      return response?.data || response;
     } catch (error: any) {
+      console.error('AuthService register error:', error);
+      console.error('Error response:', error.response?.data);
       throw new Error(error.response?.data?.message || 'Registration failed');
     }
   }
@@ -41,14 +45,18 @@ export class AuthService {
    */
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>('/api/auth/login', credentials);
+      console.log('AuthService login called with:', { email: credentials.email });
+      const response = await apiClient.post<any>('/api/auth/login', credentials);
+      console.log('Login response:', response);
       
-      if (response.success && response.data?.token) {
+      if (response?.success && response?.data?.token) {
         apiClient.setAuthToken(response.data.token);
       }
       
-      return response.data || response;
+      return response?.data || response;
     } catch (error: any) {
+      console.error('AuthService login error:', error);
+      console.error('Error response:', error.response?.data);
       throw new Error(error.response?.data?.message || 'Login failed');
     }
   }
@@ -69,7 +77,7 @@ export class AuthService {
    */
   async getCurrentUser(): Promise<User> {
     try {
-      const response = await apiClient.get<User>('/api/users/profile');
+      const response = await apiClient.get<User>('/api/users/me/profile');
       return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to get user profile');
@@ -81,7 +89,7 @@ export class AuthService {
    */
   async updateProfile(userData: Partial<User>): Promise<User> {
     try {
-      const response = await apiClient.put<User>('/api/users/profile', userData);
+      const response = await apiClient.put<User>('/api/users/me/profile', userData);
       return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to update profile');
@@ -93,12 +101,20 @@ export class AuthService {
    */
   async changePassword(oldPassword: string, newPassword: string): Promise<ApiResponse<any>> {
     try {
-      const response = await apiClient.put('/api/users/change-password', {
-        oldPassword,
+      console.log('AuthService.changePassword called');
+      console.log('Endpoint: /api/users/me/password');
+      console.log('Payload:', { currentPassword: '[HIDDEN]', newPassword: '[HIDDEN]' });
+      
+      const response = await apiClient.put('/api/users/me/password', {
+        currentPassword: oldPassword,
         newPassword
       });
+      
+      console.log('Password change response:', response);
       return response;
     } catch (error: any) {
+      console.error('AuthService.changePassword error:', error);
+      console.error('Error response:', error.response);
       throw new Error(error.response?.data?.message || 'Failed to change password');
     }
   }

@@ -1,5 +1,5 @@
 :root {
-  --background: #ffffff;
+  --background: #e0e0cc;
   --foreground: #171717;
   
   /* Brand Colors - Màu thương hiệu */
@@ -16,12 +16,7 @@
   --btn-primary-shadow-hover: rgba(255, 152, 0, 0.5);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+
 
 html,
 body {

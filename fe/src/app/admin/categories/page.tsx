@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import ActionButtons from "../../components/ActionButtons";
 import styles from "./category-admin.module.css";

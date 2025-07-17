@@ -232,6 +232,11 @@ class UserService extends BaseService {
       throw new AppError(userMessages.PASSWORD_TOO_SHORT, ERROR_CODES.BAD_REQUEST, ERROR_CODES.USER.PASSWORD_TOO_SHORT);
     }
 
+    // Check if new password is same as current password
+    if (currentPassword === newPassword) {
+      throw new AppError('Mật khẩu mới phải khác với mật khẩu hiện tại', ERROR_CODES.BAD_REQUEST, ERROR_CODES.USER.SAME_PASSWORD);
+    }
+
     const user = await User.findById(userId).select('+password'); // Need password to compare
     if (!user) {
       throw new AppError(userMessages.USER_NOT_FOUND, ERROR_CODES.NOT_FOUND, ERROR_CODES.USER.NOT_FOUND);

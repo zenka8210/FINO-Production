@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 import ActionButtons from "../../components/ActionButtons";
 import styles from "./review-admin.module.css";
 
@@ -93,7 +93,7 @@ export default function ReviewsAdminPage() {
           id: editingReview.id,
           rating: formRating,
           comment: formComment,
-          userId: user?.id,
+          userId: user?._id,
           isAdmin: true,
         }),
       });

@@ -2,6 +2,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { postService } from '@/services';
+import { Post } from '@/types';
 import styles from './BlogSection.module.css';
 
 interface BlogPost {
@@ -28,21 +30,19 @@ function BlogSection() {
 
   const loadBlogPosts = async () => {
     try {
-      const response = await fetch('/api/news?status=published&limit=6');
-      const data = await response.json();
+      const posts = await postService.getFeaturedPosts(6);
       
-      if (data.success) {
-        const formattedPosts = data.data.map((item: any) => ({
-          id: item.id,
-          title: item.title,
-          excerpt: item.excerpt,
-          image: item.image,
-          date: new Date(item.date).toLocaleDateString('vi-VN'),
-          category: item.category,
-          slug: item.slug
-        }));
-        setPosts(formattedPosts);
-      }
+      const formattedPosts = posts.map((item) => ({
+        id: parseInt(item._id),
+        title: item.title,
+        excerpt: item.content ? item.content.substring(0, 150) + '...' : '',
+        image: item.image || '/images/placeholder.jpg',
+        date: new Date(item.createdAt).toLocaleDateString('vi-VN'),
+        category: 'Tin tức',
+        slug: item._id
+      }));
+      
+      setPosts(formattedPosts);
     } catch (error) {
       console.error('Error loading blog posts:', error);
       // Fallback to mock data if API fails

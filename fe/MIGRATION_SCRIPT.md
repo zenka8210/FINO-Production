@@ -1,14 +1,15 @@
 Tôi đã hoàn thành toàn bộ các phần:
 
+Ở `src/` chứa các thành phần sau:
 - `services/`: chứa logic gọi API cho 17 route backend
-- `types/`: định nghĩa cấu trúc dữ liệu dựa trên schema BE
+- `types/`: định nghĩa cấu trúc dữ liệu các interfaces dựa trên schemas đã build ở models/ của server/ -> BE
 - `contexts/`: chỉ giữ state và method cần thiết có tính global 
 - `hooks/`: đóng gói logic dùng lại, gọi service, xử lý loading/error...
-
-Bây giờ tôi đang build UI/UX component (trang sản phẩm, giỏ hàng, đăng nhập, đơn hàng, admin...)  
+- `app/`: Nơi chứa code base UI/UX cho frondend làm việc với mockup là chủ yếu
+Bây giờ tôi cần build UI/UX component trong app/ update lại các thành phần chính từ services/ types/ contexts/ hooks/ đã tạo ở src/
 Yêu cầu:
 
-1. Tùy từng component, hãy sử dụng `hooks`, `contexts`, hoặc `services` sao cho hợp lý nhất:
+1. Tùy từng component, phải sử dụng `hooks`, `contexts`, hoặc `services` sao cho hợp lý nhất:
    - Nếu component cần state toàn app  → dùng context
    - Nếu cần fetch data, xử lý loading/error → dùng custom hook
    - Nếu chỉ là hành động độc lập, không cần state → gọi trực tiếp service

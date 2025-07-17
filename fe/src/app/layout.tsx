@@ -5,6 +5,7 @@ import "./globals.css";
 import AppMenu from "./components/menu";
 import AppFooter from "./components/footer";
 import ChatBox from "./components/ChatBox";
+import Toast from "./components/Toast";
 import { AppProvider } from "../contexts"; // 👉 Cập nhật import
 
 const geistSans = Geist({
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body suppressHydrationWarning>
         <AppProvider>
           {children}
+          <Toast />
         </AppProvider>
       </body>
     </html>
@@ -49,6 +51,7 @@ export default function RootLayout({
           {children}
           <AppFooter />
           <ChatBox />
+          <Toast />
         </AppProvider>
       </body>
     </html>

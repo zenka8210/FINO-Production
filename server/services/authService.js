@@ -50,15 +50,23 @@ class AuthService extends BaseService {
  * @throws {AppError} If user not found or credentials invalid
  */
 async login(email, password) {
+  console.log('AuthService login attempt:', { email, passwordLength: password?.length });
+  
   // Tìm người dùng bằng email
   const user = await User.findOne({ email }).select('+password'); // Include password for comparison
+  console.log('User found:', user ? { id: user._id, email: user.email, hasPassword: !!user.password } : null);
+  
   if (!user) {
+    console.log('User not found for email:', email);
     throw new AppError(MESSAGES.AUTH_FAILED, ERROR_CODES.UNAUTHORIZED);
   }
 
   // So sánh mật khẩu
   const isMatch = await user.comparePassword(password);
+  console.log('Password match result:', isMatch);
+  
   if (!isMatch) {
+    console.log('Password mismatch for user:', email);
     throw new AppError(MESSAGES.AUTH_FAILED, ERROR_CODES.UNAUTHORIZED);
   }
 

@@ -42,7 +42,7 @@ class ApiClient {
           this.removeToken();
           // Redirect to login if needed
           if (typeof window !== 'undefined') {
-            window.location.href = '/auth/login';
+            window.location.href = '/login';
           }
         }
         

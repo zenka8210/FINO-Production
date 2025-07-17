@@ -139,12 +139,6 @@ export default function ProfilePage() {
           >
             Lịch sử đơn hàng
           </button>
-          <button 
-            className={styles.navItem}
-            onClick={() => router.push('/security')}
-          >
-            Bảo mật & Mật khẩu
-          </button>
         </nav>
       </div>
 

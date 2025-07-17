@@ -2,11 +2,11 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './FlashSale.module.css';
 import ProductItem from './ProductItem';
-import { Product } from './interface';
+import { ProductWithCategory } from '@/types';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 interface FlashSaleProps {
-  products: Product[];
+  products: ProductWithCategory[];
 }
 
 export default function FlashSale({ products }: FlashSaleProps) {
@@ -73,7 +73,8 @@ export default function FlashSale({ products }: FlashSaleProps) {
     }
   }, [products]);
 
-  const flashSaleProducts = products.slice(0, 10); // Tăng số lượng sản phẩm để có thể scroll
+  // Ensure products is array before slicing
+  const flashSaleProducts = Array.isArray(products) ? products.slice(0, 10) : [];
 
   return (
     <div className={styles.flashSaleContainer}>
@@ -142,7 +143,7 @@ export default function FlashSale({ products }: FlashSaleProps) {
         >
           <div className={styles.productsGrid}>
             {flashSaleProducts.map((product) => (
-              <div key={product.id} className={styles.productCard}>
+              <div key={product._id} className={styles.productCard}>
                 <div className={styles.discountBadge}>-50%</div>
                 <ProductItem product={product} />
               </div>

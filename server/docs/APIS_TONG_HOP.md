@@ -422,4 +422,3 @@ GET    /api/statistics/recent-activity        → Recent activity data (Admin)
 - **Enhanced Product Operations** - Stock management, availability checks
 - **Bulk Operations** - Payment methods bulk actions
 
-Đây là một hệ thống API RESTful hoàn chỉnh với **196 endpoints** covering tất cả major e-commerce functionalities bao gồm cả cart management và advanced features!

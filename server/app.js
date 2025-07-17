@@ -17,8 +17,10 @@ const corsOptions = {
   origin: [
     'http://localhost:3000',  // Next.js default port
     'http://localhost:3001',  // Alternate Next.js port
+    'http://localhost:3002',  // Frontend current port
     'http://127.0.0.1:3000',
     'http://127.0.0.1:3001',
+    'http://127.0.0.1:3002',
     process.env.FRONTEND_URL, // Frontend URL từ .env
     // Thêm domain production nếu có
   ].filter(Boolean), // Loại bỏ undefined values

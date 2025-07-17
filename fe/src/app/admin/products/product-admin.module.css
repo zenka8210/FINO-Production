@@ -44,7 +44,7 @@
 .adminTable tr:nth-child(even) {
   background: #f4f7fa;
 }
-:global(button) {
+.actionButton {
   background: #1976d2;
   color: #fff;
   border: none;
@@ -55,6 +55,6 @@
   cursor: pointer;
   transition: background 0.15s;
 }
-:global(button:hover), :global(button:focus) {
+.actionButton:hover, .actionButton:focus {
   background: #1256a3;
 }

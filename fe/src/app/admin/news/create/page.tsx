@@ -27,6 +27,9 @@ export default function CreateNewsPage() {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [altText, setAltText] = useState<string>('');
+  const [imageUrl, setImageUrl] = useState<string>('');
+  const [imageUploadType, setImageUploadType] = useState<'file' | 'url'>('file');
   const [loading, setLoading] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -508,7 +511,6 @@ export default function CreateNewsPage() {
                   contentEditable
                   onInput={handleContentChange}
                   onPaste={(e) => handlePaste(e.nativeEvent)}
-                  placeholder="Nhập nội dung bài viết... Sử dụng toolbar để định dạng hoặc paste ảnh trực tiếp."
                   className={styles.contentEditor}
                   style={{ minHeight: '400px', border: '1px solid #ddd', padding: '12px', borderRadius: '4px' }}
                   dangerouslySetInnerHTML={{ __html: formData.content }}

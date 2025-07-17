@@ -1,3 +1,9 @@
 {
-    "postman.settings.dotenv-detection-notification-visibility": false
+    "postman.settings.dotenv-detection-notification-visibility": false,
+    "files.hotExit": "off",
+    "workbench.editor.restoreViewState": false,
+    "files.autoSave": "afterDelay",
+    "git.autorefresh": true,
+    "git.autofetch": true,
+    "typescript.preferences.includePackageJsonAutoImports": "auto"
 }

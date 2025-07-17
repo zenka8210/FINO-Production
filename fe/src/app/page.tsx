@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import styles from "./page.module.css";
 import ProductList from "./components/ProductList";
@@ -7,11 +9,55 @@ import FlashSale from "./components/FlashSale";
 import CategoryCards from "./components/CategoryCards";
 import MiddleBanner from "./components/MiddleBanner";
 import BlogSection from "./components/BlogSection";
-import { Product } from './components/interface';
+import { useProducts } from "@/hooks";
+import { useEffect, useState } from "react";
+import { ProductWithCategory } from "@/types";
 
-export default async function Home() {
-  let products: Product[] = await getProduct("http://localhost:3000/product");
-  const featuredProducts = products.slice(0, 4); 
+export default function Home() {
+  const { getProducts, loading, error } = useProducts();
+  const [products, setProducts] = useState<ProductWithCategory[]>([]);
+  const [featuredProducts, setFeaturedProducts] = useState<ProductWithCategory[]>([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await getProducts({ limit: 20 });
+        console.log('Products response:', response);
+        console.log('Response data type:', typeof response.data);
+        console.log('Response data:', response.data);
+        
+        // Extract products array from response.data.data
+        const productsArray = Array.isArray(response.data) ? response.data : 
+                             (response.data && Array.isArray((response.data as any).data)) ? (response.data as any).data : [];
+        setProducts(productsArray);
+        setFeaturedProducts(productsArray.slice(0, 4));
+      } catch (err) {
+        console.error('Failed to fetch products:', err);
+      }
+    };
+
+    fetchProducts();
+  }, [getProducts]);
+
+  if (loading) {
+    return (
+      <div className="container">
+        <div style={{ padding: 40, textAlign: 'center' }}>
+          <div>Đang tải...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container">
+        <div style={{ padding: 40, textAlign: 'center', color: 'red' }}>
+          <div>Lỗi: {error}</div>
+        </div>
+      </div>
+    );
+  } 
 
   return (
     <>
@@ -63,20 +109,4 @@ export default async function Home() {
       <BlogSection />
     </>
   );
-}
-
-async function getProduct(url:string) {
-  let res = await fetch(url);
-  let data = await res.json();
-  let products = data.map((p: Product) => {
-    return {
-      id: p.id, // Thêm dòng này để đảm bảo có id
-      name: p.name,
-      price: p.price,
-      image: p.image,
-      description: p.description,
-      category: p.category
-    };
-  });
-  return products;
 }

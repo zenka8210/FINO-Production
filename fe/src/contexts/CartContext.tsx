@@ -4,6 +4,7 @@ import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { CartContextType, CartWithRefs, CartItem, AddToCartRequest } from '@/types';
 import { cartService } from '@/services';
 import { useNotification } from './NotificationContext';
+import { useAuth } from './AuthContext';
 
 interface CartState {
   cart: CartWithRefs | null;
@@ -71,11 +72,17 @@ interface CartProviderProps {
 export function CartProvider({ children }: CartProviderProps) {
   const [state, dispatch] = useReducer(cartReducer, initialState);
   const { success, error: showError } = useNotification();
+  const { user, isLoading: authLoading } = useAuth();
 
-  // Load cart on mount
+  // Load cart when user is authenticated
   useEffect(() => {
-    loadCart();
-  }, []);
+    if (user && !authLoading) {
+      loadCart();
+    } else if (!user && !authLoading) {
+      // Clear cart when user logs out
+      dispatch({ type: 'CLEAR_CART' });
+    }
+  }, [user, authLoading]);
 
   const loadCart = async (): Promise<void> => {
     try {
@@ -83,7 +90,12 @@ export function CartProvider({ children }: CartProviderProps) {
       const cart = await cartService.getCart();
       dispatch({ type: 'CART_SUCCESS', payload: cart });
     } catch (error: any) {
-      dispatch({ type: 'CART_ERROR', payload: error.message });
+      // If user is not authenticated, don't show error
+      if (error.message?.includes('Unauthorized') || error.message?.includes('Xác thực')) {
+        dispatch({ type: 'CLEAR_CART' });
+      } else {
+        dispatch({ type: 'CART_ERROR', payload: error.message });
+      }
     }
   };
 

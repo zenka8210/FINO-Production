@@ -1,42 +1,72 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Product } from "./interface";
+import { ProductWithCategory } from "@/types";
 import styles from "../page.module.css";
 import { FaHeart } from "react-icons/fa";
-import { formatPriceVND } from "../utils/formatPrice";
 import Link from "next/link";
+import { useWishlist, useCart } from "@/hooks";
+import { useAuth } from "@/contexts";
 
-export default function ProductItem({ product }: { product: Product }) {
+export default function ProductItem({ product }: { product: ProductWithCategory }) {
+  const { user } = useAuth();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { addToCart } = useCart();
   const [isLiked, setIsLiked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const favs = JSON.parse(localStorage.getItem("favorites") || "[]");
-      setIsLiked(favs.includes(product.id));
+    if (user) {
+      setIsLiked(isInWishlist(product._id));
     }
-  }, [product.id]);
+  }, [product._id, user, isInWishlist]);
 
-  const toggleLike = () => {
-  const user = localStorage.getItem("user");
-  if (!user) {
-    alert("Vui lòng đăng nhập để sử dụng chức năng yêu thích!");
-    return;
-  }
-  let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
-  if (isLiked) {
-    favs = favs.filter((id: any) => id !== product.id);
-  } else {
-    favs.push(product.id);
-  }
-  localStorage.setItem("favorites", JSON.stringify(favs));
-  setIsLiked(!isLiked);
-};
+  const toggleLike = async () => {
+    if (!user) {
+      alert("Vui lòng đăng nhập để sử dụng chức năng yêu thích!");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      if (isLiked) {
+        await removeFromWishlist(product._id);
+      } else {
+        await addToWishlist(product._id);
+      }
+      setIsLiked(!isLiked);
+    } catch (error) {
+      console.error('Lỗi khi cập nhật wishlist:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    if (!user) {
+      alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
+      return;
+    }
+
+    // Giả sử sản phẩm có variant đầu tiên, hoặc bạn có thể mở modal để chọn variant
+    if (product.variants && product.variants.length > 0) {
+      try {
+        await addToCart(product.variants[0]._id, 1);
+        alert("Đã thêm sản phẩm vào giỏ hàng!");
+      } catch (error) {
+        console.error('Lỗi khi thêm vào giỏ hàng:', error);
+        alert("Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng!");
+      }
+    } else {
+      alert("Sản phẩm này hiện không có sẵn!");
+    }
+  };
 
   return (
-    <div className={styles.productItem}>      <div className={styles.imageContainer}>
-        <Link href={`/products/${product.id}`}>
+    <div className={styles.productItem}>
+      <div className={styles.imageContainer}>
+        <Link href={`/products/${product._id}`}>
           <img 
-            src={product.image || "/images/anh1.jpg"} 
+            src={product.images?.[0] || "/images/anh1.jpg"} 
             alt={product.name}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
@@ -44,24 +74,29 @@ export default function ProductItem({ product }: { product: Product }) {
             }}
             loading="lazy"
           />
-        </Link>        {/* Nút thả tim */}
+        </Link>
+        {/* Nút thả tim */}
         <button 
           className={styles.heartButton} 
           onClick={toggleLike} 
+          disabled={isLoading}
           title={isLiked ? "Bỏ yêu thích" : "Yêu thích"}
           style={{
             background: 'transparent',
             border: 'none',
             outline: 'none',
-            boxShadow: 'none'
+            boxShadow: 'none',
+            opacity: isLoading ? 0.5 : 1
           }}
         >
           <FaHeart color={isLiked ? "#e11d48" : "#d1d5db"} size={24} />
         </button>
-      </div><div className={styles.productInfo}>
+      </div>
+      <div className={styles.productInfo}>
         <h3>{product.name}</h3>
         <p className={styles.description}>{product.description}</p>
-        <p className={styles.price}>{formatPriceVND(product.price)}</p>        <div style={{display:'flex', gap:6, marginTop:6}}>
+        <p className={styles.price}>{(product.price)}</p>
+        <div style={{display:'flex', gap:6, marginTop:6}}>
           <button 
             className="btn-cart-primary" 
             style={{
@@ -86,23 +121,8 @@ export default function ProductItem({ product }: { product: Product }) {
               e.currentTarget.style.background = '#fff';
               e.currentTarget.style.color = 'var(--brand-color, #FF9800)';
             }}
-            onClick={() => {
-            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            const existingItem = cart.find((item:any) => item.id === product.id);
-            if (existingItem) {
-              existingItem.quantity += 1;
-            } else {
-              cart.push({ 
-                id: product.id, 
-                name: product.name, 
-                price: product.price,
-                image: product.image, 
-                quantity: 1 
-              });
-            }
-            localStorage.setItem('cart', JSON.stringify(cart));
-            alert('Đã thêm vào giỏ hàng!');
-          }}>
+            onClick={handleAddToCart}
+          >
             <span style={{position: 'relative', zIndex: 10}}>Thêm vào giỏ hàng</span>
           </button>
         </div>

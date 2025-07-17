@@ -100,13 +100,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const checkAuthStatus = async () => {
     try {
+      console.log('AuthContext: Checking auth status...');
       if (authService.isAuthenticated()) {
+        console.log('AuthContext: Token found, getting user...');
         const user = await authService.getCurrentUser();
+        console.log('AuthContext: User retrieved:', user);
         dispatch({ type: 'AUTH_SUCCESS', payload: user });
       } else {
+        console.log('AuthContext: No token found');
         dispatch({ type: 'AUTH_FAILURE', payload: 'Not authenticated' });
       }
     } catch (error) {
+      console.error('AuthContext: Auth check failed:', error);
       dispatch({ type: 'AUTH_FAILURE', payload: 'Authentication check failed' });
     }
   };
@@ -115,11 +120,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       dispatch({ type: 'AUTH_START' });
       const response = await authService.login(credentials);
+      console.log('AuthContext login response:', response);
       
-      if (response.success && response.user) {
+      if (response && response.user) {
         dispatch({ type: 'AUTH_SUCCESS', payload: response.user });
       } else {
-        throw new Error(response.message || 'Login failed');
+        throw new Error('Login response invalid');
       }
     } catch (error: any) {
       dispatch({ type: 'AUTH_FAILURE', payload: error.message });
@@ -131,11 +137,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       dispatch({ type: 'AUTH_START' });
       const response = await authService.register(userData);
+      console.log('AuthContext register response:', response);
       
-      if (response.success && response.user) {
+      if (response && response.user) {
         dispatch({ type: 'AUTH_SUCCESS', payload: response.user });
       } else {
-        throw new Error(response.message || 'Registration failed');
+        throw new Error('Registration response invalid');
       }
     } catch (error: any) {
       dispatch({ type: 'AUTH_FAILURE', payload: error.message });

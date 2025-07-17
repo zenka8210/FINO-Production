@@ -1,41 +1,85 @@
+"use client";
 import { useEffect, useState } from "react";
-import { Product } from "./interface";
+import { formatPrice } from '../../utils/formatPrice';
+import { ProductWithCategory } from '../../types';
 import styles from "../products/[id]/id.module.css";
 import Link from "next/link";
-import { formatPrice } from "../utils/formatPrice";
+import { useProducts } from '../../hooks/useProducts';
 
-export default function RelatedProducts({ currentId, category }: { currentId: string | number, category?: string | number }) {
-  const [products, setProducts] = useState<Product[]>([]);
+export default function RelatedProducts({ currentId, category }: { currentId: string, category?: string }) {
+  const { getProducts, loading, error } = useProducts();
+  const [relatedProducts, setRelatedProducts] = useState<ProductWithCategory[]>([]);
 
   useEffect(() => {
-    fetch("/data.json")
-      .then(res => res.json())
-      .then(data => {
-        let all = data.product || data.products || [];
-        // Lọc sản phẩm cùng category, khác id hiện tại
-        const related = all.filter((p: Product) => String(p.id) !== String(currentId) && (category ? String(p.category) === String(category) : true));
-        setProducts(related.slice(0, 4));
-      });
-  }, [currentId, category]);
+    const fetchRelatedProducts = async () => {
+      try {
+        const response = await getProducts({ limit: 20 });
+        console.log('RelatedProducts response:', response);
+        
+        // getProducts() returns PaginatedResponse<ProductWithCategory>
+        // Structure: { data: ProductWithCategory[], pagination: {} }
+        let productsArray: ProductWithCategory[] = [];
+        
+        if (Array.isArray(response)) {
+          productsArray = response;
+        } else if (response && typeof response === 'object' && 'data' in response && Array.isArray((response as any).data)) {
+          productsArray = (response as any).data;
+        }
+        
+        if (productsArray.length > 0 && currentId) {
+          const filtered = productsArray
+            .filter((p: ProductWithCategory) => p._id !== currentId && (!category || p.category?._id === category))
+            .slice(0, 4);
+          setRelatedProducts(filtered);
+        }
+      } catch (err) {
+        console.error('Error fetching related products:', err);
+      }
+    };
 
-  if (!products.length) return null;
+    fetchRelatedProducts();
+  }, [currentId, category, getProducts]);
+
+  if (loading) return <div>Đang tải sản phẩm liên quan...</div>;
+  if (error) return <div>Lỗi khi tải sản phẩm liên quan</div>;
+  if (relatedProducts.length === 0) return null;
 
   return (
-    <div className={styles.relatedGrid}>
-      {products.slice(0, 4).map((p) => (
-        <Link href={`/products/${p.id}`} key={p.id} className={styles.relatedCard}>
-          <div className={styles.relatedImgWrap}>
-            <img
-              src={p.image && p.image.startsWith('http') ? p.image : '/images/anh1.jpg'}
-              alt={p.name}
-              className={styles.relatedImg}
-              onError={(e) => { e.currentTarget.src = '/images/anh1.jpg'; }}
-            />
-          </div>          <div className={styles.relatedName}>{p.name}</div>
-          <div className={styles.relatedDesc}>{p.description}</div>
-          <div className={styles.relatedPrice}>{formatPrice(p.price)}</div>
-        </Link>
-      ))}
+    <div className={styles.relatedProducts}>
+      <h3>Sản phẩm liên quan</h3>
+      <div className={styles.productGrid}>
+        {relatedProducts.map((product) => (
+          <Link 
+            key={product._id} 
+            href={`/products/${product._id}`}
+            className={styles.productItem}
+          >
+            <div className={styles.productImage}>
+              <img 
+                src={product.images?.[0] || '/images/placeholder.jpg'} 
+                alt={product.name}
+              />
+            </div>
+            <div className={styles.productInfo}>
+              <h4>{product.name}</h4>
+              <div className={styles.price}>
+                {product.salePrice && product.isOnSale ? (
+                  <>
+                    <span className={styles.originalPrice}>
+                      {formatPrice(product.price)}
+                    </span>
+                    <span className={styles.discountPrice}>
+                      {formatPrice(product.salePrice)}
+                    </span>
+                  </>
+                ) : (
+                  <span>{formatPrice(product.currentPrice || product.price)}</span>
+                )}
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

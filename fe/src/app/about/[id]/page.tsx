@@ -4,8 +4,9 @@ import styles from "../about.module.css";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 
-export default function AboutDetailPage({ params }: { params: { id: string } }) {
-  const post = posts.find((p) => p.id === params.id);
+export default async function AboutDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const post = posts.find((p) => p.id === id);
   if (!post) return notFound();
   const relatedPosts = posts.filter((p) => post.related.includes(p.id));
 

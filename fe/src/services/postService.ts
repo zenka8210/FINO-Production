@@ -27,9 +27,8 @@ export class PostService {
       const params = new URLSearchParams();
       params.append('page', page.toString());
       params.append('limit', limit.toString());
-      params.append('published', 'true');
 
-      const response = await apiClient.getPaginated<PostWithAuthor>('/api/posts', params);
+      const response = await apiClient.getPaginated<PostWithAuthor>('/api/posts/published', params);
       return response;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch posts');

@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { reviewService } from '@/services';
 import { FaStar, FaUser, FaThumbsUp, FaRegThumbsUp, FaQuoteLeft } from 'react-icons/fa';
 import styles from './ReviewSection.module.css';
 
@@ -64,32 +65,23 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
     try {
       const reviewPayload = {
         productId,
-        userId: user.id || user.username, // Fallback to username if id is not available
-        username: user.username,
+        userId: user._id,
+        username: user.name || user.email,
         rating: newReview.rating,
         comment: newReview.comment.trim()
       };
 
       console.log('Sending review data:', reviewPayload); // Debug log
 
-      const response = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(reviewPayload),
-      });
-
-      const data = await response.json();
-      console.log('Response from API:', data); // Debug log
+      const result = await reviewService.createReview(reviewPayload);
       
-      if (data.success) {
+      if (result.success) {
         setNewReview({ rating: 5, comment: '' });
         loadReviews(); // Reload reviews
         alert('Đánh giá của bạn đã được gửi thành công!');
       } else {
-        console.error('API Error:', data.error);
-        alert(`Có lỗi xảy ra: ${data.error || 'Không thể gửi đánh giá'}`);
+        console.error('API Error:', result.error);
+        alert(`Có lỗi xảy ra: ${result.error || 'Không thể gửi đánh giá'}`);
       }
     } catch (error) {
       console.error('Error submitting review:', error);
