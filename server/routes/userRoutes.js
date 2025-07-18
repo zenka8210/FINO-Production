@@ -5,6 +5,7 @@ const protect = require('../middlewares/authMiddleware'); // Corrected: authMidd
 const restrictToAdmin = require('../middlewares/adminMiddleware'); // Corrected: restrictToAdmin is from adminMiddleware
 const validateObjectId = require('../middlewares/validateObjectId');
 const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
+const { adminSortForModel } = require('../middlewares/adminSortMiddleware');
 
 const router = express.Router();
 
@@ -44,6 +45,7 @@ router.get(
   '/',
   protect,
   restrictToAdmin,
+  adminSortForModel('User'),
   queryParserMiddleware(),
   userController.getAllUsers
 );

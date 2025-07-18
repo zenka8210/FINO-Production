@@ -1,5 +1,6 @@
 const ResponseHandler = require('../services/responseHandler');
 const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
+const AdminSortUtils = require('../utils/adminSortUtils');
 
 class BaseController {
   constructor(service) {
@@ -26,10 +27,18 @@ class BaseController {
       } else {
         // Fallback to legacy method
         const { page, limit, sort, ...filter } = req.query;
+        
+        // Apply admin sort if this is an admin request
+        let sortConfig = sort ? JSON.parse(sort) : { createdAt: -1 };
+        if (req.path.includes('/admin/') || req.user?.role === 'admin') {
+          const modelName = this.service.Model?.modelName;
+          sortConfig = AdminSortUtils.ensureAdminSort(req, modelName);
+        }
+        
         const options = {
           page: parseInt(page) || 1,
           limit: parseInt(limit) || 10,
-          sort: sort ? JSON.parse(sort) : { createdAt: -1 },
+          sort: sortConfig,
           filter,
           populate: req.query.populate || '',
           select: req.query.select || ''

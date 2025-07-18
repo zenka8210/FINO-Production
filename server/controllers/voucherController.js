@@ -5,6 +5,7 @@ const ResponseHandler = require('../services/responseHandler');
 const { MESSAGES, PAGINATION, voucherMessages, ERROR_CODES } = require('../config/constants');
 const { AppError } = require('../middlewares/errorHandler');
 const { QueryBuilder } = require('../middlewares/queryMiddleware');
+const AdminSortUtils = require('../utils/adminSortUtils');
 
 /**
  * @class VoucherController
@@ -78,6 +79,11 @@ class VoucherController extends BaseController {
           sortBy: req.query.sortBy || 'createdAt',
           sortOrder: req.query.sortOrder || 'desc'
         };
+        
+        // Apply admin sort
+        const sortConfig = AdminSortUtils.ensureAdminSort(req, 'Voucher');
+        queryOptions.sort = sortConfig;
+        
         const result = await this.service.getAllVouchers(queryOptions);
         ResponseHandler.success(res, MESSAGES.FETCH_SUCCESS, result);
       }

@@ -7,6 +7,7 @@
 
 const { PAGINATION } = require('../config/constants');
 const { getModelConfig, validateFilterValue } = require('../config/queryConfig');
+const AdminSortUtils = require('../utils/adminSortUtils');
 
 /**
  * @class QueryBuilder
@@ -88,11 +89,17 @@ class QueryBuilder {
                 this.sort[sortString] = order.toLowerCase() === 'desc' ? -1 : 1;
             }
         } else {
-            // Default sort by creation date
+            // Default sort by creation date (admin-friendly)
             const sortBy = this.queryParams.sortBy || 'createdAt';
             const sortOrder = this.queryParams.sortOrder === 'asc' ? 1 : -1;
             this.sort[sortBy] = sortOrder;
         }
+        
+        // Ensure admin sort is applied if this is an admin request
+        if (this.queryParams.isAdmin || this.queryParams.adminSort) {
+            this.sort = AdminSortUtils.parseAdminSort(this.queryParams, this.model.modelName);
+        }
+        
         return this;
     }
 

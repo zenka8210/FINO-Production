@@ -3,6 +3,7 @@ const UserService = require('../services/userService');
 const ResponseHandler = require('../services/responseHandler');
 const { userMessages, PAGINATION } = require('../config/constants');
 const { QueryUtils } = require('../utils/queryUtils');
+const AdminSortUtils = require('../utils/adminSortUtils');
 
 class UserController extends BaseController {
   constructor() {
@@ -53,6 +54,11 @@ class UserController extends BaseController {
           sortBy: req.query.sortBy || 'createdAt',
           sortOrder: req.query.sortOrder || 'desc'
         };
+        
+        // Apply admin sort
+        const sortConfig = AdminSortUtils.ensureAdminSort(req, 'User');
+        queryOptions.sort = sortConfig;
+        
         const result = await this.service.getAllUsers(queryOptions);
         
         return res.status(200).json({

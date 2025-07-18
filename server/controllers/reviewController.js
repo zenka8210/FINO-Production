@@ -4,6 +4,7 @@ const Review = require('../models/ReviewSchema');
 const ResponseHandler = require('../services/responseHandler');
 const { QueryUtils } = require('../utils/queryUtils');
 const { PAGINATION } = require('../config/constants');
+const AdminSortUtils = require('../utils/adminSortUtils');
 
 class ReviewController extends BaseController {
   constructor() {
@@ -171,6 +172,11 @@ class ReviewController extends BaseController {
           sortBy: req.query.sortBy || 'createdAt',
           sortOrder: req.query.sortOrder || 'desc'
         };
+        
+        // Apply admin sort
+        const sortConfig = AdminSortUtils.ensureAdminSort(req, 'Review');
+        queryOptions.sort = sortConfig;
+        
         const result = await this.service.getAllReviews(queryOptions);
         ResponseHandler.success(res, 'Lấy danh sách đánh giá thành công', result);
       }
@@ -196,7 +202,7 @@ class ReviewController extends BaseController {
         limit: parseInt(limit) || 20,
         filter,
         populate: 'user product', // Removed productVariant as it's not in Review schema
-        sort: { createdAt: -1 }
+        sort: AdminSortUtils.ensureAdminSort(req, 'Review')
       };
 
       const result = await this.service.getAll(options);

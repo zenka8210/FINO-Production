@@ -6,6 +6,7 @@ const { QueryBuilder } = require('../middlewares/queryMiddleware');
 const { orderMessages, PAGINATION, ERROR_CODES } = require('../config/constants');
 const { AppError } = require('../middlewares/errorHandler');
 const { QueryUtils } = require('../utils/queryUtils');
+const AdminSortUtils = require('../utils/adminSortUtils');
 
 class OrderController extends BaseController {
   constructor() {
@@ -102,6 +103,11 @@ class OrderController extends BaseController {
           sortBy: req.query.sortBy || 'createdAt',
           sortOrder: req.query.sortOrder || 'desc'
         };
+        
+        // Apply admin sort
+        const sortConfig = AdminSortUtils.ensureAdminSort(req, 'Order');
+        queryOptions.sort = sortConfig;
+        
         const result = await this.service.getAllOrders(queryOptions);
         ResponseHandler.success(res, orderMessages.ORDERS_FETCHED_SUCCESSFULLY, result);
       }
@@ -350,9 +356,10 @@ class OrderController extends BaseController {
         ResponseHandler.success(res, 'Orders retrieved successfully', result);
       } else {
         // Fallback to legacy method
+        const sortConfig = AdminSortUtils.ensureAdminSort(req, 'Order');
         const orders = await Order.find()
           .populate(['user', 'address', 'voucher', 'paymentMethod', 'items.productVariant'])
-          .sort({ createdAt: -1 });
+          .sort(sortConfig);
         ResponseHandler.success(res, 'Orders retrieved successfully', orders);
       }
     } catch (error) {

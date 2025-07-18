@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const { AppError } = require('../middlewares/errorHandler');
 const { createQueryBuilder } = require('../middlewares/queryMiddleware');
 const { QueryUtils } = require('../utils/queryUtils');
+const AdminSortUtils = require('../utils/adminSortUtils');
 
 class BaseService {
   constructor(Model) {
@@ -41,7 +42,7 @@ class BaseService {
     const {
       page = 1,
       limit = 10,
-      sort = { createdAt: -1 },
+      sort = AdminSortUtils.getDefaultSort(),
       filter = {},
       populate = '',
       select = '',
@@ -168,7 +169,7 @@ class BaseService {
     const {
       page = 1,
       limit = 10,
-      sort = { createdAt: -1 }
+      sort = AdminSortUtils.getDefaultSort()
     } = options;
 
     const searchConditions = fields.map(field => ({

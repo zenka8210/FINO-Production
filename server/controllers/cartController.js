@@ -5,6 +5,7 @@ const Cart = require('../models/CartSchema'); // Updated to use new CartSchema
 const { QueryBuilder } = require('../middlewares/queryMiddleware');
 const { MESSAGES, ERROR_CODES } = require('../config/constants');
 const { AppError } = require('../middlewares/errorHandler');
+const AdminSortUtils = require('../utils/adminSortUtils');
 
 class CartController extends BaseController {
   constructor() {
@@ -175,9 +176,10 @@ class CartController extends BaseController {
         ResponseHandler.success(res, 'Carts retrieved successfully', result);
       } else {
         // Fallback to legacy method
+        const sortConfig = AdminSortUtils.ensureAdminSort(req, 'Cart');
         const carts = await Cart.find()
           .populate(['user', 'address', 'voucher', 'paymentMethod', 'items.productVariant'])
-          .sort({ createdAt: -1 });
+          .sort(sortConfig);
         ResponseHandler.success(res, 'Carts retrieved successfully', carts);
       }
     } catch (error) {
@@ -204,9 +206,10 @@ class CartController extends BaseController {
         ResponseHandler.success(res, 'Orders retrieved successfully', result);
       } else {
         // Fallback to legacy method
+        const sortConfig = AdminSortUtils.ensureAdminSort(req, 'Cart');
         const orders = await Cart.find({ type: 'order' })
           .populate(['user', 'address', 'voucher', 'paymentMethod', 'items.productVariant'])
-          .sort({ createdAt: -1 });
+          .sort(sortConfig);
         ResponseHandler.success(res, 'Orders retrieved successfully', orders);
       }
     } catch (error) {
@@ -232,9 +235,10 @@ class CartController extends BaseController {
         ResponseHandler.success(res, 'Active carts retrieved successfully', result);
       } else {
         // Fallback to legacy method
+        const sortConfig = AdminSortUtils.ensureAdminSort(req, 'Cart');
         const carts = await Cart.find({ type: 'cart', status: 'cart' })
           .populate(['user', 'items.productVariant'])
-          .sort({ updatedAt: -1 });
+          .sort(sortConfig);
         ResponseHandler.success(res, 'Active carts retrieved successfully', carts);
       }
     } catch (error) {

@@ -4,6 +4,7 @@ const WishList = require('../models/WishListSchema');
 const ResponseHandler = require('../services/responseHandler');
 const { QueryBuilder } = require('../middlewares/queryMiddleware');
 const { PAGINATION } = require('../config/constants');
+const AdminSortUtils = require('../utils/adminSortUtils');
 
 class WishListController extends BaseController {
     constructor() {
@@ -329,6 +330,11 @@ class WishListController extends BaseController {
                     sortBy: req.query.sortBy || 'createdAt',
                     sortOrder: req.query.sortOrder || 'desc'
                 };
+                
+                // Apply admin sort
+                const sortConfig = AdminSortUtils.ensureAdminSort(req, 'WishList');
+                queryOptions.sort = sortConfig;
+                
                 const result = await this.service.getAllWishLists(queryOptions);
                 ResponseHandler.success(res, 'Lấy danh sách wishlist thành công', result);
             }
@@ -352,6 +358,10 @@ class WishListController extends BaseController {
                 sortBy: sortBy || 'createdAt',
                 sortOrder: sortOrder || 'desc'
             };
+
+            // Apply admin sort
+            const sortConfig = AdminSortUtils.ensureAdminSort(req, 'WishList');
+            queryOptions.sort = sortConfig;
 
             const result = await this.service.getAllWishLists(queryOptions);
             ResponseHandler.success(res, 'Lấy danh sách wishlist thành công', result);

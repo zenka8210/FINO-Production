@@ -6,6 +6,7 @@ const authenticateToken = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
 const validateObjectId = require('../middlewares/validateObjectId');
 const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
+const { adminSortForModel } = require('../middlewares/adminSortMiddleware');
 
 // Apply authentication to all routes
 router.use(authenticateToken);
@@ -35,7 +36,7 @@ router.get('/:productId/can-review', validateObjectId('productId'), orderControl
 
 // ========== ADMIN ROUTES ==========
 // GET /api/orders/admin/all - Get all orders with filters (admin)
-router.get('/admin/all', authenticateToken, adminMiddleware, queryParserMiddleware(), orderController.getOrders);
+router.get('/admin/all', authenticateToken, adminMiddleware, adminSortForModel('Order'), queryParserMiddleware(), orderController.getOrders);
 
 // GET /api/orders/admin/stats - Get order statistics (admin)
 router.get('/admin/stats', authenticateToken, adminMiddleware, orderController.getOrderStats);
@@ -60,19 +61,19 @@ router.get('/admin/trends', authenticateToken, adminMiddleware, orderController.
  * @description Get all orders with Query Middleware (pagination, search, sort, filter)
  * @access Private (Admin only)
  */
-router.get('/admin/all-with-query', authenticateToken, adminMiddleware, queryParserMiddleware(), orderController.getAllOrders);
+router.get('/admin/all-with-query', authenticateToken, adminMiddleware, adminSortForModel('Order'), queryParserMiddleware(), orderController.getAllOrders);
 
 // GET /api/orders/admin/search - Search orders (admin)
-router.get('/admin/search', authenticateToken, adminMiddleware, orderController.searchOrders);
+router.get('/admin/search', authenticateToken, adminMiddleware, adminSortForModel('Order'), orderController.searchOrders);
 
 // GET /api/orders/admin/top-products - Get top selling products (admin)
 router.get('/admin/top-products', authenticateToken, adminMiddleware, orderController.getTopSellingProducts);
 
 // GET /api/orders/admin/payment-method/:paymentMethod - Get orders by payment method (admin)
-router.get('/admin/payment-method/:paymentMethod', authenticateToken, adminMiddleware, validateObjectId('paymentMethod'), orderController.getOrdersByPaymentMethod);
+router.get('/admin/payment-method/:paymentMethod', authenticateToken, adminMiddleware, adminSortForModel('Order'), validateObjectId('paymentMethod'), orderController.getOrdersByPaymentMethod);
 
 // GET /api/orders/admin/user/:userId - Get orders by user ID (admin)
-router.get('/admin/user/:userId', authenticateToken, adminMiddleware, validateObjectId('userId'), orderController.getOrdersByUserId);
+router.get('/admin/user/:userId', authenticateToken, adminMiddleware, adminSortForModel('Order'), validateObjectId('userId'), orderController.getOrdersByUserId);
 
 // PUT /api/orders/admin/:id/status - Update order status ONLY (admin restriction)
 router.put('/admin/:id/status', authenticateToken, adminMiddleware, validateObjectId('id'), orderController.updateOrderStatus);

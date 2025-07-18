@@ -5,7 +5,7 @@ Tôi đã hoàn thành toàn bộ các phần:
 - `types/`: định nghĩa cấu trúc dữ liệu các interfaces dựa trên schemas đã build ở models/ của server/ -> BE
 - `contexts/`: chỉ giữ state và method cần thiết có tính global 
 - `hooks/`: đóng gói logic dùng lại, gọi service, xử lý loading/error...
-- `app/`: Nơi chứa code base UI/UX cho frondend làm việc với mockup là chủ yếu
+- `app/`: Nơi chứa code base UI/UX cho frondend, vài thành phần hiện đang làm việc với mockup và json
 Bây giờ tôi cần build UI/UX component trong app/ update lại các thành phần chính từ services/ types/ contexts/ hooks/ đã tạo ở src/
 Yêu cầu:
 

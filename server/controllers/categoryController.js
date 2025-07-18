@@ -3,6 +3,7 @@ const CategoryService = require('../services/categoryService');
 const Category = require('../models/CategorySchema');
 const ResponseHandler = require('../services/responseHandler');
 const { QueryUtils } = require('../utils/queryUtils');
+const AdminSortUtils = require('../utils/adminSortUtils');
 
 class CategoryController extends BaseController {
     constructor() {
@@ -28,6 +29,11 @@ class CategoryController extends BaseController {
             } else {
                 // Fallback to legacy method
                 const queryOptions = req.query;
+                
+                // Apply admin sort
+                const sortConfig = AdminSortUtils.ensureAdminSort(req, 'Category');
+                queryOptions.sort = sortConfig;
+                
                 const result = await this.service.getAllCategories(queryOptions);
                 ResponseHandler.success(res, 'Lấy danh sách danh mục thành công', result);
             }

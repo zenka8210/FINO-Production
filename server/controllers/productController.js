@@ -6,6 +6,7 @@ const { MESSAGES, PAGINATION } = require('../config/constants');
 const { AppError } = require('../middlewares/errorHandler');
 const { QueryUtils } = require('../utils/queryUtils');
 const { queryParserMiddleware } = require('../middlewares/queryMiddleware');
+const AdminSortUtils = require('../utils/adminSortUtils');
 
 class ProductController extends BaseController {
     constructor() {
@@ -42,6 +43,11 @@ class ProductController extends BaseController {
                     sortBy: req.query.sortBy || 'createdAt',
                     sortOrder: req.query.sortOrder || 'desc'
                 };
+                
+                // Apply admin sort
+                const sortConfig = AdminSortUtils.ensureAdminSort(req, 'Product');
+                queryOptions.sort = sortConfig;
+                
                 const result = await this.service.getAllProducts(queryOptions);
                 ResponseHandler.success(res, MESSAGES.PRODUCTS_FETCHED, result);
             }
