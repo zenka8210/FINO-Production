@@ -21,8 +21,11 @@ interface WishlistContextType {
   removeFromWishlist: (productId: string) => Promise<void>;
   clearWishlist: () => Promise<void>;
   toggleWishlist: (productId: string) => Promise<void>;
+  syncWishlistFromSession: (sessionWishlist: string[]) => Promise<void>;
   isInWishlist: (productId: string) => boolean;
-  getWishlistCount: () => number;
+  getWishlistItemsCount: () => number;
+  hasItems: () => boolean;
+  refreshWishlist: () => Promise<void>;
   clearError: () => void;
 }
 
@@ -139,10 +142,36 @@ export function WishlistProvider({ children }: WishlistProviderProps) {
     }
   }, [isInWishlist, addToWishlist, removeFromWishlist]);
 
-  const getWishlistCount = useCallback((): number => {
+  const getWishlistItemsCount = useCallback((): number => {
     if (!state.wishlist) return 0;
     return state.wishlist.items.length;
   }, [state.wishlist]);
+
+  const hasItems = useCallback((): boolean => {
+    return (state.wishlist?.items.length || 0) > 0;
+  }, [state.wishlist]);
+
+  const refreshWishlist = useCallback(async (): Promise<void> => {
+    await loadWishlist();
+  }, [loadWishlist]);
+
+  const syncWishlistFromSession = useCallback(async (sessionWishlist: string[]): Promise<void> => {
+    try {
+      dispatch({ type: 'LOADING' });
+      // Sync each item from session wishlist
+      for (const productId of sessionWishlist) {
+        if (!isInWishlist(productId)) {
+          await wishlistService.addToWishlist(productId);
+        }
+      }
+      // Reload wishlist to get updated state
+      await loadWishlist();
+      success('Wishlist synced', 'Your wishlist has been synchronized');
+    } catch (error: any) {
+      dispatch({ type: 'ERROR', payload: error.message });
+      showError('Failed to sync wishlist', error.message);
+    }
+  }, [isInWishlist, loadWishlist, success, showError]);
 
   const clearError = useCallback((): void => {
     dispatch({ type: 'CLEAR_ERROR' });
@@ -158,8 +187,11 @@ export function WishlistProvider({ children }: WishlistProviderProps) {
     removeFromWishlist,
     clearWishlist,
     toggleWishlist,
+    syncWishlistFromSession,
     isInWishlist,
-    getWishlistCount,
+    getWishlistItemsCount,
+    hasItems,
+    refreshWishlist,
     clearError,
   };
 

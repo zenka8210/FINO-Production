@@ -44,7 +44,7 @@ export class ReviewService {
       params.append('page', page.toString());
       params.append('limit', limit.toString());
 
-      const response = await apiClient.getPaginated<ReviewWithRefs>('/api/reviews/user', params);
+      const response = await apiClient.getPaginated<ReviewWithRefs>('/api/reviews', params);
       return response;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch user reviews');
@@ -126,7 +126,7 @@ export class ReviewService {
       params.append('page', page.toString());
       params.append('limit', limit.toString());
 
-      const response = await apiClient.getPaginated<ReviewWithRefs>('/api/reviews', params);
+      const response = await apiClient.getPaginated<ReviewWithRefs>('/api/reviews/admin/all', params);
       return response;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch all reviews');

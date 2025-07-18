@@ -8,6 +8,8 @@ interface ProductState {
   isFiltersOpen: boolean;
 }
 
+// Simple product context for managing filters and UI state only
+// Product data operations are handled directly through productService
 interface ProductContextType {
   filters: ProductFilters;
   isFiltersOpen: boolean;

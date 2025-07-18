@@ -70,7 +70,7 @@ export class PostService {
       params.append('page', page.toString());
       params.append('limit', limit.toString());
 
-      const response = await apiClient.getPaginated<PostWithAuthor>('/api/posts/admin', params);
+      const response = await apiClient.getPaginated<PostWithAuthor>('/api/posts', params);
       return response;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch all posts');
@@ -114,14 +114,28 @@ export class PostService {
   }
 
   /**
-   * Toggle post publish status (Admin only)
+   * Toggle post visibility (Admin only)
+   * PATCH /api/posts/:id/toggle-visibility
    */
-  async togglePublishStatus(postId: string): Promise<Post> {
+  async togglePostVisibility(postId: string): Promise<Post> {
     try {
-      const response = await apiClient.put<Post>(`/api/posts/${postId}/toggle-publish`);
+      const response = await apiClient.patch<Post>(`/api/posts/${postId}/toggle-visibility`);
       return response.data!;
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to toggle publish status');
+      throw new Error(error.response?.data?.message || 'Failed to toggle post visibility');
+    }
+  }
+
+  /**
+   * Update post publish status (Admin only)
+   * PATCH /api/posts/:id/publish-status
+   */
+  async updatePublishStatus(postId: string, publishStatus: 'draft' | 'published'): Promise<Post> {
+    try {
+      const response = await apiClient.patch<Post>(`/api/posts/${postId}/publish-status`, { publishStatus });
+      return response.data!;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to update publish status');
     }
   }
 }

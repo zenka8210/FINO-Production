@@ -16,6 +16,15 @@ export { useOrders } from './useOrders';
 export { useCategories } from './useCategories';
 export { useAddresses } from './useAddresses';
 
+// ============= API UTILITY HOOKS =============
+// Generic hooks for API calls, pagination, and file uploads
+
+export { 
+  useApiCall, 
+  usePaginatedApiCall, 
+  useFileUpload 
+} from './useApiCall';
+
 // ============= NOTES =============
 // The following hooks have been removed as their contexts were deleted:
 // - usePaymentMethods (use paymentMethodService directly)

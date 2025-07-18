@@ -8,6 +8,7 @@ import {
   RegisterRequest 
 } from '@/types';
 import { authService } from '@/services';
+import { userService } from '@/services/userService';
 
 // Auth State
 interface AuthState {
@@ -103,7 +104,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       console.log('AuthContext: Checking auth status...');
       if (authService.isAuthenticated()) {
         console.log('AuthContext: Token found, getting user...');
-        const user = await authService.getCurrentUser();
+        const user = await userService.getCurrentUserProfile();
         console.log('AuthContext: User retrieved:', user);
         dispatch({ type: 'AUTH_SUCCESS', payload: user });
       } else {
@@ -128,7 +129,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error('Login response invalid');
       }
     } catch (error: any) {
-      dispatch({ type: 'AUTH_FAILURE', payload: error.message });
+      dispatch({ type: 'AUTH_FAILURE', payload: error.message || 'Login failed' });
       throw error;
     }
   };
@@ -145,7 +146,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error('Registration response invalid');
       }
     } catch (error: any) {
-      dispatch({ type: 'AUTH_FAILURE', payload: error.message });
+      dispatch({ type: 'AUTH_FAILURE', payload: error.message || 'Registration failed' });
       throw error;
     }
   };
@@ -157,14 +158,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const updateProfile = async (userData: Partial<User>): Promise<void> => {
     try {
-      const updatedUser = await authService.updateProfile(userData);
+      const updatedUser = await userService.updateCurrentUserProfile(userData);
       dispatch({ type: 'UPDATE_USER', payload: updatedUser });
     } catch (error: any) {
       throw error;
     }
   };
 
-  const clearError = () => {
+  const clearError = (): void => {
     dispatch({ type: 'CLEAR_ERROR' });
   };
 

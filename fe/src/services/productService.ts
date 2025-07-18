@@ -25,7 +25,7 @@ export class ProductService {
   }
 
   /**
-   * Get all products with pagination, filtering, and sorting
+   * Get all public products with pagination, filtering, and sorting
    */
   async getProducts(filters?: ProductFilters): Promise<PaginatedResponse<ProductWithCategory>> {
     try {
@@ -179,12 +179,15 @@ export class ProductService {
   }
 
   /**
-   * Get products by category
+   * Get products by category (public endpoint)
    */
-  async getProductsByCategory(categoryId: string, filters?: Omit<ProductFilters, 'category'>): Promise<PaginatedResponse<ProductWithCategory>> {
+  async getProductsByCategory(categoryId: string, includeVariants: boolean = true): Promise<PaginatedResponse<ProductWithCategory>> {
     try {
-      const categoryFilters = { ...filters, category: categoryId };
-      return await this.getProducts(categoryFilters);
+      const params = new URLSearchParams();
+      params.append('includeVariants', includeVariants.toString());
+
+      const response = await apiClient.getPaginated<ProductWithCategory>(`/api/products/category/${categoryId}/public`, params);
+      return response;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch products by category');
     }
@@ -203,6 +206,43 @@ export class ProductService {
   }
 
   // ========== ADMIN METHODS ==========
+
+  /**
+   * Get all products (Admin only) - with pagination, filtering, and sorting
+   */
+  async getAllProductsAdmin(filters?: ProductFilters): Promise<PaginatedResponse<ProductWithCategory>> {
+    try {
+      const params = new URLSearchParams();
+      
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            params.append(key, value.toString());
+          }
+        });
+      }
+
+      const response = await apiClient.getPaginated<ProductWithCategory>('/api/products', params);
+      return response;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch all products for admin');
+    }
+  }
+
+  /**
+   * Get product by ID (Admin only)
+   */
+  async getProductByIdAdmin(id: string, includeVariants: boolean = true): Promise<ProductWithCategory> {
+    try {
+      const params = new URLSearchParams();
+      params.append('includeVariants', includeVariants.toString());
+
+      const response = await apiClient.get<ProductWithCategory>(`/api/products/${id}`, params);
+      return response.data!;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch product for admin');
+    }
+  }
 
   /**
    * Create new product (Admin only)
@@ -349,17 +389,9 @@ export class ProductService {
   }
 
   /**
-   * Get public products (optimized for display)
-   * GET /api/products/public-display
+   * Get public products (optimized for display) - Remove duplicate method
    */
-  async getPublicProducts(): Promise<ProductWithCategory[]> {
-    try {
-      const response = await apiClient.get<ProductWithCategory[]>('/api/products/public-display');
-      return response.data!;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch public products');
-    }
-  }
+  // Removed duplicate method - using getPublicDisplayProducts() instead
 
   /**
    * Validate product for display (Admin version)

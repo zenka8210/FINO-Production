@@ -207,10 +207,6 @@ const sizesData = [
 // 5. PAYMENT METHODS DATA
 const paymentMethodsData = [
   { method: 'COD', isActive: true },
-  { method: 'CreditCard', isActive: true },
-  { method: 'BankTransfer', isActive: true },
-  { method: 'Momo', isActive: true },
-  { method: 'ZaloPay', isActive: true },
   { method: 'VNPay', isActive: true }
 ];
 
@@ -223,8 +219,8 @@ const productsData = [
     description: 'Áo sơ mi nam chất liệu cotton Oxford cao cấp, phong cách lịch lãm, phù hợp cho công sở và dự tiệc.',
     categoryName: 'Áo Nam',
     images: [
-      'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500',
-      'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=500'
+      'https://cdn.hstatic.net/products/1000402464/ks25ss14p-sc_green__7___f5a8adcb97d245199d4b2c35764d9d4e_master.jpg',
+      'https://cdn.hstatic.net/products/1000402464/ks25ss14p-sc_green__6___6679fc02bcfd4d4ca6938d07f73a8317_master.jpg'
     ],
     isActive: true,
     salePrice: 380000,

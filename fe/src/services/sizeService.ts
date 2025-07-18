@@ -149,6 +149,18 @@ export class SizeService {
   }
 
   /**
+   * Get size by ID (Admin)
+   */
+  async getSizeByIdAdmin(id: string): Promise<Size> {
+    try {
+      const response = await apiClient.get<Size>(`/api/sizes/${id}`);
+      return response.data!;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch size');
+    }
+  }
+
+  /**
    * Create new size (Admin)
    */
   async createSize(sizeData: Omit<Size, '_id' | 'createdAt' | 'updatedAt'>): Promise<Size> {
@@ -185,50 +197,15 @@ export class SizeService {
   }
 
   /**
-   * Toggle size status (Admin)
+   * Bulk create sizes from enum (Admin)
+   * POST /api/sizes/bulk-create-enum
    */
-  async toggleSizeStatus(id: string): Promise<Size> {
+  async bulkCreateSizesFromEnum(category: string = 'clothing'): Promise<Size[]> {
     try {
-      const response = await apiClient.put<Size>(`/api/sizes/${id}/toggle-status`);
+      const response = await apiClient.post<Size[]>('/api/sizes/bulk-create-enum', { category });
       return response.data!;
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to toggle size status');
-    }
-  }
-
-  /**
-   * Bulk toggle size status (Admin)
-   */
-  async bulkToggleStatus(ids: string[]): Promise<ApiResponse<any>> {
-    try {
-      const response = await apiClient.put('/api/sizes/bulk/toggle-status', { ids });
-      return response;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to bulk toggle size status');
-    }
-  }
-
-  /**
-   * Get size statistics (Admin)
-   */
-  async getSizeStatistics(): Promise<any> {
-    try {
-      const response = await apiClient.get('/api/sizes/stats');
-      return response.data!;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch size statistics');
-    }
-  }
-
-  /**
-   * Create bulk sizes (Admin)
-   */
-  async createBulkSizes(sizesData: Omit<Size, '_id' | 'createdAt' | 'updatedAt'>[]): Promise<Size[]> {
-    try {
-      const response = await apiClient.post<Size[]>('/api/sizes/bulk', { sizes: sizesData });
-      return response.data!;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create bulk sizes');
+      throw new Error(error.response?.data?.message || 'Failed to bulk create sizes from enum');
     }
   }
 

@@ -91,7 +91,7 @@ export class CartService {
    */
   async clearCart(): Promise<ApiResponse<any>> {
     try {
-      const response = await apiClient.delete('/api/cart/clear');
+      const response = await apiClient.delete('/api/cart');
       return response;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to clear cart');
@@ -99,36 +99,12 @@ export class CartService {
   }
 
   /**
-   * Apply voucher to cart
-   */
-  async applyVoucher(voucherCode: string): Promise<CartWithRefs> {
-    try {
-      const response = await apiClient.post<CartWithRefs>('/api/cart/apply-voucher', { voucherCode });
-      return response.data!;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to apply voucher');
-    }
-  }
-
-  /**
-   * Remove voucher from cart
-   */
-  async removeVoucher(): Promise<CartWithRefs> {
-    try {
-      const response = await apiClient.post<CartWithRefs>('/api/cart/remove-voucher');
-      return response.data!;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to remove voucher');
-    }
-  }
-
-  /**
    * Sync cart from session to database (after login)
    * POST /api/cart/sync
    */
-  async syncCart(sessionCart: any): Promise<CartWithRefs> {
+  async syncCart(items: { productVariant: string; quantity: number }[]): Promise<CartWithRefs> {
     try {
-      const response = await apiClient.post<CartWithRefs>('/api/cart/sync', { sessionCart });
+      const response = await apiClient.post<CartWithRefs>('/api/cart/sync', { items });
       return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to sync cart');
@@ -152,14 +128,14 @@ export class CartService {
    * Calculate cart total with shipping and discounts
    * POST /api/cart/calculate-total
    */
-  async calculateTotal(addressId?: string, voucherCode?: string): Promise<{
+  async calculateTotal(addressId?: string, voucherId?: string): Promise<{
     subtotal: number;
     discountAmount: number;
     shippingFee: number;
     finalTotal: number;
   }> {
     try {
-      const response = await apiClient.post('/api/cart/calculate-total', { addressId, voucherCode });
+      const response = await apiClient.post('/api/cart/calculate-total', { address: addressId, voucher: voucherId });
       return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to calculate total');
@@ -172,12 +148,18 @@ export class CartService {
    */
   async checkout(checkoutData: {
     addressId: string;
-    paymentMethod: string;
-    voucherCode?: string;
+    paymentMethodId: string;
+    voucherId?: string;
     notes?: string;
   }): Promise<{ order: any; cart: CartWithRefs }> {
     try {
-      const response = await apiClient.post('/api/cart/checkout', checkoutData);
+      const requestData = {
+        address: checkoutData.addressId,
+        paymentMethod: checkoutData.paymentMethodId,
+        voucher: checkoutData.voucherId,
+        notes: checkoutData.notes
+      };
+      const response = await apiClient.post('/api/cart/checkout', requestData);
       return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to checkout');

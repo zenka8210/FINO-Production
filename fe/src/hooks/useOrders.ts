@@ -17,26 +17,22 @@ export function useCurrentOrder() {
   return {
     // State from context
     currentOrder: context.currentOrder,
-    orderItems: context.orderItems,
     loading: context.loading,
     error: context.error,
 
     // Actions from context
     createOrder: context.createOrder,
+    loadOrderById: context.loadOrderById,
     updateOrderStatus: context.updateOrderStatus,
+    cancelOrder: context.cancelOrder,
     clearCurrentOrder: context.clearCurrentOrder,
-    addOrderItem: context.addOrderItem,
-    removeOrderItem: context.removeOrderItem,
     clearError: context.clearError,
 
-    // Computed values from context
-    getOrderTotal: context.getOrderTotal,
-
-    // Utility computed values
-    hasItems: context.orderItems.length > 0,
-    isEmpty: context.orderItems.length === 0,
-    itemsCount: context.orderItems.length,
-    total: context.getOrderTotal(),
+    // Computed values
+    hasOrder: !!context.currentOrder,
+    isEmpty: !context.currentOrder,
+    orderTotal: context.currentOrder?.finalTotal || 0,
+    orderItemsCount: context.currentOrder?.items.length || 0,
   };
 }
 

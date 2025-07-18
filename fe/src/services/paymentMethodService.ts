@@ -177,7 +177,9 @@ export class PaymentMethodService {
    */
   async bulkDelete(ids: string[]): Promise<ApiResponse<any>> {
     try {
-      const response = await apiClient.post('/api/payment-methods/bulk/delete', { ids });
+      const params = new URLSearchParams();
+      ids.forEach(id => params.append('ids', id));
+      const response = await apiClient.delete(`/api/payment-methods/bulk/delete?${params.toString()}`);
       return response;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to bulk delete payment methods');

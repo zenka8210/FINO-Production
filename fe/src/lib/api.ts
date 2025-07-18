@@ -1,147 +1,344 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 import { ApiResponse, PaginatedResponse } from '@/types';
 
+// API Configuration
+const API_CONFIG = {
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
+  timeout: 15000, // Increased timeout for better stability
+  headers: {
+    'Content-Type': 'application/json',
+  },
+};
+
+// Token management keys
+const TOKEN_KEY = 'authToken';
+const USER_KEY = 'currentUser';
+
+// Custom error class for better error handling
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public statusCode?: number,
+    public response?: any
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 class ApiClient {
   private client: AxiosInstance;
 
   constructor() {
-    this.client = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
-      timeout: 10000,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
+    this.client = axios.create(API_CONFIG);
     this.setupInterceptors();
   }
 
   private setupInterceptors() {
-    // Request interceptor - add auth token
+    // Request interceptor - add auth token and logging
     this.client.interceptors.request.use(
       (config) => {
         const token = this.getToken();
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
+        
+        // Log request in development
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
+        }
+        
         return config;
       },
       (error) => {
+        console.error('❌ Request interceptor error:', error);
         return Promise.reject(error);
       }
     );
 
-    // Response interceptor - handle common responses
+    // Response interceptor - handle common responses and errors
     this.client.interceptors.response.use(
       (response: AxiosResponse<ApiResponse<any> | PaginatedResponse<any>>) => {
+        // Log response in development
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`✅ API Response: ${response.status} ${response.config.url}`);
+        }
+        
         return response;
       },
       (error: AxiosError<ApiResponse<any>>) => {
-        // Handle common errors
-        if (error.response?.status === 401) {
-          this.removeToken();
-          // Redirect to login if needed
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login';
-          }
+        const errorMessage = this.handleError(error);
+        
+        // Log error in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error(`❌ API Error: ${error.response?.status} ${error.config?.url}`, errorMessage);
         }
         
-        return Promise.reject(error);
+        return Promise.reject(new ApiError(errorMessage, error.response?.status, error.response?.data));
       }
     );
   }
 
+  private handleError(error: AxiosError<ApiResponse<any>>): string {
+    // Handle different error scenarios
+    if (error.response) {
+      const { status, data } = error.response;
+      
+      switch (status) {
+        case 401:
+          this.handleUnauthorized();
+          return data?.message || 'Unauthorized access. Please login again.';
+        case 403:
+          return data?.message || 'You do not have permission to perform this action.';
+        case 404:
+          return data?.message || 'Resource not found.';
+        case 422:
+          return data?.message || 'Validation error. Please check your input.';
+        case 500:
+          return data?.message || 'Server error. Please try again later.';
+        default:
+          return data?.message || `Request failed with status ${status}`;
+      }
+    }
+    
+    if (error.request) {
+      return 'Network error. Please check your connection and try again.';
+    }
+    
+    return error.message || 'An unexpected error occurred.';
+  }
+
+  private handleUnauthorized(): void {
+    this.clearAuthData();
+    
+    // Redirect to login if in browser
+    if (typeof window !== 'undefined') {
+      // Only redirect if not already on login page
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
+    }
+  }
+
+  // Token and user management
   private getToken(): string | null {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('authToken');
+      return localStorage.getItem(TOKEN_KEY);
     }
     return null;
   }
 
-  private removeToken(): void {
+  private setToken(token: string): void {
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('authToken');
+      localStorage.setItem(TOKEN_KEY, token);
     }
   }
 
-  // HTTP Methods
+  private removeToken(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+  }
+
+  private setUser(user: any): void {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+    }
+  }
+
+  private getUser(): any {
+    if (typeof window !== 'undefined') {
+      const user = localStorage.getItem(USER_KEY);
+      return user ? JSON.parse(user) : null;
+    }
+    return null;
+  }
+
+  private removeUser(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(USER_KEY);
+    }
+  }
+
+  private clearAuthData(): void {
+    this.removeToken();
+    this.removeUser();
+  }
+
+  // HTTP Methods with improved error handling
   async get<T = any>(url: string, params?: any): Promise<ApiResponse<T>> {
-    const response = await this.client.get<ApiResponse<T>>(url, { params });
-    return response.data;
+    try {
+      const response = await this.client.get<ApiResponse<T>>(url, { params });
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError('GET request failed', undefined, error);
+    }
   }
 
   async getPaginated<T = any>(url: string, params?: any): Promise<PaginatedResponse<T>> {
-    const response = await this.client.get<PaginatedResponse<T>>(url, { params });
-    return response.data;
-  }
-
-  async post<T = any>(url: string, data?: any): Promise<ApiResponse<T>> {
-    const response = await this.client.post<ApiResponse<T>>(url, data);
-    return response.data;
-  }
-
-  async put<T = any>(url: string, data?: any): Promise<ApiResponse<T>> {
-    const response = await this.client.put<ApiResponse<T>>(url, data);
-    return response.data;
-  }
-
-  async patch<T = any>(url: string, data?: any): Promise<ApiResponse<T>> {
-    const response = await this.client.patch<ApiResponse<T>>(url, data);
-    return response.data;
-  }
-
-  async delete<T = any>(url: string): Promise<ApiResponse<T>> {
-    const response = await this.client.delete<ApiResponse<T>>(url);
-    return response.data;
-  }
-
-  // File upload (single)
-  async uploadFile<T = any>(url: string, file: File): Promise<ApiResponse<T>> {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    const response = await this.client.post<ApiResponse<T>>(url, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    
-    return response.data;
-  }
-
-  // File upload (multiple)
-  async uploadFiles<T = any>(url: string, files: File[]): Promise<ApiResponse<T>> {
-    const formData = new FormData();
-    files.forEach((file, index) => {
-      formData.append(`files[${index}]`, file);
-    });
-    
-    const response = await this.client.post<ApiResponse<T>>(url, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    
-    return response.data;
-  }
-
-  // Set auth token
-  setAuthToken(token: string): void {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('authToken', token);
+    try {
+      const response = await this.client.get<PaginatedResponse<T>>(url, { params });
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError('GET paginated request failed', undefined, error);
     }
   }
 
-  // Clear auth token
+  async post<T = any>(url: string, data?: any): Promise<ApiResponse<T>> {
+    try {
+      const response = await this.client.post<ApiResponse<T>>(url, data);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError('POST request failed', undefined, error);
+    }
+  }
+
+  async put<T = any>(url: string, data?: any): Promise<ApiResponse<T>> {
+    try {
+      const response = await this.client.put<ApiResponse<T>>(url, data);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError('PUT request failed', undefined, error);
+    }
+  }
+
+  async patch<T = any>(url: string, data?: any): Promise<ApiResponse<T>> {
+    try {
+      const response = await this.client.patch<ApiResponse<T>>(url, data);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError('PATCH request failed', undefined, error);
+    }
+  }
+
+  async delete<T = any>(url: string): Promise<ApiResponse<T>> {
+    try {
+      const response = await this.client.delete<ApiResponse<T>>(url);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError('DELETE request failed', undefined, error);
+    }
+  }
+
+  // File upload methods with progress tracking
+  async uploadFile<T = any>(
+    url: string, 
+    file: File, 
+    onUploadProgress?: (progress: number) => void
+  ): Promise<ApiResponse<T>> {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await this.client.post<ApiResponse<T>>(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (progressEvent) => {
+          if (onUploadProgress && progressEvent.total) {
+            const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            onUploadProgress(progress);
+          }
+        },
+      });
+      
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError('File upload failed', undefined, error);
+    }
+  }
+
+  async uploadFiles<T = any>(
+    url: string, 
+    files: File[], 
+    onUploadProgress?: (progress: number) => void
+  ): Promise<ApiResponse<T>> {
+    try {
+      const formData = new FormData();
+      files.forEach((file, index) => {
+        formData.append(`files[${index}]`, file);
+      });
+      
+      const response = await this.client.post<ApiResponse<T>>(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (progressEvent) => {
+          if (onUploadProgress && progressEvent.total) {
+            const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            onUploadProgress(progress);
+          }
+        },
+      });
+      
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError('Files upload failed', undefined, error);
+    }
+  }
+
+  // Authentication methods
+  setAuthToken(token: string): void {
+    this.setToken(token);
+  }
+
+  getAuthToken(): string | null {
+    return this.getToken();
+  }
+
   clearAuthToken(): void {
     this.removeToken();
   }
 
-  // Get current user info from token
+  // User management methods
+  setCurrentUser(user: any): void {
+    this.setUser(user);
+  }
+
   getCurrentUser(): any {
-    const token = this.getToken();
-    if (!token) return null;
-    
+    return this.getUser();
+  }
+
+  clearCurrentUser(): void {
+    this.removeUser();
+  }
+
+  // Complete auth data management
+  setAuthData(token: string, user: any): void {
+    this.setToken(token);
+    this.setUser(user);
+  }
+
+  clearAllAuthData(): void {
+    this.clearAuthData();
+  }
+
+  // JWT token utilities
+  private parseJwtToken(token: string): any {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       return payload;
@@ -156,14 +353,99 @@ class ApiClient {
     if (!token) return false;
     
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return Date.now() < payload.exp * 1000;
+      const payload = this.parseJwtToken(token);
+      return payload && Date.now() < payload.exp * 1000;
     } catch {
       return false;
     }
+  }
+
+  // Get user info from token
+  getUserFromToken(): any {
+    const token = this.getToken();
+    if (!token) return null;
+    
+    return this.parseJwtToken(token);
+  }
+
+  // Network status utilities
+  async checkHealth(): Promise<boolean> {
+    try {
+      const response = await this.client.get('/health');
+      return response.status === 200;
+    } catch {
+      return false;
+    }
+  }
+
+  // Request timeout configuration
+  setTimeout(timeout: number): void {
+    this.client.defaults.timeout = timeout;
+  }
+
+  // Custom headers management
+  setHeader(key: string, value: string): void {
+    this.client.defaults.headers.common[key] = value;
+  }
+
+  removeHeader(key: string): void {
+    delete this.client.defaults.headers.common[key];
   }
 }
 
 // Create and export a singleton instance
 export const apiClient = new ApiClient();
+
+// Export default
 export default apiClient;
+
+// Utility functions for common API operations
+export const createApiHandler = <T>(
+  apiCall: () => Promise<T>,
+  errorMessage?: string
+) => {
+  return async (): Promise<T> => {
+    try {
+      return await apiCall();
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError(errorMessage || 'API operation failed', undefined, error);
+    }
+  };
+};
+
+// Utility for handling paginated requests
+export const createPaginatedHandler = <T>(
+  apiCall: (page: number, limit: number) => Promise<PaginatedResponse<T>>,
+  errorMessage?: string
+) => {
+  return async (page: number = 1, limit: number = 10): Promise<PaginatedResponse<T>> => {
+    try {
+      return await apiCall(page, limit);
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError(errorMessage || 'Paginated request failed', undefined, error);
+    }
+  };
+};
+
+// Utility for handling file uploads with progress
+export const createUploadHandler = <T>(
+  apiCall: (file: File, onProgress?: (progress: number) => void) => Promise<ApiResponse<T>>,
+  errorMessage?: string
+) => {
+  return async (file: File, onProgress?: (progress: number) => void): Promise<ApiResponse<T>> => {
+    try {
+      return await apiCall(file, onProgress);
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError(errorMessage || 'File upload failed', undefined, error);
+    }
+  };
+};

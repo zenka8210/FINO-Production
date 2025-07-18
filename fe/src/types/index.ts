@@ -222,6 +222,18 @@ export interface PaginatedResponse<T> {
   };
 }
 
+// API Error class (re-export from api.ts)
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public statusCode?: number,
+    public response?: any
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 // ============= AUTH TYPES =============
 export interface LoginRequest {
   email: string;
@@ -660,6 +672,41 @@ export interface OrderWithRefs extends Omit<Order, 'user' | 'address' | 'voucher
   items: Array<Omit<OrderDetail, 'productVariant'> & { productVariant: ProductVariantWithRefs }>;
 }
 
+export interface ReviewWithRefs extends Omit<Review, 'product' | 'user' | 'order'> {
+  product: Product;
+  user: User;
+  order: Order;
+}
+
+export interface WishListWithRefs extends Omit<WishList, 'user' | 'items'> {
+  user: User;
+  items: Array<Omit<WishListItem, 'product' | 'variant'> & { 
+    product: Product; 
+    variant?: ProductVariantWithRefs; 
+  }>;
+}
+
+export interface PostWithAuthor extends Omit<Post, 'author'> {
+  author: User;
+}
+
+export interface CategoryWithRefs extends Omit<Category, 'parent'> {
+  parent?: Category;
+  children?: Category[];
+}
+
+export interface AddressWithUser extends Omit<Address, 'user'> {
+  user: User;
+}
+
+export interface OrderWithRefs extends Omit<Order, 'user' | 'address' | 'voucher' | 'paymentMethod' | 'items'> {
+  user?: User;
+  address: Address;
+  voucher?: Voucher;
+  paymentMethod: PaymentMethod;
+  items: Array<Omit<OrderDetail, 'productVariant'> & { productVariant: ProductVariantWithRefs }>;
+}
+
 export interface ReviewWithRefs extends Omit<Review, 'user' | 'product' | 'order'> {
   user: User;
   product: Product;
@@ -670,10 +717,10 @@ export interface PostWithAuthor extends Omit<Post, 'author'> {
   author: User;
 }
 
-export interface WishListWithRefs extends Omit<WishList, 'user' | 'items'> {
+export interface WishListPopulated extends Omit<WishList, 'user' | 'items'> {
   user: User;
   items: Array<{
-    product: ProductWithCategory;
+    product: Product;
     variant?: ProductVariantWithRefs;
   }>;
 }

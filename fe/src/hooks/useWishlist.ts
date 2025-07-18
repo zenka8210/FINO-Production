@@ -24,16 +24,18 @@ export function useWishlist() {
     removeFromWishlist: context.removeFromWishlist,
     clearWishlist: context.clearWishlist,
     toggleWishlist: context.toggleWishlist,
+    syncWishlistFromSession: context.syncWishlistFromSession,
+    refreshWishlist: context.refreshWishlist,
     clearError: context.clearError,
 
     // Computed values from context
     isInWishlist: context.isInWishlist,
-    getWishlistCount: context.getWishlistCount,
+    getWishlistItemsCount: context.getWishlistItemsCount,
+    hasItems: context.hasItems,
 
     // Utility computed values
-    isEmpty: context.getWishlistCount() === 0,
-    hasItems: context.getWishlistCount() > 0,
-    itemsCount: context.getWishlistCount(),
+    isEmpty: !context.hasItems(),
+    itemsCount: context.getWishlistItemsCount(),
   };
 }
 

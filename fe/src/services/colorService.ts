@@ -106,6 +106,19 @@ export class ColorService {
   }
 
   /**
+   * Get color by ID (Admin)
+   * GET /api/colors/:id
+   */
+  async getColorByIdAdmin(id: string): Promise<Color> {
+    try {
+      const response = await apiClient.get<Color>(`/api/colors/${id}`);
+      return response.data!;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch color');
+    }
+  }
+
+  /**
    * Create new color (Admin)
    */
   async createColor(colorData: Omit<Color, '_id' | 'createdAt' | 'updatedAt'>): Promise<Color> {
@@ -138,42 +151,6 @@ export class ColorService {
       return response;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to delete color');
-    }
-  }
-
-  /**
-   * Toggle color status (Admin)
-   */
-  async toggleColorStatus(id: string): Promise<Color> {
-    try {
-      const response = await apiClient.put<Color>(`/api/colors/${id}/toggle-status`);
-      return response.data!;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to toggle color status');
-    }
-  }
-
-  /**
-   * Bulk toggle color status (Admin)
-   */
-  async bulkToggleStatus(ids: string[]): Promise<ApiResponse<any>> {
-    try {
-      const response = await apiClient.put('/api/colors/bulk/toggle-status', { ids });
-      return response;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to bulk toggle color status');
-    }
-  }
-
-  /**
-   * Get color statistics (Admin)
-   */
-  async getColorStatistics(): Promise<any> {
-    try {
-      const response = await apiClient.get('/api/colors/stats');
-      return response.data!;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch color statistics');
     }
   }
 

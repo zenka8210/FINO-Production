@@ -5,27 +5,23 @@ import { OrderWithRefs, OrderStatus } from '@/types';
 import { orderService } from '@/services';
 import { useNotification } from './NotificationContext';
 
-// Use the OrderDetail type from OrderWithRefs
-type OrderDetailWithRefs = OrderWithRefs['items'][0];
-
 interface OrderState {
   currentOrder: OrderWithRefs | null;
-  orderItems: OrderDetailWithRefs[];
   loading: boolean;
   error: string | null;
 }
 
+// Simplified order context for managing current order state
+// Order list operations are handled directly through orderService
 interface OrderContextType {
   currentOrder: OrderWithRefs | null;
-  orderItems: OrderDetailWithRefs[];
   loading: boolean;
   error: string | null;
   createOrder: (orderData: any) => Promise<OrderWithRefs>;
+  loadOrderById: (orderId: string) => Promise<void>;
   updateOrderStatus: (orderId: string, status: OrderStatus) => Promise<void>;
+  cancelOrder: (orderId: string) => Promise<void>;
   clearCurrentOrder: () => void;
-  addOrderItem: (item: OrderDetailWithRefs) => void;
-  removeOrderItem: (itemIndex: number) => void;
-  getOrderTotal: () => number;
   clearError: () => void;
 }
 
@@ -33,14 +29,11 @@ type OrderAction =
   | { type: 'LOADING' }
   | { type: 'ORDER_SUCCESS'; payload: OrderWithRefs }
   | { type: 'CLEAR_ORDER' }
-  | { type: 'ADD_ITEM'; payload: OrderDetailWithRefs }
-  | { type: 'REMOVE_ITEM'; payload: number }
   | { type: 'ERROR'; payload: string }
   | { type: 'CLEAR_ERROR' };
 
 const initialState: OrderState = {
   currentOrder: null,
-  orderItems: [],
   loading: false,
   error: null,
 };
@@ -52,28 +45,16 @@ function orderReducer(state: OrderState, action: OrderAction): OrderState {
     case 'ORDER_SUCCESS':
       return { 
         ...state, 
-        currentOrder: action.payload, 
-        orderItems: action.payload.items,
+        currentOrder: action.payload,
         loading: false, 
         error: null 
       };
     case 'CLEAR_ORDER':
       return { 
         ...state, 
-        currentOrder: null, 
-        orderItems: [],
+        currentOrder: null,
         loading: false, 
         error: null 
-      };
-    case 'ADD_ITEM':
-      return {
-        ...state,
-        orderItems: [...state.orderItems, action.payload]
-      };
-    case 'REMOVE_ITEM':
-      return {
-        ...state,
-        orderItems: state.orderItems.filter((item, index) => index !== action.payload)
       };
     case 'ERROR':
       return { ...state, loading: false, error: action.payload };
@@ -108,6 +89,18 @@ export function OrderProvider({ children }: OrderProviderProps) {
     }
   }, [success, showError]);
 
+  const loadOrderById = useCallback(async (orderId: string): Promise<void> => {
+    try {
+      dispatch({ type: 'LOADING' });
+      const order = await orderService.getOrderById(orderId);
+      dispatch({ type: 'ORDER_SUCCESS', payload: order });
+    } catch (error: any) {
+      dispatch({ type: 'ERROR', payload: error.message });
+      showError('Failed to load order', error.message);
+      throw error;
+    }
+  }, [showError]);
+
   const updateOrderStatus = useCallback(async (orderId: string, status: OrderStatus): Promise<void> => {
     try {
       dispatch({ type: 'LOADING' });
@@ -121,21 +114,24 @@ export function OrderProvider({ children }: OrderProviderProps) {
     }
   }, [success, showError]);
 
+  const cancelOrder = useCallback(async (orderId: string): Promise<void> => {
+    try {
+      dispatch({ type: 'LOADING' });
+      await orderService.cancelOrder(orderId);
+      // Reload the order to get updated status
+      const updatedOrder = await orderService.getOrderById(orderId);
+      dispatch({ type: 'ORDER_SUCCESS', payload: updatedOrder });
+      success('Order cancelled', 'Order has been cancelled successfully');
+    } catch (error: any) {
+      dispatch({ type: 'ERROR', payload: error.message });
+      showError('Failed to cancel order', error.message);
+      throw error;
+    }
+  }, [success, showError]);
+
   const clearCurrentOrder = useCallback((): void => {
     dispatch({ type: 'CLEAR_ORDER' });
   }, []);
-
-  const addOrderItem = useCallback((item: OrderDetailWithRefs): void => {
-    dispatch({ type: 'ADD_ITEM', payload: item });
-  }, []);
-
-  const removeOrderItem = useCallback((itemIndex: number): void => {
-    dispatch({ type: 'REMOVE_ITEM', payload: itemIndex });
-  }, []);
-
-  const getOrderTotal = useCallback((): number => {
-    return state.orderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  }, [state.orderItems]);
 
   const clearError = useCallback((): void => {
     dispatch({ type: 'CLEAR_ERROR' });
@@ -143,15 +139,13 @@ export function OrderProvider({ children }: OrderProviderProps) {
 
   const contextValue: OrderContextType = {
     currentOrder: state.currentOrder,
-    orderItems: state.orderItems,
     loading: state.loading,
     error: state.error,
     createOrder,
+    loadOrderById,
     updateOrderStatus,
+    cancelOrder,
     clearCurrentOrder,
-    addOrderItem,
-    removeOrderItem,
-    getOrderTotal,
     clearError,
   };
 
