@@ -1,0 +1,394 @@
+/* ProductList Component - Following Design System */
+
+.productListContainer {
+  width: 100%;
+}
+
+/* Header Section */
+.listHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f1f5f9;
+}
+
+.listInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.productCount {
+  font-size: 0.875rem;
+  color: var(--color-muted, #9CA3AF);
+  font-weight: 500;
+}
+
+.listControls {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Sort Control */
+.sortControl {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sortLabel {
+  font-size: 0.875rem;
+  color: var(--color-text, #111827);
+  font-weight: 500;
+}
+
+.sortSelect {
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  color: var(--color-text, #111827);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1em;
+}
+
+.sortSelect:hover {
+  border-color: var(--color-primary, #1E40AF);
+}
+
+.sortSelect:focus {
+  outline: none;
+  border-color: var(--color-primary, #1E40AF);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+/* Layout Toggle */
+.layoutToggle {
+  display: flex;
+  background: #f8fafc;
+  border-radius: 6px;
+  padding: 0.25rem;
+  border: 1px solid #e2e8f0;
+}
+
+.layoutBtn {
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  color: var(--color-muted, #9CA3AF);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.layoutBtn:hover {
+  color: var(--color-primary, #1E40AF);
+  background: rgba(30, 64, 175, 0.1);
+}
+
+.layoutBtn.active {
+  background: white;
+  color: var(--color-primary, #1E40AF);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Product Grid */
+.productGrid {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+/* Grid Layout */
+.productGrid.grid {
+  grid-template-columns: repeat(1, 1fr); /* Mobile: 1 column */
+}
+
+@media (min-width: 480px) {
+  .productGrid.grid {
+    grid-template-columns: repeat(2, 1fr); /* Small mobile: 2 columns */
+  }
+}
+
+@media (min-width: 640px) {
+  .productGrid.grid {
+    grid-template-columns: repeat(3, 1fr); /* Tablet: 3 columns */
+  }
+}
+
+@media (min-width: 1024px) {
+  .productGrid.grid {
+    grid-template-columns: repeat(4, 1fr); /* Desktop: 4 columns */
+  }
+}
+
+@media (min-width: 1280px) {
+  .productGrid.grid {
+    grid-template-columns: repeat(5, 1fr); /* Large desktop: 5 columns */
+  }
+}
+
+/* List Layout */
+.productGrid.list {
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+/* Loading State */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.loadingText {
+  margin-top: 1rem;
+  color: var(--color-muted, #9CA3AF);
+  font-size: 1rem;
+}
+
+/* Error State */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.errorContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 400px;
+}
+
+.errorContent svg {
+  color: var(--color-error, #DC2626);
+}
+
+.errorContent h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text, #111827);
+  margin: 0;
+}
+
+.errorContent p {
+  color: var(--color-muted, #9CA3AF);
+  margin: 0;
+}
+
+.retryButton {
+  background-color: var(--color-primary, #1E40AF);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.retryButton:hover {
+  background-color: #1E3A8A;
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.emptyContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 400px;
+}
+
+.emptyContent svg {
+  color: var(--color-muted, #9CA3AF);
+}
+
+.emptyContent h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text, #111827);
+  margin: 0;
+}
+
+.emptyContent p {
+  color: var(--color-muted, #9CA3AF);
+  margin: 0;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.pageBtn {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: var(--color-text, #111827);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 2.5rem;
+  justify-content: center;
+}
+
+.pageBtn:hover:not(:disabled) {
+  border-color: var(--color-primary, #1E40AF);
+  color: var(--color-primary, #1E40AF);
+  background: rgba(30, 64, 175, 0.05);
+}
+
+.pageBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: var(--color-muted, #9CA3AF);
+}
+
+.pageBtn.active {
+  background: var(--color-primary, #1E40AF);
+  color: white;
+  border-color: var(--color-primary, #1E40AF);
+}
+
+.pageNumbers {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.prevBtn,
+.nextBtn {
+  padding: 0.5rem 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .listHeader {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .listControls {
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  
+  .sortControl {
+    order: 1;
+    flex: 1;
+  }
+  
+  .layoutToggle {
+    order: 2;
+  }
+  
+  .pagination {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  
+  .pageNumbers {
+    gap: 0.25rem;
+  }
+  
+  .pageBtn {
+    min-width: 2rem;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.8125rem;
+  }
+  
+  .prevBtn,
+  .nextBtn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .productGrid {
+    gap: 1rem;
+  }
+  
+  .listHeader {
+    padding: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .listControls {
+    gap: 1rem;
+  }
+  
+  .sortSelect {
+    font-size: 0.8125rem;
+    padding: 0.375rem 1.5rem 0.375rem 0.5rem;
+  }
+  
+  .layoutBtn {
+    padding: 0.375rem;
+  }
+  
+  .layoutBtn svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .pageBtn,
+  .layoutBtn,
+  .sortSelect,
+  .retryButton {
+    transition: none;
+  }
+}
+
+/* Focus states for keyboard navigation */
+.pageBtn:focus,
+.layoutBtn:focus,
+.retryButton:focus {
+  outline: 2px solid var(--color-primary, #1E40AF);
+  outline-offset: 1px;
+}

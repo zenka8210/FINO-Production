@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
+import { useNotification } from '@/contexts/NotificationContext';
 import styles from './ChatBox.module.css';
 
 interface Message {
@@ -38,6 +39,7 @@ const quickReplies = [
 ];
 
 export default function ChatBox() {
+  const { success } = useNotification();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -249,7 +251,7 @@ export default function ChatBox() {
               className={styles.actionButton}
               onClick={() => {
                 navigator.clipboard.writeText('SAVE10');
-                alert('Đã copy mã SAVE10!');
+                success('Đã copy mã!', 'Mã giảm giá SAVE10 đã được sao chép');
               }}
             >
               📋 Copy SAVE10
@@ -258,7 +260,7 @@ export default function ChatBox() {
               className={styles.actionButton}
               onClick={() => {
                 navigator.clipboard.writeText('FREESHIP');
-                alert('Đã copy mã FREESHIP!');
+                success('Đã copy mã!', 'Mã miễn phí ship FREESHIP đã được sao chép');
               }}
             >
               📋 Copy FREESHIP

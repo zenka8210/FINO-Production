@@ -54,6 +54,12 @@ router.get('/public', queryParserMiddleware(), productController.getAllProducts)
 // @access Public
 router.get('/public-display', productController.getPublicProducts);
 
+// @route GET /api/products/public/:id
+// @desc Lấy chi tiết sản phẩm công khai bằng ID (cho product details page)
+// @query includeVariants=true/false - để bao gồm/loại trừ các biến thể sản phẩm
+// @access Public
+router.get('/public/:id', validateObjectId('id'), productController.getPublicProductById);
+
 // @route GET /api/products/category/:categoryId/public
 // @desc Lấy sản phẩm theo danh mục (công khai)
 // @query includeVariants=true/false - để bao gồm/loại trừ các biến thể sản phẩm

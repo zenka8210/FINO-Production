@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Response Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testAPIs() {
+            const results = document.getElementById('results');
+            
+            try {
+                // Test Products API
+                console.log('Testing Products API...');
+                const productsResponse = await fetch('http://localhost:5000/api/products/public?limit=3');
+                const productsData = await productsResponse.json();
+                
+                results.innerHTML += '<h2>Products API Response:</h2>';
+                results.innerHTML += '<pre>' + JSON.stringify(productsData, null, 2) + '</pre>';
+                
+                console.log('Products API Response:', productsData);
+                console.log('Products data structure:', productsData.data);
+                
+                // Test Reviews API
+                console.log('Testing Reviews API...');
+                const reviewsResponse = await fetch('http://localhost:5000/api/reviews/product/6874ee0f1401ccefbc67e877');
+                const reviewsData = await reviewsResponse.json();
+                
+                results.innerHTML += '<h2>Reviews API Response:</h2>';
+                results.innerHTML += '<pre>' + JSON.stringify(reviewsData, null, 2) + '</pre>';
+                
+                console.log('Reviews API Response:', reviewsData);
+                console.log('Reviews data structure:', reviewsData.data);
+                
+            } catch (error) {
+                console.error('API Test Error:', error);
+                results.innerHTML += '<p style="color: red;">Error: ' + error.message + '</p>';
+            }
+        }
+        
+        // Auto run when page loads
+        window.onload = testAPIs;
+    </script>
+</body>
+</html>

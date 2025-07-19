@@ -1,0 +1,136 @@
+/* Toast Styles */
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-left: 4px solid;
+  margin-bottom: var(--spacing-3);
+  max-width: 400px;
+  width: 100%;
+  animation: slideInRight 0.3s ease-out;
+  transition: all 0.3s ease;
+}
+
+.toast.hiding {
+  animation: slideOutRight 0.3s ease-in;
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+/* Toast Types */
+.toast.success {
+  border-left-color: var(--color-success);
+}
+
+.toast.success .icon {
+  color: var(--color-success);
+}
+
+.toast.error {
+  border-left-color: var(--color-error);
+}
+
+.toast.error .icon {
+  color: var(--color-error);
+}
+
+.toast.warning {
+  border-left-color: var(--color-accent);
+}
+
+.toast.warning .icon {
+  color: var(--color-accent);
+}
+
+.toast.info {
+  border-left-color: var(--color-primary);
+}
+
+.toast.info .icon {
+  color: var(--color-primary);
+}
+
+/* Toast Elements */
+.icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.content {
+  flex: 1;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  font-weight: 600;
+  margin: 0 0 var(--spacing-1) 0;
+  color: var(--color-text);
+}
+
+.message {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.closeButton {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: var(--spacing-1);
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--color-muted);
+  transition: all 0.2s ease;
+  margin-top: -2px;
+}
+
+.closeButton:hover {
+  background: #f3f4f6;
+  color: var(--color-text);
+}
+
+/* Animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+  .toast {
+    max-width: none;
+    margin: 0 var(--spacing-2) var(--spacing-3) var(--spacing-2);
+  }
+  
+  .title {
+    font-size: var(--text-sm);
+  }
+  
+  .message {
+    font-size: var(--text-xs);
+  }
+}

@@ -1,132 +1,171 @@
-"use client";
-import { useState, useEffect } from "react";
-import { ProductWithCategory } from "@/types";
-import styles from "../page.module.css";
-import { FaHeart } from "react-icons/fa";
-import Link from "next/link";
-import { useWishlist, useCart } from "@/hooks";
-import { useAuth } from "@/contexts";
+'use client';
 
-export default function ProductItem({ product }: { product: ProductWithCategory }) {
-  const { user } = useAuth();
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+import Link from 'next/link';
+import { ProductWithCategory } from '@/types';
+import { useCart, useWishlist } from '@/hooks';
+import { formatCurrency } from '@/lib/utils';
+import styles from './ProductItem.module.css';
+
+interface ProductItemProps {
+  product: ProductWithCategory;
+  layout?: 'grid' | 'list';
+  showQuickActions?: boolean;
+  showDescription?: boolean;
+  className?: string;
+}
+
+export default function ProductItem({ 
+  product, 
+  layout = 'grid',
+  showQuickActions = true,
+  showDescription = false,
+  className = ''
+}: ProductItemProps) {
   const { addToCart } = useCart();
-  const [isLiked, setIsLiked] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  
+  const inWishlist = isInWishlist(product._id);
 
-  useEffect(() => {
-    if (user) {
-      setIsLiked(isInWishlist(product._id));
-    }
-  }, [product._id, user, isInWishlist]);
+  // Calculate price info
+  const currentPrice = product.salePrice && product.salePrice < product.price 
+    ? product.salePrice 
+    : product.price;
+  const isOnSale = product.salePrice && product.salePrice < product.price;
+  const discountPercent = isOnSale ? Math.round((1 - product.salePrice! / product.price) * 100) : 0;
 
-  const toggleLike = async () => {
-    if (!user) {
-      alert("Vui lòng đăng nhập để sử dụng chức năng yêu thích!");
-      return;
-    }
-
+  // Handle add to cart
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     try {
-      setIsLoading(true);
-      if (isLiked) {
+      await addToCart(product._id, 1);
+    } catch (error) {
+      console.error('Add to cart error:', error);
+    }
+  };
+
+  // Handle wishlist toggle
+  const handleWishlistToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      if (inWishlist) {
         await removeFromWishlist(product._id);
       } else {
         await addToWishlist(product._id);
       }
-      setIsLiked(!isLiked);
     } catch (error) {
-      console.error('Lỗi khi cập nhật wishlist:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('Wishlist error:', error);
     }
   };
 
-  const handleAddToCart = async () => {
-    if (!user) {
-      alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
-      return;
-    }
-
-    // Giả sử sản phẩm có variant đầu tiên, hoặc bạn có thể mở modal để chọn variant
-    if (product.variants && product.variants.length > 0) {
-      try {
-        await addToCart(product.variants[0]._id, 1);
-        alert("Đã thêm sản phẩm vào giỏ hàng!");
-      } catch (error) {
-        console.error('Lỗi khi thêm vào giỏ hàng:', error);
-        alert("Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng!");
-      }
-    } else {
-      alert("Sản phẩm này hiện không có sẵn!");
-    }
-  };
+  const containerClass = `${styles.productItem} ${styles[layout]} ${className}`;
 
   return (
-    <div className={styles.productItem}>
-      <div className={styles.imageContainer}>
-        <Link href={`/products/${product._id}`}>
-          <img 
-            src={product.images?.[0] || "/images/anh1.jpg"} 
+    <article className={containerClass}>
+      <Link href={`/products/${product._id}`} className={styles.productLink}>
+        {/* Image Section */}
+        <div className={styles.imageWrapper}>
+          <img
+            src={product.images?.[0] || '/placeholder.jpg'}
             alt={product.name}
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = "/images/anh1.jpg";
-            }}
+            className={styles.productImage}
             loading="lazy"
           />
-        </Link>
-        {/* Nút thả tim */}
-        <button 
-          className={styles.heartButton} 
-          onClick={toggleLike} 
-          disabled={isLoading}
-          title={isLiked ? "Bỏ yêu thích" : "Yêu thích"}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            outline: 'none',
-            boxShadow: 'none',
-            opacity: isLoading ? 0.5 : 1
-          }}
-        >
-          <FaHeart color={isLiked ? "#e11d48" : "#d1d5db"} size={24} />
-        </button>
-      </div>
-      <div className={styles.productInfo}>
-        <h3>{product.name}</h3>
-        <p className={styles.description}>{product.description}</p>
-        <p className={styles.price}>{(product.price)}</p>
-        <div style={{display:'flex', gap:6, marginTop:6}}>
-          <button 
-            className="btn-cart-primary" 
-            style={{
-              width: '100%',
-              fontSize: '0.9rem', 
-              fontWeight: 'normal', 
-              padding: '10px 16px', 
-              height: '42px',
-              textTransform: 'none',
-              background: '#fff',
-              color: 'var(--brand-color, #FF9800)',
-              border: '2px solid var(--brand-color, #FF9800)',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }} 
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--brand-color, #FF9800)';
-              e.currentTarget.style.color = '#fff';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#fff';
-              e.currentTarget.style.color = 'var(--brand-color, #FF9800)';
-            }}
-            onClick={handleAddToCart}
-          >
-            <span style={{position: 'relative', zIndex: 10}}>Thêm vào giỏ hàng</span>
-          </button>
+          
+          {/* Sale Badge */}
+          {isOnSale && (
+            <div className={styles.saleBadge}>
+              -{discountPercent}%
+            </div>
+          )}
+
+          {/* Quick Actions */}
+          {showQuickActions && (
+            <div className={styles.quickActions}>
+              <button
+                className={`${styles.actionBtn} ${inWishlist ? styles.active : ''}`}
+                onClick={handleWishlistToggle}
+                title={inWishlist ? 'Bỏ khỏi yêu thích' : 'Thêm vào yêu thích'}
+                aria-label={inWishlist ? 'Bỏ khỏi yêu thích' : 'Thêm vào yêu thích'}
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill={inWishlist ? 'currentColor' : 'none'}
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+              </button>
+              
+              <button
+                className={styles.actionBtn}
+                onClick={handleAddToCart}
+                title="Thêm vào giỏ hàng"
+                aria-label="Thêm vào giỏ hàng"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h8a2 2 0 002-2v-6" />
+                </svg>
+              </button>
+            </div>
+          )}
         </div>
-      </div>
-    </div>
+
+        {/* Product Info */}
+        <div className={styles.productInfo}>
+          {/* Category */}
+          <div className={styles.categoryName}>
+            {product.category?.name || 'Chưa phân loại'}
+          </div>
+          
+          {/* Product Name */}
+          <h3 className={styles.productName}>
+            {product.name}
+          </h3>
+          
+          {/* Description (only for list layout) */}
+          {showDescription && layout === 'list' && product.description && (
+            <p className={styles.productDescription}>
+              {product.description}
+            </p>
+          )}
+          
+          {/* Price */}
+          <div className={styles.priceWrapper}>
+            <span className={styles.currentPrice}>
+              {formatCurrency(currentPrice)}
+            </span>
+            {isOnSale && (
+              <span className={styles.originalPrice}>
+                {formatCurrency(product.price)}
+              </span>
+            )}
+          </div>
+
+          {/* CTA Button - Only in grid layout */}
+          {layout === 'grid' && (
+            <button
+              className={styles.ctaButton}
+              onClick={handleAddToCart}
+            >
+              Mua ngay
+            </button>
+          )}
+        </div>
+      </Link>
+    </article>
   );
 }

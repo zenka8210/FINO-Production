@@ -5,5 +5,24 @@
     "files.autoSave": "afterDelay",
     "git.autorefresh": true,
     "git.autofetch": true,
-    "typescript.preferences.includePackageJsonAutoImports": "auto"
+    "typescript.preferences.includePackageJsonAutoImports": "auto",
+    
+    // Ngăn chặn khôi phục các file đã xóa
+    "workbench.editor.openPositioning": "left",
+    "workbench.editor.enablePreview": false,
+    "workbench.startupEditor": "none",
+    "window.restoreWindows": "folders",
+    "workbench.editor.closeEmptyGroups": true,
+    
+    // Git và file tracking
+    "git.detectSubmodules": false,
+    "git.ignoreRebaseWarning": true,
+    
+    // Tắt các tính năng session restore có thể gây vấn đề
+    "extensions.ignoreRecommendations": true,
+    "telemetry.telemetryLevel": "off",
+    
+    // File explorer settings
+    "explorer.confirmDelete": false,
+    "explorer.confirmDragAndDrop": false
 }

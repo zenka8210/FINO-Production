@@ -166,11 +166,11 @@ function BlogSection() {
               style={{ transform: `translateX(-${currentSlide * 100}%)` }}
             >
               {Array.from({ length: totalSlides }).map((_, slideIndex) => (
-                <div key={slideIndex} className={styles.slide}>
+                <div key={`slide-${slideIndex}`} className={styles.slide}>
                   {posts
                     .slice(slideIndex * itemsPerSlide, (slideIndex + 1) * itemsPerSlide)
-                    .map((post) => (
-                      <div key={post.id} className={styles.newsCard}>
+                    .map((post, postIndex) => (
+                      <div key={`${slideIndex}-${post.id}-${postIndex}`} className={styles.newsCard}>
                         <Link href={`/news/${post.slug}`} className={styles.cardLink}>
                           <div className={styles.imageWrapper}>
                             <Image

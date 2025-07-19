@@ -174,6 +174,26 @@ class ProductController extends BaseController {
         }
     };
 
+    // Get single product for public display (product details page)
+    getPublicProductById = async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const includeVariants = req.query.includeVariants;
+            
+            // Use the same service method but ensure only public/active products
+            const product = await this.service.getProductById(id, includeVariants);
+            
+            // Ensure product is active and available for public display
+            if (!product.isActive || product.isDeleted) {
+                throw new AppError('Sản phẩm không khả dụng', 404);
+            }
+            
+            ResponseHandler.success(res, MESSAGES.PRODUCT_FETCHED, product);
+        } catch (error) {
+            next(error);
+        }
+    };
+
     // Validate product for display (admin use)
     validateProductForDisplay = async (req, res, next) => {
         try {

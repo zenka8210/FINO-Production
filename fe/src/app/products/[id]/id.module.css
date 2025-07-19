@@ -7,6 +7,69 @@
   min-height: 100vh;
 }
 
+/* Loading State */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: 20px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-muted);
+  border-top: 3px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error State */
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+  gap: 20px;
+  padding: 40px;
+}
+
+.error h2 {
+  color: var(--color-error);
+  font-size: 24px;
+  margin: 0;
+}
+
+.error p {
+  color: var(--color-muted);
+  font-size: 16px;
+  margin: 0;
+}
+
+.backButton {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.backButton:hover {
+  background: var(--color-primary-dark, #1E40AF);
+}
+
 .productDetail {
   display: flex;
   flex-direction: row;

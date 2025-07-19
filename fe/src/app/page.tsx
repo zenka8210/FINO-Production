@@ -9,6 +9,7 @@ import FlashSale from "./components/FlashSale";
 import CategoryCards from "./components/CategoryCards";
 import MiddleBanner from "./components/MiddleBanner";
 import BlogSection from "./components/BlogSection";
+import { LoadingSpinner, ProductCard } from "./components/ui";
 import { useProducts } from "@/hooks";
 import { useEffect, useState } from "react";
 import { ProductWithCategory } from "@/types";
@@ -40,20 +41,28 @@ export default function Home() {
   }, [getProducts]);
 
   if (loading) {
-    return (
-      <div className="container">
-        <div style={{ padding: 40, textAlign: 'center' }}>
-          <div>Đang tải...</div>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner fullscreen text="Đang tải sản phẩm..." />;
   }
 
   if (error) {
     return (
       <div className="container">
-        <div style={{ padding: 40, textAlign: 'center', color: 'red' }}>
-          <div>Lỗi: {error}</div>
+        <div className={styles.errorContainer}>
+          <div className={styles.errorContent}>
+            <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"
+              />
+            </svg>
+            <h2>Có lỗi xảy ra</h2>
+            <p>Không thể tải sản phẩm. Vui lòng thử lại sau.</p>
+            <button onClick={() => window.location.reload()} className={styles.retryButton}>
+              Thử lại
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -80,29 +89,27 @@ export default function Home() {
         <CategoryCards />
 
         {/* Featured Products */}
-        <div className="row">
-          <div className="col-12">
-            <ProductList props={{
-              title:"Sản Phẩm Nổi Bật", 
-              products: featuredProducts
-            }}/>
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Sản Phẩm Nổi Bật</h2>
+          <div className={styles.productGrid}>
+            {featuredProducts.map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
           </div>
-        </div>
+        </section>
 
         {/* Middle Banner */}
         <MiddleBanner />
 
         {/* New Products */}
-        <div className="row">
-          <div className="col-12">
-            <div className={styles.newProductsSection}>
-              <ProductList props={{
-                title:"Sản Phẩm Mới", 
-                products: products
-              }}/>
-            </div>
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Sản Phẩm Mới</h2>
+          <div className={styles.productGrid}>
+            {products.slice(0, 8).map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
           </div>
-        </div>
+        </section>
       </div>
 
       {/* Blog Section */}

@@ -10,6 +10,26 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.hstatic.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'papka.vn',
+      },
+      {
+        protocol: 'https',
+        hostname: 'product.hstatic.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
       }
     ],
   },

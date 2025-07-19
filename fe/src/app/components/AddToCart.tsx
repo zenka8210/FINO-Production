@@ -44,11 +44,12 @@ export default function AddToCart({ product }: AddToCartProps) {
                 >
                     +
                 </button>
-            </div>            <button 
+            </div>
+            
+            <button 
                 onClick={addToCart}
                 disabled={isLoading}
-                className="btn-brand btn-lg add-to-cart-primary"
-                style={{fontSize: '1.1rem', fontWeight: 'bold', padding: '16px 24px', height: '56px'}}
+                className={styles.addToCartButton}
             >
                 {isLoading ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
             </button>

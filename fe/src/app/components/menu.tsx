@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link"; 
 import styles from "../css/menu.module.css";
 import logo from "../img/logo.png";
+import { SearchBar } from "@/app/components/ui";
 import { useAuth } from "@/contexts";
 import { useWishlist, useCart } from "@/hooks";
 import { useState } from "react";
@@ -12,15 +13,11 @@ function AppMenu() {
   const { user, logout } = useAuth();
   const { wishlistItems } = useWishlist();
   const { itemsCount } = useCart();
-  const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (search.trim()) {
-      router.push(`/products?search=${encodeURIComponent(search.trim())}`);
-    }
+  const handleSearch = (query: string) => {
+    router.push(`/products?search=${encodeURIComponent(query)}`);
   };
   
   const handleLogout = () => {
@@ -40,53 +37,19 @@ function AppMenu() {
           />
         </Link>
 
-        <form 
-          onSubmit={handleSearch}
-          style={{
-            flexGrow: 1,
-            display: 'flex',
-            justifyContent: 'center',
-            maxWidth: '400px',
-            margin: '0 20px'
-          }}
-        >
-          <input
-            type="text"
+        <div style={{
+          flexGrow: 1,
+          display: 'flex',
+          justifyContent: 'center',
+          maxWidth: '500px',
+          margin: '0 20px'
+        }}>
+          <SearchBar 
             placeholder="Tìm kiếm sản phẩm..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '10px 15px',
-              borderRadius: '25px',
-              border: '2px solid #ddd',
-              fontSize: '14px',
-              outline: 'none',
-              transition: 'border-color 0.3s'
-            }}
-            onFocus={(e) => e.target.style.borderColor = '#0070f3'}
-            onBlur={(e) => e.target.style.borderColor = '#ddd'}
+            onSearch={handleSearch}
+            showSuggestions={true}
           />
-          <button 
-            type="submit"
-            style={{
-              marginLeft: '10px',
-              padding: '10px 20px',
-              backgroundColor: '#0070f3',
-              color: 'white',
-              border: 'none',
-              borderRadius: '25px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500',
-              transition: 'background-color 0.3s'
-            }}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0051cc'}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#0070f3'}
-          >
-            Tìm kiếm
-          </button>
-        </form>
+        </div>
 
         <div style={{display:'flex', alignItems:'center', gap:'20px'}}>
           <Link href="/favorite" legacyBehavior>

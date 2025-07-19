@@ -20,15 +20,27 @@ logs
 .DS_Store
 Thumbs.db
 
-# VSCode temporary files
+# VSCode temporary and session files
 .vscode/tasks.json
 .vscode/launch.json
+.vscode/settings.json.bak
+.vscode/.ropeproject/
+.vscode/workspace.json
+.vscode/last-workspace-location
+.vscode/workspace-state-*
+*.code-workspace
+
+# VS Code extension files
+.vscode/extensions/
+.history/
 
 # Temporary files
 *_new.*
 *_old.*
 *.tmp
 *.temp
+.tmp/
+temp/
 
 # Documentation that might be recreated
 **/TEMP_*.md
@@ -38,3 +50,11 @@ Thumbs.db
 # Upload directories that might contain user content
 **/uploads/
 **/public/uploads/
+
+# Git và editor cache
+.git/index.lock
+.git/refs/heads/*~
+.git/objects/tmp_*
+
+# Cleanup scripts (optional)
+clean-workspace.ps1

@@ -159,7 +159,14 @@ class ProductService extends BaseService {
         try {
             let query = Product.findById(productId).populate('category');
             if (includeVariants === 'true' || includeVariants === true) {
-                query = query.populate('variants');
+                // Populate variants with color and size information
+                query = query.populate({
+                    path: 'variants',
+                    populate: [
+                        { path: 'color', select: 'name hexCode' },
+                        { path: 'size', select: 'name code' }
+                    ]
+                });
             }
             const product = await query;
 

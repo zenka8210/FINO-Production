@@ -39,6 +39,7 @@ export interface Category extends BaseEntity {
 // ============= 4. COLOR SCHEMA =============
 export interface Color extends BaseEntity {
   name: string; // required, unique, trim, maxlength: 10
+  hexCode?: string; // hex color code for display
   isActive: boolean; // default: true
 }
 

@@ -11,10 +11,13 @@ export { useCurrentOrder } from './useOrders';
 // ============= SERVICE UTILITY HOOKS (NO GLOBAL STATE) =============
 // These hooks are utilities for service calls without storing global state
 
+export { useProduct } from './useProduct';
 export { useProducts, useProductAdmin } from './useProducts';
+export { useRelatedProducts } from './useRelatedProducts';
 export { useOrders } from './useOrders';
 export { useCategories } from './useCategories';
 export { useAddresses } from './useAddresses';
+export { useReviews } from './useReviews';
 
 // ============= API UTILITY HOOKS =============
 // Generic hooks for API calls, pagination, and file uploads
@@ -28,6 +31,5 @@ export {
 // ============= NOTES =============
 // The following hooks have been removed as their contexts were deleted:
 // - usePaymentMethods (use paymentMethodService directly)
-// - useReviews (use reviewService directly) 
 // - useVouchers (use voucherService directly)
 // - useProductVariants (use productVariantService directly)

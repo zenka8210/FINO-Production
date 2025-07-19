@@ -66,21 +66,44 @@ export class ProductService {
    */
   async getPublicDisplayProducts(): Promise<ProductWithCategory[]> {
     try {
-      const response = await apiClient.get<ProductWithCategory[]>('/api/products/public-display');
-      return response.data!;
+      const response = await apiClient.get('/api/products/public-display');
+      
+      // API returns: { success: true, data: { products: [...], pagination: {...} } }
+      if (response.data && response.data.products && Array.isArray(response.data.products)) {
+        return response.data.products;
+      } else {
+        console.warn('Unexpected response structure from public-display API:', response);
+        return [];
+      }
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch public display products');
     }
   }
 
   /**
-   * Get product by ID
+   * Get product by ID (admin only)
    */
   async getProductById(id: string): Promise<ProductWithCategory> {
     try {
       const response = await apiClient.get<ProductWithCategory>(`/api/products/${id}`);
       return response.data!;
     } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch product');
+    }
+  }
+
+  /**
+   * Get product by ID for public display (product details page)
+   */
+  async getPublicProductById(id: string): Promise<ProductWithCategory> {
+    try {
+      const endpoint = `/api/products/public/${id}?includeVariants=true`;
+      console.log('📡 Calling public product API:', endpoint);
+      const response = await apiClient.get<ProductWithCategory>(endpoint);
+      console.log('✅ Product API response:', response.data);
+      return response.data!;
+    } catch (error: any) {
+      console.error('❌ Product API error:', error.response?.data || error.message);
       throw new Error(error.response?.data?.message || 'Failed to fetch product');
     }
   }

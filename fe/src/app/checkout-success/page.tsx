@@ -144,11 +144,14 @@ function CheckoutSuccessContent() {
             
             <div style={{ marginTop: '30px' }}>
               <Link href="/profile">
-                <button className="btn-brand" style={{
-                  padding: '12px 24px',
-                  marginRight: '16px',
-                  fontSize: '16px'
-                }}>
+                <button 
+                  className="primary-button" 
+                  style={{
+                    padding: '12px 24px',
+                    marginRight: '16px',
+                    fontSize: '16px'
+                  }}
+                >
                   Xem lịch sử đơn hàng
                 </button>
               </Link>
