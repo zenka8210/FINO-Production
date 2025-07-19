@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { FaStar, FaRegStar } from 'react-icons/fa';
 import Button from './ui/Button';
+import { useNotification } from '@/contexts/NotificationContext';
 import styles from './WriteReviewForm.module.css';
 
 interface WriteReviewFormProps {
@@ -22,6 +23,7 @@ export default function WriteReviewForm({
     rating: 5,
     comment: ''
   });
+  const { success, error, warning } = useNotification();
 
   // Render interactive stars
   const renderStars = () => {
@@ -48,8 +50,30 @@ export default function WriteReviewForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit(review);
-    setReview({ rating: 5, comment: '' }); // Reset form
+    console.log('🔍 WriteReviewForm handleSubmit triggered!', { review });
+    
+    // Validate input
+    if (!review.comment.trim()) {
+      console.log('❌ Validation failed: Empty comment');
+      warning('Nội dung thiếu', 'Vui lòng nhập nội dung đánh giá!');
+      return;
+    }
+    
+    if (review.comment.trim().length < 5) {
+      console.log('❌ Validation failed: Comment too short');
+      warning('Nội dung quá ngắn', 'Vui lòng nhập ít nhất 5 ký tự!');
+      return;
+    }
+    
+    console.log('✅ Validation passed, calling onSubmit');
+    try {
+      await onSubmit(review);
+      console.log('✅ onSubmit completed successfully');
+      setReview({ rating: 5, comment: '' }); // Reset form
+    } catch (err: any) {
+      console.error('❌ onSubmit failed:', err);
+      error('Gửi đánh giá thất bại', err.message || 'Có lỗi xảy ra khi gửi đánh giá');
+    }
   };
 
   if (!isLoggedIn) {
@@ -131,7 +155,7 @@ export default function WriteReviewForm({
                   {review.comment.length}/1000 ký tự
                 </div>
                 <div className={styles.helpText}>
-                  Ít nhất 10 ký tự để gửi đánh giá
+                  Ít nhất 5 ký tự để gửi đánh giá
                 </div>
               </div>
             </div>
@@ -142,7 +166,7 @@ export default function WriteReviewForm({
             <Button
               type="submit"
               variant="primary"
-              disabled={isSubmitting || review.comment.length < 10}
+              disabled={isSubmitting || review.comment.length < 5}
               className={styles.submitButton}
             >
               {isSubmitting ? (

@@ -66,6 +66,12 @@ router.get('/public/:id', validateObjectId('id'), productController.getPublicPro
 // @access Public
 router.get('/category/:categoryId/public', validateObjectId('categoryId'), productController.getProductsByCategory);
 
+// @route GET /api/products/featured
+// @desc Lấy sản phẩm nổi bật dựa trên lượt bán, reviews và wishlist
+// @query limit - số lượng sản phẩm trả về (default: 9)
+// @access Public
+router.get('/featured', productController.getFeaturedProducts);
+
 
 // --- Tuyến đường cho quản trị viên (Yêu cầu xác thực và quyền admin) ---
 

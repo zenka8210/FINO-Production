@@ -1,7 +1,7 @@
-<svg width="80" height="40" viewBox="0 0 80 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="80" height="40" rx="4" fill="#0ea5e9"/>
-  <circle cx="20" cy="20" r="12" fill="white"/>
-  <path d="M14 18l4 4 8-8" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="40" y="14" font-family="Arial, sans-serif" font-size="7" font-weight="bold" fill="white">DMCA</text>
-  <text x="40" y="22" font-family="Arial, sans-serif" font-size="6" fill="white">PROTECTED</text>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="64" height="64" rx="8" fill="#10B981"/>
+<path d="M32 12C20.96 12 12 20.96 12 32s8.96 20 20 20 20-8.96 20-20S43.04 12 32 12zm0 36c-8.84 0-16-7.16-16-16s7.16-16 16-16 16 7.16 16 16-7.16 16-16 16z" fill="white"/>
+<path d="M26 30h12v4H26v-4zm0 6h12v4H26v-4z" fill="white"/>
+<path d="M20 20h24v8H20v-8z" fill="white"/>
+<text x="32" y="58" text-anchor="middle" fill="white" font-size="7" font-family="Arial, sans-serif">DMCA</text>
 </svg>

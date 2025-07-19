@@ -14,8 +14,8 @@ export function useCategories() {
     try {
       setLoading(true);
       setError(null);
-      const categories = await categoryService.getCategories();
-      return categories;
+      const response = await categoryService.getPublicCategories();
+      return response.data; // Extract array from paginated response
     } catch (err: any) {
       setError(err.message);
       throw err;

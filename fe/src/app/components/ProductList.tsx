@@ -5,6 +5,7 @@ import { ProductWithCategory, ProductFilters } from '@/types';
 import { useProducts } from '@/hooks';
 import ProductItem from './ProductItem';
 import { LoadingSpinner } from './ui';
+import { getCurrentPrice } from '@/lib/productUtils';
 import styles from './ProductList.module.css';
 
 interface ProductListProps {
@@ -23,7 +24,7 @@ interface ProductListProps {
 
 export default function ProductList({
   products: propProducts,
-  layout: initialLayout = 'grid',
+  layout = 'grid', // Use prop directly, no state needed
   itemsPerPage = 12,
   showFilters = false,
   showPagination = true,
@@ -34,31 +35,34 @@ export default function ProductList({
   categoryId,
   filters
 }: ProductListProps) {
-  const [layout, setLayout] = useState<'grid' | 'list'>(initialLayout);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc' | 'name'>('newest');
   
   // Use products hook if no products provided
   const { loading, error } = useProducts();
 
-  // Use provided products or empty array
-  const products = propProducts || [];
+  // Use provided products or empty array - ensure it's always an array
+  const products = Array.isArray(propProducts) ? propProducts : [];
 
   // Sort products
   const sortedProducts = useMemo(() => {
+    if (!products || !Array.isArray(products)) {
+      return [];
+    }
+    
     const sorted = [...products];
     
     switch (sortBy) {
       case 'price-asc':
         return sorted.sort((a, b) => {
-          const priceA = a.salePrice && a.salePrice < a.price ? a.salePrice : a.price;
-          const priceB = b.salePrice && b.salePrice < b.price ? b.salePrice : b.price;
+          const priceA = getCurrentPrice(a);
+          const priceB = getCurrentPrice(b);
           return priceA - priceB;
         });
       case 'price-desc':
         return sorted.sort((a, b) => {
-          const priceA = a.salePrice && a.salePrice < a.price ? a.salePrice : a.price;
-          const priceB = b.salePrice && b.salePrice < b.price ? b.salePrice : b.price;
+          const priceA = getCurrentPrice(a);
+          const priceB = getCurrentPrice(b);
           return priceB - priceA;
         });
       case 'name':
@@ -164,7 +168,7 @@ export default function ProductList({
               <div className={styles.layoutToggle}>
                 <button
                   className={`${styles.layoutBtn} ${layout === 'grid' ? styles.active : ''}`}
-                  onClick={() => setLayout('grid')}
+                  onClick={() => {/* Layout controlled by parent */}}
                   title="Xem dạng lưới"
                   aria-label="Chuyển sang hiển thị dạng lưới"
                 >
@@ -177,7 +181,7 @@ export default function ProductList({
                 </button>
                 <button
                   className={`${styles.layoutBtn} ${layout === 'list' ? styles.active : ''}`}
-                  onClick={() => setLayout('list')}
+                  onClick={() => {/* Layout controlled by parent */}}
                   title="Xem dạng danh sách"
                   aria-label="Chuyển sang hiển thị dạng danh sách"
                 >

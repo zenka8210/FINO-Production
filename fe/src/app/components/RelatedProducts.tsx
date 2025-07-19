@@ -5,6 +5,7 @@ import { ProductWithCategory } from '@/types';
 import { useRelatedProducts, useCart, useWishlist } from '@/hooks';
 import { LoadingSpinner, Button } from './ui';
 import { formatCurrency } from '@/lib/utils';
+import { isProductOnSale, getCurrentPrice, getDiscountPercent } from '@/lib/productUtils';
 import styles from './RelatedProducts.module.css';
 
 interface RelatedProductsProps {
@@ -52,15 +53,13 @@ export default function RelatedProducts({ currentId, category, limit = 8 }: Rela
     }
   };
 
-  // Calculate price info for a product
+  // Calculate price info for a product using productUtils
   const getPriceInfo = (product: ProductWithCategory) => {
-    const currentPrice = product.salePrice && product.salePrice < product.price 
-      ? product.salePrice 
-      : product.price;
-    const isOnSale = product.salePrice && product.salePrice < product.price;
-    const discountPercent = isOnSale ? Math.round((1 - product.salePrice! / product.price) * 100) : 0;
-    
-    return { currentPrice, isOnSale, discountPercent };
+    return {
+      currentPrice: getCurrentPrice(product),
+      isOnSale: isProductOnSale(product), 
+      discountPercent: getDiscountPercent(product)
+    };
   };
 
   // Loading state

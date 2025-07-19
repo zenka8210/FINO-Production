@@ -1,4 +1,4 @@
-/* ProductItem Component - Following Design System */
+/* ProductItem Component - Uniform Height & Optimized Layout */
 
 .productItem {
   background: white;
@@ -8,6 +8,9 @@
   transition: all 0.2s ease;
   position: relative;
   border: 1px solid #f1f5f9;
+  height: 100%; /* Full height for uniform grid */
+  display: flex;
+  flex-direction: column;
 }
 
 .productItem:hover {
@@ -18,11 +21,12 @@
 .productLink {
   text-decoration: none;
   color: inherit;
-  display: block;
+  display: flex;
+  flex-direction: column;
   height: 100%;
 }
 
-/* Grid Layout (Default) */
+/* Grid Layout (Default) - Uniform Heights */
 .productItem.grid {
   display: flex;
   flex-direction: column;
@@ -30,7 +34,8 @@
 }
 
 .productItem.grid .imageWrapper {
-  height: 200px;
+  height: 200px; /* Fixed height for consistency */
+  flex-shrink: 0;
 }
 
 .productItem.grid .productInfo {
@@ -38,6 +43,18 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: space-between; /* Push CTA to bottom */
+}
+
+.productItem.grid .productContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.productItem.grid .ctaSection {
+  margin-top: auto; /* Always at bottom */
+  padding-top: 1rem;
 }
 
 /* List Layout */
@@ -59,6 +76,15 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
+}
+
+/* CTA Button positioning in list layout */
+.productItem.list .ctaButton {
+  width: auto;
+  max-width: 200px;
+  align-self: flex-start;
+  margin-top: 1rem;
 }
 
 /* Image Section */
@@ -73,6 +99,28 @@
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
+}
+
+.noImage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  color: var(--color-muted);
+  gap: 0.5rem;
+}
+
+.noImage svg {
+  color: var(--color-muted);
+}
+
+.noImage span {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--color-muted);
 }
 
 .productItem:hover .productImage {
@@ -155,15 +203,43 @@
   margin-bottom: 0.75rem;
   line-height: 1.4;
   font-family: var(--font-heading, 'Poppins', sans-serif);
+  position: relative;
+  cursor: pointer;
 }
 
-/* Grid layout: truncate name */
+/* Grid layout: truncate name with tooltip */
 .productItem.grid .productName {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  hyphens: auto;
+  min-height: 2.8rem; /* Reserve space for 2 lines */
+}
+
+/* Tooltip for truncated names */
+.productName[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(17, 24, 39, 0.95);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.3;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: fadeInTooltip 0.2s ease-out;
+  white-space: normal;
+  word-wrap: break-word;
+  max-width: 280px;
 }
 
 /* List layout: allow full name */
@@ -185,7 +261,7 @@
   overflow: hidden;
 }
 
-/* Price */
+/* Price Section */
 .priceWrapper {
   display: flex;
   align-items: center;
@@ -194,8 +270,7 @@
 }
 
 .productItem.list .priceWrapper {
-  margin-bottom: 0;
-  margin-top: auto;
+  margin-bottom: 1rem;
 }
 
 .currentPrice {
@@ -216,28 +291,55 @@
   text-decoration: line-through;
 }
 
-/* CTA Button (Grid layout only) */
+/* CTA Button - Always visible, primary action */
 .ctaButton {
   width: 100%;
   background: var(--color-primary, #1E40AF);
   color: white;
   border: none;
-  padding: 0.75rem 1rem;
+  padding: 0.875rem 1rem;
   border-radius: 8px;
-  font-weight: 500;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 0.875rem;
-  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 4px rgba(30, 64, 175, 0.2);
+  position: relative;
+  z-index: 2; /* Ensure it's above other elements */
 }
 
 .ctaButton:hover {
   background: #1E3A8A;
   transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(30, 64, 175, 0.3);
 }
 
 .ctaButton:active {
   transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(30, 64, 175, 0.2);
+}
+
+.ctaButton svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+}
+
+/* Animations */
+@keyframes fadeInTooltip {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive Design */
@@ -280,7 +382,7 @@
 
 @media (max-width: 640px) {
   .productItem.grid .imageWrapper {
-    height: 160px;
+    height: 180px;
   }
   
   .saleBadge {
@@ -290,10 +392,16 @@
   
   .productName {
     font-size: 0.875rem;
+    min-height: 2.4rem; /* Adjust for smaller font */
   }
   
   .currentPrice {
     font-size: 1rem;
+  }
+  
+  .ctaButton {
+    padding: 0.75rem 1rem;
+    font-size: 0.8125rem;
   }
 }
 

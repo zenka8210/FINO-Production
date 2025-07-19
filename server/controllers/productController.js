@@ -13,8 +13,14 @@ class ProductController extends BaseController {
         super(new ProductService());
     }    getAllProducts = async (req, res, next) => {
         try {
-            // Use new QueryBuilder with improved safety
-            if (req.createQueryBuilder) {
+            console.log('🎯 ProductController.getAllProducts called');
+            console.log('📊 Query params:', req.query);
+            console.log('🔧 Has createQueryBuilder:', !!req.createQueryBuilder);
+            console.log('💰 Has isOnSale filter:', req.query.isOnSale);
+            
+            // Use new QueryBuilder with improved safety, but fallback for isOnSale filter
+            if (req.createQueryBuilder && !req.query.isOnSale) {
+                console.log('🔥 Using QueryBuilder middleware for products');
                 const Product = require('../models/ProductSchema');
                 const queryBuilder = req.createQueryBuilder(Product);
                 
@@ -30,9 +36,15 @@ class ProductController extends BaseController {
                     })
                     .execute();
                 
+                // IMPORTANT: Populate categories after QueryBuilder execution
+                if (result.data && Array.isArray(result.data)) {
+                    result.data = await Product.populate(result.data, { path: 'category' });
+                }
+                
                 ResponseHandler.success(res, MESSAGES.PRODUCTS_FETCHED, result);
             } else {
-                // Fallback to legacy method if middleware not available
+                console.log('🔥 Using legacy service for products (isOnSale filter or no QueryBuilder)');
+                // Fallback to legacy method if middleware not available or isOnSale filter used
                 const queryOptions = {
                     page: req.query.page || PAGINATION.DEFAULT_PAGE,
                     limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
@@ -41,7 +53,8 @@ class ProductController extends BaseController {
                     minPrice: req.query.minPrice,
                     maxPrice: req.query.maxPrice,
                     sortBy: req.query.sortBy || 'createdAt',
-                    sortOrder: req.query.sortOrder || 'desc'
+                    sortOrder: req.query.sortOrder || 'desc',
+                    isOnSale: req.query.isOnSale
                 };
                 
                 // Apply admin sort
@@ -376,6 +389,21 @@ class ProductController extends BaseController {
         try {
             const statistics = await this.service.getProductStatistics();
             ResponseHandler.success(res, 'Lấy thống kê sản phẩm thành công', statistics);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    // Get featured products based on real sales, reviews, and wishlist data
+    getFeaturedProducts = async (req, res, next) => {
+        try {
+            const limit = parseInt(req.query.limit) || 9; // Updated default to 9 for frontend sections
+            
+            console.log('🎯 ProductController.getFeaturedProducts called with limit:', limit);
+            
+            const featuredProducts = await this.service.getFeaturedProducts(limit);
+            
+            ResponseHandler.success(res, 'Lấy sản phẩm nổi bật thành công', featuredProducts);
         } catch (error) {
             next(error);
         }

@@ -33,6 +33,7 @@
   font-size: var(--text-base);
   font-family: var(--font-body);
   background: white;
+  color: var(--color-text);
   transition: all 0.2s ease;
   outline: none;
 }

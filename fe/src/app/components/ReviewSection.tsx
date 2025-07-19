@@ -8,7 +8,7 @@ import { FaStar, FaUser, FaThumbsUp, FaRegThumbsUp, FaQuoteLeft, FaStarHalfAlt, 
 import styles from './ReviewSection.module.css';
 import Button from './ui/Button';
 import WriteReviewForm from './WriteReviewForm';
-import { ReviewWithRefs } from '@/types';
+import { ReviewWithRefs, CanReviewResponse } from '@/types';
 
 interface ReviewSectionProps {
   productId: string;
@@ -97,39 +97,60 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
 
   // Handle submit review from WriteReviewForm
   const handleSubmitReview = async (reviewData: { rating: number; comment: string }) => {
+    console.log('🔍 ReviewSection handleSubmitReview called!', { reviewData, user });
+    
     if (!user) {
+      console.log('❌ No user logged in, redirecting...');
       window.location.href = '/login';
       return;
     }
 
     if (!reviewData.comment.trim()) {
+      console.log('❌ Empty comment validation');
       warning('Nội dung bị thiếu', 'Vui lòng nhập nội dung đánh giá!');
       return;
     }
 
-    if (reviewData.comment.trim().length < 10) {
-      warning('Nội dung quá ngắn', 'Vui lòng nhập ít nhất 10 ký tự!');
+    if (reviewData.comment.trim().length < 5) {
+      console.log('❌ Comment too short validation');
+      warning('Nội dung quá ngắn', 'Vui lòng nhập ít nhất 5 ký tự!');
       return;
     }
 
+    console.log('✅ Validation passed, setting submitting to true');
     setSubmitting(true);
     try {
+      console.log('🔍 Checking if user can review...');
       // Check if user can review first
-      const reviewCheck = await checkCanReview(productId);
+      const reviewCheck: CanReviewResponse = await checkCanReview(productId);
+      console.log('🔍 Can review check result:', reviewCheck);
       
       if (!reviewCheck.canReview) {
-        warning('Không thể đánh giá', 'Bạn chỉ có thể đánh giá sản phẩm đã mua!');
+        // Show appropriate message based on the reason from backend
+        if (reviewCheck.reason) {
+          warning('Không thể đánh giá', reviewCheck.reason);
+        } else {
+          warning('Không thể đánh giá', 'Bạn chỉ có thể đánh giá sản phẩm đã mua!');
+        }
         return;
       }
 
-      if (!reviewCheck.orderId) {
-        error('Lỗi đơn hàng', 'Không tìm thấy đơn hàng để đánh giá!');
+      // For successful canReview, we need to find the orderId
+      let orderId;
+      if (reviewCheck.order) {
+        // Single order case
+        orderId = reviewCheck.order._id;
+      } else if (reviewCheck.availableOrders && reviewCheck.availableOrders.length > 0) {
+        // Multiple available orders, use the first one
+        orderId = reviewCheck.availableOrders[0]._id;
+      } else {
+        error('Lỗi đơn hàng', 'Không tìm thấy đơn hàng phù hợp để đánh giá!');
         return;
       }
 
       const reviewPayload = {
         product: productId,
-        order: reviewCheck.orderId,
+        order: orderId,
         rating: reviewData.rating,
         comment: reviewData.comment.trim()
       };
@@ -140,8 +161,11 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
       await loadProductReviews(productId);
       
       success('Thành công', 'Đánh giá của bạn đã được gửi thành công!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting review:', error);
+      // Show user-friendly error message
+      const errorMessage = error.message || 'Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại!';
+      error('Gửi đánh giá thất bại', errorMessage);
     } finally {
       setSubmitting(false);
     }

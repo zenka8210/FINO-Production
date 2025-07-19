@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Poppins, Inter } from "next/font/google";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./globals.css";
-import AppMenu from "./components/menu";
+import Header from "./components/Header";
 import AppFooter from "./components/footer";
 import ChatBox from "./components/ChatBox";
 import { ToastContainer } from "./components/ui";
@@ -23,8 +23,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Fashion Store - Thời trang hiện đại cho Gen Z",
-  description: "Cửa hàng thời trang trực tuyến với các sản phẩm trendy dành cho giới trẻ",
+  title: "FINO - Thời trang hiện đại cho Gen Z",
+  description: "FINO Fashion Store - Cửa hàng thời trang trực tuyến với các sản phẩm trendy dành cho giới trẻ",
+  icons: {
+    icon: "/images/favicon-fino.svg",
+    shortcut: "/images/favicon-fino.svg",
+    apple: "/images/favicon-fino.svg",
+  },
 };
 
 export default function RootLayout({
@@ -51,7 +56,7 @@ export default function RootLayout({
     <html lang="vi" suppressHydrationWarning>
       <body className={`${poppins.variable} ${inter.variable}`} suppressHydrationWarning>
         <AppProvider>
-          <AppMenu />
+          <Header />
           {children}
           <AppFooter />
           <ChatBox />

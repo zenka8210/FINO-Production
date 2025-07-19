@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ProductWithCategory } from '@/types';
 import { formatCurrency } from '@/lib/utils';
+import { isProductOnSale, getCurrentPrice, getDiscountPercent } from '@/lib/productUtils';
 import { useCart, useWishlist } from '@/hooks';
 import Button from './Button';
 import styles from './ProductCard.module.css';
@@ -23,13 +24,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
   
   const inWishlist = isInWishlist(product._id);
 
-  // Calculate current price (with sale if applicable)
-  const currentPrice = product.salePrice && product.salePrice < product.price 
-    ? product.salePrice 
-    : product.price;
-  
-  const isOnSale = product.salePrice && product.salePrice < product.price;
-  const discountPercent = isOnSale ? Math.round((1 - product.salePrice! / product.price) * 100) : 0;
+  // Use productUtils for consistent sale logic
+  const isOnSale = isProductOnSale(product);
+  const currentPrice = getCurrentPrice(product);
+  const discountPercent = getDiscountPercent(product);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation

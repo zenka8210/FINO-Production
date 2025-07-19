@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ProductWithCategory } from '@/types';
 import { useCart, useWishlist } from '@/hooks';
 import { formatCurrency } from '@/lib/utils';
+import { getProductPriceInfo } from '@/lib/productUtils';
 import styles from './ProductItem.module.css';
 
 interface ProductItemProps {
@@ -26,12 +27,8 @@ export default function ProductItem({
   
   const inWishlist = isInWishlist(product._id);
 
-  // Calculate price info
-  const currentPrice = product.salePrice && product.salePrice < product.price 
-    ? product.salePrice 
-    : product.price;
-  const isOnSale = product.salePrice && product.salePrice < product.price;
-  const discountPercent = isOnSale ? Math.round((1 - product.salePrice! / product.price) * 100) : 0;
+  // Get price info using utility function for consistent sale logic
+  const { currentPrice, isOnSale, discountPercent } = getProductPriceInfo(product);
 
   // Handle add to cart
   const handleAddToCart = async (e: React.MouseEvent) => {
@@ -61,6 +58,9 @@ export default function ProductItem({
     }
   };
 
+  // Get main image from product
+  const mainImage = product.images && product.images.length > 0 ? product.images[0] : null;
+
   const containerClass = `${styles.productItem} ${styles[layout]} ${className}`;
 
   return (
@@ -68,12 +68,23 @@ export default function ProductItem({
       <Link href={`/products/${product._id}`} className={styles.productLink}>
         {/* Image Section */}
         <div className={styles.imageWrapper}>
-          <img
-            src={product.images?.[0] || '/placeholder.jpg'}
-            alt={product.name}
-            className={styles.productImage}
-            loading="lazy"
-          />
+          {mainImage ? (
+            <img
+              src={mainImage}
+              alt={product.name}
+              className={styles.productImage}
+              loading="lazy"
+            />
+          ) : (
+            <div className={styles.noImage}>
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21,15 16,10 5,21"/>
+              </svg>
+              <span>Không có ảnh</span>
+            </div>
+          )}
           
           {/* Sale Badge */}
           {isOnSale && (
@@ -126,44 +137,58 @@ export default function ProductItem({
 
         {/* Product Info */}
         <div className={styles.productInfo}>
-          {/* Category */}
-          <div className={styles.categoryName}>
-            {product.category?.name || 'Chưa phân loại'}
-          </div>
-          
-          {/* Product Name */}
-          <h3 className={styles.productName}>
-            {product.name}
-          </h3>
-          
-          {/* Description (only for list layout) */}
-          {showDescription && layout === 'list' && product.description && (
-            <p className={styles.productDescription}>
-              {product.description}
-            </p>
-          )}
-          
-          {/* Price */}
-          <div className={styles.priceWrapper}>
-            <span className={styles.currentPrice}>
-              {formatCurrency(currentPrice)}
-            </span>
-            {isOnSale && (
-              <span className={styles.originalPrice}>
-                {formatCurrency(product.price)}
-              </span>
+          {/* Product Content - flexible area */}
+          <div className={styles.productContent}>
+            {/* Category */}
+            <div className={styles.categoryName}>
+              {product.category && typeof product.category === 'object' && product.category.name 
+                ? product.category.name 
+                : product.category && typeof product.category === 'string' 
+                ? product.category 
+                : 'Chưa phân loại'}
+            </div>
+            
+            {/* Product Name with tooltip for long names */}
+            <h3 
+              className={styles.productName}
+              title={layout === 'grid' && product.name.length > 50 ? product.name : undefined}
+            >
+              {product.name}
+            </h3>
+            
+            {/* Description (only for list layout) */}
+            {showDescription && layout === 'list' && product.description && (
+              <p className={styles.productDescription}>
+                {product.description}
+              </p>
             )}
           </div>
 
-          {/* CTA Button - Only in grid layout */}
-          {layout === 'grid' && (
+          {/* CTA Section - always at bottom */}
+          <div className={styles.ctaSection}>
+            {/* Price */}
+            <div className={styles.priceWrapper}>
+              <span className={styles.currentPrice}>
+                {formatCurrency(currentPrice)}
+              </span>
+              {isOnSale && (
+                <span className={styles.originalPrice}>
+                  {formatCurrency(product.price)}
+                </span>
+              )}
+            </div>
+
+            {/* CTA Button - Show in both layouts */}
             <button
               className={styles.ctaButton}
               onClick={handleAddToCart}
             >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h8a2 2 0 002-2v-6" />
+              </svg>
               Mua ngay
             </button>
-          )}
+          </div>
         </div>
       </Link>
     </article>

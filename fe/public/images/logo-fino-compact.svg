@@ -1,0 +1,20 @@
+<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Compact Fashion Icon -->
+  <g transform="translate(2, 5)">
+    <!-- Stylized F as fashion symbol -->
+    <rect x="0" y="0" width="25" height="30" rx="4" fill="#1E40AF"/>
+    <rect x="5" y="5" width="15" height="6" fill="#F59E0B"/>
+    <rect x="5" y="14" width="12" height="3" fill="#F59E0B"/>
+    <circle cx="20" cy="8" r="2" fill="#FFFFFF"/>
+  </g>
+  
+  <!-- FINO Text - Compact -->
+  <g transform="translate(35, 8)" font-family="'Poppins', sans-serif" font-weight="700" font-size="18" fill="#1E40AF">
+    <text x="0" y="18">FINO</text>
+  </g>
+  
+  <!-- Tagline -->
+  <g transform="translate(35, 25)" font-family="'Inter', sans-serif" font-weight="400" font-size="8" fill="#9CA3AF">
+    <text x="0" y="8">FASHION STORE</text>
+  </g>
+</svg>

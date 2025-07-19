@@ -10,6 +10,7 @@ import { useAuth, useNotification } from '@/contexts';
 import { useProduct, useCart, useWishlist, useReviews } from '@/hooks';
 import { ProductVariantWithRefs } from '@/types';
 import { formatPrice } from '@/utils/formatPrice';
+import { getProductPriceInfo } from '@/lib/productUtils';
 
 // Import UI components
 import Button from '@/app/components/ui/Button';
@@ -239,24 +240,25 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
     );
   }
 
-  const currentPrice = selectedVariant?.price || product.currentPrice || product.price;
+  // Get price info using utility for consistent sale logic
+  const priceInfo = getProductPriceInfo(product);
+  const currentPrice = selectedVariant?.price || priceInfo.currentPrice;
   const originalPrice = product.price;
-  const isOnSale = product.isOnSale && product.salePrice;
-  const discountPercent = isOnSale ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100) : 0;
+  const isOnSale = priceInfo.isOnSale;
+  const discountPercent = priceInfo.discountPercent;
+  
+  // Calculate total prices based on quantity
+  const totalPrice = currentPrice * quantity;
+  const originalTotalPrice = originalPrice * quantity;
+  
   const currentImages = selectedVariant?.images || product.images || [];
   const inWishlist = isInWishlist(product._id);
 
   return (
     <div className={styles.productDetail}>
-      {/* Breadcrumb */}
+      {/* Breadcrumb - Simplified for 1 view = 1 action */}
       <div className={styles.breadcrumb}>
         <span onClick={() => router.push('/')}>Trang chủ</span>
-        <span>/</span>
-        <span onClick={() => router.push('/products')}>Sản phẩm</span>
-        <span>/</span>
-        <span onClick={() => router.push(`/categories/${product.category?._id}`)}>
-          {product.category?.name}
-        </span>
         <span>/</span>
         <span className={styles.current}>{product.name}</span>
       </div>
@@ -342,17 +344,22 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
             <div className={styles.priceSection}>
               <div className={styles.priceGroup}>
                 <span className={styles.currentPrice}>
-                  {formatPrice(currentPrice)}
+                  {formatPrice(totalPrice)}
+                  {quantity > 1 && (
+                    <span className={styles.unitPrice}>
+                      ({formatPrice(currentPrice)}/cái)
+                    </span>
+                  )}
                 </span>
                 {isOnSale && (
                   <span className={styles.originalPrice}>
-                    {formatPrice(originalPrice)}
+                    {formatPrice(originalTotalPrice)}
                   </span>
                 )}
               </div>
               {isOnSale && (
                 <div className={styles.savings}>
-                  Tiết kiệm {formatPrice(originalPrice - currentPrice)}
+                  Tiết kiệm {formatPrice(originalTotalPrice - totalPrice)}
                 </div>
               )}
             </div>

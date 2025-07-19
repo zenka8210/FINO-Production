@@ -313,6 +313,21 @@ export interface CreateReviewRequest {
   comment: string;
 }
 
+export interface CanReviewResponse {
+  canReview: boolean;
+  reason?: string;
+  message?: string;
+  order?: {
+    _id: string;
+    [key: string]: any;
+  };
+  availableOrders?: {
+    _id: string;
+    [key: string]: any;
+  }[];
+  existingReview?: any;
+}
+
 export interface CreatePostRequest {
   title: string;
   content: string;

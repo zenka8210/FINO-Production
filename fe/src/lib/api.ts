@@ -180,8 +180,23 @@ class ApiClient {
 
   async getPaginated<T = any>(url: string, params?: any): Promise<PaginatedResponse<T>> {
     try {
-      const response = await this.client.get<PaginatedResponse<T>>(url, { params });
-      return response.data;
+      const response = await this.client.get<any>(url, { params });
+      const responseData = response.data;
+      
+      // Handle nested data structure from backend
+      // Backend returns: {success, message, data: {data: [], pagination}}
+      // Frontend expects: {success, message, data: [], pagination}
+      if (responseData && responseData.data && responseData.data.data && responseData.data.pagination) {
+        return {
+          success: responseData.success,
+          message: responseData.message,
+          data: responseData.data.data,
+          pagination: responseData.data.pagination
+        };
+      }
+      
+      // Fallback to original structure
+      return responseData;
     } catch (error) {
       if (error instanceof ApiError) {
         throw error;

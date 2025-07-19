@@ -184,18 +184,13 @@ export class ProductService {
   }
 
   /**
-   * Get featured products
+   * Get featured products based on real business metrics (sales, reviews, wishlist)
+   * GET /api/products/featured
    */
-  async getFeaturedProducts(limit: number = 8): Promise<ProductWithCategory[]> {
+  async getFeaturedProducts(limit: number = 9): Promise<ProductWithCategory[]> { // Updated default to 9
     try {
-      const filters: ProductFilters = {
-        limit,
-        sort: 'createdAt',
-        order: 'desc'
-      };
-      
-      const response = await this.getAvailableProducts();
-      return response.data.slice(0, limit);
+      const response = await apiClient.get<ProductWithCategory[]>(`/api/products/featured?limit=${limit}`);
+      return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch featured products');
     }

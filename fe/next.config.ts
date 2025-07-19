@@ -1,7 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    // Allow images from any domain (for development - consider restricting in production)
+    unoptimized: true,
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+      {
+        protocol: 'http',
+        hostname: '**',
+      },
       {
         protocol: 'https',
         hostname: 'storage.googleapis.com',

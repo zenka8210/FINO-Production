@@ -110,11 +110,11 @@
 /* Product Grid */
 .productGrid {
   display: grid;
-  gap: 1.5rem;
+  gap: 2rem; /* Increased from 1.5rem for better visibility */
   margin-bottom: 3rem;
 }
 
-/* Grid Layout */
+/* Grid Layout - Optimize for CTA visibility */
 .productGrid.grid {
   grid-template-columns: repeat(1, 1fr); /* Mobile: 1 column */
 }
@@ -125,21 +125,21 @@
   }
 }
 
-@media (min-width: 640px) {
+@media (min-width: 768px) {
   .productGrid.grid {
-    grid-template-columns: repeat(3, 1fr); /* Tablet: 3 columns */
+    grid-template-columns: repeat(3, 1fr); /* Tablet: 3 columns (reduced from 4) */
   }
 }
 
 @media (min-width: 1024px) {
   .productGrid.grid {
-    grid-template-columns: repeat(4, 1fr); /* Desktop: 4 columns */
+    grid-template-columns: repeat(3, 1fr); /* Desktop: 3 columns (reduced from 4) */
   }
 }
 
 @media (min-width: 1280px) {
   .productGrid.grid {
-    grid-template-columns: repeat(5, 1fr); /* Large desktop: 5 columns */
+    grid-template-columns: repeat(4, 1fr); /* Large desktop: 4 columns (reduced from 5) */
   }
 }
 

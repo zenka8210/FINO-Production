@@ -56,7 +56,8 @@ class ProductService extends BaseService {
             sortBy = 'createdAt', // Default sort field
             sortOrder = 'desc', // Default sort order
             includeVariants = false, // New option to include variants or not
-            includeOutOfStock = false // New option to include out of stock products
+            includeOutOfStock = false, // New option to include out of stock products
+            isOnSale // New filter for sale products
         } = queryOptions;
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -101,6 +102,26 @@ class ProductService extends BaseService {
             }
 
             let products = await query;
+            
+            // Filter for sale products if requested
+            if (isOnSale === 'true' || isOnSale === true) {
+                console.log('🔥 Filtering for sale products, total products before filter:', products.length);
+                const now = new Date();
+                products = products.filter(product => {
+                    // Check if product is on sale based on virtual field logic
+                    if (product.salePrice && product.saleStartDate && product.saleEndDate) {
+                        const isCurrentlyOnSale = now >= product.saleStartDate && 
+                               now <= product.saleEndDate && 
+                               product.salePrice < product.price;
+                        if (isCurrentlyOnSale) {
+                            console.log('✅ Sale product found:', product.name, 'salePrice:', product.salePrice);
+                        }
+                        return isCurrentlyOnSale;
+                    }
+                    return false;
+                });
+                console.log('🔥 Sale products after filter:', products.length);
+            }
             
             // Filter out products with no stock if includeOutOfStock is false
             if (includeOutOfStock === 'false' || includeOutOfStock === false) {
@@ -826,6 +847,197 @@ class ProductService extends BaseService {
             };
         } catch (error) {
             throw new AppError(`Lỗi khi tạo thống kê sản phẩm: ${error.message}`, 500, 'STATISTICS_GENERATION_FAILED');
+        }
+    }
+
+    /**
+     * Get featured products based on real business metrics
+     * Calculates popularity score from orders, reviews, and wishlist data
+     * @param {number} limit - Number of products to return
+     * @returns {Array} Featured products with popularity scores
+     */
+    async getFeaturedProducts(limit = 9) { // Updated default to 9 for frontend sections
+        try {
+            console.log('🎯 ProductService.getFeaturedProducts called with limit:', limit);
+            
+            // Aggregate products with real business metrics
+            const featuredProducts = await Product.aggregate([
+                {
+                    // Stage 1: Match only active products that should be displayed
+                    $match: {
+                        status: 'active',
+                        isDeleted: { $ne: true }
+                    }
+                },
+                {
+                    // Stage 2: Lookup orders to calculate sales metrics
+                    $lookup: {
+                        from: 'orders',
+                        let: { productId: '$_id' },
+                        pipeline: [
+                            {
+                                $match: {
+                                    status: { $in: ['delivered', 'completed'] }, // Only successful orders
+                                    $expr: {
+                                        $in: ['$$productId', '$items.product']
+                                    }
+                                }
+                            },
+                            {
+                                $unwind: '$items'
+                            },
+                            {
+                                $match: {
+                                    $expr: { $eq: ['$items.product', '$$productId'] }
+                                }
+                            },
+                            {
+                                $group: {
+                                    _id: null,
+                                    totalSold: { $sum: '$items.quantity' },
+                                    orderCount: { $sum: 1 },
+                                    totalRevenue: { $sum: { $multiply: ['$items.quantity', '$items.price'] } }
+                                }
+                            }
+                        ],
+                        as: 'salesData'
+                    }
+                },
+                {
+                    // Stage 3: Lookup reviews for rating metrics
+                    $lookup: {
+                        from: 'reviews',
+                        let: { productId: '$_id' },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: { $eq: ['$product', '$$productId'] }
+                                }
+                            },
+                            {
+                                $group: {
+                                    _id: null,
+                                    avgRating: { $avg: '$rating' },
+                                    reviewCount: { $sum: 1 }
+                                }
+                            }
+                        ],
+                        as: 'reviewData'
+                    }
+                },
+                {
+                    // Stage 4: Lookup wishlist data for popularity metrics  
+                    $lookup: {
+                        from: 'wishlists',
+                        let: { productId: '$_id' },
+                        pipeline: [
+                            {
+                                $unwind: '$items'
+                            },
+                            {
+                                $match: {
+                                    $expr: { $eq: ['$items.product', '$$productId'] }
+                                }
+                            },
+                            {
+                                $group: {
+                                    _id: null,
+                                    wishlistCount: { $sum: 1 }
+                                }
+                            }
+                        ],
+                        as: 'wishlistData'
+                    }
+                },
+                {
+                    // Stage 5: Calculate popularity score using real business metrics
+                    $addFields: {
+                        totalSold: { $ifNull: [{ $arrayElemAt: ['$salesData.totalSold', 0] }, 0] },
+                        orderCount: { $ifNull: [{ $arrayElemAt: ['$salesData.orderCount', 0] }, 0] },
+                        totalRevenue: { $ifNull: [{ $arrayElemAt: ['$salesData.totalRevenue', 0] }, 0] },
+                        avgRating: { $ifNull: [{ $arrayElemAt: ['$reviewData.avgRating', 0] }, 0] },
+                        reviewCount: { $ifNull: [{ $arrayElemAt: ['$reviewData.reviewCount', 0] }, 0] },
+                        wishlistCount: { $ifNull: [{ $arrayElemAt: ['$wishlistData.wishlistCount', 0] }, 0] },
+                        
+                        // Advanced popularity score calculation
+                        popularityScore: {
+                            $add: [
+                                // Sales weight (40% of score)
+                                { $multiply: [{ $ifNull: [{ $arrayElemAt: ['$salesData.totalSold', 0] }, 0] }, 0.4] },
+                                // Review score weight (30% of score) 
+                                { 
+                                    $multiply: [
+                                        { 
+                                            $multiply: [
+                                                { $ifNull: [{ $arrayElemAt: ['$reviewData.avgRating', 0] }, 0] },
+                                                { $log10: { $add: [{ $ifNull: [{ $arrayElemAt: ['$reviewData.reviewCount', 0] }, 0] }, 1] } }
+                                            ]
+                                        }, 
+                                        0.3
+                                    ]
+                                },
+                                // Wishlist weight (20% of score)
+                                { $multiply: [{ $ifNull: [{ $arrayElemAt: ['$wishlistData.wishlistCount', 0] }, 0] }, 0.2] },
+                                // Order frequency weight (10% of score)
+                                { $multiply: [{ $ifNull: [{ $arrayElemAt: ['$salesData.orderCount', 0] }, 0] }, 0.1] }
+                            ]
+                        }
+                    }
+                },
+                {
+                    // Stage 6: Populate category information
+                    $lookup: {
+                        from: 'categories',
+                        localField: 'category',
+                        foreignField: '_id',
+                        as: 'category'
+                    }
+                },
+                {
+                    // Stage 7: Sort by popularity score (highest first)
+                    $sort: { popularityScore: -1 }
+                },
+                {
+                    // Stage 8: Limit results
+                    $limit: limit
+                },
+                {
+                    // Stage 9: Clean up response
+                    $project: {
+                        _id: 1,
+                        name: 1,
+                        description: 1,
+                        price: 1,
+                        salePrice: 1,
+                        saleStartDate: 1,
+                        saleEndDate: 1,
+                        images: 1,
+                        category: { $arrayElemAt: ['$category', 0] },
+                        status: 1,
+                        createdAt: 1,
+                        // Business metrics for debugging/display
+                        metrics: {
+                            totalSold: '$totalSold',
+                            orderCount: '$orderCount',
+                            totalRevenue: '$totalRevenue',
+                            avgRating: { $round: ['$avgRating', 2] },
+                            reviewCount: '$reviewCount',
+                            wishlistCount: '$wishlistCount',
+                            popularityScore: { $round: ['$popularityScore', 2] }
+                        }
+                    }
+                }
+            ]);
+
+            console.log(`✅ Found ${featuredProducts.length} featured products`);
+            if (featuredProducts.length > 0) {
+                console.log('📊 Top product metrics:', featuredProducts[0].metrics);
+            }
+
+            return featuredProducts;
+        } catch (error) {
+            console.error('❌ Error in getFeaturedProducts:', error);
+            throw new AppError(`Lỗi khi lấy sản phẩm nổi bật: ${error.message}`, 500, 'FEATURED_PRODUCTS_FAILED');
         }
     }
 }
