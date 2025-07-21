@@ -18,52 +18,76 @@ class ProductController extends BaseController {
             console.log('🔧 Has createQueryBuilder:', !!req.createQueryBuilder);
             console.log('💰 Has isOnSale filter:', req.query.isOnSale);
             
-            // Use new QueryBuilder with improved safety, but fallback for isOnSale filter
-            if (req.createQueryBuilder && !req.query.isOnSale) {
+            // Use new QueryBuilder with improved safety, but fallback for specific params
+            if (req.createQueryBuilder && !req.query.isOnSale && !req.query.includeVariants) {
                 console.log('🔥 Using QueryBuilder middleware for products');
                 const Product = require('../models/ProductSchema');
                 const queryBuilder = req.createQueryBuilder(Product);
                 
-                // Configure search and filters for products
-                const result = await queryBuilder
-                    .search(['name', 'description'])
-                    .applyFilters({
-                        category: { type: 'objectId' },
-                        minPrice: { type: 'range', field: 'price' },
-                        maxPrice: { type: 'range', field: 'price' },
-                        brand: { type: 'regex' },
-                        status: { type: 'exact' }
-                    })
-                    .execute();
+                console.log('🔧 About to execute QueryBuilder...');
                 
-                // IMPORTANT: Populate categories after QueryBuilder execution
-                if (result.data && Array.isArray(result.data)) {
-                    result.data = await Product.populate(result.data, { path: 'category' });
+                try {
+                    // Configure search and filters for products
+                    const result = await queryBuilder
+                        .search(['name', 'description'])
+                        .applyFilters({
+                            category: { type: 'objectId' },
+                            minPrice: { type: 'range', field: 'price' },
+                            maxPrice: { type: 'range', field: 'price' },
+                            brand: { type: 'regex' },
+                            status: { type: 'exact' }
+                        })
+                        .execute();
+                    
+                    console.log('✅ QueryBuilder executed successfully, found', result.data ? result.data.length : 0, 'products');
+                    
+                    // IMPORTANT: Populate categories after QueryBuilder execution
+                    if (result.data && Array.isArray(result.data)) {
+                        console.log('🔧 Populating categories...');
+                        result.data = await Product.populate(result.data, { path: 'category' });
+                        console.log('✅ Categories populated');
+                    }
+                    
+                    // Add review stats if requested
+                    if (req.query.includeReviewStats === 'true') {
+                        console.log('📊 Adding review statistics to QueryBuilder results...');
+                        result.data = await this.service.addReviewStatsToProducts(result.data);
+                        console.log('✅ Review stats added to', result.data.length, 'products');
+                    }
+                    
+                    console.log('📤 Sending QueryBuilder response...');
+                    ResponseHandler.success(res, MESSAGES.PRODUCTS_FETCHED, result);
+                    return;
+                } catch (queryError) {
+                    console.error('❌ QueryBuilder error:', queryError);
+                    console.log('🔄 Falling back to legacy service...');
+                    // Fall through to legacy method
                 }
-                
-                ResponseHandler.success(res, MESSAGES.PRODUCTS_FETCHED, result);
             } else {
-                console.log('🔥 Using legacy service for products (isOnSale filter or no QueryBuilder)');
-                // Fallback to legacy method if middleware not available or isOnSale filter used
-                const queryOptions = {
-                    page: req.query.page || PAGINATION.DEFAULT_PAGE,
-                    limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
-                    name: req.query.name,
-                    category: req.query.category,
-                    minPrice: req.query.minPrice,
-                    maxPrice: req.query.maxPrice,
-                    sortBy: req.query.sortBy || 'createdAt',
-                    sortOrder: req.query.sortOrder || 'desc',
-                    isOnSale: req.query.isOnSale
-                };
-                
-                // Apply admin sort
-                const sortConfig = AdminSortUtils.ensureAdminSort(req, 'Product');
-                queryOptions.sort = sortConfig;
-                
-                const result = await this.service.getAllProducts(queryOptions);
-                ResponseHandler.success(res, MESSAGES.PRODUCTS_FETCHED, result);
+                console.log('🔥 Using legacy service for products (special parameters detected)');
             }
+            
+            // Fallback to legacy method for special parameters like isOnSale, includeVariants
+            const queryOptions = {
+                page: req.query.page || PAGINATION.DEFAULT_PAGE,
+                limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
+                search: req.query.search,
+                category: req.query.category,
+                minPrice: req.query.minPrice,
+                maxPrice: req.query.maxPrice,
+                sortBy: req.query.sortBy || 'createdAt',
+                sortOrder: req.query.sortOrder || 'desc',
+                isOnSale: req.query.isOnSale,
+                includeVariants: req.query.includeVariants, // Support for variant population
+                includeReviewStats: req.query.includeReviewStats // Support for review statistics
+            };
+            
+            // Apply admin sort
+            const sortConfig = AdminSortUtils.ensureAdminSort(req, 'Product');
+            queryOptions.sort = sortConfig;
+            
+            const result = await this.service.getAllProducts(queryOptions);
+            ResponseHandler.success(res, MESSAGES.PRODUCTS_FETCHED, result);
         } catch (error) {
             console.error('❌ ProductController.getAllProducts error:', error.message);
             next(error);
@@ -177,7 +201,8 @@ class ProductController extends BaseController {
                 minPrice: req.query.minPrice,
                 maxPrice: req.query.maxPrice,
                 sortBy: req.query.sortBy,
-                sortOrder: req.query.sortOrder
+                sortOrder: req.query.sortOrder,
+                includeReviewStats: req.query.includeReviewStats || 'true' // Default to true for public display
             };
             
             const result = await this.service.getPublicProducts(queryOptions);
@@ -192,9 +217,10 @@ class ProductController extends BaseController {
         try {
             const { id } = req.params;
             const includeVariants = req.query.includeVariants;
+            const includeReviewStats = req.query.includeReviewStats || 'true'; // Default to true for public display
             
             // Use the same service method but ensure only public/active products
-            const product = await this.service.getProductById(id, includeVariants);
+            const product = await this.service.getProductById(id, includeVariants, includeReviewStats);
             
             // Ensure product is active and available for public display
             if (!product.isActive || product.isDeleted) {

@@ -18,10 +18,35 @@ class ReviewService extends BaseService {
    */
   async getProductReviewsWithQuery(queryParams) {
     try {
-      // Sử dụng QueryUtils với pre-configured setup cho Review
-      const result = await QueryUtils.getReviews(Review, queryParams);
+      // Use the correct getAll method instead of non-existent QueryUtils.getReviews
+      const options = {
+        page: parseInt(queryParams.page) || 1,
+        limit: parseInt(queryParams.limit) || 10,
+        filter: { product: queryParams.product },
+        populate: 'user order product',
+        sort: { createdAt: -1 }
+      };
+
+      // Add rating filter if specified
+      if (queryParams.rating) {
+        options.filter.rating = parseInt(queryParams.rating);
+      }
+
+      const result = await this.getAll(options);
       
-      return result;
+      // Debug: Log the dates of reviews being returned
+      if (result.documents && result.documents.length > 0) {
+        console.log('🔍 Review dates debug:');
+        result.documents.forEach((review, index) => {
+          console.log(`Review ${index + 1}: createdAt = ${review.createdAt}, updatedAt = ${review.updatedAt}`);
+        });
+      }
+      
+      // Transform response to expected format for frontend
+      return {
+        data: result.documents, // rename documents to data
+        pagination: result.pagination
+      };
     } catch (error) {
       throw new AppError(
         `Error fetching reviews: ${error.message}`,

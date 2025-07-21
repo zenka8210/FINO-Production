@@ -10,7 +10,11 @@ const ProductSchema = new mongoose.Schema({
   salePrice: { type: Number }, // Sale price (must be less than price)
   saleStartDate: { type: Date }, // Sale period start
   saleEndDate: { type: Date }, // Sale period end
-}, { timestamps: true });
+}, { 
+  timestamps: true,
+  toJSON: { virtuals: true }, // Include virtual fields when converting to JSON
+  toObject: { virtuals: true } // Include virtual fields when converting to Object
+});
 ProductSchema.virtual('variants', {
   ref: 'ProductVariant',
   localField: '_id',
@@ -19,9 +23,16 @@ ProductSchema.virtual('variants', {
 
 // Virtual for current effective price (considering sale)
 ProductSchema.virtual('currentPrice').get(function() {
-  if (this.salePrice && this.saleStartDate && this.saleEndDate) {
-    const now = new Date();
-    if (now >= this.saleStartDate && now <= this.saleEndDate) {
+  // If has explicit salePrice, check dates (if any)
+  if (this.salePrice && this.salePrice > 0 && this.salePrice < this.price) {
+    // If has date range, check it; otherwise assume active
+    if (this.saleStartDate && this.saleEndDate) {
+      const now = new Date();
+      if (now >= this.saleStartDate && now <= this.saleEndDate) {
+        return this.salePrice;
+      }
+    } else {
+      // No date restriction = permanent sale
       return this.salePrice;
     }
   }
@@ -30,9 +41,16 @@ ProductSchema.virtual('currentPrice').get(function() {
 
 // Virtual for checking if product is on sale
 ProductSchema.virtual('isOnSale').get(function() {
-  if (this.salePrice && this.saleStartDate && this.saleEndDate) {
-    const now = new Date();
-    return now >= this.saleStartDate && now <= this.saleEndDate && this.salePrice < this.price;
+  // If has explicit salePrice, check dates (if any)
+  if (this.salePrice && this.salePrice > 0 && this.salePrice < this.price) {
+    // If has date range, check it; otherwise assume active
+    if (this.saleStartDate && this.saleEndDate) {
+      const now = new Date();
+      return now >= this.saleStartDate && now <= this.saleEndDate;
+    } else {
+      // No date restriction = permanent sale
+      return true;
+    }
   }
   return false;
 });

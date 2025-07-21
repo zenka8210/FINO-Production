@@ -1,17 +1,4 @@
 /* Color Variables - Following Design System */
-:root {
-  --color-primary: #1E40AF;
-  --color-accent: #F59E0B;
-  --color-bg: #F9FAFB;
-  --color-text: #111827;
-  --color-muted: #9CA3AF;
-  --color-error: #DC2626;
-  --color-success: #10B981;
-  --font-heading: 'Poppins', sans-serif;
-  --font-body: 'Inter', sans-serif;
-  --radius-lg: 8px;
-  --radius-full: 9999px;
-}
 
 /* Product Detail Page Styles */
 .productDetail {
@@ -136,6 +123,32 @@
 
 .thumbnail.active {
   border-color: #3b82f6;
+}
+
+/* No Image Placeholder */
+.noImage {
+  width: 600px;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  color: #64748b;
+}
+
+.noImage svg {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 12px;
+  opacity: 0.6;
+}
+
+.noImage span {
+  font-size: 16px;
+  font-weight: 500;
 }
 
 /* Product Info Section */
@@ -876,4 +889,90 @@
   .features {
     grid-template-columns: 1fr;
   }
+}
+
+/* Quantity Control Styles */
+.quantityControl {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  width: fit-content;
+}
+
+.quantityBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 48px;
+  background: #f8f9fa;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--color-text);
+}
+
+.quantityBtn:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: white;
+}
+
+.quantityBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quantityInput {
+  width: 60px;
+  height: 48px;
+  border: none;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+  background: white;
+  outline: none;
+  
+  /* Hide number input spinners */
+  appearance: textfield;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+
+.quantityInput::-webkit-outer-spin-button,
+.quantityInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.quantitySection {
+  margin-top: 20px;
+}
+
+.stockSection {
+  margin: 20px 0;
+}
+
+.stockInfo {
+  margin-bottom: 10px;
+}
+
+.stockStatus {
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.stockStatus.inStock {
+  color: #10b981;
+  background: #10b98110;
+}
+
+.stockStatus.lowStock {
+  color: #f59e0b;
+  background: #f59e0b10;
 }

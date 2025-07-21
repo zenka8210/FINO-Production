@@ -1,10 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { ProductWithCategory } from '@/types';
-import { useCart, useWishlist } from '@/hooks';
+import { useState } from 'react';
+import { FaStar, FaRegStar } from 'react-icons/fa';
+import { ProductWithCategory, ProductVariantWithRefs } from '@/types';
+import { useCart, useWishlist, useApiNotification } from '@/hooks';
 import { formatCurrency } from '@/lib/utils';
 import { getProductPriceInfo } from '@/lib/productUtils';
+import { selectBestVariant, hasAvailableVariants } from '@/lib/variantUtils';
+import VariantCacheService from '@/services/variantCacheService';
 import styles from './ProductItem.module.css';
 
 interface ProductItemProps {
@@ -13,6 +17,9 @@ interface ProductItemProps {
   showQuickActions?: boolean;
   showDescription?: boolean;
   className?: string;
+  // Rating data props
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 export default function ProductItem({ 
@@ -20,25 +27,121 @@ export default function ProductItem({
   layout = 'grid',
   showQuickActions = true,
   showDescription = false,
-  className = ''
+  className = '',
+  averageRating,
+  reviewCount
 }: ProductItemProps) {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { showError } = useApiNotification();
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   
   const inWishlist = isInWishlist(product._id);
+  const variantCache = VariantCacheService.getInstance();
 
   // Get price info using utility function for consistent sale logic
   const { currentPrice, isOnSale, discountPercent } = getProductPriceInfo(product);
 
-  // Handle add to cart
+  // Get rating data from product object or props
+  const productRating = (product as any).averageRating || averageRating || 0;
+  const productReviewCount = (product as any).reviewCount || reviewCount || 0;
+
+  // Helper function to render stars
+  const renderStars = (rating: number, count: number) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+
+    for (let i = 1; i <= 5; i++) {
+      if (i <= fullStars) {
+        stars.push(<FaStar key={i} className={styles.starFilled} />);
+      } else if (i === fullStars + 1 && hasHalfStar) {
+        stars.push(<FaStar key={i} className={styles.starHalf} />);
+      } else {
+        stars.push(<FaRegStar key={i} className={styles.starEmpty} />);
+      }
+    }
+
+    return (
+      <div className={styles.ratingContainer}>
+        <div className={styles.stars}>
+          {stars}
+        </div>
+        <span className={styles.ratingText}>
+          {rating > 0 ? `${rating.toFixed(1)} (${count})` : 'Chưa có đánh giá'}
+        </span>
+      </div>
+    );
+  };
+
+  // Handle add to cart with lazy variant loading
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
+    if (isAddingToCart) return; // Prevent double clicks
+    
     try {
-      await addToCart(product._id, 1);
+      setIsAddingToCart(true);
+
+      // Check if product already has variants loaded (from product details page)
+      if (product.variants && product.variants.length > 0) {
+        console.log('📦 Using pre-loaded variants');
+        
+        // Check if there are available variants
+        if (!hasAvailableVariants(product.variants)) {
+          showError('Sản phẩm hiện tại hết hàng');
+          return;
+        }
+
+        // Use smart variant selection for automatic add-to-cart
+        const bestVariant = selectBestVariant(product.variants, {
+          strategy: 'smart',
+          preferredColorOrder: ['black', 'đen', 'white', 'trắng', 'blue', 'xanh dương', 'navy', 'xanh navy', 'gray', 'xám'],
+          preferredSizeOrder: ['M', 'L', 'XL', 'S', 'XXL', '39', '40', '41', '42', '43']
+        });
+
+        if (bestVariant) {
+          await addToCart(bestVariant._id, 1);
+        } else {
+          showError('Không tìm thấy phiên bản phù hợp');
+        }
+        return;
+      }
+
+      // Lazy load variants for products from listing pages
+      console.log('🔍 Lazy loading variants for product:', product._id);
+      const variants = await variantCache.getProductVariants(product._id);
+
+      if (!variants || variants.length === 0) {
+        showError('Sản phẩm chưa có phiên bản để mua');
+        return;
+      }
+
+      // Check if there are available variants
+      if (!hasAvailableVariants(variants)) {
+        showError('Sản phẩm hiện tại hết hàng');
+        return;
+      }
+
+      // Use smart variant selection
+      const bestVariant = selectBestVariant(variants, {
+        strategy: 'smart',
+        preferredColorOrder: ['black', 'đen', 'white', 'trắng', 'blue', 'xanh dương', 'navy', 'xanh navy', 'gray', 'xám'],
+        preferredSizeOrder: ['M', 'L', 'XL', 'S', 'XXL', '39', '40', '41', '42', '43']
+      });
+
+      if (bestVariant) {
+        await addToCart(bestVariant._id, 1);
+      } else {
+        showError('Không tìm thấy phiên bản phù hợp');
+      }
+
     } catch (error) {
       console.error('Add to cart error:', error);
+      showError('Có lỗi xảy ra khi thêm vào giỏ hàng');
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -117,19 +220,34 @@ export default function ProductItem({
               <button
                 className={styles.actionBtn}
                 onClick={handleAddToCart}
+                disabled={isAddingToCart}
                 title="Thêm vào giỏ hàng"
                 aria-label="Thêm vào giỏ hàng"
               >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h8a2 2 0 002-2v-6" />
-                </svg>
+                {isAddingToCart ? (
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className={styles.spinner}
+                  >
+                    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c.93 0 1.83.14 2.68.41" />
+                  </svg>
+                ) : (
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h8a2 2 0 002-2v-6" />
+                  </svg>
+                )}
               </button>
             </div>
           )}
@@ -155,6 +273,9 @@ export default function ProductItem({
             >
               {product.name}
             </h3>
+
+            {/* Rating display */}
+            {renderStars(productRating, productReviewCount)}
             
             {/* Description (only for list layout) */}
             {showDescription && layout === 'list' && product.description && (
@@ -182,11 +303,23 @@ export default function ProductItem({
             <button
               className={styles.ctaButton}
               onClick={handleAddToCart}
+              disabled={isAddingToCart}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h8a2 2 0 002-2v-6" />
-              </svg>
-              Mua ngay
+              {isAddingToCart ? (
+                <>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.spinner}>
+                    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c.93 0 1.83.14 2.68.41" />
+                  </svg>
+                  Đang thêm...
+                </>
+              ) : (
+                <>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h8a2 2 0 002-2v-6" />
+                  </svg>
+                  Mua ngay
+                </>
+              )}
             </button>
           </div>
         </div>

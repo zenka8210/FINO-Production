@@ -25,8 +25,7 @@ const CartSchema = new mongoose.Schema({
   orderCode: { 
     type: String, 
     unique: true, 
-    sparse: true, // Only for orders, not carts
-    index: true // Optimize search like OrderSchema
+    sparse: true // Only for orders, not carts
   },
   
   // Items - same structure as Order
@@ -67,7 +66,6 @@ const CartSchema = new mongoose.Schema({
 CartSchema.index({ user: 1, type: 1 }); // Find user's cart/orders
 CartSchema.index({ user: 1, createdAt: -1 }); // User order history
 CartSchema.index({ status: 1 }); // Filter by status
-CartSchema.index({ orderCode: 1 }); // Quick order lookup
 CartSchema.index({ createdAt: -1 }); // Recent items first
 
 // Pre-save middleware to calculate totals - same logic as OrderSchema

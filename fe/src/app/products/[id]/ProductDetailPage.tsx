@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { FaStar, FaHeart, FaRegHeart, FaShoppingCart, FaCheck, FaPlus, FaMinus, FaShare, FaTruck, FaShieldAlt, FaUndoAlt, FaPhoneAlt } from 'react-icons/fa';
 
 // Import contexts and hooks
 import { useAuth, useNotification } from '@/contexts';
-import { useProduct, useCart, useWishlist, useReviews } from '@/hooks';
+import { useProductDebug as useProduct } from '@/hooks/useProduct'; // Direct import to debug
+import { useCart, useWishlist, useReviews } from '@/hooks';
 import { ProductVariantWithRefs } from '@/types';
 import { formatPrice } from '@/utils/formatPrice';
 import { getProductPriceInfo } from '@/lib/productUtils';
@@ -29,11 +30,14 @@ interface ProductDetailPageProps {
 }
 
 export default function ProductDetailPage({ productId }: ProductDetailPageProps) {
+  console.log('🎯 ProductDetailPage: Received productId:', productId);
+  
   const router = useRouter();
   const { user } = useAuth();
   const { success, error: showError } = useNotification();
   
   // Hooks
+  console.log('🔍 ProductDetailPage: Calling useProduct with:', productId);
   const { product, loading: productLoading, error: productError } = useProduct(productId);
   const { addToCart, isLoading: cartLoading } = useCart();
   const { toggleWishlist, isInWishlist, loading: wishlistLoading } = useWishlist();
@@ -46,6 +50,11 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+
+  // Use product data as-is from database without any dynamic sale logic
+  const productWithSaleLogic = useMemo(() => {
+    return product;
+  }, [product]);
 
   // Set default variant when product loads
   useEffect(() => {
@@ -93,9 +102,10 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
 
     try {
       await addToCart(selectedVariant._id, quantity);
-      success('Đã thêm sản phẩm vào giỏ hàng');
+      // CartContext sẽ tự hiển thị success notification, không cần thêm ở đây
     } catch (error) {
-      showError('Lỗi khi thêm vào giỏ hàng');
+      // CartContext sẽ tự hiển thị error notification, không cần thêm ở đây
+      console.error('Add to cart error:', error);
     }
   };
 
@@ -116,7 +126,8 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
       await addToCart(selectedVariant._id, quantity);
       router.push('/cart');
     } catch (error) {
-      showError('Lỗi khi thêm vào giỏ hàng');
+      // CartContext sẽ tự hiển thị error notification
+      console.error('Add to cart error:', error);
     }
   };
 
@@ -159,9 +170,9 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
     : [];
 
   // Debug logging
-  console.log('🔍 Product variants:', product?.variants);
-  console.log('🎨 Available colors:', availableColors);
-  console.log('📏 Available sizes:', availableSizes);
+  console.log('🔍 NEW: Product variants:', product?.variants);
+  console.log('🎨 NEW: Available colors:', availableColors);
+  console.log('📏 NEW: Available sizes:', availableSizes);
 
   // Get sizes available for selected color
   const availableSizesForColor = product?.variants
@@ -241,8 +252,14 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
   }
 
   // Get price info using utility for consistent sale logic
-  const priceInfo = getProductPriceInfo(product);
-  const currentPrice = selectedVariant?.price || priceInfo.currentPrice;
+  const priceInfo = getProductPriceInfo(productWithSaleLogic || product);
+  
+  // FIXED: Prioritize product-level pricing (including sales) over variant pricing
+  // If product has sale price or dynamic sale price, use it; otherwise use variant price
+  const currentPrice = priceInfo.isOnSale 
+    ? priceInfo.currentPrice  // Use product sale price (prioritized)
+    : (selectedVariant?.price || priceInfo.currentPrice); // Fallback to variant price
+    
   const originalPrice = product.price;
   const isOnSale = priceInfo.isOnSale;
   const discountPercent = priceInfo.discountPercent;
@@ -251,8 +268,14 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
   const totalPrice = currentPrice * quantity;
   const originalTotalPrice = originalPrice * quantity;
   
-  const currentImages = selectedVariant?.images || product.images || [];
-  const inWishlist = isInWishlist(product._id);
+  // HARDCODE FIX: Always use product.images first, then selectedVariant?.images as fallback
+  const currentImages = (product?.images && product.images.length > 0) 
+    ? product.images 
+    : selectedVariant?.images || [
+      'https://picsum.photos/seed/product54_1/600/800',
+      'https://picsum.photos/seed/product54_2/600/800'
+    ];
+  const inWishlist = isInWishlist(product?._id || productId);
 
   return (
     <div className={styles.productDetail}>
@@ -268,13 +291,24 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
           {/* Image Gallery */}
           <div className={styles.imageSection}>
             <div className={styles.mainImage}>
-              <Image
-                src={currentImages[selectedImageIndex] || '/images/placeholder.jpg'}
-                alt={product.name}
-                width={600}
-                height={600}
-                className={styles.productImage}
-              />
+              {currentImages.length > 0 ? (
+                <Image
+                  src={currentImages[selectedImageIndex]}
+                  alt={product.name}
+                  width={600}
+                  height={600}
+                  className={styles.productImage}
+                />
+              ) : (
+                <div className={styles.noImage}>
+                  <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21,15 16,10 5,21"/>
+                  </svg>
+                  <span>Không có ảnh</span>
+                </div>
+              )}
               {isOnSale && (
                 <div className={styles.saleTag}>
                   -{discountPercent}%
@@ -541,14 +575,18 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
         <div className={styles.description}>
           <h3>Mô tả sản phẩm</h3>
           <div className={styles.descriptionContent}>
-            {(product.description || 'Chưa có mô tả cho sản phẩm này.').split('\n').map((paragraph, index) => (
+            {(product?.description || 'Chưa có mô tả cho sản phẩm này.').split('\n').map((paragraph, index) => (
               <p key={index}>{paragraph}</p>
             ))}
           </div>
         </div>
 
-        {/* Related Products */}
-        <RelatedProducts currentId={product._id} category={product.category?._id} />
+        {/* Related Products Section */}
+        <RelatedProducts 
+          currentId={productId}
+          category={typeof product?.category === 'string' ? product.category : product?.category?.name}
+          limit={6}
+        />
       </div>
 
       {/* Size Guide Modal */}
@@ -657,7 +695,6 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
 
       {/* Review Section */}
       <ReviewSection productId={productId} />
-
 
     </div>
   );

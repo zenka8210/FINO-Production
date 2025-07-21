@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { postService } from '@/services';
 import { Post } from '@/types';
-import styles from './BlogSection.module.css';
+import styles from './News.module.css';
 
 interface BlogPost {
   id: number;

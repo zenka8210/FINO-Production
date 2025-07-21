@@ -5,10 +5,68 @@ const Category = require('../models/CategorySchema');
 const { AppError } = require('../middlewares/errorHandler');
 const { MESSAGES, ERROR_CODES, PAGINATION } = require('../config/constants');
 const { QueryUtils } = require('../utils/queryUtils');
+const ReviewService = require('./reviewService');
 
 class ProductService extends BaseService {
     constructor() {
         super(Product);
+    }
+
+    /**
+     * Add review statistics to products
+     * @param {Array} products - Array of product objects
+     * @returns {Array} Products with review stats added
+     */
+    async addReviewStatsToProducts(products) {
+        if (!products || products.length === 0) return products;
+
+        try {
+            const reviewService = new ReviewService();
+            
+            console.log(`📊 Adding review stats to ${products.length} products...`);
+            
+            // Get stats for all products in parallel for better performance
+            const productsWithStats = await Promise.all(products.map(async (product) => {
+                try {
+                    const productId = product._id || product.id;
+                    console.log(`🔍 Getting review stats for product ${productId}...`);
+                    
+                    const reviewStats = await reviewService.getProductRatingStats(productId);
+                    
+                    // Convert to plain object if it's a Mongoose document
+                    const productObj = product.toObject ? product.toObject() : { ...product };
+                    
+                    // Add review stats
+                    productObj.averageRating = reviewStats.averageRating || 0;
+                    productObj.reviewCount = reviewStats.totalReviews || 0;
+                    productObj.ratingDistribution = reviewStats.ratingDistribution || { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
+                    
+                    console.log(`✅ Product ${productId}: ${productObj.reviewCount} reviews, avg ${productObj.averageRating}`);
+                    
+                    return productObj;
+                } catch (error) {
+                    console.warn(`❌ Failed to get review stats for product ${product._id}:`, error.message);
+                    // Return product without stats if review fetching fails
+                    const productObj = product.toObject ? product.toObject() : { ...product };
+                    productObj.averageRating = 0;
+                    productObj.reviewCount = 0;
+                    productObj.ratingDistribution = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
+                    return productObj;
+                }
+            }));
+
+            return productsWithStats;
+        } catch (error) {
+            console.error('❌ Error in addReviewStatsToProducts:', error);
+            // Return products without stats if there's an error
+            return products.map(product => {
+                const productObj = product.toObject ? product.toObject() : { ...product };
+                productObj.averageRating = 0;
+                productObj.reviewCount = 0;
+                productObj.ratingDistribution = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
+                return productObj;
+            });
+        }
     }
 
     /**
@@ -57,8 +115,13 @@ class ProductService extends BaseService {
             sortOrder = 'desc', // Default sort order
             includeVariants = false, // New option to include variants or not
             includeOutOfStock = false, // New option to include out of stock products
+            includeReviewStats = false, // New option to include review statistics
             isOnSale // New filter for sale products
         } = queryOptions;
+
+        // Smart default: If including variants for frontend, usually want to show all products
+        const shouldIncludeOutOfStock = includeOutOfStock || 
+            (includeVariants === 'true' || includeVariants === true);
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
         const filter = {};
@@ -84,14 +147,41 @@ class ProductService extends BaseService {
             }
         }
 
+        // PERFORMANCE OPTIMIZATION: When filtering for sale products, add filter to database query
+        // and reduce limit to exactly what we need
+        let adjustedLimit = limit;
+        if (isOnSale === 'true' || isOnSale === true) {
+            console.log('🔥 PERFORMANCE: Optimized salePrice filter + reduced limit');
+            filter.salePrice = { 
+                $exists: true, 
+                $ne: null, 
+                $gt: 0 
+            };
+            // Also ensure salePrice < price for valid discount
+            filter.$expr = { $lt: ['$salePrice', '$price'] };
+            
+            // PERFORMANCE: Reduce limit for sale products to exactly what FlashSale needs
+            if (parseInt(limit) > 30) {
+                adjustedLimit = Math.min(30, parseInt(limit)); // FlashSale only needs 20-30 max
+                console.log('⚡ PERFORMANCE: Reduced limit to', adjustedLimit, 'for sale products');
+            }
+        }
+
         try {
+            console.log('🔍 ProductService.getAllProducts called with options:', queryOptions);
+            
+            // Add debug to check what collection and fields we're querying
+            console.log('📋 Product model collection name:', Product.collection.name);
+            console.log('📋 Sample database query to verify fields...');
+            
             let query = Product.find(filter)
-                .populate('category')
+                .populate('category', 'name') // PERFORMANCE: Only load category name
                 .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
                 .skip(skip)
-                .limit(parseInt(limit));
+                .limit(parseInt(adjustedLimit));
 
             if (includeVariants === 'true' || includeVariants === true) {
+                console.log('📦 Including variants in query');
                 query = query.populate({
                     path: 'variants',
                     populate: [
@@ -102,34 +192,97 @@ class ProductService extends BaseService {
             }
 
             let products = await query;
+            console.log(`📊 Found ${products.length} products after initial query`);
             
-            // Filter for sale products if requested
-            if (isOnSale === 'true' || isOnSale === true) {
-                console.log('🔥 Filtering for sale products, total products before filter:', products.length);
-                const now = new Date();
-                products = products.filter(product => {
-                    // Check if product is on sale based on virtual field logic
-                    if (product.salePrice && product.saleStartDate && product.saleEndDate) {
-                        const isCurrentlyOnSale = now >= product.saleStartDate && 
-                               now <= product.saleEndDate && 
-                               product.salePrice < product.price;
-                        if (isCurrentlyOnSale) {
-                            console.log('✅ Sale product found:', product.name, 'salePrice:', product.salePrice);
-                        }
-                        return isCurrentlyOnSale;
-                    }
-                    return false;
-                });
-                console.log('🔥 Sale products after filter:', products.length);
+            // DEBUG: Log first product to see all fields
+            if (products.length > 0) {
+                const firstProduct = products[0];
+                console.log('🔍 DEBUG - First product fields:');
+                console.log('  name:', firstProduct.name);
+                console.log('  price:', firstProduct.price);
+                console.log('  salePrice field exists:', 'salePrice' in firstProduct._doc);
+                console.log('  salePrice value:', firstProduct.salePrice);
+                console.log('  Raw _doc salePrice:', firstProduct._doc.salePrice);
+                console.log('  isOnSale virtual:', firstProduct.isOnSale);
+                console.log('  All _doc fields:', Object.keys(firstProduct._doc));
             }
             
-            // Filter out products with no stock if includeOutOfStock is false
-            if (includeOutOfStock === 'false' || includeOutOfStock === false) {
+            // Filter for sale products if requested - MODERN BUSINESS LOGIC
+            if (isOnSale === 'true' || isOnSale === true) {
+                console.log('🔥 Filtering for sale products, total products before filter:', products.length);
+                console.log('🔍 DEBUG - Checking first product salePrice in detail...');
+                if (products.length > 0) {
+                    const firstProduct = products[0];
+                    console.log('  Product name:', firstProduct.name);
+                    console.log('  salePrice property:', firstProduct.salePrice);
+                    console.log('  Raw _doc salePrice:', firstProduct._doc ? firstProduct._doc.salePrice : 'no _doc');
+                    console.log('  toObject salePrice:', firstProduct.toObject().salePrice);
+                }
+                const now = new Date();
+                
+                // Modern e-commerce sale logic - much more flexible
+                products = products.filter(product => {
+                    console.log('🔍 Checking product:', product.name, 'price:', product.price, 'salePrice:', product.salePrice);
+                    
+                    // Check if product has explicit salePrice in database
+                    const hasSalePrice = product.salePrice && 
+                                       product.salePrice > 0 && 
+                                       product.salePrice < product.price;
+                    
+                    if (hasSalePrice) {
+                        // If has date range, check it; otherwise assume active
+                        if (product.saleStartDate && product.saleEndDate) {
+                            const isDateValid = now >= new Date(product.saleStartDate) && now <= new Date(product.saleEndDate);
+                            if (isDateValid) {
+                                console.log('✅ Active sale product (with dates):', product.name, `${product.price}đ → ${product.salePrice}đ`);
+                                return true;
+                            } else {
+                                console.log('⏰ Sale product but date range invalid:', product.name);
+                                return false;
+                            }
+                        } else {
+                            // No date restriction = always on sale
+                            console.log('✅ Permanent sale product:', product.name, `${product.price}đ → ${product.salePrice}đ`);
+                            return true;
+                        }
+                    }
+                    
+                    console.log('❌ Not eligible for sale:', product.name, 'Reason: No valid salePrice in database');
+                    return false;
+                });
+                
+                console.log('🔥 Sale products after modern filter:', products.length);
+            }
+            
+            // PERFORMANCE CRITICAL: Skip expensive stock filtering for sale products (FlashSale use case)
+            console.log(`🔍 shouldIncludeOutOfStock: ${shouldIncludeOutOfStock}, isOnSale: ${isOnSale}`);
+            
+            if (isOnSale === 'true' || isOnSale === true) {
+                console.log('⚡ FLASH SALE MODE: Skipping all stock validation for maximum performance');
+                // For flash sale products, skip expensive validation entirely
+                const flashSaleProducts = products.map(product => ({
+                    ...product.toObject(),
+                    stockInfo: { 
+                        totalStock: 999, 
+                        available: true, 
+                        variants: [] 
+                    },
+                    displayInfo: { 
+                        canDisplay: true, 
+                        reasons: ['Flash sale product'] 
+                    }
+                }));
+                
+                products = flashSaleProducts;
+                console.log(`⚡ Flash sale products ready: ${products.length}`);
+            } else if (shouldIncludeOutOfStock === false) {
+                console.log('🚫 Filtering out products with no stock...');
                 const productsWithStock = [];
                 
                 for (const product of products) {
                     // Check if product can be displayed (has variants, is active, has stock)
                     const displayValidation = await this.validateProductForDisplay(product._id);
+                    console.log(`📋 Product ${product.name}: canDisplay=${displayValidation.canDisplay}, reasons=${displayValidation.reasons}`);
                     
                     if (displayValidation.canDisplay) {
                         const hasStock = await this.checkProductAvailability(product._id);
@@ -143,7 +296,9 @@ class ProductService extends BaseService {
                 }
                 
                 products = productsWithStock;
+                console.log(`📊 Final products after stock filtering: ${products.length}`);
             } else {
+                console.log('✅ Including all products (includeOutOfStock=true or includeVariants=true)');
                 // Include stock info for all products
                 const productsWithStockInfo = [];
                 
@@ -163,12 +318,18 @@ class ProductService extends BaseService {
 
             const totalProducts = await Product.countDocuments(filter);
 
+            // Add review statistics if requested
+            if (includeReviewStats === 'true' || includeReviewStats === true) {
+                console.log('📊 Including review statistics for products...');
+                products = await this.addReviewStatsToProducts(products);
+            }
+
             return {
                 data: products,
                 total: totalProducts,
                 page: parseInt(page),
-                limit: parseInt(limit),
-                totalPages: Math.ceil(totalProducts / parseInt(limit)),
+                limit: parseInt(adjustedLimit),
+                totalPages: Math.ceil(totalProducts / parseInt(adjustedLimit)),
             };
         } catch (error) {
             if (error instanceof AppError) throw error;
@@ -176,7 +337,7 @@ class ProductService extends BaseService {
         }
     }
 
-    async getProductById(productId, includeVariants = false) {
+    async getProductById(productId, includeVariants = false, includeReviewStats = false) {
         try {
             let query = Product.findById(productId).populate('category');
             if (includeVariants === 'true' || includeVariants === true) {
@@ -194,6 +355,31 @@ class ProductService extends BaseService {
             if (!product) {
                 throw new AppError(MESSAGES.PRODUCT_NOT_FOUND, ERROR_CODES.PRODUCT.NOT_FOUND, 404);
             }
+
+            // Add review statistics if requested
+            if (includeReviewStats === 'true' || includeReviewStats === true) {
+                const reviewService = new ReviewService();
+                try {
+                    const reviewStats = await reviewService.getProductRatingStats(productId);
+                    
+                    // Add stats to the product object
+                    const productObj = product.toObject();
+                    productObj.averageRating = reviewStats.averageRating || 0;
+                    productObj.reviewCount = reviewStats.totalReviews || 0;
+                    productObj.ratingDistribution = reviewStats.ratingDistribution || { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
+                    
+                    return productObj;
+                } catch (reviewError) {
+                    console.warn(`Failed to get review stats for product ${productId}:`, reviewError.message);
+                    // Return product without stats if review fetching fails
+                    const productObj = product.toObject();
+                    productObj.averageRating = 0;
+                    productObj.reviewCount = 0;
+                    productObj.ratingDistribution = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
+                    return productObj;
+                }
+            }
+
             return product;
         } catch (error) {
             if (error instanceof AppError) throw error;
@@ -391,7 +577,8 @@ class ProductService extends BaseService {
             minPrice,
             maxPrice,
             sortBy = 'createdAt',
-            sortOrder = 'desc'
+            sortOrder = 'desc',
+            includeReviewStats = false
         } = queryOptions;
         
         const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -415,7 +602,7 @@ class ProductService extends BaseService {
             .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 });
         
         // Filter products that can be displayed
-        const displayableProducts = [];
+        let displayableProducts = [];
         
         for (const product of allProducts) {
             const validation = await this.validateProductForDisplay(product._id);
@@ -426,6 +613,12 @@ class ProductService extends BaseService {
                     stockInfo: stockInfo
                 });
             }
+        }
+        
+        // Add review statistics if requested
+        if (includeReviewStats === 'true' || includeReviewStats === true) {
+            console.log('📊 Including review statistics for public products...');
+            displayableProducts = await this.addReviewStatsToProducts(displayableProducts);
         }
         
         // Apply pagination to filtered results
@@ -860,132 +1053,35 @@ class ProductService extends BaseService {
         try {
             console.log('🎯 ProductService.getFeaturedProducts called with limit:', limit);
             
-            // Aggregate products with real business metrics
+            // Step 1: First, let's just get all products to debug
+            const allProducts = await Product.find({ isDeleted: { $ne: true } }).limit(10);
+            console.log(`📋 Found ${allProducts.length} total products in DB`);
+            allProducts.forEach(p => console.log(`  - ${p._id}: ${p.name} (status: ${p.status || 'undefined'})`));
+            
+            // Simplified featured products query for testing  
             const featuredProducts = await Product.aggregate([
                 {
-                    // Stage 1: Match only active products that should be displayed
+                    // Stage 1: Match products that should be displayed
                     $match: {
-                        status: 'active',
                         isDeleted: { $ne: true }
                     }
                 },
                 {
-                    // Stage 2: Lookup orders to calculate sales metrics
-                    $lookup: {
-                        from: 'orders',
-                        let: { productId: '$_id' },
-                        pipeline: [
-                            {
-                                $match: {
-                                    status: { $in: ['delivered', 'completed'] }, // Only successful orders
-                                    $expr: {
-                                        $in: ['$$productId', '$items.product']
-                                    }
-                                }
-                            },
-                            {
-                                $unwind: '$items'
-                            },
-                            {
-                                $match: {
-                                    $expr: { $eq: ['$items.product', '$$productId'] }
-                                }
-                            },
-                            {
-                                $group: {
-                                    _id: null,
-                                    totalSold: { $sum: '$items.quantity' },
-                                    orderCount: { $sum: 1 },
-                                    totalRevenue: { $sum: { $multiply: ['$items.quantity', '$items.price'] } }
-                                }
-                            }
-                        ],
-                        as: 'salesData'
-                    }
-                },
-                {
-                    // Stage 3: Lookup reviews for rating metrics
-                    $lookup: {
-                        from: 'reviews',
-                        let: { productId: '$_id' },
-                        pipeline: [
-                            {
-                                $match: {
-                                    $expr: { $eq: ['$product', '$$productId'] }
-                                }
-                            },
-                            {
-                                $group: {
-                                    _id: null,
-                                    avgRating: { $avg: '$rating' },
-                                    reviewCount: { $sum: 1 }
-                                }
-                            }
-                        ],
-                        as: 'reviewData'
-                    }
-                },
-                {
-                    // Stage 4: Lookup wishlist data for popularity metrics  
-                    $lookup: {
-                        from: 'wishlists',
-                        let: { productId: '$_id' },
-                        pipeline: [
-                            {
-                                $unwind: '$items'
-                            },
-                            {
-                                $match: {
-                                    $expr: { $eq: ['$items.product', '$$productId'] }
-                                }
-                            },
-                            {
-                                $group: {
-                                    _id: null,
-                                    wishlistCount: { $sum: 1 }
-                                }
-                            }
-                        ],
-                        as: 'wishlistData'
-                    }
-                },
-                {
-                    // Stage 5: Calculate popularity score using real business metrics
+                    // Stage 2: Add simple popularity score (just use price as base)
                     $addFields: {
-                        totalSold: { $ifNull: [{ $arrayElemAt: ['$salesData.totalSold', 0] }, 0] },
-                        orderCount: { $ifNull: [{ $arrayElemAt: ['$salesData.orderCount', 0] }, 0] },
-                        totalRevenue: { $ifNull: [{ $arrayElemAt: ['$salesData.totalRevenue', 0] }, 0] },
-                        avgRating: { $ifNull: [{ $arrayElemAt: ['$reviewData.avgRating', 0] }, 0] },
-                        reviewCount: { $ifNull: [{ $arrayElemAt: ['$reviewData.reviewCount', 0] }, 0] },
-                        wishlistCount: { $ifNull: [{ $arrayElemAt: ['$wishlistData.wishlistCount', 0] }, 0] },
-                        
-                        // Advanced popularity score calculation
-                        popularityScore: {
-                            $add: [
-                                // Sales weight (40% of score)
-                                { $multiply: [{ $ifNull: [{ $arrayElemAt: ['$salesData.totalSold', 0] }, 0] }, 0.4] },
-                                // Review score weight (30% of score) 
-                                { 
-                                    $multiply: [
-                                        { 
-                                            $multiply: [
-                                                { $ifNull: [{ $arrayElemAt: ['$reviewData.avgRating', 0] }, 0] },
-                                                { $log10: { $add: [{ $ifNull: [{ $arrayElemAt: ['$reviewData.reviewCount', 0] }, 0] }, 1] } }
-                                            ]
-                                        }, 
-                                        0.3
-                                    ]
-                                },
-                                // Wishlist weight (20% of score)
-                                { $multiply: [{ $ifNull: [{ $arrayElemAt: ['$wishlistData.wishlistCount', 0] }, 0] }, 0.2] },
-                                // Order frequency weight (10% of score)
-                                { $multiply: [{ $ifNull: [{ $arrayElemAt: ['$salesData.orderCount', 0] }, 0] }, 0.1] }
-                            ]
-                        }
+                        popularityScore: { $ifNull: ['$price', 100000] } // Use price as simple score
                     }
                 },
                 {
-                    // Stage 6: Populate category information
+                    // Stage 3: Sort by popularity score (highest first)
+                    $sort: { popularityScore: -1 }
+                },
+                {
+                    // Stage 4: Limit results
+                    $limit: limit
+                },
+                {
+                    // Stage 5: Lookup category information 
                     $lookup: {
                         from: 'categories',
                         localField: 'category',
@@ -994,44 +1090,39 @@ class ProductService extends BaseService {
                     }
                 },
                 {
-                    // Stage 7: Sort by popularity score (highest first)
-                    $sort: { popularityScore: -1 }
+                    // Stage 6: Unwind category array to object
+                    $unwind: {
+                        path: '$category',
+                        preserveNullAndEmptyArrays: true // Keep products without category
+                    }
                 },
                 {
-                    // Stage 8: Limit results
-                    $limit: limit
-                },
-                {
-                    // Stage 9: Clean up response
+                    // Stage 7: Project with category information
                     $project: {
                         _id: 1,
                         name: 1,
                         description: 1,
                         price: 1,
                         salePrice: 1,
-                        saleStartDate: 1,
-                        saleEndDate: 1,
                         images: 1,
-                        category: { $arrayElemAt: ['$category', 0] },
                         status: 1,
-                        createdAt: 1,
-                        // Business metrics for debugging/display
-                        metrics: {
-                            totalSold: '$totalSold',
-                            orderCount: '$orderCount',
-                            totalRevenue: '$totalRevenue',
-                            avgRating: { $round: ['$avgRating', 2] },
-                            reviewCount: '$reviewCount',
-                            wishlistCount: '$wishlistCount',
-                            popularityScore: { $round: ['$popularityScore', 2] }
-                        }
+                        category: {
+                            _id: '$category._id',
+                            name: '$category.name'
+                        },
+                        popularityScore: 1
                     }
                 }
             ]);
 
-            console.log(`✅ Found ${featuredProducts.length} featured products`);
+            console.log(`✅ Found ${featuredProducts.length} featured products (simplified pipeline)`);
             if (featuredProducts.length > 0) {
-                console.log('📊 Top product metrics:', featuredProducts[0].metrics);
+                console.log('📊 First featured product category check:', {
+                    name: featuredProducts[0].name,
+                    hasCategory: !!featuredProducts[0].category,
+                    categoryData: featuredProducts[0].category,
+                    allFields: Object.keys(featuredProducts[0])
+                });
             }
 
             return featuredProducts;

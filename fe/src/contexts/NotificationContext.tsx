@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useReducer } from 'react';
 import { NotificationContextType, Notification } from '@/types';
+import { translateMessage, translateError, translateSuccess } from '@/lib/messageTranslator';
 
 interface NotificationState {
   notifications: Notification[];
@@ -52,6 +53,8 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     const newNotification: Notification = {
       ...notification,
       id,
+      title: translateMessage(notification.title),
+      message: notification.message ? translateMessage(notification.message) : undefined,
       duration: notification.duration ?? 5000,
     };
     
@@ -78,8 +81,8 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
   const success = (title: string, message?: string, options?: Partial<Notification>): string => {
     return addNotification({
       type: 'success',
-      title,
-      message,
+      title: translateSuccess(title),
+      message: message ? translateSuccess(message) : undefined,
       ...options,
     });
   };
@@ -87,8 +90,8 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
   const error = (title: string, message?: string, options?: Partial<Notification>): string => {
     return addNotification({
       type: 'error',
-      title,
-      message,
+      title: translateError(title),
+      message: message ? translateError(message) : undefined,
       persistent: true,
       ...options,
     });
@@ -97,8 +100,8 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
   const warning = (title: string, message?: string, options?: Partial<Notification>): string => {
     return addNotification({
       type: 'warning',
-      title,
-      message,
+      title: translateMessage(title),
+      message: message ? translateMessage(message) : undefined,
       ...options,
     });
   };
@@ -106,8 +109,8 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
   const info = (title: string, message?: string, options?: Partial<Notification>): string => {
     return addNotification({
       type: 'info',
-      title,
-      message,
+      title: translateMessage(title),
+      message: message ? translateMessage(message) : undefined,
       ...options,
     });
   };

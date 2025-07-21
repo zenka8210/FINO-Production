@@ -51,6 +51,20 @@ export function useProducts() {
     }
   }, []);
 
+  const getProductsWithVariants = useCallback(async (filters?: ProductFilters): Promise<PaginatedResponse<ProductWithCategory>> => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await productService.getProductsWithVariants(filters);
+      return response;
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const getProductById = useCallback(async (id: string): Promise<ProductWithCategory> => {
     try {
       setLoading(true);
@@ -115,6 +129,7 @@ export function useProducts() {
     loading,
     error,
     getProducts,
+    getProductsWithVariants,
     getProductById,
     getProductsByCategory,
     searchProducts,

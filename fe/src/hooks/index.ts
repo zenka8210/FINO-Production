@@ -8,11 +8,17 @@ export { useNotifications } from './useNotifications';
 export { useProductFilters } from './useProducts';
 export { useCurrentOrder } from './useOrders';
 
+// ============= UTILITY HOOKS (HELPERS) =============
+// Utility hooks for API notifications and other helper functions
+
+export { useApiNotification } from './useApiNotification';
+
 // ============= SERVICE UTILITY HOOKS (NO GLOBAL STATE) =============
 // These hooks are utilities for service calls without storing global state
 
 export { useProduct } from './useProduct';
 export { useProducts, useProductAdmin } from './useProducts';
+export { useProductStats } from './useProductStats';
 export { useRelatedProducts } from './useRelatedProducts';
 export { useOrders } from './useOrders';
 export { useCategories } from './useCategories';

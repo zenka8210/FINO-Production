@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react';
 import { ProductWithCategory } from '../../types';
-import { useCart, useNotifications } from '../../hooks';
+import { useCart } from '../../hooks';
 import styles from './AddToCart.module.css';
 
 interface AddToCartProps {
@@ -11,7 +11,6 @@ interface AddToCartProps {
 export default function AddToCart({ product }: AddToCartProps) {
     const [quantity, setQuantity] = useState(1);
     const { addToCart: addToCartFn, isLoading } = useCart();
-    const { success, error } = useNotifications();
 
     const addToCart = async () => {
         try {
@@ -19,12 +18,13 @@ export default function AddToCart({ product }: AddToCartProps) {
             // Tạm thời sử dụng product đầu tiên
             if (product.variants && product.variants.length > 0) {
                 await addToCartFn(product.variants[0]._id, quantity);
-                success('Thành công', 'Đã thêm vào giỏ hàng!');
+                // Note: CartContext đã hiển thị notification, không cần thêm ở đây
             } else {
-                error('Lỗi', 'Sản phẩm chưa có variant!');
+                throw new Error('Sản phẩm chưa có variant!');
             }
         } catch (err) {
-            error('Lỗi', 'Có lỗi khi thêm vào giỏ hàng!');
+            // CartContext sẽ hiển thị error notification qua showError
+            console.error('Add to cart error:', err);
         }
     };
 

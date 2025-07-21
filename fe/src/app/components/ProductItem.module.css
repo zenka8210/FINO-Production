@@ -87,6 +87,40 @@
   margin-top: 1rem;
 }
 
+/* Rating Styles */
+.ratingContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+}
+
+.starFilled {
+  color: #fbbf24; /* Yellow */
+  font-size: 0.875rem;
+}
+
+.starHalf {
+  color: #fbbf24; /* Yellow */
+  font-size: 0.875rem;
+}
+
+.starEmpty {
+  color: #d1d5db; /* Gray */
+  font-size: 0.875rem;
+}
+
+.ratingText {
+  font-size: 0.75rem;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
 /* Image Section */
 .imageWrapper {
   position: relative;

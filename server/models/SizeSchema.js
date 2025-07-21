@@ -36,9 +36,6 @@ const SizeSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-// Index để đảm bảo uniqueness và tối ưu query
-SizeSchema.index({ name: 1 });
-
 // Pre-save hook để chuẩn hóa tên size
 SizeSchema.pre('save', function(next) {
   if (this.isModified('name')) {

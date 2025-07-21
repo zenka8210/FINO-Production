@@ -17,19 +17,99 @@ Sử dụng màu sắc phản ánh tính cách thương hiệu: hiện đại, t
 | Accent         | --color-accent  | #F59E0B   | Highlight, icon, hover nổi bật    |
 | Background     | --color-bg      | #FFFFFF   | Nền giao diện chính (updated)     |
 | Text           | --color-text    | #111827   | Văn bản chính                     |
+| Text Secondary | --color-text-secondary | #6B7280 | Văn bản phụ, descriptions     |
 | Muted          | --color-muted   | #9CA3AF   | Văn bản phụ, trạng thái disabled  |
 | Error          | --color-error   | #DC2626   | Cảnh báo, lỗi, **sale badges only** |
 | Success        | --color-success | #10B981   | Thông báo thành công, **savings**  |
 
-> ✅ **Lưu ý**: 
-> - Định nghĩa các biến CSS tương ứng để dễ dùng trong Tailwind hoặc CSS custom
-> - **Price color**: Sử dụng `--color-primary` cho giá sản phẩm thay vì `--color-error`
+> ✅ **Text Color Guidelines**: 
+> - **Primary text**: `var(--color-text)` cho tiêu đề chính, labels
+> - **Secondary text**: `var(--color-text-secondary)` cho descriptions, captions
+> - **Muted text**: `var(--color-muted)` cho disabled states, placeholders
+> - **Price color**: Luôn sử dụng `var(--color-primary)` cho giá sản phẩm
 > - **Red color**: Chỉ dành cho sale badges, discounts và error states
 > - **Green color**: Dành cho success states và savings display
 
 ---
 
-## 🔤 2. TYPOGRAPHY
+## 🎯 2. UI COMPONENTS TÁI SỬ DỤNG
+
+### 📍 Vị trí Components
+```
+src/app/components/ui/
+├── Button/              # Primary button component
+├── Pagination/          # Pagination với jump-to-page
+├── SearchBar/           # Controlled search với suggestions  
+├── Modal/               # Modal overlay
+├── Toast/               # Notification toasts
+├── LoadingSpinner/      # Loading states
+└── index.ts             # Export tất cả components
+```
+
+### 🔘 Button Component
+**REQUIRED**: Sử dụng `Button` component thay vì `<button>` tags
+
+```tsx
+import { Button } from '@/app/components/ui';
+
+// Variants
+<Button variant="primary">Chính</Button>      // Blue background
+<Button variant="secondary">Phụ</Button>     // White bg, blue border  
+<Button variant="outline">Viền</Button>      // Transparent bg, gray border
+<Button variant="ghost">Ẩn</Button>          // Transparent bg, no border
+
+// Sizes
+<Button size="sm">Nhỏ</Button>               // 0.375rem padding
+<Button size="md">Vừa</Button>               // 0.75rem padding (default)
+<Button size="lg">To</Button>                // 1rem padding
+
+// States
+<Button isLoading={true}>Đang tải...</Button>
+<Button disabled>Vô hiệu hóa</Button>
+```
+
+### 📄 Pagination Component
+**REQUIRED**: Sử dụng cho tất cả danh sách có phân trang
+
+```tsx
+import { Pagination, PaginationInfo } from '@/app/components/ui';
+
+const pagination: PaginationInfo = {
+  page: 1,
+  limit: 12,
+  totalPages: 5,
+  totalProducts: 60,
+  hasNextPage: true,
+  hasPrevPage: false
+};
+
+<Pagination
+  pagination={pagination}
+  onPageChange={handlePageChange}
+  showJumpToPage={true}      // Show input for jump to page
+  showInfo={true}            // Show "Trang 1/5 (60 sản phẩm)"
+/>
+```
+
+### 🔍 SearchBar Component
+**REQUIRED**: Sử dụng cho tất cả search functionality
+
+```tsx
+import { SearchBar } from '@/app/components/ui';
+
+// Controlled component
+<SearchBar
+  value={searchTerm}                    // Controlled value
+  onChange={handleSearchChange}        // Real-time onChange
+  onSearch={handleSearch}              // Form submit
+  placeholder="Tìm sản phẩm..."
+  showSuggestions={true}               // Enable/disable suggestions
+/>
+```
+
+---
+
+## 🔤 3. TYPOGRAPHY
 
 ### Font Family
 ```css
@@ -39,14 +119,15 @@ Sử dụng màu sắc phản ánh tính cách thương hiệu: hiện đại, t
 
 ### Font Size & Weight
 
-| Use Case     | Size | Weight | Example       |
-|--------------|------|--------|---------------|
-| H1           | 36px | 700    | Trang chủ     |
-| H2           | 28px | 600    | Danh mục      |
-| H3           | 20px | 600    | Tên sản phẩm  |
-| Paragraph    | 16px | 400    | Mô tả sản phẩm|
-| Caption      | 12px | 400    | Text phụ      |
-| **Price**    | 18px | 600    | Giá sản phẩm (Primary color) |
+| Use Case     | Size | Weight | Color | Example       |
+|--------------|------|--------|-------|---------------|
+| H1           | 36px | 700    | --color-text | Trang chủ     |
+| H2           | 28px | 600    | --color-text | Danh mục      |
+| H3           | 20px | 600    | --color-text | Tên sản phẩm  |
+| Paragraph    | 16px | 400    | --color-text | Mô tả sản phẩm|
+| Caption      | 14px | 400    | --color-text-secondary | Text phụ      |
+| Muted        | 12px | 400    | --color-muted | Disabled text |
+| **Price**    | 18px | 600    | **--color-primary** | Giá sản phẩm |
 
 ---
 
@@ -82,7 +163,83 @@ Sử dụng màu sắc phản ánh tính cách thương hiệu: hiện đại, t
 
 ---
 
-## 🧱 4. GRID & LAYOUT SYSTEM
+## 📋 4. COMPONENT USAGE GUIDELINES
+
+### ✅ DO - Sử dụng đúng cách
+
+#### Buttons
+```tsx
+// ✅ CORRECT - Sử dụng Button component
+import { Button } from '@/app/components/ui';
+<Button variant="primary" onClick={handleSubmit}>Gửi</Button>
+
+// ❌ WRONG - Không sử dụng raw button
+<button className="bg-blue-500">Gửi</button>
+```
+
+#### Text Colors
+```css
+/* ✅ CORRECT - Sử dụng CSS variables */
+.title { color: var(--color-text); }
+.description { color: var(--color-text-secondary); }
+.price { color: var(--color-primary); }
+
+/* ❌ WRONG - Hard-coded colors */
+.title { color: #111827; }
+.price { color: red; }
+```
+
+#### Pagination
+```tsx
+// ✅ CORRECT - Sử dụng Pagination component
+import { Pagination } from '@/app/components/ui';
+<Pagination pagination={paginationData} onPageChange={handlePageChange} />
+
+// ❌ WRONG - Custom pagination
+<div>
+  <button>Trước</button>
+  <button>1</button>
+  <button>2</button>
+  <button>Sau</button>
+</div>
+```
+
+### 🚫 DON'T - Tránh những điều này
+
+1. **Không tự tạo button mới** - luôn dùng `Button` component
+2. **Không hard-code màu sắc** - dùng CSS variables
+3. **Không tạo pagination riêng** - dùng `Pagination` component  
+4. **Không dùng màu đỏ cho giá** - dùng `--color-primary`
+5. **Không tạo searchbar riêng** - dùng `SearchBar` component
+
+### 🔄 Migration từ Old Code
+
+#### Chuyển đổi Button
+```tsx
+// Before
+<button className="bg-blue-500 text-white px-4 py-2 rounded">
+  Click me
+</button>
+
+// After  
+import { Button } from '@/app/components/ui';
+<Button variant="primary" size="md">Click me</Button>
+```
+
+#### Chuyển đổi Text Colors
+```css
+/* Before */
+.text { color: #111827; }
+.muted { color: #9CA3AF; }
+
+/* After */
+.text { color: var(--color-text); }
+.muted { color: var(--color-muted); }
+```
+
+---
+
+## 🧱 5. GRID & LAYOUT SYSTEM
 
 | Breakpoint | Min Width | Columns | Gutter |
 |------------|-----------|---------|--------|
@@ -192,6 +349,7 @@ Sử dụng màu sắc phản ánh tính cách thương hiệu: hiện đại, t
   limit={8} 
 />
 ```
+- tái sử dụng ui đã build ở `ui/` nếu có thể
 
 ### 🖼️ Visual Specifications
 

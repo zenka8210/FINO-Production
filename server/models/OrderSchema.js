@@ -12,8 +12,7 @@ const OrderSchema = new mongoose.Schema({
   orderCode: { 
     type: String, 
     unique: true, 
-    required: true,
-    index: true // Tối ưu tìm kiếm
+    required: true
   }, // Mã đơn hàng thân thiện: DH2025071100001
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   items: [OrderDetailsSchema],

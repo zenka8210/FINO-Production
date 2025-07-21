@@ -172,7 +172,7 @@ class QueryBuilder {
      */
     applyFilters(filterConfig = {}) {
         try {
-            const excludedParams = ['page', 'limit', 'sort', 'sortBy', 'sortOrder', 'order', 'select', 'populate', 'search'];
+            const excludedParams = ['page', 'limit', 'sort', 'sortBy', 'sortOrder', 'order', 'select', 'populate', 'search', 'includeReviewStats', 'includeVariants', 'isOnSale'];
             
             // Parse nested filter syntax like filter[isActive]=true
             this.parseNestedFilters();
@@ -302,6 +302,12 @@ class QueryBuilder {
             this.selectFields();
             this.populateFields();
             
+            console.log('🔧 QueryBuilder.execute() called');
+            console.log('📊 Model:', this.model.modelName);
+            console.log('🔍 Final filter:', JSON.stringify(this.filter, null, 2));
+            console.log('📄 Page:', this.page, 'Limit:', this.limit);
+            console.log('🔢 Sort:', JSON.stringify(this.sort, null, 2));
+            
             const skip = (this.page - 1) * this.limit;
 
             // Build the main query
@@ -321,6 +327,8 @@ class QueryBuilder {
                 .skip(skip)
                 .limit(this.limit);
 
+            console.log('⚡ About to execute mongoose queries...');
+            
             // Execute query and count in parallel with timeout protection
             const queryPromise = this.mongooseQuery.exec();
             const countPromise = this.model.countDocuments(this.filter);
@@ -334,6 +342,9 @@ class QueryBuilder {
                 Promise.all([queryPromise, countPromise]),
                 timeoutPromise
             ]);
+
+            console.log('✅ QueryBuilder queries completed');
+            console.log('📊 Found', data.length, 'documents, total:', total);
 
             return {
                 data,

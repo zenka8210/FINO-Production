@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { ProductWithCategory, ProductFilters, PaginatedResponse, Category } from '@/types';
 import { useProducts, useCategories } from '@/hooks';
 import ProductList from '@/app/components/ProductList';
-import { LoadingSpinner, Button } from '@/app/components/ui';
+import { LoadingSpinner, Button, Pagination } from '@/app/components/ui';
 import SearchBar from '@/app/components/ui/SearchBar';
 import { formatCurrency } from '@/lib/utils';
 import styles from './page.module.css';
@@ -15,7 +15,8 @@ const SORT_OPTIONS = [
   { value: 'newest', label: 'Mới nhất', sort: 'createdAt', order: 'desc' as const },
   { value: 'price-asc', label: 'Giá: Thấp đến Cao', sort: 'price', order: 'asc' as const },
   { value: 'price-desc', label: 'Giá: Cao đến Thấp', sort: 'price', order: 'desc' as const },
-  { value: 'name', label: 'Tên: A-Z', sort: 'name', order: 'asc' as const },
+  { value: 'name-asc', label: 'Tên: A-Z', sort: 'name', order: 'asc' as const },
+  { value: 'name-desc', label: 'Tên: Z-A', sort: 'name', order: 'desc' as const },
 ] as const;
 
 const ITEMS_PER_PAGE_OPTIONS = [12, 24, 36];
@@ -50,10 +51,14 @@ export default function ProductsPage() {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [jumpToPageValue, setJumpToPageValue] = useState('1');
+  
+  // Local state for real-time search
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 
   // Parse URL params to filters
   const filters = useMemo((): ProductFilters => {
-    return {
+    const result = {
       page: parseInt(searchParams.get('page') || '1'),
       limit: parseInt(searchParams.get('limit') || '12'),
       category: searchParams.get('category') || undefined,
@@ -64,6 +69,8 @@ export default function ProductsPage() {
       order: (searchParams.get('order') as ProductFilters['order']) || 'desc',
       isOnSale: searchParams.get('isOnSale') === 'true' || undefined,
     };
+    console.log('🔍 Current filters from URL:', result);
+    return result;
   }, [searchParams]);
 
   // Update URL with new filters
@@ -87,19 +94,130 @@ export default function ProductsPage() {
     router.push(`/products?${params.toString()}`);
   }, [searchParams, router]);
 
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Update URL when debounced search term changes (avoid loop)
+  useEffect(() => {
+    // Only update if user is actually typing, not syncing from URL
+    const currentUrlSearch = searchParams.get('search') || '';
+    if (debouncedSearchTerm !== currentUrlSearch && 
+        searchTerm === debouncedSearchTerm) { // Only if debounce is complete
+      updateFilters({ 
+        search: debouncedSearchTerm || undefined,
+        page: 1 // Reset to page 1 when searching
+      });
+    }
+  }, [debouncedSearchTerm]); // Remove searchParams, updateFilters from dependencies to avoid loop
+
+  // Sync search term with URL on load (one-time sync)
+  useEffect(() => {
+    const urlSearchTerm = searchParams.get('search') || '';
+    setSearchTerm(urlSearchTerm);
+    setDebouncedSearchTerm(urlSearchTerm);
+  }, []); // Empty dependency to run once on mount
+
+  // Sync when URL changes externally (like back/forward navigation)
+  useEffect(() => {
+    const urlSearchTerm = searchParams.get('search') || '';
+    if (urlSearchTerm !== debouncedSearchTerm) {
+      setSearchTerm(urlSearchTerm);
+      setDebouncedSearchTerm(urlSearchTerm);
+    }
+  }, [searchParams]); // Only depend on searchParams
+
   // Fetch products
   const fetchProducts = useCallback(async () => {
-    console.log('Fetching products with filters:', filters);
+    console.log('🚀 Starting fetchProducts with filters:', filters);
     try {
+      // Handle isOnSale filter with frontend logic (same as FlashSale.tsx)
+      if (filters.isOnSale) {        
+        // Fetch products without isOnSale filter, then apply frontend filtering
+        const backendFilters = { ...filters };
+        delete (backendFilters as any).isOnSale;
+        
+        const result: PaginatedResponse<ProductWithCategory> = await getProducts({
+          ...backendFilters,
+          limit: 100 // Get more products to filter from
+        });
+        
+        // Handle different response structures like new page
+        const productsArray = Array.isArray(result.data) ? result.data : 
+                             (result.data && Array.isArray((result.data as any).data)) ? (result.data as any).data : [];
+        
+        if (productsArray && productsArray.length > 0) {
+          // Only show products with explicit sale price in database
+          const saleProducts = productsArray.filter((product: ProductWithCategory) => 
+            product.salePrice && product.salePrice < product.price
+          );
+          
+          console.log('✅ Products Page Sale filter: Found', saleProducts.length, 'sale products');
+          
+          // Apply frontend sorting to sale products
+          if (filters.sort && saleProducts.length > 0) {
+            saleProducts.sort((a: ProductWithCategory, b: ProductWithCategory) => {
+              let aValue: any, bValue: any;
+              
+              switch (filters.sort) {
+                case 'price':
+                  // Use sale price if available, otherwise regular price
+                  aValue = (a as any).dynamicSalePrice || a.salePrice || a.price;
+                  bValue = (b as any).dynamicSalePrice || b.salePrice || b.price;
+                  break;
+                case 'name':
+                  aValue = a.name.toLowerCase();
+                  bValue = b.name.toLowerCase();
+                  break;
+                case 'createdAt':
+                  aValue = new Date(a.createdAt).getTime();
+                  bValue = new Date(b.createdAt).getTime();
+                  break;
+                default:
+                  return 0;
+              }
+              
+              if (filters.order === 'desc') {
+                return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+              } else {
+                return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+              }
+            });
+          }
+          
+          setProducts(saleProducts);
+          
+          // Set simple pagination for frontend-filtered results
+          setPagination({
+            page: 1,
+            limit: saleProducts.length,
+            totalPages: 1,
+            totalProducts: saleProducts.length,
+            hasNextPage: false,
+            hasPrevPage: false
+          });
+        } else {
+          setProducts([]);
+        }
+        return;
+      }
+      
+      // Normal flow for non-sale filters      
       const result: PaginatedResponse<ProductWithCategory> = await getProducts(filters);
       
-      console.log('API result:', result);
+      // Handle different response structures like new page
+      const productsArray = Array.isArray(result.data) ? result.data : 
+                           (result.data && Array.isArray((result.data as any).data)) ? (result.data as any).data : [];
       
       // Ensure we have valid data
-      if (result && result.data && Array.isArray(result.data)) {
-        setProducts(result.data);
+      if (productsArray && productsArray.length > 0) {
+        setProducts(productsArray);
       } else {
-        console.error('Invalid products data structure:', result);
         setProducts([]);
       }
       
@@ -122,7 +240,7 @@ export default function ProductsPage() {
           page: 1,
           limit: 12,
           totalPages: 1,
-          totalProducts: products.length,
+          totalProducts: productsArray.length,
           hasNextPage: false,
           hasPrevPage: false
         });
@@ -143,7 +261,9 @@ export default function ProductsPage() {
 
   // Effects
   useEffect(() => {
-    fetchProducts();
+    fetchProducts().catch(err => {
+      console.error('ProductsPage: fetchProducts error:', err);
+    });
   }, [fetchProducts]);
 
   useEffect(() => {
@@ -166,8 +286,11 @@ export default function ProductsPage() {
 
   // Filter handlers
   const handleSortChange = (value: string) => {
+    console.log('🔄 Sort change triggered:', value);
     const option = SORT_OPTIONS.find(opt => opt.value === value);
+    console.log('🎯 Found option:', option);
     if (option) {
+      console.log('✅ Updating filters with sort:', option.sort, 'order:', option.order);
       updateFilters({
         sort: option.sort,
         order: option.order
@@ -205,6 +328,8 @@ export default function ProductsPage() {
   };
 
   const clearAllFilters = () => {
+    setSearchTerm('');
+    setDebouncedSearchTerm('');
     router.push('/products');
   };
 
@@ -216,10 +341,13 @@ export default function ProductsPage() {
   };
 
   const handleSearch = (query: string) => {
-    updateFilters({ 
-      search: query || undefined,
-      page: 1 // Reset to page 1 when searching
-    });
+    // Update local search term for real-time search
+    setSearchTerm(query);
+  };
+
+  // Handle immediate search input change for real-time
+  const handleSearchChange = (query: string) => {
+    setSearchTerm(query);
   };
 
   // Get current sort option
@@ -357,6 +485,8 @@ export default function ProductsPage() {
                 </p>
               </div>
               <SearchBar
+                value={searchTerm}
+                onChange={handleSearchChange}
                 onSearch={handleSearch}
                 placeholder="Nhập tên sản phẩm, thương hiệu hoặc từ khóa..."
                 className={styles.searchBar}
@@ -516,89 +646,11 @@ export default function ProductsPage() {
 
             {/* Pagination */}
             {products.length > 0 && pagination.totalPages > 1 && (
-              <div className={styles.pagination}>
-                <div className={styles.paginationInfo}>
-                  Trang {pagination.page} / {pagination.totalPages}
-                </div>
-                
-                <div className={styles.paginationControls}>
-                  <Button
-                    variant="secondary"
-                    disabled={!pagination.hasPrevPage}
-                    onClick={() => handlePageChange(pagination.page - 1)}
-                  >
-                    Trước
-                  </Button>
-
-                  <div className={styles.pageNumbers}>
-                    {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
-                      // Calculate which pages to show (max 5 pages)
-                      let startPage = Math.max(1, pagination.page - 2);
-                      let endPage = Math.min(pagination.totalPages, startPage + 4);
-                      
-                      // Adjust startPage if we're near the end
-                      if (endPage - startPage < 4) {
-                        startPage = Math.max(1, endPage - 4);
-                      }
-                      
-                      const pageNumber = startPage + i;
-                      
-                      if (pageNumber <= pagination.totalPages && pageNumber >= 1) {
-                        return (
-                          <button
-                            key={pageNumber}
-                            className={`${styles.pageNumber} ${pageNumber === pagination.page ? styles.active : ''}`}
-                            onClick={() => handlePageChange(pageNumber)}
-                          >
-                            {pageNumber}
-                          </button>
-                        );
-                      }
-                      return null;
-                    }).filter(Boolean)}
-                  </div>
-
-                  <Button
-                    variant="secondary"
-                    disabled={!pagination.hasNextPage}
-                    onClick={() => handlePageChange(pagination.page + 1)}
-                  >
-                    Sau
-                  </Button>
-                </div>
-
-                {/* Jump to page */}
-                <div className={styles.jumpToPage}>
-                  <span>Đi tới trang:</span>
-                  <input
-                    type="number"
-                    min="1"
-                    max={pagination.totalPages}
-                    value={jumpToPageValue}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setJumpToPageValue(value);
-                    }}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        const page = parseInt(jumpToPageValue);
-                        if (page >= 1 && page <= pagination.totalPages) {
-                          handlePageChange(page);
-                        }
-                      }
-                    }}
-                    onBlur={() => {
-                      const page = parseInt(jumpToPageValue);
-                      if (page >= 1 && page <= pagination.totalPages) {
-                        handlePageChange(page);
-                      } else {
-                        setJumpToPageValue(pagination.page.toString());
-                      }
-                    }}
-                    className={styles.pageInput}
-                  />
-                </div>
-              </div>
+              <Pagination
+                pagination={pagination}
+                onPageChange={handlePageChange}
+                className={styles.paginationComponent}
+              />
             )}
           </main>
         </div>

@@ -118,9 +118,51 @@
 /* Product Grid */
 .productGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Tăng từ 240px lên 280px */
-  gap: 24px; /* Tăng từ 20px lên 24px */
-  padding: 20px; /* Tăng từ 15px lên 20px */
+  grid-template-columns: repeat(3, 1fr); /* Force exactly 3 columns */
+  gap: 25px;
+  padding: 20px 0;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Section Footer with View More Button */
+.sectionFooter {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.viewMoreBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #1E40AF, #1e3a8a);
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
+}
+
+.viewMoreBtn:hover {
+  background: linear-gradient(135deg, #1e3a8a, #1d4ed8);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(30, 64, 175, 0.4);
+  text-decoration: none;
+  color: white;
+}
+
+.viewMoreArrow {
+  transition: transform 0.3s ease;
+  font-size: 16px;
+}
+
+.viewMoreBtn:hover .viewMoreArrow {
+  transform: translateX(5px);
 }
 
 /* Product Items */
@@ -502,11 +544,16 @@ a.categoryItem:hover {
   .productGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 18px;
-    padding: 15px;
+    padding: 15px 0;
   }
   
   .imageContainer {
     height: 220px !important;
+  }
+  
+  .viewMoreBtn {
+    padding: 10px 20px;
+    font-size: 13px;
   }
 }
 
@@ -524,15 +571,15 @@ a.categoryItem:hover {
     font-size: 1rem;
   }
   
-  /* Product Images - Tăng kích thước để ảnh rõ hơn */
-  .imageContainer {
-    height: 200px !important;
+  /* Product Grid - 2 columns on mobile */
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    padding: 15px 0;
   }
   
-  .productGrid {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
-    gap: 16px !important;
-    padding: 15px !important;
+  .imageContainer {
+    height: 200px !important;
   }
   
   .productItem {
@@ -555,6 +602,23 @@ a.categoryItem:hover {
   .price {
     font-size: 1.2rem !important;
     margin-bottom: 10px !important;
+  }
+  
+  /* Section Headers */
+  .sectionTitle {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+  }
+  
+  .sectionSubtitle {
+    font-size: 0.9rem;
+  }
+  
+  /* View More Button */
+  .viewMoreBtn {
+    padding: 10px 18px;
+    font-size: 13px;
+    border-radius: 20px;
   }
   
   /* Buttons */

@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { CartContextType, CartWithRefs, CartItem, AddToCartRequest } from '@/types';
 import { cartService } from '@/services';
-import { useNotification } from './NotificationContext';
+import { useApiNotification } from '@/hooks/useApiNotification';
 import { useAuth } from './AuthContext';
 
 interface CartState {
@@ -71,7 +71,7 @@ interface CartProviderProps {
 
 export function CartProvider({ children }: CartProviderProps) {
   const [state, dispatch] = useReducer(cartReducer, initialState);
-  const { success, error: showError } = useNotification();
+  const { showSuccess, showError } = useApiNotification();
   const { user, isLoading: authLoading } = useAuth();
 
   // Load cart when user is authenticated
@@ -104,7 +104,7 @@ export function CartProvider({ children }: CartProviderProps) {
       dispatch({ type: 'CART_LOADING' });
       const updatedCart = await cartService.addToCart(productVariantId, quantity);
       dispatch({ type: 'CART_SUCCESS', payload: updatedCart });
-      success('Added to cart', 'Product has been added to your cart');
+      showSuccess('Added to cart', 'Product has been added to your cart');
     } catch (error: any) {
       dispatch({ type: 'CART_ERROR', payload: error.message });
       showError('Failed to add to cart', error.message);
@@ -129,7 +129,7 @@ export function CartProvider({ children }: CartProviderProps) {
       dispatch({ type: 'CART_LOADING' });
       const updatedCart = await cartService.removeFromCart(productVariantId);
       dispatch({ type: 'CART_SUCCESS', payload: updatedCart });
-      success('Removed from cart', 'Product has been removed from your cart');
+      showSuccess('Removed from cart', 'Product has been removed from your cart');
     } catch (error: any) {
       dispatch({ type: 'CART_ERROR', payload: error.message });
       showError('Failed to remove from cart', error.message);
@@ -142,7 +142,7 @@ export function CartProvider({ children }: CartProviderProps) {
       dispatch({ type: 'CART_LOADING' });
       await cartService.clearCart();
       dispatch({ type: 'CLEAR_CART' });
-      success('Cart cleared', 'All items have been removed from your cart');
+      showSuccess('Cart cleared', 'All items have been removed from your cart');
     } catch (error: any) {
       dispatch({ type: 'CART_ERROR', payload: error.message });
       showError('Failed to clear cart', error.message);

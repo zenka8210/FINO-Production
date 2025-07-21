@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
 import { WishList, WishListItem } from '@/types';
 import { wishlistService } from '@/services';
-import { useNotification } from './NotificationContext';
+import { useApiNotification } from '@/hooks/useApiNotification';
 
 interface WishlistState {
   wishlist: WishList | null;
@@ -67,7 +67,7 @@ interface WishlistProviderProps {
 
 export function WishlistProvider({ children }: WishlistProviderProps) {
   const [state, dispatch] = useReducer(wishlistReducer, initialState);
-  const { success, error: showError } = useNotification();
+  const { showSuccess, showError } = useApiNotification();
 
   useEffect(() => {
     loadWishlist();
@@ -88,39 +88,39 @@ export function WishlistProvider({ children }: WishlistProviderProps) {
       dispatch({ type: 'LOADING' });
       const updatedWishlist = await wishlistService.addToWishlist(productId);
       dispatch({ type: 'WISHLIST_SUCCESS', payload: updatedWishlist });
-      success('Added to wishlist', 'Product has been added to your wishlist');
+      showSuccess('Added to wishlist', 'Product has been added to your wishlist');
     } catch (error: any) {
       dispatch({ type: 'ERROR', payload: error.message });
       showError('Failed to add to wishlist', error.message);
       throw error;
     }
-  }, [success, showError]);
+  }, [showSuccess, showError]);
 
   const removeFromWishlist = useCallback(async (productId: string): Promise<void> => {
     try {
       dispatch({ type: 'LOADING' });
       const updatedWishlist = await wishlistService.removeFromWishlist(productId);
       dispatch({ type: 'WISHLIST_SUCCESS', payload: updatedWishlist });
-      success('Removed from wishlist', 'Product has been removed from your wishlist');
+      showSuccess('Removed from wishlist', 'Product has been removed from your wishlist');
     } catch (error: any) {
       dispatch({ type: 'ERROR', payload: error.message });
       showError('Failed to remove from wishlist', error.message);
       throw error;
     }
-  }, [success, showError]);
+  }, [showSuccess, showError]);
 
   const clearWishlist = useCallback(async (): Promise<void> => {
     try {
       dispatch({ type: 'LOADING' });
       await wishlistService.clearWishlist();
       dispatch({ type: 'CLEAR_WISHLIST' });
-      success('Wishlist cleared', 'All items have been removed from your wishlist');
+      showSuccess('Wishlist cleared', 'All items have been removed from your wishlist');
     } catch (error: any) {
       dispatch({ type: 'ERROR', payload: error.message });
       showError('Failed to clear wishlist', error.message);
       throw error;
     }
-  }, [success, showError]);
+  }, [showSuccess, showError]);
 
   const isInWishlist = useCallback((productId: string): boolean => {
     if (!state.wishlist) return false;
@@ -166,12 +166,12 @@ export function WishlistProvider({ children }: WishlistProviderProps) {
       }
       // Reload wishlist to get updated state
       await loadWishlist();
-      success('Wishlist synced', 'Your wishlist has been synchronized');
+      showSuccess('Wishlist synced', 'Your wishlist has been synchronized');
     } catch (error: any) {
       dispatch({ type: 'ERROR', payload: error.message });
       showError('Failed to sync wishlist', error.message);
     }
-  }, [isInWishlist, loadWishlist, success, showError]);
+  }, [isInWishlist, loadWishlist, showSuccess, showError]);
 
   const clearError = useCallback((): void => {
     dispatch({ type: 'CLEAR_ERROR' });

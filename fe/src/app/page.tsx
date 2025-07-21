@@ -8,11 +8,12 @@ import CategorySidebar from "./components/CategorySidebar";
 import FlashSale from "./components/FlashSale";
 import CategoryCards from "./components/CategoryCards";
 import MiddleBanner from "./components/MiddleBanner";
-import BlogSection from "./components/BlogSection";
+import News from "./components/News";
 import { LoadingSpinner } from "./components/ui";
 import ProductItem from "./components/ProductItem";
 import { isProductOnSale, getDiscountPercent } from '@/lib/productUtils';
 import { useProducts } from "@/hooks";
+import { productService } from "@/services";
 import { useEffect, useState } from "react";
 import { ProductWithCategory } from "@/types";
 
@@ -26,7 +27,10 @@ export default function Home() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await getProducts({ limit: 50 }); // Increase limit to get more products
+        // Fetch regular products for sale and new products
+        const response = await getProducts({ 
+          limit: 50 // Increase limit to get more products
+        });
         console.log('Products response:', response);
         console.log('Response data type:', typeof response.data);
         console.log('Response data:', response.data);
@@ -37,72 +41,32 @@ export default function Home() {
         
         setProducts(productsArray);
         
-        // Smart product categorization with realistic business logic
-        
         // 1. Sale Products - Currently on sale with best discounts first
         const saleProducts = productsArray
           .filter((product: ProductWithCategory) => isProductOnSale(product))
-          .sort((a: ProductWithCategory, b: ProductWithCategory) => getDiscountPercent(b) - getDiscountPercent(a)) // Best discounts first
-          .slice(0, 8); // Limit to 8 for optimal display
+          .sort((a: ProductWithCategory, b: ProductWithCategory) => getDiscountPercent(b) - getDiscountPercent(a))
+          .slice(0, 6);
         setSaleProducts(saleProducts);
         
-        // 2. Featured Products - Based on realistic popularity metrics
-        const featuredProducts = productsArray
-          .filter((product: ProductWithCategory) => 
-            product.isActive !== false && 
-            !isProductOnSale(product) // Don't overlap with sale products
-          )
-          .map((product: ProductWithCategory) => {
-            // Simulate realistic popularity score based on common e-commerce metrics
-            const priceScore = Math.min(product.price / 100000, 5); // Price factor (higher = more premium)
-            const categoryName = typeof product.category === 'object' && product.category?.name ? 
-              product.category.name : 
-              typeof product.category === 'string' ? product.category : '';
-            
-            const categoryBoost = ['Giày Nam', 'Giày Nữ', 'Áo Nam', 'Áo Nữ'].some(cat => 
-              categoryName.includes(cat.split(' ')[1])
-            ) ? 2 : 1; // Boost popular categories
-            
-            // Simulate engagement metrics (would come from real data)
-            const simulatedViews = Math.floor(Math.random() * 1000) + 100;
-            const simulatedSales = Math.floor(Math.random() * 50) + 10;
-            const simulatedWishlist = Math.floor(Math.random() * 200) + 20;
-            const simulatedReviews = Math.floor(Math.random() * 30) + 5;
-            const avgRating = 3.5 + Math.random() * 1.5; // 3.5-5.0 rating
-            
-            // Calculate popularity score (realistic algorithm)
-            const popularityScore = 
-              (simulatedViews * 0.1) + 
-              (simulatedSales * 2) + 
-              (simulatedWishlist * 0.5) + 
-              (simulatedReviews * avgRating * 3) + 
-              (priceScore * categoryBoost);
-            
-            return {
-              ...product,
-              popularityScore,
-              simulatedMetrics: {
-                views: simulatedViews,
-                sales: simulatedSales,
-                wishlist: simulatedWishlist,
-                reviews: simulatedReviews,
-                rating: Math.round(avgRating * 10) / 10
-              }
-            };
-          })
-          .sort((a: any, b: any) => b.popularityScore - a.popularityScore) // Highest popularity first
-          .slice(0, 8);
-        setFeaturedProducts(featuredProducts);
+        // 2. Featured Products - Use REAL backend API with business metrics
+        console.log('🎯 Homepage: Fetching REAL featured products from API...');
+        const featuredResponse = await productService.getFeaturedProducts(6);
+        console.log('✅ Real featured products:', featuredResponse);
         
-        // 3. New Products - Most recently added (simulate with createdAt or last in array)
+        // Handle response structure
+        const featuredProductsData = Array.isArray(featuredResponse) ? featuredResponse : 
+                                    (featuredResponse as any)?.data || [];
+        setFeaturedProducts(featuredProductsData);
+        
+        // 3. New Products - Most recently added 
         const newProducts = productsArray
           .filter((product: ProductWithCategory) => 
             product.isActive !== false &&
-            !isProductOnSale(product) &&
-            !featuredProducts.some((fp: ProductWithCategory) => fp._id === product._id) // Avoid overlap
+            !isProductOnSale(product)
           )
-          .slice(-12) // Take last 12 as "newest"
-          .reverse(); // Reverse to show newest first
+          .slice(-8) // Take last 8 as "newest"
+          .reverse() // Reverse to show newest first
+          .slice(0, 6); // Limit to 6 for display
         setNewProducts(newProducts);
       } catch (err) {
         console.error('Failed to fetch products:', err);
@@ -166,24 +130,40 @@ export default function Home() {
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>
-                Sản Phẩm Giảm Giá
+                🔥 Sản Phẩm Giảm Giá
               </h2>
+              <p className={styles.sectionSubtitle}>Ưu đãi hấp dẫn, tiết kiệm ngay hôm nay</p>
             </div>
             <div className={styles.productGrid}>
               {saleProducts.map((product) => (
                 <ProductItem key={product._id} product={product} layout="grid" />
               ))}
             </div>
+            <div className={styles.sectionFooter}>
+              <a href="/sale" className={styles.viewMoreBtn}>
+                Xem thêm sản phẩm khác
+                <span className={styles.viewMoreArrow}>→</span>
+              </a>
+            </div>
           </section>
         )}
 
         {/* Featured Products */}
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Sản Phẩm Nổi Bật</h2>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>⭐ Sản Phẩm Nổi Bật</h2>
+            <p className={styles.sectionSubtitle}>Được yêu thích và lựa chọn nhiều nhất</p>
+          </div>
           <div className={styles.productGrid}>
             {featuredProducts.map((product) => (
               <ProductItem key={product._id} product={product} layout="grid" />
             ))}
+          </div>
+          <div className={styles.sectionFooter}>
+            <a href="/featured" className={styles.viewMoreBtn}>
+              Xem thêm sản phẩm khác
+              <span className={styles.viewMoreArrow}>→</span>
+            </a>
           </div>
         </section>
 
@@ -192,17 +172,26 @@ export default function Home() {
 
         {/* New Products */}
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Sản Phẩm Mới</h2>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>🆕 Sản Phẩm Mới</h2>
+            <p className={styles.sectionSubtitle}>Bộ sưu tập thời trang mới nhất</p>
+          </div>
           <div className={styles.productGrid}>
             {newProducts.map((product) => (
               <ProductItem key={product._id} product={product} layout="grid" />
             ))}
           </div>
+          <div className={styles.sectionFooter}>
+            <a href="/new" className={styles.viewMoreBtn}>
+              Xem thêm sản phẩm khác
+              <span className={styles.viewMoreArrow}>→</span>
+            </a>
+          </div>
         </section>
       </div>
 
       {/* Blog Section */}
-      <BlogSection />
+      <News />
     </>
   );
 }

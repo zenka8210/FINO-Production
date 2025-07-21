@@ -9,39 +9,66 @@ import { ProductWithCategory } from '@/types';
  * Validates salePrice, price difference, and date range
  */
 export function isProductOnSale(product: ProductWithCategory): boolean {
-  if (!product.salePrice || product.salePrice >= product.price) {
-    return false;
+  // If product has explicit sale fields, use them
+  if (product.salePrice && product.salePrice < product.price) {
+    // If no date range specified, assume it's on sale
+    if (!product.saleStartDate || !product.saleEndDate) {
+      return true;
+    }
+    
+    // Check if within date range
+    const now = new Date();
+    const saleStart = new Date(product.saleStartDate);
+    const saleEnd = new Date(product.saleEndDate);
+    
+    return now >= saleStart && now <= saleEnd;
   }
   
-  if (!product.saleStartDate || !product.saleEndDate) {
-    return false;
+  // Check if backend has dynamically marked it as on sale
+  if ((product as any).isOnSale === true) {
+    return true;
   }
   
-  const now = new Date();
-  const saleStart = new Date(product.saleStartDate);
-  const saleEnd = new Date(product.saleEndDate);
-  
-  return now >= saleStart && now <= saleEnd;
+  return false;
 }
 
 /**
  * Get the current effective price of a product
  * Returns sale price if on sale, regular price otherwise
+ * Handles both database salePrice and dynamic sale prices
  */
 export function getCurrentPrice(product: ProductWithCategory): number {
-  return isProductOnSale(product) ? product.salePrice! : product.price;
+  // Check for explicit sale price first
+  if (product.salePrice && isProductOnSale(product)) {
+    return product.salePrice;
+  }
+  
+  // Check for dynamically added sale price
+  if ((product as any).dynamicSalePrice && (product as any).isOnSale) {
+    return (product as any).dynamicSalePrice;
+  }
+  
+  return product.price;
 }
 
 /**
  * Calculate discount percentage for a product
  * Returns 0 if not on sale
+ * Handles both database sales and dynamic sales
  */
 export function getDiscountPercent(product: ProductWithCategory): number {
   if (!isProductOnSale(product)) {
     return 0;
   }
   
-  return Math.round((1 - product.salePrice! / product.price) * 100);
+  // Check for pre-calculated discount percent (from dynamic sales)
+  if ((product as any).discountPercent) {
+    return (product as any).discountPercent;
+  }
+  
+  // Calculate from price difference
+  const currentPrice = getCurrentPrice(product);
+  return Math.round((1 - currentPrice / product.price) * 100);
 }
 
 /**

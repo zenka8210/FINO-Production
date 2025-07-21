@@ -17,22 +17,56 @@ export const useReviews = () => {
     try {
       setLoading(true);
       setError(null);
+      
+      console.log('🔍 useReviews - Loading reviews for product:', productId);
       const response = await reviewService.getProductReviews(productId, page, limit);
       
-      console.log('useReviews - API response:', response);
+      console.log('🔍 useReviews - Raw API response:', response);
       
-      // Reviews API has nested structure: response.data.data (array) and response.data.pagination
-      if (response && response.data && response.data.data && Array.isArray(response.data.data)) {
-        console.log('useReviews - Reviews data array, length:', response.data.data.length);
-        setReviews(response.data.data);
-        setTotalPages(response.data.pagination?.totalPages || 1);
-        setCurrentPage(page);
-      } else {
-        console.warn('useReviews - No data array in response:', response);
-        setReviews([]);
-        setTotalPages(1);
-        setCurrentPage(1);
+      // Handle multiple possible response structures
+      let reviewsData = [];
+      let paginationData = { totalPages: 1 };
+      
+      if (response && response.data) {
+        if (Array.isArray(response.data)) {
+          // Direct array format
+          reviewsData = response.data;
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          // Nested format: response.data.data (array) and response.data.pagination
+          reviewsData = response.data.data;
+          paginationData = response.data.pagination || paginationData;
+        } else if (response.data.documents && Array.isArray(response.data.documents)) {
+          // BaseService format: response.data.documents (array) and response.data.pagination  
+          reviewsData = response.data.documents;
+          paginationData = response.data.pagination || paginationData;
+        }
       }
+      
+      // Validate and filter reviews with valid dates
+      const validReviews = reviewsData.filter(review => {
+        const createdAt = new Date(review.createdAt);
+        const now = new Date();
+        
+        // Check if date is valid and not in future
+        const isValidDate = !isNaN(createdAt.getTime());
+        const isNotFuture = createdAt <= now;
+        
+        if (!isValidDate) {
+          console.warn('🚨 Invalid review date found:', review._id, review.createdAt);
+          return false;
+        }
+        
+        if (!isNotFuture) {
+          console.warn('🚨 Future review date found:', review._id, review.createdAt);
+        }
+        
+        return isValidDate; // Allow future dates for now, just log them
+      });
+      
+      console.log(`🔍 useReviews - Filtered ${validReviews.length}/${reviewsData.length} valid reviews`);
+      setReviews(validReviews);
+      setTotalPages(paginationData.totalPages || 1);
+      setCurrentPage(page);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Không thể tải đánh giá';
       setError(errorMessage);

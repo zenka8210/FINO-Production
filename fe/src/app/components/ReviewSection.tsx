@@ -405,11 +405,35 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
                             {review.user?.name || 'Khách hàng'}
                           </span>
                           <span className={styles.reviewDate}>
-                            {new Date(review.createdAt).toLocaleDateString('vi-VN', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
-                            })}
+                            {(() => {
+                              try {
+                                const reviewDate = new Date(review.createdAt);
+                                
+                                // Check if date is valid
+                                if (isNaN(reviewDate.getTime())) {
+                                  console.warn('Invalid review date:', review.createdAt);
+                                  return 'Ngày không xác định';
+                                }
+                                
+                                // Check if date is in the future (with 1 day tolerance)
+                                const now = new Date();
+                                const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+                                
+                                if (reviewDate > tomorrow) {
+                                  console.warn('Future review date detected:', review.createdAt, 'for review ID:', review._id);
+                                  return 'Ngày không hợp lệ';
+                                }
+                                
+                                return reviewDate.toLocaleDateString('vi-VN', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric'
+                                });
+                              } catch (error) {
+                                console.error('Error formatting review date:', error, 'Date:', review.createdAt);
+                                return 'Ngày không xác định';
+                              }
+                            })()}
                           </span>
                         </div>
                       </div>

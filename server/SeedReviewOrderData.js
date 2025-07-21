@@ -142,8 +142,10 @@ async function enhancedSeedReviews() {
               
               const comment = generateReviewComment(rating, item.productVariant.product.name);
               
-              // Random review date (1-30 days after order)
-              const reviewDate = new Date(order.createdAt.getTime() + (Math.random() * 30 + 1) * 24 * 60 * 60 * 1000);
+              // Calculate review date (1-30 days after order, but not in the future)
+              const now = new Date();
+              const maxReviewDate = new Date(order.createdAt.getTime() + (Math.random() * 30 + 1) * 24 * 60 * 60 * 1000);
+              const reviewDate = maxReviewDate > now ? now : maxReviewDate;
               
               reviewsToCreate.push({
                 product: item.productVariant.product._id,
@@ -407,6 +409,9 @@ async function enhancedSeedDatabase() {
     
     await connectDB();
     
+    // Fix existing future-dated reviews first
+    await fixFutureDatedReviews();
+    
     // Run enhanced seeding functions
     await enhancedSeedReviews();
     await enhancedSeedOrders();
@@ -440,6 +445,51 @@ async function enhancedSeedDatabase() {
   } finally {
     await mongoose.connection.close();
     console.log(`${colors.yellow}🔌 Database connection closed.${colors.reset}`);
+  }
+}
+
+// Fix future-dated reviews
+async function fixFutureDatedReviews() {
+  log.step('FIXING FUTURE-DATED REVIEWS');
+  
+  try {
+    const now = new Date();
+    
+    // Find reviews with future dates
+    const futureReviews = await Review.find({
+      $or: [
+        { createdAt: { $gt: now } },
+        { updatedAt: { $gt: now } }
+      ]
+    });
+    
+    if (futureReviews.length === 0) {
+      log.info('No future-dated reviews found');
+      return;
+    }
+    
+    log.warning(`Found ${futureReviews.length} reviews with future dates`);
+    
+    // Update each review to have a reasonable past date
+    for (const review of futureReviews) {
+      // Set review date to a random time between 1-90 days ago
+      const daysAgo = Math.floor(Math.random() * 90) + 1;
+      const pastDate = new Date(now.getTime() - (daysAgo * 24 * 60 * 60 * 1000));
+      
+      await Review.updateOne(
+        { _id: review._id },
+        {
+          createdAt: pastDate,
+          updatedAt: pastDate
+        }
+      );
+    }
+    
+    log.success(`Fixed ${futureReviews.length} future-dated reviews`);
+    
+  } catch (error) {
+    log.error(`Error fixing future-dated reviews: ${error.message}`);
+    throw error;
   }
 }
 

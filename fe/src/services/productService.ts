@@ -31,6 +31,39 @@ export class ProductService {
     try {
       const params = new URLSearchParams();
       
+      // Include review stats by default for product listings
+      params.append('includeReviewStats', 'true');
+      
+      // Only include variants when explicitly requested for performance optimization
+      // Use VariantCacheService for lazy loading in ProductItem components instead
+      
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            params.append(key, value.toString());
+          }
+        });
+      }
+
+      const response = await apiClient.getPaginated<ProductWithCategory>('/api/products/public', params);
+      return response;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch products');
+    }
+  }
+
+  /**
+   * Get products with variants included (for product detail pages)
+   */
+  async getProductsWithVariants(filters?: ProductFilters): Promise<PaginatedResponse<ProductWithCategory>> {
+    try {
+      const params = new URLSearchParams();
+      
+      // Always include variants for this specific method
+      params.append('includeVariants', 'true');
+      // Include review stats for product listings with variants
+      params.append('includeReviewStats', 'true');
+      
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
           if (value !== undefined && value !== null && value !== '') {
@@ -53,6 +86,7 @@ export class ProductService {
     try {
       const params = new URLSearchParams();
       params.append('includeVariants', includeVariants.toString());
+      params.append('includeReviewStats', 'true');
 
       const response = await apiClient.getPaginated<ProductWithCategory>('/api/products/available', params);
       return response;
@@ -97,13 +131,17 @@ export class ProductService {
    */
   async getPublicProductById(id: string): Promise<ProductWithCategory> {
     try {
-      const endpoint = `/api/products/public/${id}?includeVariants=true`;
-      console.log('📡 Calling public product API:', endpoint);
+      console.log('🎯 ProductService: Starting getPublicProductById for ID:', id);
+      const endpoint = `/api/products/public/${id}?includeVariants=true&includeReviewStats=true`;
+      console.log('📡 ProductService: Calling public product API:', endpoint);
       const response = await apiClient.get<ProductWithCategory>(endpoint);
-      console.log('✅ Product API response:', response.data);
+      console.log('✅ ProductService: Product API response:', response);
+      console.log('📊 ProductService: Response data:', response.data);
       return response.data!;
     } catch (error: any) {
-      console.error('❌ Product API error:', error.response?.data || error.message);
+      console.error('❌ ProductService: Product API error:', error);
+      console.error('❌ ProductService: Error response:', error.response?.data);
+      console.error('❌ ProductService: Error message:', error.message);
       throw new Error(error.response?.data?.message || 'Failed to fetch product');
     }
   }
@@ -203,6 +241,7 @@ export class ProductService {
     try {
       const params = new URLSearchParams();
       params.append('includeVariants', includeVariants.toString());
+      params.append('includeReviewStats', 'true');
 
       const response = await apiClient.getPaginated<ProductWithCategory>(`/api/products/category/${categoryId}/public`, params);
       return response;

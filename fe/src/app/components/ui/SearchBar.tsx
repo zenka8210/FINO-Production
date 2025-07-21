@@ -10,6 +10,8 @@ import styles from './SearchBar.module.css';
 interface SearchBarProps {
   placeholder?: string;
   onSearch?: (query: string) => void;
+  onChange?: (query: string) => void; // For real-time onChange
+  value?: string; // Controlled value
   className?: string;
   showSuggestions?: boolean;
 }
@@ -17,10 +19,12 @@ interface SearchBarProps {
 const SearchBar: React.FC<SearchBarProps> = ({
   placeholder = "Tìm kiếm sản phẩm...",
   onSearch,
+  onChange,
+  value,
   className,
   showSuggestions = true
 }) => {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(value || '');
   const [suggestions, setSuggestions] = useState<ProductWithCategory[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,6 +34,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const router = useRouter();
   
   const { searchProducts } = useProducts();
+
+  // Sync with external value prop
+  useEffect(() => {
+    if (value !== undefined && value !== query) {
+      setQuery(value);
+    }
+  }, [value]); // Remove query from dependencies to avoid loop
 
   // Debounced search function
   const debouncedSearch = debounce(async (searchQuery: string) => {
@@ -54,6 +65,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuery(value);
+    
+    // Call onChange prop for real-time updates
+    if (onChange) {
+      onChange(value);
+    }
     
     if (value.length >= 2) {
       setIsLoading(true);

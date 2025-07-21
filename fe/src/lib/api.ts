@@ -45,7 +45,8 @@ class ApiClient {
         
         // Log request in development
         if (process.env.NODE_ENV === 'development') {
-          console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
+          console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
+          console.log('🔧 Request config:', config);
         }
         
         return config;
