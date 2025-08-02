@@ -182,6 +182,16 @@ router.get('/my-used-voucher', protect, voucherController.getUserUsedVoucher);
  *       404:
  *         description: Không tìm thấy phiếu giảm giá
  */
+
+// === Admin Routes - MUST BE BEFORE /:id route ===
+router.get('/admin/statistics', protect, admin, voucherController.getVoucherStatistics);
+router.post('/admin', protect, admin, voucherController.createVoucher);
+router.get('/admin', protect, admin, queryParserMiddleware(), voucherController.getAllVouchers);
+router.get('/admin/:id', protect, admin, validateObjectId('id'), voucherController.getVoucherById);
+router.patch('/admin/:id', protect, admin, validateObjectId('id'), voucherController.updateVoucher);
+router.patch('/admin/:id/toggle-status', protect, admin, validateObjectId('id'), voucherController.toggleVoucherStatus);
+router.delete('/admin/:id', protect, admin, validateObjectId('id'), voucherController.deleteVoucher);
+
 router.get('/:id', validateObjectId('id'), voucherController.getVoucherById); // Corrected usage
 
 /**
@@ -312,194 +322,5 @@ router.get('/check-usage/:code', protect, voucherController.checkVoucherUsage);
  *         description: Chưa đăng nhập
  */
 router.post('/apply', protect, voucherController.applyVoucher);
-
-// === Admin Routes (Authenticated and Admin) ===
-
-/**
- * @swagger
- * /api/vouchers/admin:
- *   post:
- *     summary: Tạo mới một phiếu giảm giá (Admin)
- *     tags: [Vouchers]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/VoucherInput'
- *     responses:
- *       201:
- *         description: Tạo phiếu giảm giá thành công
- *       400:
- *         description: Dữ liệu không hợp lệ hoặc mã phiếu giảm giá đã tồn tại
- *       401:
- *         description: Không có quyền truy cập
- */
-router.post('/admin', protect, admin, voucherController.createVoucher); // Uncommented
-
-/**
- * @swagger
- * /api/vouchers/admin:
- *   get:
- *     summary: Lấy danh sách tất cả phiếu giảm giá (Admin - có thể có các filter/sort khác public)
- *     tags: [Vouchers]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Số trang
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *         description: Số lượng kết quả mỗi trang
- *       - in: query
- *         name: search
- *         schema:
- *           type: string
- *         description: Tìm kiếm theo mã phiếu giảm giá
- *       - in: query
- *         name: sort
- *         schema:
- *           type: string
- *           example: createdAt:desc
- *         description: Sắp xếp theo trường
- *       - in: query
- *         name: isActive
- *         schema:
- *           type: boolean
- *         description: Lọc theo trạng thái hoạt động (true/false)
- *     responses:
- *       200:
- *         description: Danh sách phiếu giảm giá
- *       401:
- *         description: Không có quyền truy cập
- */
-router.get('/admin', protect, admin, queryParserMiddleware(), voucherController.getAllVouchers);
-
-
-/**
- * @swagger
- * /api/vouchers/admin/{id}:
- *   get:
- *     summary: Lấy thông tin chi tiết một phiếu giảm giá (Admin)
- *     tags: [Vouchers]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID của phiếu giảm giá
- *     responses:
- *       200:
- *         description: Thông tin chi tiết phiếu giảm giá
- *       401:
- *         description: Không có quyền truy cập
- *       404:
- *         description: Không tìm thấy phiếu giảm giá
- */
-router.get('/admin/:id', protect, admin, validateObjectId('id'), voucherController.getVoucherById); // Corrected usage
-
-/**
- * @swagger
- * /api/vouchers/admin/{id}:
- *   patch:
- *     summary: Cập nhật thông tin một phiếu giảm giá (Admin)
- *     tags: [Vouchers]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID của phiếu giảm giá
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/VoucherInput'
- *     responses:
- *       200:
- *         description: Cập nhật phiếu giảm giá thành công
- *       400:
- *         description: Dữ liệu không hợp lệ
- *       401:
- *         description: Không có quyền truy cập
- *       404:
- *         description: Không tìm thấy phiếu giảm giá
- */
-router.patch('/admin/:id', protect, admin, validateObjectId('id'), voucherController.updateVoucher); // Corrected usage
-
-/**
- * @swagger
- * /api/vouchers/admin/{id}/toggle-status:
- *   patch:
- *     summary: Chuyển đổi trạng thái hoạt động của phiếu giảm giá (Admin)
- *     tags: [Vouchers]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID của phiếu giảm giá
- *     responses:
- *       200:
- *         description: Cập nhật trạng thái phiếu giảm giá thành công
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 data:
- *                   $ref: '#/components/schemas/Voucher'
- *       401:
- *         description: Không có quyền truy cập
- *       404:
- *         description: Không tìm thấy phiếu giảm giá
- */
-router.patch('/admin/:id/toggle-status', protect, admin, validateObjectId('id'), voucherController.toggleVoucherStatus);
-
-/**
- * @swagger
- * /api/vouchers/admin/{id}:
- *   delete:
- *     summary: Xóa một phiếu giảm giá (Admin)
- *     tags: [Vouchers]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID của phiếu giảm giá
- *     responses:
- *       200:
- *         description: Xóa phiếu giảm giá thành công
- *       401:
- *         description: Không có quyền truy cập
- *       404:
- *         description: Không tìm thấy phiếu giảm giá
- */
-router.delete('/admin/:id', protect, admin, validateObjectId('id'), voucherController.deleteVoucher); // Corrected usage
 
 module.exports = router;

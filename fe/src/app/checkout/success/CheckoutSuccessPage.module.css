@@ -1,0 +1,435 @@
+/* Checkout Success Page Styles */
+.pageContainer {
+  padding: 2rem 0;
+  background: transparent;
+}
+
+.successContainer {
+  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Success Message Section */
+.successMessage {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1rem;
+}
+
+.successIcon {
+  margin-bottom: 1.5rem;
+}
+
+.successIcon svg {
+  font-size: 4rem;
+  color: #10b981; /* Success green */
+  animation: successBounce 0.6s ease-out;
+}
+
+@keyframes successBounce {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.successTitle {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+}
+
+.successSubtitle {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.orderMeta {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  font-size: 1rem;
+  color: #4b5563;
+}
+
+.orderMeta span strong {
+  color: #1e40af; /* Primary blue */
+  font-weight: 600;
+}
+
+/* VNPay Success Indicator */
+.vnpaySuccess {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #10b981 !important;
+  font-weight: 600 !important;
+  background: #f0fdf4;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid #bbf7d0;
+}
+
+.vnpaySuccess svg {
+  font-size: 1rem;
+  color: #10b981;
+}
+
+/* Order Details Section */
+.orderDetails {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+}
+
+.detailsCard {
+  padding: 1.5rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+/* Address Info */
+.addressInfo {
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.addressName {
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.addressText {
+  margin: 0;
+}
+
+/* Order Items */
+.orderItems {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.orderItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.itemImage {
+  flex-shrink: 0;
+}
+
+.productImage {
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.itemDetails {
+  flex: 1;
+}
+
+.itemName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.itemMeta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.itemTotal {
+  font-weight: 600;
+  color: #1e40af;
+  font-size: 1.125rem;
+}
+
+/* Next Steps Section */
+.nextSteps {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
+}
+
+.stepsTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.stepsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.stepNumber {
+  width: 32px;
+  height: 32px;
+  background: #1e40af;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.stepContent h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.stepContent p {
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 2rem 0;
+}
+
+.primaryButton {
+  background: #1e40af !important;
+  color: white !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 2rem !important;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.primaryButton:hover {
+  background: #1d4ed8 !important;
+  transform: translateY(-1px);
+}
+
+.secondaryButton,
+.homeButton {
+  padding: 0.75rem 2rem !important;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.homeButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Error State */
+.errorState {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.errorIcon {
+  font-size: 4rem;
+  color: #dc2626;
+  margin-bottom: 1.5rem;
+}
+
+.errorState h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+}
+
+.errorState p {
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+.errorActions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .successMessage {
+    padding: 2rem 1rem;
+  }
+  
+  .successTitle {
+    font-size: 1.75rem;
+  }
+  
+  .orderMeta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .detailsGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .orderItem {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: center;
+  }
+  
+  .actionButtons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .primaryButton,
+  .secondaryButton,
+  .homeButton {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .stepsList {
+    gap: 1rem;
+  }
+  
+  .step {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .stepNumber {
+    margin: 0 auto 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageContainer {
+    padding: 1rem 0;
+  }
+  
+  .successContainer {
+    gap: 1.5rem;
+  }
+  
+  .orderDetails,
+  .nextSteps {
+    padding: 1.5rem;
+  }
+  
+  .detailsCard {
+    padding: 1rem;
+  }
+}
+
+/* Order Summary Section */
+.orderSummary {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1rem;
+}
+
+.summaryTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.summaryBreakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  font-size: 1rem;
+  color: #4b5563;
+}
+
+.summaryRow .discount {
+  color: #10b981;
+  font-weight: 500;
+}
+
+.summaryTotal {
+  border-top: 2px solid #e5e7eb;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  font-size: 1.125rem;
+  color: #1f2937;
+}
+
+.summaryTotal span {
+  font-weight: 600;
+}

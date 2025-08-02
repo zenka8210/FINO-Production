@@ -1,0 +1,474 @@
+/* Admin Header Styles */
+.adminHeader {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 3px solid #5a67d8;
+}
+
+.container {
+  max-width: 100%;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+}
+
+/* Brand & Logo */
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.logo:hover {
+  transform: translateY(-1px);
+}
+
+/* Logo styles for better visibility on gradient background */
+.logoImage {
+  /* Remove invert filter to keep logo natural colors */
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)) contrast(1.2) saturate(1.1);
+  transition: filter 0.3s ease;
+}
+
+.logo:hover .logoImage {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4)) contrast(1.3) saturate(1.2);
+}
+
+/* Removed adminBadge styles to save space */
+
+/* Desktop Navigation */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Reduced from 1rem to save space */
+  flex: 1;
+  justify-content: center;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem; /* Reduced from 0.5rem */
+  padding: 0.6rem 1rem; /* Reduced padding for more compact design */
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 0.9rem; /* Slightly smaller font */
+  position: relative;
+  backdrop-filter: blur(10px);
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.navLink:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.navLink.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+.navLink.active::before {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 3px;
+  background: white;
+  border-radius: 2px;
+}
+
+.navLink i {
+  font-size: 1rem;
+}
+
+.navLink span {
+  font-size: 0.9rem;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* User Menu */
+.userMenu {
+  position: relative;
+}
+
+.userButton {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  padding: 0.5rem 1rem;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.userButton:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.userAvatar {
+  width: 35px;
+  height: 35px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.userName {
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.userRole {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dropdownIcon {
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.dropdownIcon.open {
+  transform: rotate(180deg);
+}
+
+/* User Dropdown */
+.userDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  min-width: 280px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+  z-index: 1001;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dropdownHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.userAvatarLarge {
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+}
+
+.dropdownUserName {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 1rem;
+}
+
+.dropdownUserEmail {
+  color: #718096;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.dropdownDivider {
+  border: none;
+  height: 1px;
+  background: #e2e8f0;
+  margin: 0;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.5rem;
+  color: #4a5568;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.dropdownItem:hover {
+  background: #f7fafc;
+  color: #2d3748;
+}
+
+.dropdownItem i {
+  width: 16px;
+  text-align: center;
+  opacity: 0.7;
+}
+
+/* Login Button */
+.loginButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.loginButton:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Mobile Menu Button */
+.mobileMenuButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.1rem;
+}
+
+.mobileMenuButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile Menu */
+.mobileMenu {
+  display: none;
+  background: white;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.mobileNav {
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.mobileNavLink {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  color: #4a5568;
+  text-decoration: none;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  margin-bottom: 0.25rem;
+}
+
+.mobileNavLink:hover,
+.mobileNavLink.active {
+  background: #f7fafc;
+  color: #667eea;
+}
+
+.mobileNavLink i {
+  width: 20px;
+  text-align: center;
+}
+
+.mobileActions {
+  /* Removed content - no longer needed */
+  display: none;
+}
+
+/* Removed mobileActionButton styles - no longer used */
+
+.mobileUserMenu {
+  padding: 1rem;
+}
+
+.mobileUserInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f7fafc;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.userAvatarMobile {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.mobileUserName {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.mobileUserRole {
+  color: #718096;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mobileUserLink {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  color: #4a5568;
+  text-decoration: none;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  margin-bottom: 0.25rem;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.mobileUserLink:hover {
+  background: #f7fafc;
+}
+
+.mobileUserLink i {
+  width: 20px;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .nav {
+    display: none;
+  }
+  
+  .quickActions {
+    display: none;
+  }
+  
+  .mobileMenuButton {
+    display: flex;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .nav {
+    gap: 0.3rem; /* Even tighter spacing on smaller screens */
+  }
+  
+  .navLink {
+    padding: 0.5rem 0.8rem; /* Reduced padding */
+    font-size: 0.85rem; /* Smaller font size */
+  }
+}
+
+@media (max-width: 1024px) {
+  .nav {
+    display: none; /* Hide desktop nav on tablet and below */
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+    height: 60px;
+  }
+  
+  .userName,
+  .userRole {
+    display: none;
+  }
+  
+  .userInfo {
+    display: none;
+  }
+  
+  .mobileMenu {
+    display: block;
+  }
+  
+  .adminBadge {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 0.75rem;
+  }
+  
+  .logoImage {
+    width: 104px;
+    height: auto;
+  }
+}

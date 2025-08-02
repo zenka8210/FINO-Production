@@ -21,8 +21,9 @@ export class SizeService {
    */
   async getSizes(): Promise<Size[]> {
     try {
-      const response = await apiClient.get<Size[]>('/api/sizes/public');
-      return response.data!;
+      // Add limit=1000 to get all sizes without pagination
+      const response = await apiClient.get<ApiResponse<Size[]>>('/api/sizes/public?limit=1000');
+      return response.data?.data || [];
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch sizes');
     }
@@ -161,18 +162,6 @@ export class SizeService {
   }
 
   /**
-   * Create new size (Admin)
-   */
-  async createSize(sizeData: Omit<Size, '_id' | 'createdAt' | 'updatedAt'>): Promise<Size> {
-    try {
-      const response = await apiClient.post<Size>('/api/sizes', sizeData);
-      return response.data!;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create size');
-    }
-  }
-
-  /**
    * Update size (Admin)
    */
   async updateSize(id: string, sizeData: Partial<Size>): Promise<Size> {
@@ -197,13 +186,26 @@ export class SizeService {
   }
 
   /**
+   * Create a new size (Admin only)
+   * POST /api/sizes
+   */
+  async createSize(sizeData: { name: string }): Promise<Size> {
+    try {
+      const response = await apiClient.post<ApiResponse<Size>>('/api/sizes', sizeData);
+      return response.data?.data!;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to create size');
+    }
+  }
+
+  /**
    * Bulk create sizes from enum (Admin)
    * POST /api/sizes/bulk-create-enum
    */
   async bulkCreateSizesFromEnum(category: string = 'clothing'): Promise<Size[]> {
     try {
-      const response = await apiClient.post<Size[]>('/api/sizes/bulk-create-enum', { category });
-      return response.data!;
+      const response = await apiClient.post<ApiResponse<Size[]>>('/api/sizes/bulk-create-enum', { category });
+      return response.data?.data || [];
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to bulk create sizes from enum');
     }

@@ -15,6 +15,11 @@ class PostController extends BaseController {
     try {
       // Use new QueryBuilder with improved safety
       if (req.createQueryBuilder) {
+        // Add default populate for author
+        if (!req.query.populate) {
+          req.query.populate = 'author';
+        }
+        
         const queryBuilder = req.createQueryBuilder(Post);
         
         // Configure search and filters for posts

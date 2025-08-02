@@ -43,10 +43,12 @@ class ApiClient {
           config.headers.Authorization = `Bearer ${token}`;
         }
         
-        // Log request in development
+        // Log request in development (reduced)
         if (process.env.NODE_ENV === 'development') {
-          console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
-          console.log('🔧 Request config:', config);
+          // Only log non-GET requests or important ones
+          if (config.method !== 'get' || config.url?.includes('batch') || config.url?.includes('auth')) {
+            console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
+          }
         }
         
         return config;
@@ -60,9 +62,12 @@ class ApiClient {
     // Response interceptor - handle common responses and errors
     this.client.interceptors.response.use(
       (response: AxiosResponse<ApiResponse<any> | PaginatedResponse<any>>) => {
-        // Log response in development
+        // Log response in development (reduced)
         if (process.env.NODE_ENV === 'development') {
-          console.log(`✅ API Response: ${response.status} ${response.config.url}`);
+          // Only log non-GET responses or important ones
+          if (response.config.method !== 'get' || response.config.url?.includes('batch') || response.config.url?.includes('auth')) {
+            console.log(`✅ API Response: ${response.status} ${response.config.url}`);
+          }
         }
         
         return response;
@@ -181,18 +186,85 @@ class ApiClient {
 
   async getPaginated<T = any>(url: string, params?: any): Promise<PaginatedResponse<T>> {
     try {
-      const response = await this.client.get<any>(url, { params });
+      // Increase timeout for large data requests
+      const isLargeRequest = params && (parseInt(params.limit) > 100 || params.limit === '1000');
+      const requestConfig = isLargeRequest ? 
+        { params, timeout: 60000 } : // 60 seconds for large requests
+        { params };
+        
+      const response = await this.client.get<any>(url, requestConfig);
       const responseData = response.data;
       
-      // Handle nested data structure from backend
+      // Log response structure for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 getPaginated response structure:', responseData);
+      }
+      
+      // Handle nested data structure from backend (reviews case)
+      // Backend returns: {success, message, data: {data: [], pagination: {page, limit, total, totalPages}}}
+      if (responseData && responseData.success && responseData.data) {
+        const backendData = responseData.data;
+        
+        // Check if backend data has nested structure with data array and pagination object
+        if (backendData.data && Array.isArray(backendData.data) && backendData.pagination) {
+          const backendPagination = backendData.pagination;
+          return {
+            success: responseData.success,
+            message: responseData.message,
+            data: backendData.data,
+            total: backendPagination.total,
+            page: backendPagination.page,
+            limit: backendPagination.limit,
+            totalPages: backendPagination.totalPages
+          };
+        }
+        
+        // Check if backend data has flat pagination structure
+        if (backendData.data && Array.isArray(backendData.data) && 
+            typeof backendData.total === 'number' && typeof backendData.page === 'number') {
+          return {
+            success: responseData.success,
+            message: responseData.message,
+            data: backendData.data,
+            total: backendData.total,
+            page: backendData.page,
+            limit: backendData.limit,
+            totalPages: backendData.totalPages
+          };
+        }
+      }
+      
+      // Handle flat structure from backend
+      // Backend returns: {success, message, data: [], pagination: {page, limit, total, totalPages}}
+      if (responseData && responseData.pagination) {
+        const backendPagination = responseData.pagination;
+        return {
+          success: responseData.success,
+          message: responseData.message,
+          data: responseData.data,
+          pagination: {
+            current: backendPagination.page || backendPagination.currentPage,
+            total: backendPagination.total || backendPagination.totalItems,
+            limit: backendPagination.limit || backendPagination.itemsPerPage,
+            totalPages: backendPagination.totalPages
+          }
+        };
+      }
+      
+      // Handle nested data structure from backend (if exists)
       // Backend returns: {success, message, data: {data: [], pagination}}
-      // Frontend expects: {success, message, data: [], pagination}
       if (responseData && responseData.data && responseData.data.data && responseData.data.pagination) {
+        const backendPagination = responseData.data.pagination;
         return {
           success: responseData.success,
           message: responseData.message,
           data: responseData.data.data,
-          pagination: responseData.data.pagination
+          pagination: {
+            current: backendPagination.currentPage || backendPagination.current,
+            total: backendPagination.totalItems || backendPagination.total,
+            limit: backendPagination.itemsPerPage || backendPagination.limit,
+            totalPages: backendPagination.totalPages
+          }
         };
       }
       

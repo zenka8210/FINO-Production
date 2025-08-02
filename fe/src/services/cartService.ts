@@ -21,14 +21,47 @@ export class CartService {
   }
 
   /**
-   * Get user's cart
+   * Get user's cart (optimized for performance)
    */
   async getCart(): Promise<CartWithRefs> {
     try {
-      const response = await apiClient.get<CartWithRefs>('/api/cart');
+      const response = await apiClient.get<CartWithRefs>('/api/cart/optimized');
       return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch cart');
+    }
+  }
+
+  /**
+   * Get cart items with pagination for cart page (optimized)
+   */
+  async getCartPaginated(page: number = 1, limit: number = 10, filters?: {
+    search?: string;
+    category?: string;
+    minPrice?: string;
+    maxPrice?: string;
+  }): Promise<{
+    cart: CartWithRefs;
+    totalItems: number;
+    totalPages: number;
+    currentPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  }> {
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        ...(filters?.search && { search: filters.search }),
+        ...(filters?.category && { category: filters.category }),
+        ...(filters?.minPrice && { minPrice: filters.minPrice }),
+        ...(filters?.maxPrice && { maxPrice: filters.maxPrice }),
+      });
+
+      const response = await apiClient.get(`/api/cart/paginated?${params}`);
+      return response.data!;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch paginated cart');
     }
   }
 
@@ -42,6 +75,19 @@ export class CartService {
     } catch (error: any) {
       console.error('Failed to get cart count:', error);
       return 0;
+    }
+  }
+
+  /**
+   * Get cart basic info (count + total) for header display
+   */
+  async getCartBasicInfo(): Promise<{ count: number; total: number }> {
+    try {
+      const response = await apiClient.get<{ count: number; total: number }>('/api/cart/basic-info');
+      return response.data || { count: 0, total: 0 };
+    } catch (error: any) {
+      console.error('Failed to get cart basic info:', error);
+      return { count: 0, total: 0 };
     }
   }
 
@@ -63,6 +109,24 @@ export class CartService {
   }
 
   /**
+   * Batch add multiple items to cart (for wishlist "buy all")
+   */
+  async batchAddToCart(items: Array<{ productVariant: string; quantity: number }>): Promise<{
+    cart: CartWithRefs;
+    successCount: number;
+    errorCount: number;
+    errors: Array<{ productVariant: string; error: string }>;
+  }> {
+    try {
+      const response = await apiClient.post('/api/cart/batch-add', { items });
+      return response.data!;
+    } catch (error: any) {
+      console.error('❌ CartService: Batch add failed:', error.response?.data?.message || error.message);
+      throw new Error(error.response?.data?.message || 'Failed to batch add items to cart');
+    }
+  }
+
+  /**
    * Update cart item quantity
    */
   async updateCartItem(productVariantId: string, quantity: number): Promise<CartWithRefs> {
@@ -70,6 +134,11 @@ export class CartService {
       const response = await apiClient.put<CartWithRefs>(`/api/cart/items/${productVariantId}`, { quantity });
       return response.data!;
     } catch (error: any) {
+      console.error('CartService: PUT request failed', {
+        status: error.response?.status,
+        message: error.response?.data?.message || error.message,
+        data: error.response?.data
+      });
       throw new Error(error.response?.data?.message || 'Failed to update cart item');
     }
   }
@@ -151,7 +220,7 @@ export class CartService {
     paymentMethodId: string;
     voucherId?: string;
     notes?: string;
-  }): Promise<{ order: any; cart: CartWithRefs }> {
+  }): Promise<any> {
     try {
       const requestData = {
         address: checkoutData.addressId,
@@ -159,9 +228,19 @@ export class CartService {
         voucher: checkoutData.voucherId,
         notes: checkoutData.notes
       };
+      
+      console.log('🛒 CartService checkout - sending request:', requestData);
       const response = await apiClient.post('/api/cart/checkout', requestData);
+      console.log('🛒 CartService checkout - received response structure:');
+      console.log('🛒 response.data:', response.data);
+      console.log('🛒 response.data.data:', response.data?.data);
+      console.log('🛒 response.data.data._id:', response.data?.data?._id);
+      
+      // The API returns { success: true, message: "...", data: orderObject }
+      // Return the response data which contains { success, message, data }
       return response.data!;
     } catch (error: any) {
+      console.error('❌ CartService checkout error:', error);
       throw new Error(error.response?.data?.message || 'Failed to checkout');
     }
   }

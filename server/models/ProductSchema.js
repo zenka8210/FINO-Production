@@ -12,8 +12,8 @@ const ProductSchema = new mongoose.Schema({
   saleEndDate: { type: Date }, // Sale period end
 }, { 
   timestamps: true,
-  toJSON: { virtuals: true }, // Include virtual fields when converting to JSON
-  toObject: { virtuals: true } // Include virtual fields when converting to Object
+  toJSON: { virtuals: true }, 
+  toObject: { virtuals: true } 
 });
 ProductSchema.virtual('variants', {
   ref: 'ProductVariant',

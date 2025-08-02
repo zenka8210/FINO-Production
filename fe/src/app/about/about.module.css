@@ -1,56 +1,451 @@
-.aboutContainer {
-  max-width: 100%;
-  margin: 40px 0;
-  background: #fff;
+/* Page Layout */
+.pageContainer {
+  padding: 2rem 0;
+  background: transparent;
+}
+
+.mainContent {
+  padding: 2rem 0 0 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* Hero Section - Full width */
+.heroSection {
+  margin-bottom: 2rem;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(30, 64, 175, 0.1);
+}
+
+.heroImageWrap {
+  position: relative;
+  height: 400px;
+  overflow: hidden;
+}
+
+.heroImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.heroImageWrap:hover .heroImage {
+  transform: scale(1.05);
+}
+
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(30, 64, 175, 0.8), rgba(16, 185, 129, 0.6));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heroTitle {
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  margin: 0;
+}
+
+/* Tab Navigation */
+.tabNavigation {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  padding: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  gap: 4px;
+}
+
+.tabButton {
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  background: transparent;
+  color: #6B7280;
+  font-weight: 500;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  padding: 32px 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
 }
-.title {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 16px;
-  color: #222;
+
+.tabButton:hover {
+  background: #F3F4F6;
+  color: #1E40AF;
 }
+
+.tabButton.active {
+  background: linear-gradient(135deg, #1E40AF, #3B82F6);
+  color: white;
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+}
+
+/* Tab Content */
+.tabContent {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  margin-bottom: 3rem;
+}
+
+/* About Content */
+.aboutContent {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
 .content {
   font-size: 1.1rem;
-  margin-bottom: 32px;
-  color: #444;
+  line-height: 1.8;
+  color: #374151;
+  margin-bottom: 2rem;
+  text-align: justify;
 }
-.relatedTitle {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: #0070f3;
+
+/* Values Content */
+.valuesContent {
+  animation: fadeIn 0.5s ease-in-out;
 }
-.relatedList {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 24px 0;
+
+.valuesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
 }
-.relatedList li {
-  margin-bottom: 8px;
-}
-.relatedList a {
-  color: #0070f3;
-  text-decoration: none;
-}
-.relatedList a:hover {
-  text-decoration: underline;
-}
-.imageWrap {
-  margin-bottom: 24px;
+
+.valueCard {
+  background: linear-gradient(135deg, #FEFEFE, #F8FAFC);
+  border-radius: 16px;
+  padding: 2rem;
   text-align: center;
+  border: 2px solid #F1F5F9;
+  transition: all 0.3s ease;
+  position: relative;
 }
-.image {
-  border-radius: 8px;
-  object-fit: cover;
-  max-width: 100%;
-  height: auto;
+
+.valueCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 40px rgba(30, 64, 175, 0.15);
+  border-color: #1E40AF;
 }
-.sidebar {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 24px;
-  margin-top: 40px;
+
+.valueIcon {
+  font-size: 3rem;
+  color: #1E40AF;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.valueTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1F2937;
+  margin-bottom: 1rem;
+}
+
+.valueDescription {
+  color: #6B7280;
+  line-height: 1.6;
+  text-align: left;
+}
+
+/* Mission Content */
+.missionContent {
+  animation: fadeIn 0.5s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.missionCard,
+.visionCard {
+  background: linear-gradient(135deg, #EBF4FF, #DBEAFE);
+  border-radius: 16px;
+  padding: 2rem;
+  border-left: 6px solid #1E40AF;
+}
+
+.visionCard {
+  background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+  border-left-color: #10B981;
+}
+
+.missionTitle,
+.visionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1F2937;
+  margin-bottom: 1rem;
+}
+
+.missionText,
+.visionText {
+  color: #374151;
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+
+/* Contact Section - Horizontal at bottom */
+.contactSection {
+  background: linear-gradient(135deg, #1E40AF, #3B82F6, #10B981);
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  margin-top: 3rem;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(30, 64, 175, 0.3);
+}
+
+.contactSection::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.contactSection::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: -10px;
+  right: -10px;
+  height: 20px;
+  background: linear-gradient(90deg, rgba(30, 64, 175, 0.3), rgba(16, 185, 129, 0.3));
+  border-radius: 20px;
+  filter: blur(10px);
+}
+
+.contactHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+  z-index: 2;
+}
+
+.contactTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.contactSubtitle {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+.contactGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+.contactItem {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.contactItem::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.contactItem:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-8px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+}
+
+.contactItem:hover::before {
+  left: 100%;
+}
+
+.contactIcon {
+  font-size: 2.5rem;
+  color: white;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.contactItem:hover .contactIcon {
+  transform: scale(1.1) rotate(5deg);
+  text-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
+}
+
+.contactDetails {
+  position: relative;
+  z-index: 2;
+}
+
+.contactDetails h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.contactDetails p {
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 400;
+  transition: color 0.3s ease;
+}
+
+.contactItem:hover .contactDetails p {
+  color: white;
+}
+
+.contactDetails p:last-child {
+  margin-bottom: 0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 1rem 0;
+  }
+
+  .mainContent {
+    padding: 1rem 0 0 0;
+  }
+
+  .heroTitle {
+    font-size: 1.8rem;
+  }
+
+  .tabContent {
+    padding: 1.5rem;
+  }
+
+  .statisticsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+
+  .valuesGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .missionContent {
+    gap: 1.5rem;
+  }
+
+  .contactSection {
+    padding: 2rem 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .contactTitle {
+    font-size: 2rem;
+  }
+
+  .contactSubtitle {
+    font-size: 1rem;
+  }
+
+  .contactGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .contactItem {
+    padding: 1.5rem;
+  }
+
+  .contactIcon {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroTitle {
+    font-size: 1.5rem;
+  }
+
+  .tabNavigation {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .tabButton {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+
+  .statisticsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .valueCard {
+    padding: 1.5rem;
+  }
+
+  .missionCard,
+  .visionCard {
+    padding: 1.5rem;
+  }
+
+  .contactTitle {
+    font-size: 1.8rem;
+  }
+
+  .contactGrid {
+    gap: 1rem;
+  }
+
+  .contactItem {
+    padding: 1rem;
+  }
 }

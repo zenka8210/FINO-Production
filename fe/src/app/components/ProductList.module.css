@@ -139,7 +139,7 @@
 
 @media (min-width: 1280px) {
   .productGrid.grid {
-    grid-template-columns: repeat(4, 1fr); /* Large desktop: 4 columns (reduced from 5) */
+    grid-template-columns: repeat(3, 1fr); /* Large desktop: 3 columns (reduced from 4) */
   }
 }
 

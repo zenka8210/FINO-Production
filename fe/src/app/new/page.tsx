@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useProducts } from '@/hooks';
-import { ProductWithCategory } from '@/types';
+import { useProducts, useProductStats } from '@/hooks';
+import { ProductWithCategory, Category } from '@/types';
+import { categoryService } from '@/services';
 import ProductItem from '../components/ProductItem';
-import { LoadingSpinner, Button, Pagination } from '../components/ui';
+import { LoadingSpinner, Button, Pagination, PageHeader } from '../components/ui';
 import { isProductOnSale } from '@/lib/productUtils';
 import FilterSidebar from '../components/FilterSidebar';
+import { FaStar } from 'react-icons/fa';
 import styles from './new.module.css';
 
 export default function NewProductsPage() {
@@ -18,12 +20,13 @@ export default function NewProductsPage() {
   // Configuration constants
   const NEW_THRESHOLD_DAYS = 90; // 3 months - products newer than this are "truly new"
   const MIN_NEW_PRODUCTS = 50; // Minimum products to always show on new page
-  const PRODUCTS_LIMIT = 150; // Fetch more products to ensure we have enough options
+  const PRODUCTS_LIMIT = 1000; // Increased limit to fetch more products
   
   // State management
   const [products, setProducts] = useState<ProductWithCategory[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<ProductWithCategory[]>([]);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  const [allCategories, setAllCategories] = useState<Category[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,6 +35,27 @@ export default function NewProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState('');
 
   const productsPerPage = 12;
+
+  // Helper function to get all child category IDs for a given parent category ID
+  const getAllChildCategoryIds = (parentCategoryId: string, categories: Category[]): string[] => {
+    const childCategoryIds = new Set<string>();
+    
+    // Find child categories that have this parent
+    categories.forEach(category => {
+      if (category.parent === parentCategoryId) {
+        childCategoryIds.add(category._id);
+        // Recursively find children of children
+        const grandChildren = getAllChildCategoryIds(category._id, categories);
+        grandChildren.forEach(id => childCategoryIds.add(id));
+      }
+    });
+    
+    return Array.from(childCategoryIds);
+  };
+
+  // Get real product statistics
+  const productIds = products.map(p => p._id);
+  const { stats: productStats, loading: statsLoading } = useProductStats(productIds);
 
   useEffect(() => {
     // Get URL parameters
@@ -48,6 +72,22 @@ export default function NewProductsPage() {
     setSelectedCategory(category);
     setPriceRange({ min: minPrice, max: maxPrice });
   }, [searchParams]);
+
+  // Fetch all categories for proper parent-child relationship
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoryService.getPublicCategories({ limit: 100 });
+        const categories = response.data || [];
+        const activeCategories = categories.filter((cat: Category) => cat.isActive);
+        setAllCategories(activeCategories);
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     const fetchNewProducts = async () => {
@@ -164,12 +204,18 @@ export default function NewProductsPage() {
       );
     }
 
-    // Category filter
+    // Category filter - include products from child categories too
     if (selectedCategory) {
+      // Get all child category IDs for the selected category
+      const childCategoryIds = getAllChildCategoryIds(selectedCategory, allCategories);
+      const allTargetCategoryIds = [selectedCategory, ...childCategoryIds];
+      
       filtered = filtered.filter(product => {
-        const categoryName = typeof product.category === 'object' && product.category?.name ? 
-          product.category.name : typeof product.category === 'string' ? product.category : '';
-        return categoryName.toLowerCase().includes(selectedCategory.toLowerCase());
+        if (typeof product.category === 'object' && product.category?._id) {
+          const productCategoryId = product.category._id;
+          return allTargetCategoryIds.includes(productCategoryId);
+        }
+        return false;
       });
     }
 
@@ -183,11 +229,30 @@ export default function NewProductsPage() {
 
     // Sorting
     filtered.sort((a: any, b: any) => {
+      const aStats = productStats[a._id];
+      const bStats = productStats[b._id];
+
       switch (sortBy) {
         case 'newest-first':
           return (b.newScore || 0) - (a.newScore || 0);
         case 'oldest-first':
           return (a.newScore || 0) - (b.newScore || 0);
+        case 'rating-desc':
+          // Sort by average rating descending, prioritize products with actual reviews
+          const aRating = aStats?.averageRating || 0;
+          const bRating = bStats?.averageRating || 0;
+          const aReviews = aStats?.reviewCount || 0;
+          const bReviews = bStats?.reviewCount || 0;
+          
+          // If one has reviews and other doesn't, prioritize the one with reviews
+          if (aReviews > 0 && bReviews === 0) return -1;
+          if (bReviews > 0 && aReviews === 0) return 1;
+          
+          // If both have reviews or both don't have reviews, sort by rating
+          if (bRating !== aRating) return bRating - aRating;
+          
+          // If ratings are equal, use review count as tiebreaker
+          return bReviews - aReviews;
         case 'price-asc':
           return a.price - b.price;
         case 'price-desc':
@@ -203,7 +268,7 @@ export default function NewProductsPage() {
 
     setFilteredProducts(filtered);
     setTotalPages(Math.ceil(filtered.length / productsPerPage));
-  }, [products, searchTerm, sortBy, selectedCategory, priceRange]);
+  }, [products, searchTerm, sortBy, selectedCategory, priceRange, allCategories, productStats]);
 
   const getCurrentPageProducts = () => {
     const startIndex = (currentPage - 1) * productsPerPage;
@@ -315,44 +380,40 @@ export default function NewProductsPage() {
     <div className="container">
       <div className={styles.pageContainer}>
         {/* Page Header */}
-        <div className={styles.pageHeader}>
-          <h1 className={styles.pageTitle}>
-            <span className={styles.newIcon}>🆕</span>
-            Sản Phẩm Mới
-          </h1>
-          <p className={styles.pageSubtitle}>
-            Tìm thấy {filteredProducts.length} sản phẩm mới nhất
-            {reallyNewCount > 0 && thresholdCount > 0 && (
-              <span className={styles.statsBreakdown}>
-                <br />
-                🆕 {reallyNewCount} sản phẩm mới trong {NEW_THRESHOLD_DAYS} ngày • ⭐ {thresholdCount} sản phẩm khác
-              </span>
-            )}
-          </p>
-        </div>
+        <PageHeader
+          title="Sản Phẩm Mới"
+          subtitle={`Tìm thấy ${filteredProducts.length} sản phẩm mới nhất${
+            reallyNewCount > 0 && thresholdCount > 0 
+              ? ` | 🆕 ${reallyNewCount} sản phẩm mới trong ${NEW_THRESHOLD_DAYS} ngày • ⭐ ${thresholdCount} sản phẩm khác`
+              : ''
+          }`}
+          icon={FaStar}
+          breadcrumbs={[
+            { label: 'Trang chủ', href: '/' },
+            { label: 'Sản phẩm mới', href: '/new' }
+          ]}
+        />
 
         <div className={styles.contentWrapper}>
           {/* Filters Sidebar */}
           <FilterSidebar
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
-            onSearch={handleSearch}
             sortBy={sortBy}
             sortOptions={[
               { value: 'newest-first', label: 'Mới nhất trước' },
               { value: 'oldest-first', label: 'Cũ nhất trước' },
+              { value: 'rating-desc', label: 'Đánh giá cao nhất' },
               { value: 'price-asc', label: 'Giá thấp đến cao' },
               { value: 'price-desc', label: 'Giá cao đến thấp' },
               { value: 'name-asc', label: 'Tên A-Z' },
               { value: 'name-desc', label: 'Tên Z-A' }
             ]}
             onSortChange={handleSortChange}
-            availableCategories={availableCategories}
             selectedCategory={selectedCategory}
             onCategoryChange={handleCategoryChange}
             priceRange={priceRange}
             onPriceRangeChange={setPriceRange}
-            onPriceFilter={handlePriceFilter}
             onClearFilters={clearFilters}
           />
 
@@ -360,28 +421,40 @@ export default function NewProductsPage() {
           <div className={styles.productsContainer}>
             {currentPageProducts.length > 0 ? (
               <div className={styles.productsGrid}>
-                {currentPageProducts.map((product: any) => (
-                  <div key={product._id} className={styles.productWrapper}>
-                    <ProductItem 
-                      product={product} 
-                      layout="grid"
-                    />
-                    <div className={`${styles.newBadge} ${product.isReallyNew ? styles.reallyNew : styles.thresholdNew}`}>
-                      {product.isReallyNew ? (
-                        <>🆕 Mới {formatRelativeTime(product.addedDate)}</>
-                      ) : (
-                        <>⭐ {formatRelativeTime(product.addedDate)}</>
-                      )}
+                {currentPageProducts.map((product: any) => {
+                  // Get real stats for this product
+                  const productStatsData = productStats[product._id];
+                  
+                  return (
+                    <div key={product._id} className={styles.productWrapper}>
+                      <ProductItem 
+                        product={product} 
+                        layout="grid"
+                        averageRating={productStatsData?.averageRating || 0}
+                        reviewCount={productStatsData?.reviewCount || 0}
+                        showRatingBadge={true}
+                      />
+                      <div className={`${styles.newBadge} ${product.isReallyNew ? styles.reallyNew : styles.thresholdNew}`}>
+                        {product.isReallyNew ? (
+                          <>🆕 Mới {formatRelativeTime(product.addedDate)}</>
+                        ) : (
+                          <>⭐ {formatRelativeTime(product.addedDate)}</>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className={styles.noResults}>
                 <div className={styles.noResultsIcon}>📦</div>
                 <h3>Không tìm thấy sản phẩm nào</h3>
                 <p>Hãy thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm</p>
-                <Button onClick={clearFilters} className={styles.resetFiltersBtn}>
+                <Button 
+                  onClick={clearFilters} 
+                  variant="primary" 
+                  size="md"
+                >
                   Xem tất cả sản phẩm mới
                 </Button>
               </div>

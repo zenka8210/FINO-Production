@@ -1,0 +1,103 @@
+/* ADMIN GLOBAL CSS - OVERRIDE ALL FRONTEND STYLES */
+
+/* Float animation keyframes */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Complete reset and override for admin pages */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+  overflow-x: hidden !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+/* AGGRESSIVE HIDING - Hide ALL frontend elements */
+body:has(.adminContainer) > div:not(:has(.adminContainer)),
+body:has(.adminContainer) > header,
+body:has(.adminContainer) > nav:not(.adminNav),
+body:has(.adminContainer) > main:not(:has(.adminContainer)),
+body:has(.adminContainer) > section:not(:has(.adminContainer)),
+body:has(.adminContainer) > footer,
+body:has(.adminContainer) [class*="header"],
+body:has(.adminContainer) [class*="Header"],
+body:has(.adminContainer) [class*="menu"],
+body:has(.adminContainer) [class*="Menu"],
+body:has(.adminContainer) [class*="navbar"],
+body:has(.adminContainer) [class*="navigation"],
+body:has(.adminContainer) [class*="layout"]:not(.adminContainer),
+body:has(.adminContainer) [class*="footer"],
+body:has(.adminContainer) [class*="Footer"],
+[class*="footer_modern-module"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -99999px !important;
+  top: -99999px !important;
+  z-index: -1 !important;
+}
+
+/* Extra aggressive override */
+[class*="header-module"],
+[class*="menu-module"],
+[class*="Header-module"],
+[class*="footer-module"],
+[class*="Footer-module"],
+[class*="footer_modern-module"],
+div[class*="footer"] {
+  display: none !important;
+  position: absolute !important;
+  left: -99999px !important;
+  visibility: hidden !important;
+}
+
+/* Specific targeting for footer elements */
+.footer_modern-module__x2XlRq__container,
+[class*="footer_modern"],
+footer {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -99999px !important;
+  top: -99999px !important;
+  z-index: -1 !important;
+}
+
+/* Ensure admin container dominates */
+.adminContainer {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 999999 !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  isolation: isolate !important;
+}
+
+/* Reset any inherited styles in admin */
+.adminContainer * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}

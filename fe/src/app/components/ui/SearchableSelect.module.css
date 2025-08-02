@@ -1,0 +1,134 @@
+.searchableSelect {
+  position: relative;
+  width: 100%;
+}
+
+.inputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  background: white;
+  color: #000 !important;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.input:disabled {
+  background: #f3f4f6;
+  color: #9ca3af !important;
+  cursor: not-allowed;
+}
+
+.input::placeholder {
+  color: #9ca3af;
+}
+
+.arrow {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  color: #6b7280;
+  pointer-events: none;
+  transition: transform 0.2s;
+}
+
+.arrowUp {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.optionsList {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-top: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 9999; /* Very high z-index to appear above other elements */
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.option {
+  padding: 0.75rem;
+  cursor: pointer;
+  color: #000 !important;
+  background: white;
+  transition: background-color 0.15s;
+  border-bottom: 1px solid #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.option:hover,
+.highlighted {
+  background: #f3f4f6 !important;
+}
+
+.selected {
+  background: #dbeafe !important;
+  color: #1e40af !important;
+  font-weight: 500;
+}
+
+.inactive {
+  color: #9ca3af !important;
+  opacity: 0.7;
+}
+
+.inactiveLabel {
+  font-size: 0.8rem;
+  color: #ef4444 !important;
+  font-style: italic;
+}
+
+.option:last-child {
+  border-bottom: none;
+}
+
+.noOptions {
+  padding: 0.75rem;
+  color: #9ca3af !important;
+  font-style: italic;
+  text-align: center;
+  background: white;
+}
+
+/* Custom scrollbar */
+.optionsList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.optionsList::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.optionsList::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.optionsList::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

@@ -1,0 +1,60 @@
+/* Global Admin Styles - Applied when admin container is present */
+@import './globals.css';
+
+/* ============= ADMIN SPECIFIC GLOBAL OVERRIDES ============= */
+body:has(.adminContainer) header,
+body:has(.adminContainer) nav:not(.adminNav),
+body:has(.adminContainer) .header,
+body:has(.adminContainer) .navbar,
+body:has(.adminContainer) .main-nav,
+body:has(.adminContainer) .search-container,
+body:has(.adminContainer) .logo,
+body:has(.adminContainer) .user-actions {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+body:has(.adminContainer) {
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: transparent !important;
+}
+
+/* Hide all non-admin content */
+body:has(.adminContainer) > *:not(:has(.adminContainer)) {
+  display: none !important;
+}
+
+/* Global CSS Variables */
+:root {
+  --admin-primary: #1E40AF;
+  --admin-secondary: #F1F5F9;
+  --admin-accent: #F59E0B;
+  --admin-success: #10B981;
+  --admin-warning: #F59E0B;
+  --admin-error: #DC2626;
+  --admin-bg: #F9FAFB;
+  --admin-card: #FFFFFF;
+  --admin-border: #E5E7EB;
+  --admin-text: #111827;
+  --admin-muted: #9CA3AF;
+  --admin-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  --admin-shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+  --admin-font-heading: 'Poppins', sans-serif;
+  --admin-font-body: 'Inter', sans-serif;
+}
+
+/* Global box-sizing for admin pages */
+body:has(.adminContainer) * {
+  box-sizing: border-box;
+}
+
+/* Global focus styles for admin pages */
+body:has(.adminContainer) *:focus {
+  outline: 2px solid var(--admin-primary);
+  outline-offset: 2px;
+}

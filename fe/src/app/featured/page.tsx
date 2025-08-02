@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useProducts, useProductStats } from '@/hooks';
-import { productService } from '@/services';
-import { ProductWithCategory } from '@/types';
+import { productService, categoryService } from '@/services';
+import { ProductWithCategory, Category } from '@/types';
 import ProductItem from '../components/ProductItem';
-import { LoadingSpinner, Button, Pagination } from '../components/ui';
+import { LoadingSpinner, Button, Pagination, PageHeader } from '../components/ui';
 import { isProductOnSale } from '@/lib/productUtils';
 import FilterSidebar from '../components/FilterSidebar';
+import { FaStar } from 'react-icons/fa';
 import styles from './featured.module.css';
 
 export default function FeaturedProductsPage() {
@@ -20,6 +21,7 @@ export default function FeaturedProductsPage() {
   const [products, setProducts] = useState<ProductWithCategory[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<ProductWithCategory[]>([]);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  const [allCategories, setAllCategories] = useState<Category[]>([]); // Add this for proper category filtering
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,6 +30,23 @@ export default function FeaturedProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState('');
 
   const productsPerPage = 12;
+
+  // Helper function to get all child category IDs from complete category list
+  const getAllChildCategoryIds = (parentCategoryId: string, categories: Category[]): string[] => {
+    const childCategoryIds = new Set<string>();
+    
+    // Find child categories that have this parent
+    categories.forEach(category => {
+      if (category.parent === parentCategoryId) {
+        childCategoryIds.add(category._id);
+        // Recursively find children of children
+        const grandChildren = getAllChildCategoryIds(category._id, categories);
+        grandChildren.forEach(id => childCategoryIds.add(id));
+      }
+    });
+    
+    return Array.from(childCategoryIds);
+  };
 
   // Get real product statistics
   const productIds = products.map(p => p._id);
@@ -59,12 +78,28 @@ export default function FeaturedProductsPage() {
     setPriceRange({ min: minPrice, max: maxPrice });
   }, [searchParams]);
 
+  // Fetch all categories for proper parent-child filtering
+  useEffect(() => {
+    const fetchAllCategories = async () => {
+      try {
+        const response = await categoryService.getPublicCategories({ limit: 100 });
+        const categories = response.data || [];
+        const activeCategories = categories.filter((cat: Category) => cat.isActive);
+        setAllCategories(activeCategories);
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      }
+    };
+
+    fetchAllCategories();
+  }, []);
+
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
       try {
         // Use REAL featured products API instead of simulating data
         console.log('🎯 FeaturedPage: Fetching REAL featured products from backend API...');
-        const response = await productService.getFeaturedProducts(500); // Get many to allow filtering
+        const response = await productService.getFeaturedProducts(100); // Increase limit to get more featured products with real metrics
         console.log('✅ Real featured products response:', response);
         
         // Handle response structure
@@ -94,7 +129,7 @@ export default function FeaturedProductsPage() {
         // Fallback to regular getProducts if API fails
         console.log('⚠️ Falling back to regular products API...');
         try {
-          const fallbackResponse = await getProducts({ limit: 500 });
+          const fallbackResponse = await getProducts({ limit: 50 }); // Limit to 50 featured products
           const productsArray = Array.isArray(fallbackResponse.data) ? fallbackResponse.data : 
                                (fallbackResponse.data && Array.isArray((fallbackResponse.data as any).data)) ? 
                                (fallbackResponse.data as any).data : [];
@@ -139,12 +174,18 @@ export default function FeaturedProductsPage() {
       );
     }
 
-    // Category filter
+    // Category filter - include products from child categories too
     if (selectedCategory) {
+      // Get all child category IDs for the selected category using complete category list
+      const childCategoryIds = getAllChildCategoryIds(selectedCategory, allCategories);
+      const allTargetCategoryIds = [selectedCategory, ...childCategoryIds];
+      
       filtered = filtered.filter(product => {
-        const categoryName = typeof product.category === 'object' && product.category?.name ? 
-          product.category.name : typeof product.category === 'string' ? product.category : '';
-        return categoryName.toLowerCase().includes(selectedCategory.toLowerCase());
+        if (typeof product.category === 'object' && product.category?._id) {
+          const productCategoryId = product.category._id;
+          return allTargetCategoryIds.includes(productCategoryId);
+        }
+        return false;
       });
     }
 
@@ -156,24 +197,40 @@ export default function FeaturedProductsPage() {
       filtered = filtered.filter(product => product.price <= parseInt(priceRange.max));
     }
 
-    // Sorting using real product statistics
+    // Sorting using real backend metrics and product statistics
     filtered.sort((a: any, b: any) => {
       const aStats = productStats[a._id];
       const bStats = productStats[b._id];
 
       switch (sortBy) {
         case 'popularity-desc':
-          // Calculate popularity based on real review data, with bonus for products that have reviews
-          const aPopularity = (aStats?.reviewCount || 0) * (aStats?.averageRating || 1) * 5 + // Review bonus
-                              (a.categoryBoost || 1) + (a.priceScore || 0) + (a.saleBoost || 1);
-          const bPopularity = (bStats?.reviewCount || 0) * (bStats?.averageRating || 1) * 5 + // Review bonus
-                              (b.categoryBoost || 1) + (b.priceScore || 0) + (b.saleBoost || 1);
+          // Use backend popularityScore first, then fallback to frontend calculation
+          const aPopularityBackend = a.popularityScore || 0;
+          const bPopularityBackend = b.popularityScore || 0;
+          
+          if (aPopularityBackend !== bPopularityBackend) {
+            return bPopularityBackend - aPopularityBackend;
+          }
+          
+          // Fallback: Calculate popularity based on real review data
+          const aPopularity = (aStats?.reviewCount || 0) * (aStats?.averageRating || 1) * 5 + 
+                              (a.wishlistCount || 0) * 3 + (a.salesCount || 0) * 2;
+          const bPopularity = (bStats?.reviewCount || 0) * (bStats?.averageRating || 1) * 5 + 
+                              (b.wishlistCount || 0) * 3 + (b.salesCount || 0) * 2;
           return bPopularity - aPopularity;
+          
         case 'popularity-asc':
+          const aPopularityAscBackend = a.popularityScore || 0;
+          const bPopularityAscBackend = b.popularityScore || 0;
+          
+          if (aPopularityAscBackend !== bPopularityAscBackend) {
+            return aPopularityAscBackend - bPopularityAscBackend;
+          }
+          
           const aPopularityAsc = (aStats?.reviewCount || 0) * (aStats?.averageRating || 1) * 5 +
-                                 (a.categoryBoost || 1) + (a.priceScore || 0) + (a.saleBoost || 1);
+                                 (a.wishlistCount || 0) * 3 + (a.salesCount || 0) * 2;
           const bPopularityAsc = (bStats?.reviewCount || 0) * (bStats?.averageRating || 1) * 5 +
-                                 (b.categoryBoost || 1) + (b.priceScore || 0) + (b.saleBoost || 1);
+                                 (b.wishlistCount || 0) * 3 + (b.salesCount || 0) * 2;
           return aPopularityAsc - bPopularityAsc;
         case 'price-asc':
           return a.price - b.price;
@@ -184,19 +241,36 @@ export default function FeaturedProductsPage() {
         case 'name-desc':
           return b.name.localeCompare(a.name);
         case 'rating-desc':
-          return (bStats?.averageRating || 0) - (aStats?.averageRating || 0);
+          // Sort by average rating descending, prioritize products with actual reviews
+          const aRating = aStats?.averageRating || 0;
+          const bRating = bStats?.averageRating || 0;
+          const aReviews = aStats?.reviewCount || 0;
+          const bReviews = bStats?.reviewCount || 0;
+          
+          // If one has reviews and other doesn't, prioritize the one with reviews
+          if (aReviews > 0 && bReviews === 0) return -1;
+          if (bReviews > 0 && aReviews === 0) return 1;
+          
+          // If both have reviews or both don't have reviews, sort by rating
+          if (bRating !== aRating) return bRating - aRating;
+          
+          // If ratings are equal, use review count as tiebreaker
+          return bReviews - aReviews;
         default:
-          const aPopularityDefault = (aStats?.reviewCount || 0) * (aStats?.averageRating || 1) * 5 +
-                                     (a.categoryBoost || 1) + (a.priceScore || 0) + (a.saleBoost || 1);
-          const bPopularityDefault = (bStats?.reviewCount || 0) * (bStats?.averageRating || 1) * 5 +
-                                     (b.categoryBoost || 1) + (b.priceScore || 0) + (b.saleBoost || 1);
+          // Use backend popularityScore for default sorting
+          const aPopularityDefault = a.popularityScore || 
+                                     ((aStats?.reviewCount || 0) * (aStats?.averageRating || 1) * 5 +
+                                     (a.wishlistCount || 0) * 3 + (a.salesCount || 0) * 2);
+          const bPopularityDefault = b.popularityScore || 
+                                     ((bStats?.reviewCount || 0) * (bStats?.averageRating || 1) * 5 +
+                                     (b.wishlistCount || 0) * 3 + (b.salesCount || 0) * 2);
           return bPopularityDefault - aPopularityDefault;
       }
     });
 
     setFilteredProducts(filtered);
     setTotalPages(Math.ceil(filtered.length / productsPerPage));
-  }, [products, searchTerm, sortBy, selectedCategory, priceRange, productStats]); // Add productStats dependency
+  }, [products, searchTerm, sortBy, selectedCategory, priceRange, productStats, allCategories]); // Add allCategories dependency
 
   const getCurrentPageProducts = () => {
     const startIndex = (currentPage - 1) * productsPerPage;
@@ -269,15 +343,15 @@ export default function FeaturedProductsPage() {
     <div className="container">
       <div className={styles.pageContainer}>
         {/* Page Header */}
-        <div className={styles.pageHeader}>
-          <h1 className={styles.pageTitle}>
-            <span className={styles.featuredIcon}>⭐</span>
-            Sản Phẩm Nổi Bật
-          </h1>
-          <p className={styles.pageSubtitle}>
-            Tìm thấy {filteredProducts.length} sản phẩm được yêu thích nhất
-          </p>
-        </div>
+        <PageHeader
+          title="Sản Phẩm Nổi Bật"
+          subtitle={`Tìm thấy ${filteredProducts.length} sản phẩm được yêu thích nhất`}
+          icon={FaStar}
+          breadcrumbs={[
+            { label: 'Trang chủ', href: '/' },
+            { label: 'Sản phẩm nổi bật', href: '/featured' }
+          ]}
+        />
 
         <div className={styles.contentWrapper}>
           {/* Filters Sidebar */}
@@ -295,7 +369,6 @@ export default function FeaturedProductsPage() {
               { value: 'name-desc', label: 'Tên Z-A' }
             ]}
             onSortChange={handleSortChange}
-            availableCategories={availableCategories}
             selectedCategory={selectedCategory}
             onCategoryChange={handleCategoryChange}
             priceRange={priceRange}
@@ -307,27 +380,33 @@ export default function FeaturedProductsPage() {
           <div className={styles.productsContainer}>
             {currentPageProducts.length > 0 ? (
               <div className={styles.productsGrid}>
-                {currentPageProducts.map((product: any) => (
-                  <div key={product._id} className={styles.productWrapper}>
-                    <ProductItem 
-                      product={product} 
-                      layout="grid"
-                    />
-                    {/* Show real product statistics */}
-                    {productStats[product._id] && productStats[product._id].reviewCount > 0 && (
-                      <div className={styles.popularityBadge}>
-                        ⭐ {productStats[product._id].averageRating.toFixed(1)} ({productStats[product._id].reviewCount} đánh giá)
-                      </div>
-                    )}
-                  </div>
-                ))}
+                {currentPageProducts.map((product: any) => {
+                  // Get real stats for this product
+                  const productStatsData = productStats[product._id];
+                  
+                  return (
+                    <div key={product._id} className={styles.productWrapper}>
+                      <ProductItem 
+                        product={product} 
+                        layout="grid"
+                        averageRating={productStatsData?.averageRating || 0}
+                        reviewCount={productStatsData?.reviewCount || 0}
+                        showRatingBadge={true}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className={styles.noResults}>
                 <div className={styles.noResultsIcon}>📦</div>
                 <h3>Không tìm thấy sản phẩm nào</h3>
                 <p>Hãy thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm</p>
-                <Button onClick={clearFilters} className={styles.resetFiltersBtn}>
+                <Button 
+                  onClick={clearFilters} 
+                  variant="primary" 
+                  size="md"
+                >
                   Xem tất cả sản phẩm nổi bật
                 </Button>
               </div>

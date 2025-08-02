@@ -1,342 +1,452 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../../../contexts/AuthContext";
-import ActionButtons from "../../components/ActionButtons";
+import { useAdminReviews } from "../../../hooks/useAdminReviews";
+import { useApiNotification } from "../../../hooks/useApiNotification";
+import { ReviewWithRefs } from "../../../types";
 import styles from "./review-admin.module.css";
 
-interface Review {
-  id: string;
-  productId: string;
-  userId: string;
-  username: string;
-  rating: number;
-  comment: string;
-  createdAt: string;
-  updatedAt: string;
-}
+export default function AdminReviewsPage() {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+  const { showSuccess, showError } = useApiNotification();
+  const {
+    loading,
+    error,
+    getReviews,
+    getReviewStatistics,
+    deleteReview,
+    clearError
+  } = useAdminReviews();
+  
+  const [reviews, setReviews] = useState<ReviewWithRefs[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [filterRating, setFilterRating] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sortOrder, setSortOrder] = useState<string>('desc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [statistics, setStatistics] = useState<any>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedReview, setSelectedReview] = useState<ReviewWithRefs | null>(null);
 
-interface Product {
-  id: string;
-  name: string;
-}
-
-export default function ReviewsAdminPage() {
-  const { user } = useAuth();
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingReview, setEditingReview] = useState<Review | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [filterRating, setFilterRating] = useState<number | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-
-  // Form states for editing
-  const [formRating, setFormRating] = useState(5);
-  const [formComment, setFormComment] = useState("");
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   useEffect(() => {
-    if (user && user.role === "admin") {
-      fetchReviews();
-      fetchProducts();
+    // Wait for AuthContext to load before checking
+    if (isLoading) return;
+    
+    if (!user || user.role !== "admin") {
+      router.replace("/login");
+      return;
     }
-  }, [user]);
+    
+    fetchReviews();
+    fetchStatistics();
+  }, [user?.role, isLoading, currentPage, filterRating, debouncedSearchTerm, sortBy, sortOrder]);
 
   const fetchReviews = async () => {
     try {
-      const response = await fetch("/api/reviews?admin=true");
-      const data = await response.json();
-      if (data.success) {
-        setReviews(data.reviews);
-      }
-    } catch (error) {
-      console.error("Error fetching reviews:", error);
-    } finally {
-      setLoading(false);
+      console.log('🔄 Fetching reviews...', { currentPage, debouncedSearchTerm, filterRating, sortBy, sortOrder });
+      clearError();
+      
+      const filters = {
+        page: currentPage,
+        limit: 20,
+        search: debouncedSearchTerm || undefined,
+        rating: filterRating !== 'all' ? filterRating : undefined,
+        sortBy,
+        sortOrder
+      };
+
+      const response = await getReviews(filters);
+      
+      console.log('✅ Reviews fetched:', response);
+      setReviews(Array.isArray(response.data) ? response.data : []);
+      setTotalPages(response.totalPages || 1);
+      setTotalReviews(response.total || 0);
+    } catch (err: any) {
+      console.error('❌ Error fetching reviews:', err);
+      setReviews([]);
+      showError('Lỗi tải danh sách đánh giá', err);
     }
   };
 
-  const fetchProducts = async () => {
+  const fetchStatistics = async () => {
     try {
-      const response = await fetch("/api/products");
-      const data = await response.json();
-      if (data.success) {
-        setProducts(data.products);
-      }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    }
-  };
-
-  const getProductName = (productId: string) => {
-    const product = products.find(p => p.id === productId);
-    return product ? product.name : `Sản phẩm #${productId}`;
-  };
-
-  const handleEditReview = (review: Review) => {
-    setEditingReview(review);
-    setFormRating(review.rating);
-    setFormComment(review.comment);
-    setShowModal(true);
-  };
-
-  const handleSaveReview = async () => {
-    if (!editingReview) return;
-
-    try {
-      const response = await fetch("/api/reviews", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: editingReview.id,
-          rating: formRating,
-          comment: formComment,
-          userId: user?._id,
-          isAdmin: true,
-        }),
+      console.log('🔄 Fetching statistics...');
+      const stats = await getReviewStatistics();
+      console.log('✅ Statistics fetched:', stats);
+      setStatistics(stats);
+    } catch (err) {
+      console.error('❌ Error fetching statistics:', err);
+      // Set default statistics if API fails
+      setStatistics({
+        totalReviews: 0,
+        averageRating: 0,
+        pendingReviews: 0,
+        approvedReviews: 0,
+        ratingDistribution: [],
+        topProducts: []
       });
-
-      const data = await response.json();
-      if (data.success) {
-        await fetchReviews();
-        setShowModal(false);
-        setEditingReview(null);
-        alert("Cập nhật đánh giá thành công!");
-      } else {
-        alert(data.error || "Có lỗi xảy ra");
-      }
-    } catch (error) {
-      console.error("Error updating review:", error);
-      alert("Có lỗi xảy ra khi cập nhật đánh giá");
     }
   };
 
-  const handleDeleteReview = async (reviewId: string) => {
-    if (!confirm("Bạn có chắc chắn muốn xóa đánh giá này?")) return;
+  const handleDeleteReview = async (review: ReviewWithRefs) => {
+    setSelectedReview(review);
+    setShowDeleteModal(true);
+  };
 
+  const confirmDelete = async () => {
+    if (!selectedReview) return;
+    
     try {
-      const response = await fetch(`/api/reviews?id=${reviewId}&isAdmin=true`, {
-        method: "DELETE",
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        await fetchReviews();
-        alert("Xóa đánh giá thành công!");
-      } else {
-        alert(data.error || "Có lỗi xảy ra");
-      }
-    } catch (error) {
-      console.error("Error deleting review:", error);
-      alert("Có lỗi xảy ra khi xóa đánh giá");
+      await deleteReview(selectedReview._id);
+      showSuccess('Đã xóa đánh giá thành công');
+      setShowDeleteModal(false);
+      setSelectedReview(null);
+      fetchReviews();
+    } catch (err: any) {
+      showError('Lỗi xóa đánh giá', err);
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString("vi-VN");
+    return new Date(dateString).toLocaleDateString('vi-VN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   const renderStars = (rating: number) => {
-    return "★".repeat(rating) + "☆".repeat(5 - rating);
+    return Array.from({ length: 5 }, (_, index) => (
+      <span key={index} className={index < rating ? styles.starFilled : styles.starEmpty}>
+        ★
+      </span>
+    ));
   };
 
-  // Filter reviews based on rating and search term
-  const filteredReviews = reviews.filter(review => {
-    const matchesRating = filterRating === null || review.rating === filterRating;
-    const matchesSearch = searchTerm === "" || 
-      review.comment.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      review.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      getProductName(review.productId).toLowerCase().includes(searchTerm.toLowerCase());
-    
-    return matchesRating && matchesSearch;
-  });
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
-  if (!user || user.role !== "admin") {
-    return (
-      <div className={styles.container}>
-        <div className={styles.unauthorizedMessage}>
-          Bạn không có quyền truy cập trang này.
-        </div>
-      </div>
-    );
-  }
+  const handleSortChange = (newSortBy: string) => {
+    if (sortBy === newSortBy) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(newSortBy);
+      setSortOrder('desc');
+    }
+  };
 
-  if (loading) {
+  // Loading state
+  if (isLoading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loadingMessage}>Đang tải...</div>
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner}></div>
+        <p>Đang tải...</p>
       </div>
     );
   }
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>Quản lý đánh giá</h1>
-        <div className={styles.stats}>
-          <div className={styles.statItem}>
-            <span className={styles.statNumber}>{reviews.length}</span>
-            <span className={styles.statLabel}>Tổng đánh giá</span>
-          </div>
-          <div className={styles.statItem}>
-            <span className={styles.statNumber}>
-              {reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) : "0"}
-            </span>
-            <span className={styles.statLabel}>Điểm trung bình</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className={styles.filters}>
-        <div className={styles.filterGroup}>
-          <label>Lọc theo điểm:</label>
-          <select 
-            value={filterRating || ""} 
-            onChange={(e) => setFilterRating(e.target.value ? parseInt(e.target.value) : null)}
-            className={styles.filterSelect}
-          >
-            <option value="">Tất cả</option>
-            <option value="5">5 sao</option>
-            <option value="4">4 sao</option>
-            <option value="3">3 sao</option>
-            <option value="2">2 sao</option>
-            <option value="1">1 sao</option>
-          </select>
-        </div>
-        <div className={styles.filterGroup}>
-          <label>Tìm kiếm:</label>
-          <input
-            type="text"
-            placeholder="Tìm theo nội dung, tên người dùng, sản phẩm..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-        </div>
-      </div>
-
-      {/* Reviews List */}
-      <div className={styles.reviewsList}>
-        {filteredReviews.length === 0 ? (
-          <div className={styles.emptyMessage}>
-            {searchTerm || filterRating ? "Không tìm thấy đánh giá nào phù hợp." : "Chưa có đánh giá nào."}
-          </div>
-        ) : (
-          filteredReviews.map((review) => (
-            <div key={review.id} className={styles.reviewCard}>
-              <div className={styles.reviewHeader}>
-                <div className={styles.reviewInfo}>
-                  <h3 className={styles.productName}>{getProductName(review.productId)}</h3>
-                  <div className={styles.reviewMeta}>
-                    <span className={styles.username}>@{review.username}</span>
-                    <span className={styles.date}>{formatDate(review.createdAt)}</span>
-                    <span className={styles.rating}>{renderStars(review.rating)}</span>
-                  </div>
-                </div>
-                <ActionButtons 
-                  customActions={[
-                    {
-                      label: "Chỉnh sửa",
-                      action: () => handleEditReview(review),
-                      type: "primary",
-                      icon: "fas fa-edit"
-                    },
-                    {
-                      label: "Xóa",
-                      action: () => handleDeleteReview(review.id),
-                      type: "danger",
-                      icon: "fas fa-trash"
-                    }
-                  ]}
-                />
-              </div>
-              <div className={styles.reviewContent}>
-                <p>{review.comment}</p>
-              </div>
-              {review.updatedAt !== review.createdAt && (
-                <div className={styles.updatedInfo}>
-                  Cập nhật lần cuối: {formatDate(review.updatedAt)}
-                </div>
-              )}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className={styles.pageContainer}>
+        {/* Page Header */}
+        <div className={styles.pageHeader}>
+          <div className={styles.headerContent}>
+            <div className={styles.titleSection}>
+              <h1 className={styles.pageTitle}>Quản lý đánh giá</h1>
+              <p className={styles.pageSubtitle}>
+                Quản lý tất cả đánh giá sản phẩm từ khách hàng
+              </p>
             </div>
-          ))
+          </div>
+        </div>
+
+        {/* Statistics Cards */}
+        {statistics && (
+          <div className={styles.statsContainer}>
+            <div className={styles.statsCard}>
+              <div className={styles.statsIcon}>📊</div>
+              <div className={styles.statsContent}>
+                <h3>{statistics.totalReviews || 0}</h3>
+                <p>Tổng đánh giá</p>
+              </div>
+            </div>
+            <div className={styles.statsCard}>
+              <div className={styles.statsIcon}>⭐</div>
+              <div className={styles.statsContent}>
+                <h3>{statistics.averageRating?.toFixed(1) || '0.0'}</h3>
+                <p>Điểm trung bình</p>
+              </div>
+            </div>
+          </div>
         )}
-      </div>
 
-      {/* Edit Modal */}
-      {showModal && editingReview && (
-        <div className={styles.modal}>
-          <div className={styles.modalContent}>
-            <div className={styles.modalHeader}>
-              <h2>Chỉnh sửa đánh giá</h2>
-              <button
-                onClick={() => {
-                  setShowModal(false);
-                  setEditingReview(null);
-                }}
-                className={styles.closeBtn}
-              >
-                ×
-              </button>
+        {/* Filters */}
+        <div className={styles.filtersContainer}>
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              placeholder="Tìm kiếm theo tên khách hàng, email hoặc từ khóa trong bình luận..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+          </div>
+          
+          <div className={styles.filterGroup}>
+            <select
+              value={filterRating}
+              onChange={(e) => setFilterRating(e.target.value)}
+              className={styles.filterSelect}
+            >
+              <option value="all">Tất cả đánh giá</option>
+              <option value="5">5 sao</option>
+              <option value="4">4 sao</option>
+              <option value="3">3 sao</option>
+              <option value="2">2 sao</option>
+              <option value="1">1 sao</option>
+            </select>
+
+            <select
+              value={`${sortBy}-${sortOrder}`}
+              onChange={(e) => {
+                const [newSortBy, newSortOrder] = e.target.value.split('-');
+                setSortBy(newSortBy);
+                setSortOrder(newSortOrder);
+              }}
+              className={styles.filterSelect}
+            >
+              <option value="createdAt-desc">Mới nhất</option>
+              <option value="createdAt-asc">Cũ nhất</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Content Header */}
+        <div className={styles.contentHeader}>
+          <h2 className={styles.contentTitle}>
+            {debouncedSearchTerm || filterRating !== 'all' 
+              ? `Kết quả tìm kiếm (${totalReviews} đánh giá)` 
+              : `Danh sách đánh giá (${totalReviews} đánh giá)`}
+          </h2>
+        </div>
+
+        {/* Reviews Table */}
+        <div className={styles.tableContainer}>
+          {loading ? (
+            <div className={styles.loadingState}>
+              <div className={styles.spinner}></div>
+              <p>Đang tải danh sách đánh giá...</p>
             </div>
-            <div className={styles.modalBody}>
-              <div className={styles.formGroup}>
-                <label>Sản phẩm:</label>
-                <p className={styles.productInfo}>{getProductName(editingReview.productId)}</p>
-              </div>
-              <div className={styles.formGroup}>
-                <label>Người đánh giá:</label>
-                <p className={styles.userInfo}>@{editingReview.username}</p>
-              </div>
-              <div className={styles.formGroup}>
-                <label>Điểm đánh giá:</label>
-                <select
-                  value={formRating}
-                  onChange={(e) => setFormRating(parseInt(e.target.value))}
-                  className={styles.formSelect}
+          ) : reviews.length === 0 ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>📝</div>
+              <h3>Không có đánh giá nào</h3>
+              <p>Chưa có đánh giá nào phù hợp với tiêu chí tìm kiếm.</p>
+            </div>
+          ) : (
+            <div className={styles.tableWrapper}>
+              <table className={styles.reviewsTable}>
+                <thead>
+                  <tr>
+                    <th onClick={() => handleSortChange('user')} className={styles.sortableHeader}>
+                      Khách hàng
+                      {sortBy === 'user' && (
+                        <span className={styles.sortIcon}>
+                          {sortOrder === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </th>
+                    <th onClick={() => handleSortChange('product')} className={styles.sortableHeader}>
+                      Sản phẩm
+                      {sortBy === 'product' && (
+                        <span className={styles.sortIcon}>
+                          {sortOrder === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </th>
+                    <th onClick={() => handleSortChange('rating')} className={styles.sortableHeader}>
+                      Đánh giá
+                      {sortBy === 'rating' && (
+                        <span className={styles.sortIcon}>
+                          {sortOrder === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </th>
+                    <th>Bình luận</th>
+                    <th onClick={() => handleSortChange('createdAt')} className={styles.sortableHeader}>
+                      Ngày tạo
+                      {sortBy === 'createdAt' && (
+                        <span className={styles.sortIcon}>
+                          {sortOrder === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reviews.map((review) => (
+                    <tr key={review._id}>
+                      <td>
+                        <div className={styles.userInfo}>
+                          <div className={styles.userName}>
+                            {review.user?.name || 'N/A'}
+                          </div>
+                          <div className={styles.userEmail}>
+                            {review.user?.email || 'N/A'}
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className={styles.productInfo}>
+                          {review.product?.images?.[0] && (
+                            <img
+                              src={review.product.images[0]}
+                              alt={review.product.name}
+                              className={styles.productImage}
+                            />
+                          )}
+                          <div className={styles.productDetails}>
+                            <div className={styles.productName}>
+                              {review.product?.name || 'N/A'}
+                            </div>
+                            <div className={styles.productPrice}>
+                              {review.product?.price?.toLocaleString('vi-VN')}đ
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className={styles.ratingContainer}>
+                          <div className={styles.stars}>
+                            {renderStars(review.rating)}
+                          </div>
+                          <span className={styles.ratingNumber}>
+                            {review.rating}/5
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <div className={styles.commentContainer}>
+                          <p className={styles.comment}>
+                            {review.comment}
+                          </p>
+                        </div>
+                      </td>
+                      <td>
+                        <div className={styles.dateContainer}>
+                          {formatDate(review.createdAt)}
+                        </div>
+                      </td>
+                      <td>
+                        <div className={styles.actionButtons}>
+                          <button
+                            onClick={() => handleDeleteReview(review)}
+                            className={`${styles.actionButton} ${styles.deleteButton}`}
+                            title="Xóa đánh giá"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className={styles.paginationContainer}>
+            <div className={styles.pagination}>
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={styles.paginationButton}
+              >
+                « Trước
+              </button>
+              
+              {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`${styles.paginationButton} ${
+                    currentPage === page ? styles.activePage : ''
+                  }`}
                 >
-                  <option value={1}>1 sao</option>
-                  <option value={2}>2 sao</option>
-                  <option value={3}>3 sao</option>
-                  <option value={4}>4 sao</option>
-                  <option value={5}>5 sao</option>
-                </select>
-              </div>
-              <div className={styles.formGroup}>
-                <label>Nội dung đánh giá:</label>
-                <textarea
-                  value={formComment}
-                  onChange={(e) => setFormComment(e.target.value)}
-                  rows={4}
-                  className={styles.formTextarea}
-                  placeholder="Nhập nội dung đánh giá..."
-                />
-              </div>
-            </div>
-            <div className={styles.modalFooter}>
+                  {page}
+                </button>
+              ))}
+              
               <button
-                onClick={() => {
-                  setShowModal(false);
-                  setEditingReview(null);
-                }}
-                className={`${styles.modalBtn} ${styles.cancelBtn}`}
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={styles.paginationButton}
               >
-                Hủy
-              </button>
-              <button
-                onClick={handleSaveReview}
-                className={`${styles.modalBtn} ${styles.saveBtn}`}
-                disabled={!formComment.trim()}
-              >
-                Lưu thay đổi
+                Sau »
               </button>
             </div>
           </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && selectedReview && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modal}>
+              <div className={styles.modalHeader}>
+                <h3>Xác nhận xóa đánh giá</h3>
+              </div>
+              <div className={styles.modalContent}>
+                <p>Bạn có chắc chắn muốn xóa đánh giá này?</p>
+                <div className={styles.reviewPreview}>
+                  <div className={styles.stars}>
+                    {renderStars(selectedReview.rating)}
+                  </div>
+                  <p>"{selectedReview.comment}"</p>
+                  <p><strong>Khách hàng:</strong> {selectedReview.user?.name}</p>
+                  <p><strong>Sản phẩm:</strong> {selectedReview.product?.name}</p>
+                </div>
+              </div>
+              <div className={styles.modalActions}>
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className={`${styles.modalButton} ${styles.cancelButton}`}
+                >
+                  Hủy
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className={`${styles.modalButton} ${styles.deleteButton}`}
+                  disabled={loading}
+                >
+                  {loading ? 'Đang xóa...' : 'Xóa'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

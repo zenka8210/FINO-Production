@@ -68,6 +68,16 @@ export interface RecentActivity {
   userName?: string;
 }
 
+export interface PublicStats {
+  totalUsers: number;
+  totalProducts: number;
+  totalOrders: number;
+  activeProducts: number;
+  categories: number;
+  satisfactionRate: number;
+  experience: string;
+}
+
 export class StatisticsService {
   private static instance: StatisticsService;
 
@@ -220,6 +230,18 @@ export class StatisticsService {
       return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch order statistics');
+    }
+  }
+
+  /**
+   * Get public statistics for About page (No authentication required)
+   */
+  async getPublicStats(): Promise<PublicStats> {
+    try {
+      const response = await apiClient.get<PublicStats>('/api/statistics/public');
+      return response.data!;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch public statistics');
     }
   }
 }

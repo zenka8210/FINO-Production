@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Poppins, Inter } from "next/font/google";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./globals.css";
-import Header from "./components/Header";
-import AppFooter from "./components/footer";
-import ChatBox from "./components/ChatBox";
+import LayoutWrapper from "./components/LayoutWrapper";
 import { ToastContainer } from "./components/ui";
 import { AppProvider } from "../contexts"; // 👉 Cập nhật import
 
@@ -37,29 +35,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let isAdminPage = false;
-  if (typeof window !== 'undefined') {
-    isAdminPage = window.location.pathname.startsWith('/admin');
-  } else if (typeof document !== 'undefined') {
-    isAdminPage = document.location.pathname.startsWith('/admin');
-  }
-  return isAdminPage ? (
+  return (
     <html lang="vi" suppressHydrationWarning>
+      <head>
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+      </head>
       <body className={`${poppins.variable} ${inter.variable}`} suppressHydrationWarning>
         <AppProvider>
-          {children}
-          <ToastContainer />
-        </AppProvider>
-      </body>
-    </html>
-  ) : (
-    <html lang="vi" suppressHydrationWarning>
-      <body className={`${poppins.variable} ${inter.variable}`} suppressHydrationWarning>
-        <AppProvider>
-          <Header />
-          {children}
-          <AppFooter />
-          <ChatBox />
+          <LayoutWrapper>{children}</LayoutWrapper>
           <ToastContainer />
         </AppProvider>
       </body>

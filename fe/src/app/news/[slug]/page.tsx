@@ -7,19 +7,6 @@ import { postService } from '@/services';
 import { PostWithAuthor } from '@/types';
 import styles from './news-detail.module.css';
 
-interface NewsPost {
-  id: number;
-  title: string;
-  excerpt: string;
-  content: string;
-  image: string;
-  date: string;
-  category: string;
-  slug: string;
-  views: number;
-  author: string;
-}
-
 export default function NewsDetailPage() {
   const params = useParams();
   const [news, setNews] = useState<PostWithAuthor | null>(null);
@@ -38,26 +25,14 @@ export default function NewsDetailPage() {
     setError(null);
 
     try {
-      // Get published posts and find by slug
-      const response = await postService.getPublishedPosts(1, 100);
-      console.log('Posts response:', response);
+      // Get specific post by ID
+      const post = await postService.getPostById(slug);
+      setNews(post);
       
-      // getPublishedPosts() returns PaginatedResponse<PostWithAuthor>
-      // Structure: { data: PostWithAuthor[], pagination: {} }
-      const postsArray = Array.isArray(response) ? response : 
-                        (response && Array.isArray(response.data)) ? response.data : [];
-      
-      const post = postsArray.find(p => p._id === slug);
-      
-      if (post) {
-        setNews(post);
-        
-        // Load related posts (exclude current post)
-        const relatedPosts = postsArray.filter(p => p._id !== post._id).slice(0, 4);
-        setRelatedNews(relatedPosts);
-      } else {
-        setError('Không tìm thấy bài viết.');
-      }
+      // Load related posts
+      const relatedResponse = await postService.getPublishedPosts(1, 5);
+      const relatedPosts = relatedResponse.data.filter(p => p._id !== post._id).slice(0, 4);
+      setRelatedNews(relatedPosts);
     } catch (error) {
       console.error('Error loading news:', error);
       setError('Không thể tải bài viết. Vui lòng thử lại sau.');
@@ -104,14 +79,14 @@ export default function NewsDetailPage() {
 
   return (
     <div className={styles.container}>
-      {/* Breadcrumb */}
-      <nav className={styles.breadcrumb}>
-        <Link href="/">Trang chủ</Link>
+      {/* Breadcrumb - styled like products page */}
+      <div className={styles.breadcrumb}>
+        <span onClick={() => window.location.href = '/'}>Trang chủ</span>
         <span>/</span>
-        <Link href="/news">Tin tức</Link>
+        <span onClick={() => window.location.href = '/news'}>Tin tức</span>
         <span>/</span>
-        <span>Tin tức</span>
-      </nav>
+        <span className={styles.current}>{news.title}</span>
+      </div>
 
       {/* Article */}
       <article className={styles.article}>
@@ -129,10 +104,6 @@ export default function NewsDetailPage() {
             <div className={styles.metaItem}>
               <span className={styles.metaLabel}>Tác giả:</span>
               <span className={styles.metaValue}>{news.author.name}</span>
-            </div>
-            <div className={styles.metaItem}>
-              <span className={styles.metaLabel}>Lượt xem:</span>
-              <span className={styles.metaValue}>1000</span>
             </div>
           </div>
         </header>

@@ -1,0 +1,95 @@
+/* Product Statistics Cards Styles */
+.statisticsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.statisticsCard {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  transition: all 0.2s ease-in-out;
+  cursor: default;
+}
+
+.statisticsCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.statisticsValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.statisticsLabel {
+  color: #666;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Individual card styles */
+.totalProducts {
+  background: linear-gradient(135deg, rgba(108, 71, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  border: 1px solid rgba(108, 71, 255, 0.2);
+}
+
+.totalProducts .statisticsValue {
+  color: #6c47ff;
+}
+
+.activeProducts {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.activeProducts .statisticsValue {
+  color: #10b981;
+}
+
+.lowStockProducts {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.lowStockProducts .statisticsValue {
+  color: #f59e0b;
+}
+
+.totalVariants {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(8, 145, 178, 0.1) 100%);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+}
+
+.totalVariants .statisticsValue {
+  color: #06b6d4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .statisticsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  
+  .statisticsCard {
+    padding: 1rem;
+  }
+  
+  .statisticsValue {
+    font-size: 1.5rem;
+  }
+  
+  .statisticsLabel {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .statisticsGrid {
+    grid-template-columns: 1fr;
+  }
+}

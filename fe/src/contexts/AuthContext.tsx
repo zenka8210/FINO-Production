@@ -169,6 +169,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     dispatch({ type: 'CLEAR_ERROR' });
   };
 
+  // Set user directly (for Google OAuth and other external auth)
+  const setUser = (user: User, token?: string) => {
+    if (token) {
+      localStorage.setItem('authToken', token);
+    }
+    dispatch({ type: 'AUTH_SUCCESS', payload: user });
+  };
+
   const contextValue: AuthContextType = {
     user: state.user,
     isAuthenticated: state.isAuthenticated,
@@ -179,6 +187,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     logout,
     updateProfile,
     clearError,
+    setUser,
   };
 
   return (

@@ -1,253 +1,719 @@
 'use client';
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
-import { useCart } from "@/contexts/CartContext";
-import { orderService } from "@/services";
-import styles from "./checkout.module.css";
+
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth, useCart, useApiNotification } from '@/hooks';
+import { Button, PageHeader, LoadingSpinner } from '@/app/components/ui';
+import { FaCreditCard, FaShoppingCart, FaMapMarkerAlt, FaTicketAlt, FaExclamationTriangle } from 'react-icons/fa';
+import { formatCurrency } from '@/lib/utils';
+import { addressService, voucherService, cartService, paymentMethodService, vnpayService, orderService } from '@/services';
+import { Address, Voucher, PaymentMethod } from '@/types';
+import Image from 'next/image';
+import axios from 'axios';
+import styles from './CheckoutPage.module.css';
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { user } = useAuth();
-  const { cart } = useCart();
-  const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    district: "",
-    note: "",
-    shipping: "economy",
-    payment: "cod"
-  });
-  const [shippingFee, setShippingFee] = useState(20000);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const { user, isLoading: authLoading } = useAuth();
+  const { cart, isLoading: cartLoading, isEmpty, loadCart } = useCart();
+  const { showSuccess, showError } = useApiNotification();
 
-  // Kiểm tra đăng nhập và tự động nhập thông tin
+  // Memoized cart subtotal calculation using sale price
+  const cartSubtotal = useMemo(() => {
+    if (!cart?.items?.length) return 0;
+    
+    const total = cart.items.reduce((sum, item) => {
+      // Add null checks to prevent errors
+      if (!item.productVariant?.product) {
+        console.warn('Cart item missing productVariant or product:', item);
+        return sum;
+      }
+      
+      // Use same logic as CartContext: sale price from product, regular price from variant
+      const salePrice = item.productVariant.product.salePrice;
+      const regularPrice = item.productVariant.price; // Get from variant, not product
+      const currentPrice = salePrice || regularPrice;
+      
+      // Additional safety check for price
+      if (!currentPrice || isNaN(currentPrice)) {
+        console.warn('Cart item has invalid price:', { item, salePrice, regularPrice });
+        return sum;
+      }
+      
+      const itemTotal = currentPrice * item.quantity;
+      if (isNaN(itemTotal)) {
+        console.warn('Cart item total is NaN:', { currentPrice, quantity: item.quantity });
+        return sum;
+      }
+      
+      return sum + itemTotal;
+    }, 0);
+    
+    return total;
+  }, [cart?.items]);
+
+  // State management
+  const [defaultAddress, setDefaultAddress] = useState<Address | null>(null);
+  const [availableVouchers, setAvailableVouchers] = useState<Voucher[]>([]);
+  const [selectedVoucher, setSelectedVoucher] = useState<string>('');
+  const [availablePaymentMethods, setAvailablePaymentMethods] = useState<PaymentMethod[]>([]);
+  const [paymentMethod, setPaymentMethod] = useState<string>('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isLoadingAddress, setIsLoadingAddress] = useState(true);
+  const [isLoadingVouchers, setIsLoadingVouchers] = useState(true);
+  const [isLoadingPaymentMethods, setIsLoadingPaymentMethods] = useState(true);
+  const [checkoutSuccess, setCheckoutSuccess] = useState(false); // Track checkout success
+  const [shippingFee, setShippingFee] = useState(30000); // Default shipping fee
+  const [isLoadingShipping, setIsLoadingShipping] = useState(false);
+
+  // Filter available vouchers based on order subtotal (before shipping)
+  const eligibleVouchers = useMemo(() => {
+    if (!availableVouchers.length) return [];
+    
+    const now = new Date();
+    
+    return availableVouchers.filter(voucher => {
+      // Check if voucher is active
+      if (!voucher.isActive) return false;
+      
+      // Check if voucher is within valid date range
+      const startDate = new Date(voucher.startDate);
+      const endDate = new Date(voucher.endDate);
+      if (now < startDate || now > endDate) return false;
+      
+      // Check minimum order value requirement against subtotal (before shipping)
+      if (cartSubtotal < (voucher.minimumOrderValue || 0)) return false;
+      
+      // Check maximum order value if set
+      if (voucher.maximumOrderValue && cartSubtotal > voucher.maximumOrderValue) return false;
+      
+      return true;
+    });
+  }, [availableVouchers, cartSubtotal]);
+
+  // Calculate discount amount for selected voucher (based on subtotal)
+  const voucherDiscount = useMemo(() => {
+    if (!selectedVoucher || !eligibleVouchers.length) return 0;
+    
+    const voucher = eligibleVouchers.find(v => v._id === selectedVoucher);
+    if (!voucher) return 0;
+    
+    // Safety check for cartSubtotal
+    if (!cartSubtotal || isNaN(cartSubtotal)) {
+      console.warn('Cart subtotal is invalid for voucher calculation:', cartSubtotal);
+      return 0;
+    }
+    
+    // Calculate percentage discount based on subtotal (before shipping)
+    const discountAmount = Math.floor(cartSubtotal * (voucher.discountPercent / 100));
+    
+    // Safety check for discount amount
+    if (isNaN(discountAmount)) {
+      console.warn('Discount amount is NaN:', { cartSubtotal, discountPercent: voucher.discountPercent });
+      return 0;
+    }
+    
+    // Apply maximum discount limit if exists
+    if (voucher.maximumDiscountAmount) {
+      return Math.min(discountAmount, voucher.maximumDiscountAmount);
+    }
+    
+    return discountAmount;
+  }, [selectedVoucher, eligibleVouchers, cartSubtotal]);
+
+  // Real-time order calculation: subtotal - discount + shipping
+  const realTimeOrderTotal = useMemo(() => {
+    const subtotal = cartSubtotal || 0;
+    const discount = voucherDiscount || 0;
+    const shipping = shippingFee || 30000; // Fallback to default shipping
+    
+    // Safety checks for NaN values
+    if (isNaN(subtotal)) {
+      console.warn('Subtotal is NaN, using 0:', subtotal);
+    }
+    if (isNaN(discount)) {
+      console.warn('Discount is NaN, using 0:', discount);
+    }
+    if (isNaN(shipping)) {
+      console.warn('Shipping is NaN, using 30000:', shipping);
+    }
+    
+    const finalTotal = (subtotal || 0) - (discount || 0) + (shipping || 30000);
+    
+    const result = {
+      subtotal: subtotal || 0,
+      discountAmount: discount || 0,
+      shippingFee: shipping || 30000,
+      finalTotal: Math.max(finalTotal, shipping || 30000) // Ensure final total never goes below shipping
+    };
+    
+    return result;
+  }, [cartSubtotal, voucherDiscount, shippingFee]);
+
+  // Clear selected voucher if it's no longer eligible
+  // Clear selected voucher if it's no longer eligible
   useEffect(() => {
-    if (!user) {
-      // Chưa đăng nhập, chuyển về trang login
+    if (selectedVoucher && eligibleVouchers.length > 0) {
+      const isStillEligible = eligibleVouchers.some(v => v._id === selectedVoucher);
+      if (!isStillEligible) {
+        setSelectedVoucher('');
+      }
+    }
+  }, [selectedVoucher, eligibleVouchers]);
+
+  // Order calculation (kept for backend sync)
+  const [orderCalculation, setOrderCalculation] = useState({
+    subtotal: 0,
+    discountAmount: 0,
+    shippingFee: 0,
+    finalTotal: 0
+  });
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
       router.push('/login?redirect=/checkout');
       return;
     }
+  }, [user, router, authLoading]);
 
-    // Tự động nhập thông tin user nếu có
-    if (user) {
-      setForm(prev => ({
-        ...prev,
-        firstName: user.name?.split(' ')[0] || "",
-        lastName: user.name?.split(' ').slice(1).join(' ') || "",
-        email: user.email || "",
-        phone: user.phone || "",
-        address: user.address || "",
-        city: "",
-        district: ""
-      }));
-    }
-    
-    setLoading(false);
-  }, [user, router]);
-
-  // Tính tổng tiền - lấy giảm giá từ localStorage nếu có
-  let subtotal = cart?.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0;
-  let discount = 0;
-  let discountCode = "";
-  
-  // Lấy thông tin giảm giá từ cart (nếu có)
-  if (typeof window !== 'undefined') {
-    const cartDiscount = localStorage.getItem('cartDiscount');
-    if (cartDiscount) {
-      const discountData = JSON.parse(cartDiscount);
-      discount = discountData.amount || 0;
-      discountCode = discountData.code || "";
-    }
-  }
-  
-  let total = subtotal + shippingFee - discount;
-  if (total < 0) total = 0;  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Kiểm tra lại đăng nhập
-    if (!user) {
-      setError("Vui lòng đăng nhập để thanh toán!");
-      router.push('/login?redirect=/checkout');
+  // Redirect if cart is empty (but not during checkout success)
+  useEffect(() => {
+    if (!cartLoading && isEmpty && !checkoutSuccess) {
+      router.push('/cart');
       return;
     }
-    
-    // Kiểm tra thiếu trường
-    if (!form.firstName || !form.lastName || !form.email || !form.phone || !form.address || !form.city || !form.district) {
-      setError("Vui lòng điền đầy đủ thông tin bắt buộc!");
-      setTimeout(() => setError(""), 2500);
-      return;
-    }    try {
-      // Chuẩn bị dữ liệu đơn hàng theo đúng format CreateOrderRequest
-      if (!cart?.items || cart.items.length === 0) {
-        setError("Giỏ hàng trống!");
+  }, [cartLoading, isEmpty, router, checkoutSuccess]);
+
+  // Load default address
+  useEffect(() => {
+    const loadDefaultAddress = async () => {
+      if (!user) return;
+      
+      try {
+        setIsLoadingAddress(true);
+        const userAddresses = await addressService.getUserAddresses();
+        
+        // Find default address
+        const defaultAddr = userAddresses.find(addr => addr.isDefault) || userAddresses[0];
+        setDefaultAddress(defaultAddr || null);
+      } catch (error) {
+        console.error('Error loading default address:', error);
+        showError('Không thể tải địa chỉ');
+      } finally {
+        setIsLoadingAddress(false);
+      }
+    };
+
+    loadDefaultAddress();
+  }, [user]);
+
+  // Load vouchers
+  useEffect(() => {
+    const loadVouchers = async () => {
+      if (!user) {
+        return;
+      }
+      
+      try {
+        setIsLoadingVouchers(true);
+        
+        const response = await voucherService.getActiveVouchers();
+        const vouchers = Array.isArray(response) ? response : [];
+        
+        setAvailableVouchers(vouchers);
+      } catch (error) {
+        console.error('❌ Error loading vouchers:', error);
+        showError('Không thể tải voucher');
+        setAvailableVouchers([]);
+      } finally {
+        setIsLoadingVouchers(false);
+      }
+    };
+
+    loadVouchers();
+  }, [user]);
+
+  // Load payment methods
+  useEffect(() => {
+    const loadPaymentMethods = async () => {
+      try {
+        setIsLoadingPaymentMethods(true);
+        
+        const paymentMethods = await paymentMethodService.getActivePaymentMethods();
+        
+        // Ensure we have an array
+        const methodsArray = Array.isArray(paymentMethods) ? paymentMethods : [];
+        
+        // Sort to put COD first
+        const sortedMethods = methodsArray.sort((a, b) => {
+          if (a.method === 'COD') return -1;
+          if (b.method === 'COD') return 1;
+          return 0;
+        });
+        
+        setAvailablePaymentMethods(sortedMethods);
+        
+        // Set default payment method to COD first, or first available
+        if (sortedMethods.length > 0 && !paymentMethod) {
+          const defaultMethod = sortedMethods.find(m => m.method === 'COD') || sortedMethods[0];
+          setPaymentMethod(defaultMethod._id);
+        }
+      } catch (error) {
+        console.error('❌ Error loading payment methods:', error);
+        showError('Không thể tải phương thức thanh toán');
+        setAvailablePaymentMethods([]);
+      } finally {
+        setIsLoadingPaymentMethods(false);
+      }
+    };
+
+    loadPaymentMethods();
+  }, []);
+
+  // Clear selected voucher if it's no longer eligible
+  useEffect(() => {
+    if (selectedVoucher && eligibleVouchers.length > 0) {
+      const isStillEligible = eligibleVouchers.some(v => v._id === selectedVoucher);
+      if (!isStillEligible) {
+        setSelectedVoucher('');
+      }
+    }
+  }, [selectedVoucher, eligibleVouchers]);
+
+  // Calculate order total when address or voucher changes
+  // Calculate order total when address or voucher changes
+  useEffect(() => {
+    const calculateTotal = async () => {
+      if (!defaultAddress || !cart?.items?.length) return;
+      
+      try {
+        const calculation = await cartService.calculateTotal(defaultAddress._id, selectedVoucher || undefined);
+        
+        // Use frontend real-time calculation for display (more accurate and faster)
+        setOrderCalculation(realTimeOrderTotal);
+      } catch (error) {
+        console.error('❌ Error calculating total:', error);
+        // Use real-time calculation as fallback
+        setOrderCalculation(realTimeOrderTotal);
+      }
+    };
+
+    calculateTotal();
+  }, [defaultAddress?._id, selectedVoucher, cartSubtotal]);
+
+  // Calculate shipping fee when address changes
+  useEffect(() => {
+    const calculateShipping = async () => {
+      if (!defaultAddress?._id) {
+        setShippingFee(30000);
         return;
       }
 
-      const orderData = {
-        items: cart.items.map(item => ({
-          productVariant: item.productVariant._id,
-          quantity: item.quantity
-        })),
-        address: `${form.address}, ${form.district}, ${form.city}`,
-        paymentMethod: form.payment,
-        voucher: discountCode || undefined
+      try {
+        setIsLoadingShipping(true);
+        
+        const result = await orderService.calculateShippingFee(defaultAddress._id);
+        
+        setShippingFee(result.shippingFee);
+      } catch (error) {
+        console.error('❌ Error calculating shipping fee:', error);
+        // Use fallback shipping fee
+        setShippingFee(30000);
+      } finally {
+        setIsLoadingShipping(false);
+      }
+    };
+
+    calculateShipping();
+  }, [defaultAddress?._id]);
+
+  // Handle checkout
+  const handleCheckout = async () => {
+    if (!defaultAddress) {
+      showError('Vui lòng thiết lập địa chỉ mặc định');
+      return;
+    }
+
+    if (!paymentMethod) {
+      showError('Vui lòng chọn phương thức thanh toán');
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      
+      const checkoutData = {
+        addressId: defaultAddress._id,
+        paymentMethodId: paymentMethod,
+        voucherId: selectedVoucher || undefined
       };
 
-      // Gửi đơn hàng lên API
-      const result = await orderService.createOrder(orderData);
+      // Check if payment method is VNPay
+      const selectedPaymentMethod = availablePaymentMethods.find(pm => pm._id === paymentMethod);
 
-      // Xóa giỏ hàng và mã giảm giá sau khi đặt hàng thành công
-      localStorage.removeItem('cart');
-      localStorage.removeItem('cartDiscount');
+      if (selectedPaymentMethod?.method === 'VNPay') {
+        try {
+          // Use new VNPay checkout endpoint that handles everything properly
+          const vnpayResponse = await vnpayService.createVNPayCheckout(checkoutData);
+          
+          // Show loading message
+          showSuccess('Đang chuyển hướng đến VNPay...');
+          
+          // Small delay to show the message
+          setTimeout(() => {
+            // Redirect to VNPay payment page
+            window.location.href = vnpayResponse.paymentUrl;
+          }, 1000);
+          
+          return; // Exit early - order will be created after successful payment
+          
+        } catch (vnpayError) {
+          console.error('❌ VNPay checkout creation failed:', vnpayError);
+          showError('Không thể tạo thanh toán VNPay', vnpayError);
+          return;
+        }
+        
+      } else {
+        // For COD and other methods: Create order immediately
+        const result = await cartService.checkout(checkoutData);
+        
+        // Mark checkout as successful to prevent cart redirect
+        setCheckoutSuccess(true);
+        
+        // Extract order ID from response
+        let orderId = null;
+        
+        if (result?.data?._id) {
+          orderId = result.data._id;
+        } else if (result?._id) {
+          orderId = result._id;
+        } else if (result?.order?._id) {
+          orderId = result.order._id;
+        } else {
+          console.error('❌ Could not find order ID in expected locations');
+          console.error('❌ Full response structure:', JSON.stringify(result, null, 2));
+        }
+        
+        // Reload cart after successful checkout
+        loadCart().catch(console.error);
+        
+        if (orderId) {
+          // Redirect to success page
+          const successUrl = `/checkout/success?orderId=${orderId}`;
+          router.push(successUrl);
+        } else {
+          console.error('❌ No order ID found, redirecting to profile orders');
+          router.push('/profile?section=orders');
+        }
+      }
+
+    } catch (error: any) {
+      console.error('❌ Checkout error:', error);
+      console.error('❌ Error response:', error.response?.data);
       
-      // Chuyển sang trang thành công với ID đơn hàng
-      router.push(`/checkout-success?orderId=${result._id}`);
-    } catch (error) {
-      console.error('Error placing order:', error);
-      setError("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!");
-      setTimeout(() => setError(""), 2500);
+      // Redirect to failure page with error info
+      const errorMessage = error.response?.data?.message || error.message || 'Đặt hàng thất bại';
+      showError('Đặt hàng thất bại', errorMessage);
+      router.push(`/checkout/fail?error=${encodeURIComponent(errorMessage)}`);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  // Hiển thị loading nếu đang kiểm tra đăng nhập
-  if (loading) {
+  // Loading state
+  if (authLoading || cartLoading || isLoadingAddress || isLoadingPaymentMethods) {
     return (
-      <div className="container" style={{ textAlign: 'center', padding: '50px' }}>
-        <h2>Đang kiểm tra thông tin...</h2>
+      <div className="container">
+        <div className={styles.pageContainer}>
+          <LoadingSpinner />
+        </div>
       </div>
     );
   }
 
-  // Hiển thị thông báo nếu chưa đăng nhập
-  if (!user) {
-    return (
-      <div className="container" style={{ textAlign: 'center', padding: '50px' }}>
-        <h2>Vui lòng đăng nhập để thanh toán</h2>        <button onClick={() => router.push('/login?redirect=/checkout')} 
-                className="btn-brand btn-lg"
-                style={{ padding: '12px 24px', marginTop: '20px' }}>
-          Đăng nhập ngay
-        </button>
-      </div>
-    );
-  }
   return (
     <div className="container">
-      <div className="row">
-        {/* Form bên trái */}
-        <div className="col-7 col-md-12 col-sm-12">
-          <form className={styles.checkoutForm} onSubmit={handleSubmit}>
-            <h2>THÔNG TIN THANH TOÁN</h2>
-            {error && (
-              <div style={{background:'#ffeaea',color:'#e11d48',padding:'8px 12px',borderRadius:6,marginBottom:8,fontWeight:600,textAlign:'center',boxShadow:'0 2px 8px #0001'}}>
-                {error}
+      <div className={styles.pageContainer}>
+        <PageHeader
+          title="Thanh toán"
+          subtitle="Hoàn tất đơn hàng của bạn"
+          icon={FaCreditCard}
+          breadcrumbs={[
+            { label: 'Trang chủ', href: '/' },
+            { label: 'Giỏ hàng', href: '/cart' },
+            { label: 'Thanh toán', href: '/checkout' }
+          ]}
+        />
+
+        <div className={styles.checkoutContainer}>
+          {/* Main Checkout Form */}
+          <div className={styles.leftColumn}>
+            {/* Shipping Address Section */}
+            <div className={styles.checkoutSection}>
+              <div className={styles.sectionHeader}>
+                <FaMapMarkerAlt className={styles.sectionIcon} />
+                <h3 className={styles.sectionTitle}>Địa chỉ giao hàng</h3>
               </div>
-            )}
-            <div style={{display:'flex',gap:12}}>
-              <input required placeholder="Tên*" style={{flex:1}} value={form.firstName} onChange={e=>setForm(f=>({...f,firstName:e.target.value}))} />
-              <input required placeholder="Họ*" style={{flex:1}} value={form.lastName} onChange={e=>setForm(f=>({...f,lastName:e.target.value}))} />
+              
+              {defaultAddress ? (
+                <div className={styles.selectedAddress}>
+                  <div className={styles.addressDetails}>
+                    <div className={styles.addressName}>
+                      {defaultAddress.fullName} - {defaultAddress.phone}
+                      <span className={styles.defaultBadge}>Địa chỉ mặc định</span>
+                    </div>
+                    <div className={styles.addressText}>
+                      {defaultAddress.addressLine}, {defaultAddress.ward}, {defaultAddress.district}, {defaultAddress.city}
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => router.push('/profile?section=addresses')}
+                  >
+                    Thay đổi
+                  </Button>
+                </div>
+              ) : (
+                <div className={styles.noAddress}>
+                  <FaExclamationTriangle className={styles.warningIcon} />
+                  <div>
+                    <p className={styles.warningText}>Bạn chưa có địa chỉ mặc định</p>
+                    <p className={styles.warningSubtext}>Vui lòng thiết lập địa chỉ mặc định để có thể thanh toán</p>
+                  </div>
+                  <Button 
+                    variant="primary" 
+                    onClick={() => router.push('/profile?section=addresses')}
+                  >
+                    Thiết lập địa chỉ
+                  </Button>
+                </div>
+              )}
             </div>
-            <input placeholder="Tên công ty (tuỳ chọn)" style={{marginTop:8}} />
-            <div style={{display:'flex',gap:12,marginTop:8}}>
-              <select required value={form.city} onChange={e=>setForm(f=>({...f,city:e.target.value}))} style={{flex:1}}>
-                <option value="">Chọn một tỉnh thành...</option>
-                <option value="Hà Nội">Hà Nội</option>
-                <option value="Hồ Chí Minh">Hồ Chí Minh</option>
-              </select>
-              <select required value={form.district} onChange={e=>setForm(f=>({...f,district:e.target.value}))} style={{flex:1}}>
-                <option value="">Chọn một quận/huyện...</option>
-                <option value="Q1">Quận 1</option>
-                <option value="Q2">Quận 2</option>
-              </select>
-            </div>
-            <input required placeholder="Địa chỉ*" style={{marginTop:8}} value={form.address} onChange={e=>setForm(f=>({...f,address:e.target.value}))} />            <input required placeholder="Số điện thoại*" style={{marginTop:8}} value={form.phone} onChange={e=>setForm(f=>({...f,phone:e.target.value}))} />
-            <input required placeholder="Địa chỉ email*" style={{marginTop:8}} value={form.email} onChange={e=>setForm(f=>({...f,email:e.target.value}))} />
-            <textarea placeholder="Ghi chú đơn hàng (tuỳ chọn)" style={{marginTop:8}} value={form.note} onChange={e=>setForm(f=>({...f,note:e.target.value}))} />
-          </form>
-        </div>
-        
-        {/* Bảng đơn hàng bên phải */}
-        <div className="col-5 col-md-12 col-sm-12">
-          <div className={styles.orderSummary} style={{background:'#fff',borderRadius:8,boxShadow:'0 2px 8px #0001',padding:24,position:'relative'}}>
-            <h2>ĐƠN HÀNG CỦA BẠN</h2>            <table style={{width:'100%',marginBottom:12}}>
-              <thead>
-                <tr><th style={{textAlign:'left'}}>SẢN PHẨM</th></tr>
-              </thead>
-              <tbody>
-                {cart?.items?.map((item, i) => (
-                  <tr key={i}>
-                    <td>{item.productVariant.product.name} x {item.quantity}</td>
-                  </tr>
-                )) || []}
-                <tr style={{fontWeight:600}}>
-                  <td>Tạm tính: {subtotal.toLocaleString('vi-VN')} VND</td>
-                </tr>
-                {discount > 0 && (
-                  <tr style={{color:'#e11d48'}}>
-                    <td>Mã giảm giá: {discountCode} -{discount.toLocaleString('vi-VN')} VND</td>
-                  </tr>
+
+            {/* Voucher Section */}
+            <div className={styles.checkoutSection}>
+              <div className={styles.sectionHeader}>
+                <FaTicketAlt className={styles.sectionIcon} />
+                <h3 className={styles.sectionTitle}>Mã giảm giá</h3>
+              </div>
+              
+              <div className={styles.voucherSection}>
+                {isLoadingVouchers ? (
+                  <div className={styles.loadingVouchers}>
+                    <LoadingSpinner />
+                    <span>Đang tải voucher...</span>
+                  </div>
+                ) : (
+                  <>
+                    <select
+                      value={selectedVoucher}
+                      onChange={(e) => setSelectedVoucher(e.target.value)}
+                      className={styles.voucherSelect}
+                    >
+                      <option value="">Chọn mã giảm giá (tùy chọn)</option>
+                      {eligibleVouchers.map((voucher) => (
+                        <option key={voucher._id} value={voucher._id}>
+                          {voucher.code} - Giảm {voucher.discountPercent}%
+                          {voucher.maximumDiscountAmount && 
+                            ` (tối đa ${formatCurrency(voucher.maximumDiscountAmount)})`}
+                          {voucher.minimumOrderValue > 0 && 
+                            ` - Đơn tối thiểu ${formatCurrency(voucher.minimumOrderValue)}`}
+                        </option>
+                      ))}
+                    </select>
+                    
+                    {eligibleVouchers.length === 0 && availableVouchers.length > 0 && (
+                      <div className={styles.noVouchers}>
+                        <p>Không có voucher khả dụng cho đơn hàng này</p>
+                        <small>Tăng giá trị đơn hàng để sử dụng voucher</small>
+                      </div>
+                    )}
+                    
+                    {availableVouchers.length === 0 && (
+                      <div className={styles.noVouchers}>
+                        <p>Không có voucher khả dụng</p>
+                      </div>
+                    )}
+                    
+                    {selectedVoucher && (
+                      <div className={styles.selectedVoucherInfo}>
+                        {(() => {
+                          const voucher = availableVouchers.find(v => v._id === selectedVoucher);
+                          if (!voucher) return null;
+                          return (
+                            <div className={styles.voucherDetails}>
+                              <div className={styles.voucherCode}>{voucher.code}</div>
+                              <div className={styles.voucherDescription}>
+                                Giảm {voucher.discountPercent}% 
+                                {voucher.maximumDiscountAmount && 
+                                  `, tối đa ${formatCurrency(voucher.maximumDiscountAmount)}`}
+                              </div>
+                              {voucher.minimumOrderValue > 0 && (
+                                <div className={styles.voucherCondition}>
+                                  Áp dụng cho đơn hàng từ {formatCurrency(voucher.minimumOrderValue)}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
+                  </>
                 )}
-              </tbody>
-            </table>
-            <div style={{margin:'16px 0'}}>
-              <div>Giao hàng</div>
-              <div style={{marginTop:4}}>
-                <label><input type="radio" name="shipping" checked={form.shipping==='economy'} onChange={()=>{setForm(f=>({...f,shipping:'economy'}));setShippingFee(20000);}} /> Giao hàng tiết kiệm: 20.000 VND</label><br/>
-                <label><input type="radio" name="shipping" checked={form.shipping==='fast'} onChange={()=>{setForm(f=>({...f,shipping:'fast'}));setShippingFee(50000);}} /> Giao hàng nhanh: 50.000 VND</label>
               </div>
             </div>
-            <div style={{fontWeight:600,fontSize:18,margin:'12px 0'}}>Tổng: {total.toLocaleString('vi-VN')} VND</div>
-            <div style={{margin:'16px 0'}}>
-              <div>Chọn hình thức thanh toán</div>
-              <div style={{marginTop:4}}>
-                <label><input type="radio" name="payment" checked={form.payment==='cod'} onChange={()=>setForm(f=>({...f,payment:'cod'}))}/> Thanh toán khi nhận hàng</label><br/>
-                <label><input type="radio" name="payment" checked={form.payment==='bank'} onChange={()=>setForm(f=>({...f,payment:'bank'}))}/> Chuyển khoản ngân hàng</label><br/>
-                <label><input type="radio" name="payment" checked={form.payment==='momo'} onChange={()=>setForm(f=>({...f,payment:'momo'}))}/> Ví điện tử Momo</label><br/>
+
+            {/* Payment Method Section */}
+            <div className={styles.checkoutSection}>
+              <div className={styles.sectionHeader}>
+                <FaCreditCard className={styles.sectionIcon} />
+                <h3 className={styles.sectionTitle}>Phương thức thanh toán</h3>
               </div>
-              {/* Block chi tiết động cho từng phương thức thanh toán */}
-              {form.payment==='bank' && (
-                <div style={{marginTop:16,background:'#f8fafc',border:'1px solid #e0e7ef',borderRadius:8,padding:16}}>
-                  <div style={{fontWeight:600,marginBottom:8}}>Thông tin chuyển khoản ngân hàng:</div>
-                  <div style={{display:'flex',flexWrap:'wrap',gap:12,alignItems:'center',marginBottom:8}}>
-                    <img src="/images/vietcombank.png" alt="VCB" style={{height:32}}/>
-                    <span style={{fontWeight:500}}>Ngân hàng Vietcombank</span>
+              
+              <div className={styles.paymentMethods}>                
+                {isLoadingPaymentMethods ? (
+                  <div className={styles.loadingPaymentMethods}>
+                    <LoadingSpinner />
+                    <span>Đang tải phương thức thanh toán...</span>
                   </div>
-                  <div>Số tài khoản: <b>0123456789</b></div>
-                  <div>Tên chủ tài khoản: <b>NGUYEN VAN A</b></div>
-                  <div>Nội dung chuyển khoản: <b>Thanh toan don hang #{Math.floor(Math.random()*100000)}</b></div>
-                  <div style={{marginTop:8,fontSize:13,color:'#888'}}>Vui lòng chuyển khoản đúng nội dung để đơn hàng được xác nhận nhanh chóng.</div>
-                  <div style={{marginTop:12,display:'flex',flexWrap:'wrap',gap:8}}>
-                    <img src="/images/vietinbank.png" alt="Vietin" style={{height:28}}/>
-                    <img src="/images/mbbank.png" alt="MB" style={{height:28}}/>
-                    <img src="/images/acb.png" alt="ACB" style={{height:28}}/>
-                    <img src="/images/techcombank.png" alt="TCB" style={{height:28}}/>
-                    {/* ...thêm các logo ngân hàng khác nếu cần... */}
-                  </div>
-                </div>
-              )}
-              {form.payment==='momo' && (
-                <div style={{marginTop:16,background:'#f8fafc',border:'1px solid #e0e7ef',borderRadius:8,padding:16}}>
-                  <div style={{fontWeight:600,marginBottom:8}}>Thanh toán qua ví Momo</div>
-                  <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:8}}>
-                    <img src="/images/momo.png" alt="Momo" style={{height:32}}/>
-                    <span>Số điện thoại: <b>0901234567</b></span>
-                  </div>
-                  <div>Mã QR chuyển khoản:</div>
-                  <img src="/images/momo-qr.png" alt="QR Momo" style={{height:100,margin:'8px 0'}}/>
-                  <div style={{fontSize:13,color:'#888'}}>Quét mã QR hoặc nhập số điện thoại để chuyển khoản.</div>
-                </div>
-              )}
+                ) : (
+                  <>
+                    {Array.isArray(availablePaymentMethods) && availablePaymentMethods.length > 0 ? (
+                      availablePaymentMethods.map((method) => (
+                        <div 
+                          key={method._id}
+                          className={`${styles.paymentOption} ${paymentMethod === method._id ? styles.selected : ''}`}
+                          onClick={() => setPaymentMethod(method._id)}
+                        >
+                            <input
+                              type="radio"
+                              name="payment"
+                              value={method._id}
+                              checked={paymentMethod === method._id}
+                              onChange={() => setPaymentMethod(method._id)}
+                              className={styles.paymentRadio}
+                            />
+                            <div className={styles.paymentDetails}>
+                              <strong>
+                                {method.method === 'COD' ? 'Thanh toán khi nhận hàng (COD)' : 
+                                 method.method === 'VNPay' ? 'Thanh toán VNPay' : 
+                                 method.method}
+                              </strong>
+                              <p>
+                                {method.method === 'COD' ? 'Thanh toán bằng tiền mặt khi nhận hàng' :
+                                 method.method === 'VNPay' ? 'Thanh toán trực tuyến qua VNPay' :
+                                 'Phương thức thanh toán'}
+                              </p>
+                            </div>
+                            <div className={styles.paymentIcon}>
+                              {method.method === 'COD' ? '💵' : 
+                               method.method === 'VNPay' ? '💳' : '💰'}
+                            </div>
+                          </div>
+                        ))
+                    ) : (
+                      <div className={styles.noPaymentMethods}>
+                        <p>Không có phương thức thanh toán khả dụng</p>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
-            
-            {/* Nút thanh toán */}
-            <button onClick={handleSubmit} className={styles.checkoutBtn} style={{width:'100%',marginTop:24,padding:'16px',fontSize:'1.1rem',fontWeight:'bold'}}>
-              THANH TOÁN NGAY
-            </button>
+          </div>
+
+          {/* Order Summary */}
+          <div className={styles.rightColumn}>
+            <div className={styles.orderSummary}>
+              <h3 className={styles.summaryTitle}>Tóm tắt đơn hàng</h3>
+              
+              {/* Cart Items */}
+              <div className={styles.summaryItems}>
+                {cart?.items.map((item, index) => {
+                  const { productVariant, quantity } = item;
+                  
+                  // Add null checks to prevent errors
+                  if (!productVariant?.product) {
+                    console.warn('Skipping cart item with missing product data:', item);
+                    return null;
+                  }
+                  
+                  const { product, price, size, color } = productVariant;
+                  // Use same logic as CartContext: sale price from product, regular price from variant
+                  const currentPrice = product.salePrice || price;
+                  const totalPrice = currentPrice * quantity;
+                  const mainImage = product.images && product.images.length > 0 ? product.images[0] : null;
+
+                  return (
+                    <div key={`${productVariant._id}-${index}-${quantity}`} className={styles.summaryItem}>
+                      <div className={styles.itemImage}>
+                        {mainImage ? (
+                          <Image
+                            src={mainImage}
+                            alt={product.name}
+                            width={60}
+                            height={60}
+                            className={styles.productImage}
+                          />
+                        ) : (
+                          <div className={styles.noImage}>
+                            <FaShoppingCart />
+                          </div>
+                        )}
+                      </div>
+                      <div className={styles.itemDetails}>
+                        <h4 className={styles.itemName}>{product.name}</h4>
+                        <div className={styles.itemVariant}>
+                          {color && <span>Màu: {color.name}</span>}
+                          {size && <span>Size: {size.name}</span>}
+                        </div>
+                        <div className={styles.itemPrice}>
+                          {quantity} × {formatCurrency(currentPrice)} = {formatCurrency(totalPrice)}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Order Calculation - Using Real-time Calculation */}
+              <div className={styles.orderCalculation}>
+                <div className={styles.calculationRow}>
+                  <span>Tạm tính:</span>
+                  <span>{formatCurrency(realTimeOrderTotal.subtotal)}</span>
+                </div>
+                
+                {realTimeOrderTotal.discountAmount > 0 && (
+                  <div className={styles.calculationRow}>
+                    <span>Giảm giá:</span>
+                    <span className={styles.discount}>-{formatCurrency(realTimeOrderTotal.discountAmount)}</span>
+                  </div>
+                )}
+                
+                <div className={styles.calculationRow}>
+                  <span>Phí vận chuyển:</span>
+                  <span>{formatCurrency(realTimeOrderTotal.shippingFee)}</span>
+                </div>
+                
+                <div className={`${styles.calculationRow} ${styles.total}`}>
+                  <span>Tổng cộng:</span>
+                  <span>{formatCurrency(realTimeOrderTotal.finalTotal)}</span>
+                </div>
+              </div>
+
+              {/* Checkout Button */}
+              <Button
+                onClick={handleCheckout}
+                disabled={!defaultAddress || isProcessing}
+                className={styles.checkoutButton}
+                size="lg"
+                isLoading={isProcessing}
+              >
+                {isProcessing ? 'Đang xử lý...' : `Đặt hàng - ${formatCurrency(realTimeOrderTotal.finalTotal)}`}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

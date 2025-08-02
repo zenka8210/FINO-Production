@@ -8,6 +8,55 @@ class StatisticsController extends BaseController {
     this.statisticsService = new StatisticsService();
   }
 
+  // Dashboard Overview with all data in one call
+  getCompleteDashboard = async (req, res, next) => {
+    try {
+      const { ordersPage = 1, ordersLimit = 10, revenueChartPeriod = 'week' } = req.query;
+      
+      console.log('🚀 Starting complete dashboard data fetch...');
+      
+      // Fetch all data in parallel for maximum performance
+      const [
+        dashboardStats,
+        recentOrders,
+        paginatedOrders,
+        revenueChart,
+        recentActivity
+      ] = await Promise.all([
+        this.statisticsService.getDashboardStats(),
+        this.statisticsService.getRecentOrders(5),
+        this.statisticsService.getPaginatedOrders(parseInt(ordersPage), parseInt(ordersLimit)),
+        this.statisticsService.getRevenueChart(revenueChartPeriod),
+        this.statisticsService.getRecentActivity()
+      ]);
+
+      console.log('✅ Complete dashboard data fetched successfully');
+
+      const completeData = {
+        ...dashboardStats,
+        recentOrders,
+        paginatedOrders,
+        revenueChart,
+        recentActivity
+      };
+
+      ResponseHandler.success(res, 'Complete dashboard data retrieved successfully', completeData);
+    } catch (error) {
+      console.error('❌ Error fetching complete dashboard:', error);
+      next(error);
+    }
+  };
+
+  // Low Stock Statistics
+  getLowStockStats = async (req, res, next) => {
+    try {
+      const lowStockStats = await this.statisticsService.getLowStockStats();
+      ResponseHandler.success(res, 'Low stock statistics retrieved successfully', lowStockStats);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   // Dashboard Overview
   getDashboardStats = async (req, res, next) => {
     try {
@@ -76,6 +125,16 @@ class StatisticsController extends BaseController {
     try {
       const activity = await this.statisticsService.getRecentActivity();
       ResponseHandler.success(res, 'Recent activity retrieved successfully', activity);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Public basic statistics for About page
+  getPublicStats = async (req, res, next) => {
+    try {
+      const stats = await this.statisticsService.getPublicStats();
+      ResponseHandler.success(res, 'Public statistics retrieved successfully', stats);
     } catch (error) {
       next(error);
     }

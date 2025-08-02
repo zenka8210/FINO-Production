@@ -82,9 +82,10 @@ function AppMenu() {
                   <div className={styles.dropdownItem} style={{fontWeight:'bold', color:'#0070f3', cursor:'default'}}>
                     {user.name || user.email}
                   </div>
-                  <Link href="/profile" className={styles.dropdownItem}>Thông tin cá nhân</Link>
-                  <Link href="/security" className={styles.dropdownItem}>Bảo mật</Link>
-                  <Link href="/orders" className={styles.dropdownItem}>Lịch sử mua hàng</Link>
+                  <Link href="/profile?section=personal-info" className={styles.dropdownItem}>Thông tin cá nhân</Link>
+                  <Link href="/profile?section=addresses" className={styles.dropdownItem}>Địa chỉ</Link>
+                  <Link href="/profile?section=orders" className={styles.dropdownItem}>Đơn hàng</Link>
+                  <Link href="/profile?section=security" className={styles.dropdownItem}>Bảo mật</Link>
                   <div className={styles.dropdownItem} onClick={handleLogout} style={{color:'#e11d48', cursor:'pointer'}}>
                     Đăng xuất
                   </div>

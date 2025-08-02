@@ -19,9 +19,12 @@ export function useCart() {
 
     // Actions from context
     addToCart: context.addToCart,
+    addToCartSilent: context.addToCartSilent,
+    addMultipleToCart: context.addMultipleToCart,
     updateCartItem: context.updateCartItem,
     removeFromCart: context.removeFromCart,
     clearCart: context.clearCart,
+    loadCart: context.loadCart,
     clearError: context.clearError,
 
     // Computed values from context

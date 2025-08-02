@@ -9,8 +9,9 @@ const VoucherSchema = new mongoose.Schema({
   startDate: { type: Date, required: true }, // Ngày bắt đầu áp dụng voucher
   endDate: { type: Date, required: true }, // Ngày hết hạn của
   isActive: { type: Boolean, default: true }, // Trạng thái hoạt động của voucher
-  usageLimit: { type: Number, default: 1 }, // Số lần tối đa mỗi user có thể sử dụng voucher (default: 1)
-  isOneTimePerUser: { type: Boolean, default: true }, // Chỉ cho phép mỗi user sử dụng 1 lần
+  usedCount: { type: Number, default: 0 }, // Số lần đã được sử dụng tổng cộng
+  totalUsageLimit: { type: Number, default: 1000 }, // Tổng số lần sử dụng tối đa của voucher
+  isOneTimePerUser: { type: Boolean, default: true }, // Mỗi user chỉ được dùng 1 lần (true) hoặc không giới hạn per user (false)
 }, { timestamps: true });
 
 module.exports = mongoose.model('Voucher', VoucherSchema);

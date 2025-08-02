@@ -64,11 +64,31 @@ export class PostService {
   /**
    * Get all posts (Admin only)
    */
-  async getAllPosts(page: number = 1, limit: number = 10): Promise<PaginatedResponse<PostWithAuthor>> {
+  async getAllPosts(page: number = 1, limit: number = 10, filters?: { 
+    search?: string; 
+    isPublished?: boolean; 
+    sortBy?: string; 
+    sortOrder?: string 
+  }): Promise<PaginatedResponse<PostWithAuthor>> {
     try {
       const params = new URLSearchParams();
       params.append('page', page.toString());
       params.append('limit', limit.toString());
+      params.append('populate', 'author'); // Always populate author
+      
+      // Add optional filters
+      if (filters?.search) {
+        params.append('search', filters.search);
+      }
+      if (filters?.isPublished !== undefined) {
+        params.append('isPublished', filters.isPublished.toString());
+      }
+      if (filters?.sortBy) {
+        params.append('sortBy', filters.sortBy);
+      }
+      if (filters?.sortOrder) {
+        params.append('sortOrder', filters.sortOrder);
+      }
 
       const response = await apiClient.getPaginated<PostWithAuthor>('/api/posts', params);
       return response;

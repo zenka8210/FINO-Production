@@ -175,6 +175,39 @@
   z-index: 2;
 }
 
+/* Rating Badge - positioned below sale badge with same style */
+.ratingBadge {
+  position: absolute;
+  top: 2.5rem;  /* Positioned below sale badge (0.75rem + badge height + small gap) */
+  left: 0.75rem;
+  background: var(--color-warning, #f59e0b);  /* Orange/yellow color like sale badge */
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  z-index: 3;
+  white-space: nowrap;
+}
+
+/* Responsive rating badge */
+@media (max-width: 768px) {
+  .ratingBadge {
+    font-size: 0.625rem;
+    padding: 0.25rem 0.375rem;
+    top: 2rem;  /* Adjust for smaller sale badge on mobile */
+    left: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ratingBadge {
+    font-size: 0.625rem;
+    padding: 0.25rem 0.375rem;
+    border-radius: 15px;
+  }
+}
+
 /* Quick Actions */
 .quickActions {
   position: absolute;
@@ -468,4 +501,45 @@
 .ctaButton:focus {
   outline: 2px solid var(--color-primary, #1E40AF);
   outline-offset: 1px;
+}
+
+/* Smooth animations for better UX */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  animation: spin 0.8s linear infinite;
+}
+
+/* Button loading states */
+.actionBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.ctaButton:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
+  transform: scale(0.98);
+}
+
+/* Optimistic UI feedback */
+.actionBtn:active,
+.ctaButton:active {
+  transform: scale(0.95);
+}
+
+.ctaButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(30, 64, 175, 0.3);
+}
+
+.actionBtn:hover:not(:disabled) {
+  background-color: rgba(30, 64, 175, 0.1);
 }

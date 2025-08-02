@@ -18,15 +18,36 @@ interface BlogPost {
 
 const blogPosts: BlogPost[] = [];
 
-function BlogSection() {
+interface NewsProps {
+  initialPosts?: Post[]; // Add support for SSR data
+}
+
+function BlogSection({ initialPosts }: NewsProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [itemsPerSlide, setItemsPerSlide] = useState(3);
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Use initial data if provided (SSR case)
+    if (initialPosts && initialPosts.length > 0) {
+      console.log('📦 News: Using SSR initial posts');
+      const formattedPosts = initialPosts.map((item) => ({
+        id: parseInt(item._id),
+        title: item.title,
+        excerpt: item.content ? item.content.substring(0, 150) + '...' : '',
+        image: item.image || '/images/placeholder.jpg',
+        date: new Date(item.createdAt).toLocaleDateString('vi-VN'),
+        category: 'Tin Tức',
+        slug: item._id // Use _id as slug if slug doesn't exist
+      }));
+      setPosts(formattedPosts);
+      setLoading(false);
+      return; // Don't fetch if we have initial data
+    }
+
     loadBlogPosts();
-  }, []);
+  }, [initialPosts]);
 
   const loadBlogPosts = async () => {
     try {

@@ -134,15 +134,92 @@ export class OrderService {
   }
 
   /**
+   * Get order by orderCode (for VNPay callbacks)
+   * GET /api/orders/code/:orderCode
+   */
+  async getOrderByCode(orderCode: string): Promise<OrderWithRefs> {
+    try {
+      console.log('🔄 OrderService: Fetching order by orderCode:', orderCode);
+      const response = await apiClient.get<any>(`/api/orders/code/${orderCode}`);
+      console.log('📦 OrderService: Raw response:', response);
+      
+      // Check if response has the expected wrapper format
+      if (response.data?.success && response.data?.data) {
+        console.log('🎯 OrderService: Using wrapped format, returning:', response.data.data);
+        return response.data.data;
+      }
+      
+      // Check if response is direct order data (has _id and orderCode)
+      if (response.data?._id && response.data?.orderCode) {
+        console.log('🎯 OrderService: Using direct format, returning:', response.data);
+        return response.data;
+      }
+      
+      console.error('❌ OrderService: Unexpected response format:', response.data);
+      throw new Error('Invalid response format - no recognizable order data');
+    } catch (error: any) {
+      console.error('❌ OrderService: Error fetching order by code:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch order by code');
+    }
+  }
+
+  /**
    * Get order by ID (user can only see their own orders)
    * GET /api/orders/:id
    */
   async getOrderById(id: string): Promise<OrderWithRefs> {
     try {
-      const response = await apiClient.get<OrderWithRefs>(`/api/orders/${id}`);
-      return response.data!;
+      console.log('🔄 OrderService: Fetching order by ID:', id);
+      const response = await apiClient.get<any>(`/api/orders/${id}`);
+      console.log('📦 OrderService: Raw response:', response);
+      
+      // Check if response has the expected wrapper format
+      if (response.data?.success && response.data?.data) {
+        console.log('🎯 OrderService: Using wrapped format, returning:', response.data.data);
+        return response.data.data;
+      }
+      
+      // Check if response is direct order data (has _id and orderCode)
+      if (response.data?._id && response.data?.orderCode) {
+        console.log('🎯 OrderService: Using direct format, returning:', response.data);
+        return response.data;
+      }
+      
+      console.error('❌ OrderService: Unexpected response format:', response.data);
+      throw new Error('Invalid response format - no recognizable order data');
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch order');
+      console.error('❌ OrderService: Error fetching order by ID:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch order details');
+    }
+  }
+
+  /**
+   * Get order by orderCode (for VNPay callbacks)
+   * GET /api/orders/code/:orderCode
+   */
+  async getOrderByCode(orderCode: string): Promise<OrderWithRefs> {
+    try {
+      console.log('🔄 OrderService: Fetching order by orderCode:', orderCode);
+      const response = await apiClient.get<any>(`/api/orders/code/${orderCode}`);
+      console.log('📦 OrderService: Raw response:', response);
+      
+      // Check if response has the expected wrapper format
+      if (response.data?.success && response.data?.data) {
+        console.log('🎯 OrderService: Using wrapped format, returning:', response.data.data);
+        return response.data.data;
+      }
+      
+      // Check if response is direct order data (has _id and orderCode)
+      if (response.data?._id && response.data?.orderCode) {
+        console.log('🎯 OrderService: Using direct format, returning:', response.data);
+        return response.data;
+      }
+      
+      console.error('❌ OrderService: Unexpected response format:', response.data);
+      throw new Error('Invalid response format - no recognizable order data');
+    } catch (error: any) {
+      console.error('❌ OrderService: Error fetching order by orderCode:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch order details');
     }
   }
 
@@ -152,8 +229,19 @@ export class OrderService {
    */
   async cancelOrder(id: string): Promise<OrderWithRefs> {
     try {
-      const response = await apiClient.put<OrderWithRefs>(`/api/orders/${id}/cancel`);
-      return response.data!;
+      const response = await apiClient.put<any>(`/api/orders/${id}/cancel`);
+      
+      // Check if response has the expected wrapper format
+      if (response.data?.success && response.data?.data) {
+        return response.data.data;
+      }
+      
+      // Check if response is direct order data (has _id and orderCode)
+      if (response.data?._id && response.data?.orderCode) {
+        return response.data;
+      }
+      
+      throw new Error('Invalid response format - no recognizable order data');
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to cancel order');
     }
@@ -173,6 +261,36 @@ export class OrderService {
   }
 
   // ========== ADMIN ORDER METHODS ==========
+
+  /**
+   * Get order by ID for admin (admin can view any order)
+   * GET /api/orders/admin/:id
+   */
+  async getOrderByIdAdmin(id: string): Promise<OrderWithRefs> {
+    try {
+      console.log('🔄 OrderService (Admin): Fetching order by ID:', id);
+      const response = await apiClient.get<any>(`/api/orders/admin/${id}`);
+      console.log('📦 OrderService (Admin): Raw response:', response);
+      
+      // Check if response has the expected wrapper format
+      if (response.data?.success && response.data?.data) {
+        console.log('🎯 OrderService (Admin): Using wrapped format, returning:', response.data.data);
+        return response.data.data;
+      }
+      
+      // Check if response is direct order data (has _id and orderCode)
+      if (response.data?._id && response.data?.orderCode) {
+        console.log('🎯 OrderService (Admin): Using direct format, returning:', response.data);
+        return response.data;
+      }
+      
+      console.error('❌ OrderService (Admin): Unexpected response format:', response.data);
+      throw new Error('Invalid response format - no recognizable order data');
+    } catch (error: any) {
+      console.error('❌ OrderService (Admin): Error:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch order (admin)');
+    }
+  }
 
   /**
    * Get all orders with filters (Admin)

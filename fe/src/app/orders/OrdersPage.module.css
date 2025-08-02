@@ -1,0 +1,401 @@
+/* Orders Page Styles */
+.pageContainer {
+  padding: 2rem 0;
+  background: transparent;
+}
+
+.mainContent {
+  padding: 2rem 0 0 0;
+  position: relative;
+  z-index: 1;
+}
+
+.contentCard {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Filters Section */
+.filtersSection {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.filtersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filterLabel {
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.filterSelect {
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  transition: border-color 0.2s;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #1e40af;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+.filterActions {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Orders List */
+.ordersContainer {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.ordersHeader {
+  background: #f8fafc;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ordersTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ordersCount {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.ordersList {
+  display: flex;
+  flex-direction: column;
+}
+
+.orderCard {
+  border-bottom: 1px solid #f3f4f6;
+  padding: 1.5rem;
+  transition: background-color 0.2s;
+}
+
+.orderCard:hover {
+  background-color: #f9fafb;
+}
+
+.orderCard:last-child {
+  border-bottom: none;
+}
+
+.orderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.orderInfo {
+  flex: 1;
+  min-width: 250px;
+}
+
+.orderCode {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.orderMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.orderDate {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.metaIcon {
+  font-size: 0.75rem;
+}
+
+.orderStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.statusIcon {
+  font-size: 0.75rem;
+}
+
+/* Status Colors */
+.statusPending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.statusProcessing {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.statusShipped {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.statusDelivered {
+  background-color: #d1fae5;
+  color: #047857;
+}
+
+.statusCancelled {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.orderTotal {
+  text-align: right;
+  min-width: 120px;
+}
+
+.totalLabel {
+  display: block;
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.totalAmount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e40af;
+}
+
+/* Order Items */
+.orderItems {
+  margin-bottom: 1rem;
+}
+
+.orderItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.orderItem:last-child {
+  border-bottom: none;
+}
+
+.itemInfo {
+  flex: 1;
+}
+
+.itemName {
+  font-weight: 500;
+  color: #1f2937;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.itemDetails {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.itemVariant {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+}
+
+.moreItems {
+  text-align: center;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-style: italic;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+}
+
+/* Order Actions */
+.orderActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.buttonIcon {
+  font-size: 0.875rem;
+}
+
+.cancelButton {
+  color: #dc2626 !important;
+  border-color: #dc2626 !important;
+}
+
+.cancelButton:hover {
+  background-color: #dc2626 !important;
+  color: white !important;
+}
+
+/* Loading States */
+.loadingSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.loadingSection p {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 3rem;
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  color: #d1d5db;
+  margin-bottom: 1rem;
+}
+
+.emptyState h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.emptyState p {
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+/* Pagination */
+.paginationWrapper {
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 1rem 0;
+  }
+
+  .contentCard,
+  .filtersSection,
+  .ordersContainer {
+    margin: 0 -1rem;
+    border-radius: 0;
+    box-shadow: none;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .filtersGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .filterActions {
+    grid-column: 1 / -1;
+    justify-content: stretch;
+  }
+
+  .orderHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .orderTotal {
+    text-align: left;
+  }
+
+  .orderMeta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .orderActions {
+    justify-content: stretch;
+  }
+
+  .orderActions .btn {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .orderCard {
+    padding: 1rem;
+  }
+
+  .ordersHeader,
+  .paginationWrapper {
+    padding: 1rem;
+  }
+
+  .orderCode {
+    font-size: 1rem;
+  }
+
+  .totalAmount {
+    font-size: 1.125rem;
+  }
+}

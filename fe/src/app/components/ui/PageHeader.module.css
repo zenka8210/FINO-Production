@@ -1,0 +1,177 @@
+/* ===== PAGE HEADER COMPONENT STYLES ===== */
+
+.pageHeader {
+  margin-bottom: 40px;
+  position: relative;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.breadcrumbLink {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.breadcrumbLink:hover {
+  color: #764ba2;
+}
+
+.breadcrumbSeparator {
+  color: #cbd5e0;
+  font-weight: 600;
+  margin: 0 4px;
+}
+
+/* Back Link */
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  padding: 8px 0;
+  border-radius: 6px;
+}
+
+.backLink:hover {
+  color: #764ba2;
+  transform: translateX(-2px);
+}
+
+/* Title Section */
+.titleSection {
+  margin-bottom: 20px;
+}
+
+.pageTitle {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+
+.titleIcon {
+  color: #667eea;
+  flex-shrink: 0;
+}
+
+.pageSubtitle {
+  font-size: 16px;
+  color: #718096;
+  margin: 0;
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+/* Actions Section */
+.actionsSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+/* Search Section */
+.searchSection {
+  margin-top: 24px;
+  max-width: 400px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .pageHeader {
+    margin-bottom: 24px;
+  }
+  
+  .pageTitle {
+    font-size: 24px;
+    gap: 12px;
+  }
+  
+  .titleIcon {
+    font-size: 20px;
+  }
+  
+  .breadcrumbs {
+    margin-bottom: 12px;
+  }
+  
+  .backLink {
+    margin-bottom: 16px;
+  }
+  
+  .actionsSection {
+    margin-top: 16px;
+  }
+  
+  .searchSection {
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageTitle {
+    font-size: 20px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .titleIcon {
+    font-size: 18px;
+  }
+  
+  .pageSubtitle {
+    font-size: 14px;
+  }
+  
+  .breadcrumbs {
+    font-size: 12px;
+  }
+  
+  .backLink {
+    font-size: 14px;
+    gap: 6px;
+  }
+}
+
+/* Animation for smooth transitions */
+.pageHeader {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Gradient text effect for special titles */
+.pageTitle.gradient {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

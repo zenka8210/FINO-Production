@@ -6,8 +6,17 @@ const adminMiddleware = require('../middlewares/adminMiddleware');
 
 const statisticsController = new StatisticsController();
 
+// Public routes - no authentication required
+router.get('/public', statisticsController.getPublicStats);
+
 // Admin routes - require authentication and admin role
 router.use(authenticateToken, adminMiddleware);
+
+// GET /api/statistics/complete-dashboard - Get all dashboard data in one call (OPTIMIZED)
+router.get('/complete-dashboard', statisticsController.getCompleteDashboard);
+
+// GET /api/statistics/low-stock - Get low stock statistics
+router.get('/low-stock', statisticsController.getLowStockStats);
 
 // GET /api/statistics/dashboard - Get dashboard overview stats
 router.get('/dashboard', statisticsController.getDashboardStats);

@@ -13,10 +13,45 @@ router.use(authMiddleware);
 
 /**
  * @route GET /api/cart
- * @description Get user's cart
+ * @description Get user's cart (legacy endpoint)
  * @access Private
  */
 router.get('/', cartController.getCart);
+
+/**
+ * @route GET /api/cart/optimized
+ * @description Get user's cart with optimized loading for better performance
+ * @access Private
+ */
+router.get('/optimized', cartController.getCartOptimized);
+
+/**
+ * @route GET /api/cart/paginated
+ * @description Get user's cart with pagination for cart page
+ * @access Private
+ */
+router.get('/paginated', cartController.getCartPaginated);
+
+/**
+ * @route GET /api/cart/count
+ * @description Get cart items count only (lightweight)
+ * @access Private
+ */
+router.get('/count', cartController.getCartCount);
+
+/**
+ * @route GET /api/cart/basic-info
+ * @description Get cart basic info (count + total) for header display
+ * @access Private
+ */
+router.get('/basic-info', cartController.getCartBasicInfo);
+
+/**
+ * @route GET /api/cart/debug
+ * @description Debug cart data - temporary route
+ * @access Private
+ */
+router.get('/debug', cartController.debugCart);
 
 /**
  * @route GET /api/cart/count
@@ -33,6 +68,14 @@ router.get('/count', cartController.getCartCount);
  * @body {Number} quantity - Quantity to add
  */
 router.post('/items', cartController.addItem);
+
+/**
+ * @route POST /api/cart/batch-add
+ * @description Add multiple items to cart in one operation (for wishlist "buy all")
+ * @access Private
+ * @body {Array} items - Array of {productVariant, quantity} objects
+ */
+router.post('/batch-add', cartController.batchAddItems);
 
 /**
  * @route PUT /api/cart/items/:productVariantId

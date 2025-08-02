@@ -143,43 +143,22 @@ class ReviewController extends BaseController {
   // Admin: Lấy tất cả reviews
   getAllReviews = async (req, res, next) => {
     try {
-      // Use new QueryBuilder with improved safety
-      if (req.createQueryBuilder) {
-        const queryBuilder = req.createQueryBuilder(Review);
-        
-        // Configure search and filters for reviews
-        const result = await queryBuilder
-          .search(['comment'])
-          .applyFilters({
-            productId: { type: 'objectId', field: 'product' },
-            userId: { type: 'objectId', field: 'user' },
-            rating: { type: 'exact' },
-            minRating: { type: 'range', field: 'rating' },
-            maxRating: { type: 'range', field: 'rating' },
-            isVerified: { type: 'boolean' }
-          })
-          .execute();
-        
-        ResponseHandler.success(res, 'Lấy danh sách đánh giá thành công', result);
-      } else {
-        // Fallback to legacy method if middleware not available
-        const queryOptions = {
-          page: req.query.page || PAGINATION.DEFAULT_PAGE,
-          limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
-          productId: req.query.productId,
-          userId: req.query.userId,
-          rating: req.query.rating,
-          sortBy: req.query.sortBy || 'createdAt',
-          sortOrder: req.query.sortOrder || 'desc'
-        };
-        
-        // Apply admin sort
-        const sortConfig = AdminSortUtils.ensureAdminSort(req, 'Review');
-        queryOptions.sort = sortConfig;
-        
-        const result = await this.service.getAllReviews(queryOptions);
-        ResponseHandler.success(res, 'Lấy danh sách đánh giá thành công', result);
-      }
+      // Force use service method for better search functionality
+      const queryOptions = {
+        page: parseInt(req.query.page) || PAGINATION.DEFAULT_PAGE,
+        limit: parseInt(req.query.limit) || PAGINATION.DEFAULT_LIMIT,
+        productId: req.query.productId,
+        userId: req.query.userId,
+        rating: req.query.rating ? parseInt(req.query.rating) : undefined,
+        sortBy: req.query.sortBy || 'createdAt',
+        sortOrder: req.query.sortOrder || 'desc',
+        search: req.query.search // Add search support
+      };
+      
+      console.log('🔍 ReviewController.getAllReviews queryOptions:', queryOptions);
+      
+      const result = await this.service.getAllReviews(queryOptions);
+      ResponseHandler.success(res, 'Lấy danh sách đánh giá thành công', result);
     } catch (error) {
       console.error('❌ ReviewController.getAllReviews error:', error.message);
       next(error);

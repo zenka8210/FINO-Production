@@ -108,7 +108,8 @@ class ProductService extends BaseService {
             page = PAGINATION.DEFAULT_PAGE,
             limit = PAGINATION.DEFAULT_LIMIT,
             name,
-            category, // category ID
+            category, // category ID (legacy)
+            categoryIds, // hierarchical category IDs (new)
             minPrice,
             maxPrice,
             sortBy = 'createdAt', // Default sort field
@@ -119,9 +120,11 @@ class ProductService extends BaseService {
             isOnSale // New filter for sale products
         } = queryOptions;
 
-        // Smart default: If including variants for frontend, usually want to show all products
-        const shouldIncludeOutOfStock = includeOutOfStock || 
+        // Smart default: For admin queries or when including variants, include all products
+        const shouldIncludeOutOfStock = includeOutOfStock === true || includeOutOfStock === 'true' || 
             (includeVariants === 'true' || includeVariants === true);
+
+        console.log(`🔍 PERFORMANCE DEBUG: includeOutOfStock=${includeOutOfStock} (type: ${typeof includeOutOfStock}), includeVariants=${includeVariants}, shouldIncludeOutOfStock=${shouldIncludeOutOfStock}`);
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
         const filter = {};
@@ -129,14 +132,20 @@ class ProductService extends BaseService {
         if (name) {
             filter.name = { $regex: name, $options: 'i' };
         }
-        if (category) {
-            // Validate if category exists
+        
+        // Handle hierarchical category filtering
+        if (categoryIds && Array.isArray(categoryIds) && categoryIds.length > 0) {
+            console.log('🌳 ProductService: Using hierarchical category filtering:', categoryIds);
+            filter.category = { $in: categoryIds };
+        } else if (category) {
+            // Legacy single category filtering
             const categoryExists = await Category.findById(category);
             if (!categoryExists) {
                 throw new AppError(MESSAGES.CATEGORY_NOT_FOUND, ERROR_CODES.CATEGORY.NOT_FOUND, 400);
             }
             filter.category = category;
         }
+        
         if (minPrice || maxPrice) {
             filter.price = {};
             if (minPrice) {
@@ -169,6 +178,7 @@ class ProductService extends BaseService {
 
         try {
             console.log('🔍 ProductService.getAllProducts called with options:', queryOptions);
+            console.log(`🔍 PERFORMANCE DEBUG: includeOutOfStock=${includeOutOfStock}, includeVariants=${includeVariants}`);
             
             // Add debug to check what collection and fields we're querying
             console.log('📋 Product model collection name:', Product.collection.name);
@@ -189,6 +199,8 @@ class ProductService extends BaseService {
                         { path: 'size', select: 'name' }
                     ]
                 });
+            } else {
+                console.log('⚡ PERFORMANCE: Skipping variants population for faster loading');
             }
 
             let products = await query;
@@ -298,22 +310,65 @@ class ProductService extends BaseService {
                 products = productsWithStock;
                 console.log(`📊 Final products after stock filtering: ${products.length}`);
             } else {
-                console.log('✅ Including all products (includeOutOfStock=true or includeVariants=true)');
-                // Include stock info for all products
-                const productsWithStockInfo = [];
+                console.log('✅ Including all products - Using OPTIMIZED AGGREGATION PATH');
                 
-                for (const product of products) {
-                    const stockInfo = await this.checkProductAvailability(product._id);
-                    const displayValidation = await this.validateProductForDisplay(product._id);
+                // PERFORMANCE OPTIMIZATION: Use efficient aggregation for ALL admin requests
+                console.log('⚡ PERFORMANCE: Using efficient stock calculation for admin list view');
+                
+                // Get variant counts and stock efficiently with aggregation
+                const productIds = products.map(p => p._id);
+                const ProductVariant = require('../models/ProductVariantSchema');
+                
+                const stockAggregation = await ProductVariant.aggregate([
+                    { $match: { product: { $in: productIds }, isActive: true } },
+                    { 
+                        $group: {
+                            _id: '$product',
+                            totalVariants: { $sum: 1 },
+                            totalStock: { $sum: '$stock' },
+                            inStockVariants: { 
+                                $sum: { $cond: [{ $gt: ['$stock', 0] }, 1, 0] } 
+                            },
+                            outOfStockVariants: { 
+                                $sum: { $cond: [{ $eq: ['$stock', 0] }, 1, 0] } 
+                            }
+                        }
+                    }
+                ]);
+                
+                console.log(`⚡ AGGREGATION: Processed ${productIds.length} products with 1 query instead of ${productIds.length * 2} queries`);
+                
+                // Create lookup map for efficient access
+                const stockMap = {};
+                stockAggregation.forEach(item => {
+                    stockMap[item._id.toString()] = item;
+                });
+                
+                products = products.map(product => {
+                    const stockData = stockMap[product._id.toString()] || {
+                        totalVariants: 0,
+                        totalStock: 0,
+                        inStockVariants: 0,
+                        outOfStockVariants: 0
+                    };
                     
-                    productsWithStockInfo.push({
+                    return {
                         ...product.toObject(),
-                        stockInfo,
-                        displayInfo: displayValidation
-                    });
-                }
+                        stockInfo: { 
+                            available: stockData.totalStock > 0,
+                            totalStock: stockData.totalStock,
+                            totalVariants: stockData.totalVariants,
+                            availableVariants: stockData.inStockVariants,
+                            outOfStockVariants: stockData.outOfStockVariants
+                        },
+                        displayInfo: { 
+                            canDisplay: stockData.totalVariants > 0 && product.isActive,
+                            reasons: stockData.totalVariants === 0 ? ['No variants'] : ['Has variants']
+                        }
+                    };
+                });
                 
-                products = productsWithStockInfo;
+                console.log(`⚡ PERFORMANCE: Completed stock info for ${products.length} products with 1 aggregation query`);
             }
 
             const totalProducts = await Product.countDocuments(filter);
@@ -322,6 +377,8 @@ class ProductService extends BaseService {
             if (includeReviewStats === 'true' || includeReviewStats === true) {
                 console.log('📊 Including review statistics for products...');
                 products = await this.addReviewStatsToProducts(products);
+            } else {
+                console.log('⚡ PERFORMANCE: Skipping review statistics for faster loading');
             }
 
             return {
@@ -415,13 +472,72 @@ class ProductService extends BaseService {
                 }
             }
 
-            const newProduct = new Product(productData);
+            // Create the product first (without variants in productData)
+            const { variants, ...productDataWithoutVariants } = productData;
+            const newProduct = new Product(productDataWithoutVariants);
             await newProduct.save();
-            return newProduct;
+
+            // Create ProductVariants if provided
+            if (variants && Array.isArray(variants) && variants.length > 0) {
+                console.log(`🎨 Creating ${variants.length} product variants...`);
+                
+                for (const variantData of variants) {
+                    console.log('🎨 Processing variant:', { 
+                        color: variantData.color, 
+                        size: variantData.size,
+                        stock: variantData.stock,
+                        price: variantData.price 
+                    });
+                    
+                    // Validate required fields
+                    if (!variantData.color || !variantData.size) {
+                        throw new AppError('Mỗi phiên bản phải có màu sắc và kích thước', 400);
+                    }
+
+                    try {
+                        // Generate unique SKU
+                        const timestamp = Date.now();
+                        const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
+                        const generatedSku = `VAR-${timestamp}-${randomStr}`;
+                        
+                        // Create ProductVariant
+                        const productVariant = new ProductVariant({
+                            product: newProduct._id,
+                            color: variantData.color,
+                            size: variantData.size,
+                            price: variantData.price || newProduct.price,
+                            stock: variantData.stock || 0,
+                            sku: variantData.sku || generatedSku, // Use provided SKU or generate one
+                            images: variantData.images || [],
+                            isActive: variantData.isActive !== undefined ? variantData.isActive : true
+                        });
+
+                        await productVariant.save();
+                        console.log(`✅ Created variant: ${variantData.color} / ${variantData.size} (SKU: ${productVariant.sku})`);
+                    } catch (variantError) {
+                        console.error('❌ Error creating variant:', variantError);
+                        throw new AppError(`Lỗi tạo phiên bản: ${variantError.message}`, 400);
+                    }
+                }
+            }
+
+            // Return the product with populated variants
+            const productWithVariants = await Product.findById(newProduct._id)
+                .populate('category')
+                .populate({
+                    path: 'variants',
+                    populate: [
+                        { path: 'color', select: 'name isActive' },
+                        { path: 'size', select: 'name' }
+                    ]
+                });
+
+            return productWithVariants;
         } catch (error) {
             if (error instanceof AppError) throw error;
             // Handle potential validation errors from Mongoose
-            throw new AppError(MESSAGES.PRODUCT_CREATE_FAILED, ERROR_CODES.PRODUCT.CREATE_FAILED, 400, error.errors || error.message);
+            console.error('❌ ProductService.createProduct error:', error);
+            throw new AppError(MESSAGES.PRODUCT_CREATE_FAILED, 400, ERROR_CODES.PRODUCT.CREATE_FAILED, error.errors || error.message);
         }
     }
 
@@ -455,14 +571,79 @@ class ProductService extends BaseService {
                 }
             }
 
-            const product = await Product.findByIdAndUpdate(productId, updateData, { new: true, runValidators: true }).populate('category');
+            // Extract variants from updateData before updating product
+            const { variants, ...productUpdateData } = updateData;
+
+            const product = await Product.findByIdAndUpdate(productId, productUpdateData, { new: true, runValidators: true }).populate('category');
             if (!product) {
                 throw new AppError(MESSAGES.PRODUCT_NOT_FOUND, ERROR_CODES.PRODUCT.NOT_FOUND, 404);
             }
-            return product;
+
+            // Handle variants update if provided
+            if (variants && Array.isArray(variants)) {
+                console.log(`🔄 Updating ${variants.length} product variants...`);
+                
+                // Delete existing variants for this product
+                await ProductVariant.deleteMany({ product: productId });
+                console.log(`🗑️ Deleted existing variants for product ${productId}`);
+                
+                // Create new variants
+                for (const variantData of variants) {
+                    console.log('🎨 Processing variant:', { 
+                        color: variantData.color, 
+                        size: variantData.size,
+                        stock: variantData.stock,
+                        price: variantData.price 
+                    });
+                    
+                    // Validate required fields
+                    if (!variantData.color || !variantData.size) {
+                        throw new AppError('Mỗi phiên bản phải có màu sắc và kích thước', 400);
+                    }
+
+                    try {
+                        // Generate unique SKU
+                        const timestamp = Date.now();
+                        const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
+                        const generatedSku = `VAR-${timestamp}-${randomStr}`;
+                        
+                        // Create ProductVariant
+                        const productVariant = new ProductVariant({
+                            product: productId,
+                            color: variantData.color,
+                            size: variantData.size,
+                            price: variantData.price || product.price,
+                            stock: variantData.stock || 0,
+                            sku: variantData.sku || generatedSku, // Use provided SKU or generate one
+                            images: variantData.images || [],
+                            isActive: variantData.isActive !== undefined ? variantData.isActive : true
+                        });
+
+                        await productVariant.save();
+                        console.log(`✅ Created variant: ${variantData.color} / ${variantData.size} (SKU: ${productVariant.sku})`);
+                    } catch (variantError) {
+                        console.error('❌ Error creating variant:', variantError);
+                        throw new AppError(`Lỗi tạo phiên bản: ${variantError.message}`, 400);
+                    }
+                }
+            }
+
+            // Return the product with populated variants
+            const productWithVariants = await Product.findById(productId)
+                .populate('category')
+                .populate({
+                    path: 'variants',
+                    populate: [
+                        { path: 'color', select: 'name isActive' },
+                        { path: 'size', select: 'name' }
+                    ]
+                });
+
+            return productWithVariants;
         } catch (error) {
             if (error instanceof AppError) throw error;
-            throw new AppError(MESSAGES.PRODUCT_UPDATE_FAILED, ERROR_CODES.PRODUCT.UPDATE_FAILED, 400, error.errors || error.message);
+            console.error('❌ ProductService.updateProduct error:', error);
+            throw new AppError(MESSAGES.PRODUCT_UPDATE_FAILED, 400, ERROR_CODES.PRODUCT.UPDATE_FAILED, error.errors || error.message);
         }
     }
 
@@ -1053,35 +1234,136 @@ class ProductService extends BaseService {
         try {
             console.log('🎯 ProductService.getFeaturedProducts called with limit:', limit);
             
-            // Step 1: First, let's just get all products to debug
-            const allProducts = await Product.find({ isDeleted: { $ne: true } }).limit(10);
-            console.log(`📋 Found ${allProducts.length} total products in DB`);
-            allProducts.forEach(p => console.log(`  - ${p._id}: ${p.name} (status: ${p.status || 'undefined'})`));
-            
-            // Simplified featured products query for testing  
+            // Step 1: Build comprehensive featured products pipeline based on real metrics
             const featuredProducts = await Product.aggregate([
                 {
-                    // Stage 1: Match products that should be displayed
+                    // Stage 1: Match active products only
                     $match: {
-                        isDeleted: { $ne: true }
+                        isDeleted: { $ne: true },
+                        isActive: { $ne: false }
                     }
                 },
                 {
-                    // Stage 2: Add simple popularity score (just use price as base)
+                    // Stage 2: Lookup review statistics
+                    $lookup: {
+                        from: 'reviews',
+                        localField: '_id',
+                        foreignField: 'product',
+                        as: 'reviews'
+                    }
+                },
+                {
+                    // Stage 3: Lookup wishlist count
+                    $lookup: {
+                        from: 'wishlists',
+                        localField: '_id',
+                        foreignField: 'product',
+                        as: 'wishlists'
+                    }
+                },
+                {
+                    // Stage 4: Lookup order items to calculate sales
+                    $lookup: {
+                        from: 'orders',
+                        let: { productId: '$_id' },
+                        pipeline: [
+                            { $unwind: '$items' },
+                            { $match: { 
+                                $expr: { $eq: ['$items.product', '$$productId'] },
+                                status: { $in: ['completed', 'shipped', 'delivered'] }
+                            }},
+                            { $group: { _id: null, totalSales: { $sum: '$items.quantity' } }}
+                        ],
+                        as: 'salesData'
+                    }
+                },
+                {
+                    // Stage 5: Calculate comprehensive popularity metrics
                     $addFields: {
-                        popularityScore: { $ifNull: ['$price', 100000] } // Use price as simple score
+                        // Review metrics
+                        reviewCount: { $size: '$reviews' },
+                        averageRating: {
+                            $cond: {
+                                if: { $gt: [{ $size: '$reviews' }, 0] },
+                                then: { $avg: '$reviews.rating' },
+                                else: 0
+                            }
+                        },
+                        
+                        // Wishlist count
+                        wishlistCount: { $size: '$wishlists' },
+                        
+                        // Sales count
+                        salesCount: { 
+                            $cond: {
+                                if: { $gt: [{ $size: '$salesData' }, 0] },
+                                then: { $arrayElemAt: ['$salesData.totalSales', 0] },
+                                else: 0
+                            }
+                        },
+                        
+                        // Calculate weighted popularity score
+                        popularityScore: {
+                            $add: [
+                                // Review score: rating * reviewCount * 10 (high weight)
+                                { $multiply: [
+                                    { $cond: { if: { $gt: [{ $size: '$reviews' }, 0] }, then: { $avg: '$reviews.rating' }, else: 0 }},
+                                    { $size: '$reviews' },
+                                    10
+                                ]},
+                                
+                                // Wishlist score: wishlistCount * 5 (medium weight)
+                                { $multiply: [{ $size: '$wishlists' }, 5] },
+                                
+                                // Sales score: salesCount * 3 (medium weight)
+                                { $multiply: [
+                                    { $cond: {
+                                        if: { $gt: [{ $size: '$salesData' }, 0] },
+                                        then: { $arrayElemAt: ['$salesData.totalSales', 0] },
+                                        else: 0
+                                    }},
+                                    3
+                                ]},
+                                
+                                // Price tier bonus (higher price = premium = more featured)
+                                { $cond: {
+                                    if: { $gte: ['$price', 1000000] }, // >= 1M VND
+                                    then: 20,
+                                    else: { $cond: {
+                                        if: { $gte: ['$price', 500000] }, // >= 500K VND
+                                        then: 10,
+                                        else: 5
+                                    }}
+                                }},
+                                
+                                // Sale bonus (products on sale get slight boost)
+                                { $cond: {
+                                    if: { $and: [
+                                        { $ne: ['$salePrice', null] },
+                                        { $lt: ['$salePrice', '$price'] }
+                                    ]},
+                                    then: 15,
+                                    else: 0
+                                }}
+                            ]
+                        }
                     }
                 },
                 {
-                    // Stage 3: Sort by popularity score (highest first)
-                    $sort: { popularityScore: -1 }
+                    // Stage 6: Sort by popularity score (highest first)
+                    $sort: { 
+                        popularityScore: -1,
+                        reviewCount: -1,
+                        averageRating: -1,
+                        createdAt: -1
+                    }
                 },
                 {
-                    // Stage 4: Limit results
+                    // Stage 7: Limit results
                     $limit: limit
                 },
                 {
-                    // Stage 5: Lookup category information 
+                    // Stage 8: Lookup category information 
                     $lookup: {
                         from: 'categories',
                         localField: 'category',
@@ -1090,14 +1372,14 @@ class ProductService extends BaseService {
                     }
                 },
                 {
-                    // Stage 6: Unwind category array to object
+                    // Stage 9: Unwind category array to object
                     $unwind: {
                         path: '$category',
-                        preserveNullAndEmptyArrays: true // Keep products without category
+                        preserveNullAndEmptyArrays: true
                     }
                 },
                 {
-                    // Stage 7: Project with category information
+                    // Stage 10: Project final fields
                     $project: {
                         _id: 1,
                         name: 1,
@@ -1105,23 +1387,34 @@ class ProductService extends BaseService {
                         price: 1,
                         salePrice: 1,
                         images: 1,
-                        status: 1,
+                        isActive: 1,
                         category: {
                             _id: '$category._id',
                             name: '$category.name'
                         },
-                        popularityScore: 1
+                        // Include metrics for debugging and frontend display
+                        popularityScore: 1,
+                        reviewCount: 1,
+                        averageRating: { $round: ['$averageRating', 1] },
+                        wishlistCount: 1,
+                        salesCount: 1,
+                        createdAt: 1
                     }
                 }
             ]);
 
-            console.log(`✅ Found ${featuredProducts.length} featured products (simplified pipeline)`);
+            console.log(`✅ Found ${featuredProducts.length} REAL featured products based on reviews/sales/wishlists`);
+            
+            // Log top 3 products with their metrics for debugging
             if (featuredProducts.length > 0) {
-                console.log('📊 First featured product category check:', {
-                    name: featuredProducts[0].name,
-                    hasCategory: !!featuredProducts[0].category,
-                    categoryData: featuredProducts[0].category,
-                    allFields: Object.keys(featuredProducts[0])
+                console.log('📊 Top featured products with metrics:');
+                featuredProducts.slice(0, 3).forEach((product, index) => {
+                    console.log(`  ${index + 1}. ${product.name}:`);
+                    console.log(`     - Popularity Score: ${product.popularityScore}`);
+                    console.log(`     - Reviews: ${product.reviewCount} (avg: ${product.averageRating})`);
+                    console.log(`     - Wishlists: ${product.wishlistCount}`);
+                    console.log(`     - Sales: ${product.salesCount}`);
+                    console.log(`     - Price: ${product.price} ${product.salePrice ? `(Sale: ${product.salePrice})` : ''}`);
                 });
             }
 

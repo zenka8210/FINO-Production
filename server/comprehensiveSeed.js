@@ -345,7 +345,7 @@ async function comprehensiveSeedData() {
       const status = Math.random() < 0.7 ? 'delivered' : statuses[Math.floor(Math.random() * statuses.length)];
       
       orderDocs.push({
-        orderCode: `DH${Date.now()}${i}`,
+        orderCode: `FINO${Date.now()}${i}`,
         user: randomUser._id,
         items,
         address: userAddress._id,

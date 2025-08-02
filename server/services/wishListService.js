@@ -20,7 +20,11 @@ class WishListService extends BaseService {
             let wishlist = await WishList.findOne({ user: userId }).populate([
                 {
                     path: 'items.product',
-                    select: 'name price images isActive category'
+                    select: 'name price images isActive category',
+                    populate: {
+                        path: 'category',
+                        select: 'name _id parent'
+                    }
                 },
                 {
                     path: 'items.variant',
@@ -34,7 +38,11 @@ class WishListService extends BaseService {
                 wishlist = await WishList.findById(wishlist._id).populate([
                     {
                         path: 'items.product',
-                        select: 'name price images isActive category'
+                        select: 'name price images isActive category',
+                        populate: {
+                            path: 'category',
+                            select: 'name _id parent'
+                        }
                     },
                     {
                         path: 'items.variant',
@@ -303,7 +311,11 @@ class WishListService extends BaseService {
                 })
                 .populate({
                     path: 'items.product',
-                    select: 'name price images'
+                    select: 'name price images category',
+                    populate: {
+                        path: 'category',
+                        select: 'name _id parent'
+                    }
                 })
                 .populate({
                     path: 'items.variant',
@@ -341,7 +353,11 @@ class WishListService extends BaseService {
                 })
                 .populate({
                     path: 'items.product',
-                    select: 'name price images isActive category'
+                    select: 'name price images isActive category',
+                    populate: {
+                        path: 'category',
+                        select: 'name _id parent'
+                    }
                 })
                 .populate({
                     path: 'items.variant',

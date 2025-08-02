@@ -1,90 +1,68 @@
 'use client';
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { FaNewspaper, FaCalendarAlt, FaUser, FaSearch } from 'react-icons/fa';
+import { PageHeader, LoadingSpinner, Pagination } from '@/app/components/ui';
+import { usePosts } from '@/hooks';
+import { postService } from '@/services';
+import { PostWithAuthor } from '@/types';
 import styles from './news.module.css';
 
-interface NewsPost {
-  id: number;
-  title: string;
-  excerpt: string;
-  image: string;
-  date: string;
-  category: string;
-  slug: string;
-  views: number;
-  author: string;
-}
-
-interface PaginationInfo {
-  current: number;
-  total: number;
-  totalItems: number;
-}
-
 export default function NewsPage() {
-  const [news, setNews] = useState<NewsPost[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [pagination, setPagination] = useState<PaginationInfo>({
-    current: 1,
-    total: 1,
-    totalItems: 0
-  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const { posts, loading, error, pagination, refetch } = usePosts();
+
+  // For search functionality - filter current page posts
+  const filteredPosts = useMemo(() => {
+    if (!searchTerm.trim()) return posts;
+    
+    return posts.filter(post => 
+      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.describe.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [posts, searchTerm]);
+
+  // For featured posts, we need the latest posts (separate fetch)
+  const [featuredPosts, setFeaturedPosts] = useState<PostWithAuthor[]>([]);
+  
+  useEffect(() => {
+    // Fetch latest posts for featured section
+    const fetchFeaturedPosts = async () => {
+      try {
+        const response = await postService.getPublishedPosts(1, 3);
+        setFeaturedPosts(response.data);
+      } catch (error) {
+        console.error('Error fetching featured posts:', error);
+      }
+    };
+    
+    fetchFeaturedPosts();
+  }, []);
+
+  // Posts for "All posts" section - exclude featured posts to avoid duplication
+  const postsForAllSection = useMemo(() => {
+    if (searchTerm.trim()) {
+      return filteredPosts; // When searching, show search results
+    }
+    
+    // When not searching, exclude featured posts from the current page
+    const featuredIds = featuredPosts.map(post => post._id);
+    return posts.filter(post => !featuredIds.includes(post._id));
+  }, [posts, featuredPosts, filteredPosts, searchTerm]);
 
   useEffect(() => {
-    loadNews();
-  }, [selectedCategory, searchTerm, pagination.current]);
-
-  const loadNews = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: pagination.current.toString(),
-        limit: '9',
-        status: 'published'
-      });
-
-      if (selectedCategory !== 'all') {
-        params.append('category', selectedCategory);
-      }
-
-      if (searchTerm) {
-        params.append('search', searchTerm);
-      }
-
-      const response = await fetch(`/api/news?${params}`);
-      const data = await response.json();
-
-      if (data.success) {
-        setNews(data.data);
-        setPagination(data.pagination);
-        
-        // Extract unique categories
-        const allCategories = data.data.map((item: NewsPost) => item.category) as string[];
-        setCategories([...new Set(allCategories)]);
-      }
-    } catch (error) {
-      console.error('Error loading news:', error);
-    } finally {
-      setLoading(false);
+    // Reset to first page when searching
+    if (searchTerm.trim()) {
+      setCurrentPage(1);
     }
-  };
-
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
-    setPagination(prev => ({ ...prev, current: 1 }));
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPagination(prev => ({ ...prev, current: 1 }));
-  };
+  }, [searchTerm]);
 
   const handlePageChange = (page: number) => {
-    setPagination(prev => ({ ...prev, current: page }));
+    setCurrentPage(page);
+    refetch(page, 9);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -97,137 +75,189 @@ export default function NewsPage() {
     });
   };
 
-  if (loading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loading}>
-          <div className={styles.spinner}></div>
-          <p>Đang tải tin tức...</p>
-        </div>
-      </div>
-    );
-  }
+  const getExcerpt = (content: string, maxLength: number = 150) => {
+    if (content.length <= maxLength) return content;
+    return content.substring(0, maxLength) + '...';
+  };
+
+  // Transform pagination data for Pagination component
+  const paginationInfo = {
+    page: pagination.current || 1,
+    limit: pagination.limit || 9,
+    totalPages: pagination.totalPages || 1,
+    totalProducts: pagination.total || 0,
+    hasNextPage: (pagination.current || 1) < (pagination.totalPages || 1),
+    hasPrevPage: (pagination.current || 1) > 1
+  };
 
   return (
-    <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <h1 className={styles.pageTitle}>Tin Tức Thời Trang</h1>
-        <p className={styles.pageSubtitle}>
-          Cập nhật những xu hướng thời trang mới nhất và các sự kiện đặc biệt
-        </p>
-      </div>
+    <div className="container">
+      <div className={styles.pageContainer}>
+        {/* Page Header */}
+        <PageHeader
+          title="Tin tức & Bài viết"
+          subtitle="Cập nhật những thông tin mới nhất từ Fino Store"
+          icon={FaNewspaper}
+          breadcrumbs={[
+            { label: 'Trang chủ', href: '/' },
+            { label: 'Tin tức', href: '/news' }
+          ]}
+        />
 
-      {/* Filters */}
-      <div className={styles.filters}>
-        <div className={styles.categoryFilter}>
-          <button
-            className={`${styles.categoryBtn} ${selectedCategory === 'all' ? styles.active : ''}`}
-            onClick={() => handleCategoryChange('all')}
-          >
-            Tất cả
-          </button>
-          {categories.map(category => (
-            <button
-              key={category}
-              className={`${styles.categoryBtn} ${selectedCategory === category ? styles.active : ''}`}
-              onClick={() => handleCategoryChange(category)}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
+        {/* Main Content */}
+        <div className={styles.mainContent}>
+          {/* Search Section */}
+          <div className={styles.searchSection}>
+            <div className={styles.searchCard}>
+              <div className={styles.searchInputGroup}>
+                <FaSearch className={styles.searchIcon} />
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm bài viết..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={styles.searchInput}
+                />
+              </div>
+            </div>
+          </div>
 
-        <form className={styles.searchForm} onSubmit={handleSearch}>
-          <input
-            type="text"
-            placeholder="Tìm kiếm tin tức..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-          <button type="submit" className={styles.searchBtn}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M21 21L16.5 16.5M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </form>
-      </div>
+          {/* Content Area */}
+          <div className={styles.contentArea}>
+            {loading ? (
+              <div className={styles.loadingContainer}>
+                <LoadingSpinner size="lg" />
+                <p className={styles.loadingText}>Đang tải tin tức...</p>
+              </div>
+            ) : error ? (
+              <div className={styles.errorContainer}>
+                <div className={styles.errorCard}>
+                  <h3>Có lỗi xảy ra</h3>
+                  <p>{error}</p>
+                  <button 
+                    onClick={() => refetch(currentPage)} 
+                    className={styles.retryButton}
+                  >
+                    Thử lại
+                  </button>
+                </div>
+              </div>
+            ) : filteredPosts.length === 0 ? (
+              <div className={styles.emptyContainer}>
+                <div className={styles.emptyCard}>
+                  <FaNewspaper className={styles.emptyIcon} />
+                  <h3>{searchTerm ? 'Không tìm thấy bài viết phù hợp' : 'Chưa có bài viết nào'}</h3>
+                  <p>{searchTerm ? `Không có bài viết nào khớp với từ khóa "${searchTerm}"` : 'Hiện tại chưa có bài viết nào được đăng tải.'}</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Featured Posts - Latest 3 articles */}
+                {!searchTerm && featuredPosts.length > 0 && (
+                  <div className={styles.featuredSection}>
+                    <h2 className={styles.sectionTitle}>Bài mới lên</h2>
+                    <div className={styles.featuredGrid}>
+                      {featuredPosts.map((post: PostWithAuthor, index) => (
+                        <article key={post._id} className={`${styles.featuredCard} ${index === 0 ? styles.featuredMain : ''}`}>
+                          <Link href={`/news/${post._id}`} className={styles.featuredLink}>
+                            <div className={styles.featuredImageWrap}>
+                              <Image
+                                src={post.image}
+                                alt={post.title}
+                                width={400}
+                                height={250}
+                                className={styles.featuredImage}
+                                priority={index === 0}
+                              />
+                              <div className={styles.featuredImageOverlay}>
+                                <span className={styles.featuredReadMore}>Đọc ngay</span>
+                              </div>
+                            </div>
+                            <div className={styles.featuredContent}>
+                              <h3 className={styles.featuredTitle}>{post.title}</h3>
+                              <p className={styles.featuredDescription}>
+                                {getExcerpt(post.describe, index === 0 ? 120 : 80)}
+                              </p>
+                              <div className={styles.featuredMeta}>
+                                <span className={styles.metaItem}>
+                                  <FaUser /> {post.author.name || 'Ẩn danh'}
+                                </span>
+                                <span className={styles.metaItem}>
+                                  <FaCalendarAlt /> {formatDate(post.createdAt)}
+                                </span>
+                              </div>
+                            </div>
+                          </Link>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-      {/* News Grid */}
-      {news.length > 0 ? (
-        <div className={styles.newsGrid}>
-          {news.map(item => (
-            <article key={item.id} className={styles.newsCard}>
-              <Link href={`/news/${item.slug}`} className={styles.cardLink}>
-                <div className={styles.imageContainer}>
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className={styles.newsImage}
-                  />
-                  <div className={styles.categoryBadge}>
-                    {item.category}
+                {/* Posts Grid */}
+                <div className={styles.postsSection}>
+                  <h2 className={styles.sectionTitle}>
+                    {searchTerm ? `Kết quả tìm kiếm: "${searchTerm}"` : 'Tất cả bài viết'}
+                  </h2>
+                  <div className={styles.postsGrid}>
+                    {/* Show posts excluding featured ones, or search results */}
+                    {postsForAllSection.map((post: PostWithAuthor) => (
+                      <article key={post._id} className={styles.postCard}>
+                        <Link href={`/news/${post._id}`} className={styles.postLink}>
+                          <div className={styles.postImageWrap}>
+                            <Image
+                              src={post.image}
+                              alt={post.title}
+                              width={300}
+                              height={200}
+                              className={styles.postImage}
+                            />
+                            <div className={styles.postImageOverlay}>
+                              <span className={styles.readMore}>Đọc thêm</span>
+                            </div>
+                          </div>
+                          <div className={styles.postContent}>
+                            <h3 className={styles.postTitle}>{post.title}</h3>
+                            <p className={styles.postDescription}>
+                              {getExcerpt(post.describe)}
+                            </p>
+                            <div className={styles.postMeta}>
+                              <span className={styles.metaItem}>
+                                <FaUser /> {post.author.name || 'Ẩn danh'}
+                              </span>
+                              <span className={styles.metaItem}>
+                                <FaCalendarAlt /> {formatDate(post.createdAt)}
+                              </span>
+                            </div>
+                          </div>
+                        </Link>
+                      </article>
+                    ))}
                   </div>
                 </div>
-                <div className={styles.cardContent}>
-                  <h3 className={styles.newsTitle}>{item.title}</h3>
-                  <p className={styles.newsExcerpt}>{item.excerpt}</p>
-                  <div className={styles.newsMetadata}>
-                    <span className={styles.date}>{formatDate(item.date)}</span>
-                    <span className={styles.views}>{item.views} lượt xem</span>
-                  </div>
-                </div>
-              </Link>
-            </article>
-          ))}
-        </div>
-      ) : (
-        <div className={styles.noResults}>
-          <div className={styles.noResultsIcon}>📰</div>
-          <h3>Không tìm thấy tin tức nào</h3>
-          <p>Thử thay đổi từ khóa tìm kiếm hoặc chọn danh mục khác</p>
-        </div>
-      )}
 
-      {/* Pagination */}
-      {pagination.total > 1 && (
-        <div className={styles.pagination}>
-          <button
-            className={styles.pageBtn}
-            onClick={() => handlePageChange(pagination.current - 1)}
-            disabled={pagination.current === 1}
-          >
-            ‹ Trước
-          </button>
-          
-          {Array.from({ length: pagination.total }, (_, i) => i + 1).map(page => (
-            <button
-              key={page}
-              className={`${styles.pageBtn} ${page === pagination.current ? styles.active : ''}`}
-              onClick={() => handlePageChange(page)}
-            >
-              {page}
-            </button>
-          ))}
-          
-          <button
-            className={styles.pageBtn}
-            onClick={() => handlePageChange(pagination.current + 1)}
-            disabled={pagination.current === pagination.total}
-          >
-            Sau ›
-          </button>
+                {/* Pagination - show when not searching and has multiple pages */}
+                {!searchTerm && pagination.totalPages > 1 && (
+                  <div className={styles.paginationSection}>
+                    <Pagination
+                      pagination={paginationInfo}
+                      onPageChange={handlePageChange}
+                      showInfo={true}
+                    />
+                  </div>
+                )}
+
+                {/* Search Results Info */}
+                {searchTerm && (
+                  <div className={styles.searchResultsInfo}>
+                    <p>Tìm thấy {filteredPosts.length} bài viết khớp với từ khóa "{searchTerm}"</p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -1,19 +1,19 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
-import { WishList, WishListItem } from '@/types';
+import { PopulatedWishList, PopulatedWishListItem } from '@/types';
 import { wishlistService } from '@/services';
 import { useApiNotification } from '@/hooks/useApiNotification';
 
 interface WishlistState {
-  wishlist: WishList | null;
+  wishlist: PopulatedWishList | null;
   loading: boolean;
   error: string | null;
 }
 
 interface WishlistContextType {
-  wishlist: WishList | null;
-  wishlistItems: WishListItem[];
+  wishlist: PopulatedWishList | null;
+  wishlistItems: PopulatedWishListItem[];
   loading: boolean;
   error: string | null;
   loadWishlist: () => Promise<void>;
@@ -31,7 +31,7 @@ interface WishlistContextType {
 
 type WishlistAction =
   | { type: 'LOADING' }
-  | { type: 'WISHLIST_SUCCESS'; payload: WishList }
+  | { type: 'WISHLIST_SUCCESS'; payload: PopulatedWishList }
   | { type: 'CLEAR_WISHLIST' }
   | { type: 'ERROR'; payload: string }
   | { type: 'CLEAR_ERROR' };
@@ -88,10 +88,10 @@ export function WishlistProvider({ children }: WishlistProviderProps) {
       dispatch({ type: 'LOADING' });
       const updatedWishlist = await wishlistService.addToWishlist(productId);
       dispatch({ type: 'WISHLIST_SUCCESS', payload: updatedWishlist });
-      showSuccess('Added to wishlist', 'Product has been added to your wishlist');
+      showSuccess('Đã thêm vào danh sách yêu thích');
     } catch (error: any) {
       dispatch({ type: 'ERROR', payload: error.message });
-      showError('Failed to add to wishlist', error.message);
+      showError('Không thể thêm vào danh sách yêu thích', error.message);
       throw error;
     }
   }, [showSuccess, showError]);
@@ -101,10 +101,10 @@ export function WishlistProvider({ children }: WishlistProviderProps) {
       dispatch({ type: 'LOADING' });
       const updatedWishlist = await wishlistService.removeFromWishlist(productId);
       dispatch({ type: 'WISHLIST_SUCCESS', payload: updatedWishlist });
-      showSuccess('Removed from wishlist', 'Product has been removed from your wishlist');
+      showSuccess('Đã xóa khỏi danh sách yêu thích');
     } catch (error: any) {
       dispatch({ type: 'ERROR', payload: error.message });
-      showError('Failed to remove from wishlist', error.message);
+      showError('Không thể xóa khỏi danh sách yêu thích', error.message);
       throw error;
     }
   }, [showSuccess, showError]);
@@ -114,10 +114,10 @@ export function WishlistProvider({ children }: WishlistProviderProps) {
       dispatch({ type: 'LOADING' });
       await wishlistService.clearWishlist();
       dispatch({ type: 'CLEAR_WISHLIST' });
-      showSuccess('Wishlist cleared', 'All items have been removed from your wishlist');
+      showSuccess('Đã xóa tất cả sản phẩm');
     } catch (error: any) {
       dispatch({ type: 'ERROR', payload: error.message });
-      showError('Failed to clear wishlist', error.message);
+      showError('Không thể xóa danh sách yêu thích', error.message);
       throw error;
     }
   }, [showSuccess, showError]);
@@ -166,10 +166,10 @@ export function WishlistProvider({ children }: WishlistProviderProps) {
       }
       // Reload wishlist to get updated state
       await loadWishlist();
-      showSuccess('Wishlist synced', 'Your wishlist has been synchronized');
+      showSuccess('Đã đồng bộ danh sách yêu thích');
     } catch (error: any) {
       dispatch({ type: 'ERROR', payload: error.message });
-      showError('Failed to sync wishlist', error.message);
+      showError('Không thể đồng bộ danh sách yêu thích', error.message);
     }
   }, [isInWishlist, loadWishlist, showSuccess, showError]);
 

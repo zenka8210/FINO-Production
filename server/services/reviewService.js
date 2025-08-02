@@ -487,6 +487,153 @@ class ReviewService extends BaseService {
       throw new AppError(`Failed to get all reviews: ${error.message}`, ERROR_CODES.INTERNAL_ERROR);
     }
   }
+
+  /**
+   * Get all reviews (Admin) - Legacy method with search support
+   * @param {Object} queryOptions - Query options
+   * @returns {Object} Query results with pagination
+   */
+  async getAllReviews(queryOptions) {
+    try {
+      const {
+        page = 1,
+        limit = 20,
+        search,
+        rating,
+        productId,
+        userId,
+        sortBy = 'createdAt',
+        sortOrder = 'desc'
+      } = queryOptions;
+
+      // Build query
+      let query = {};
+      
+      // Add rating filter
+      if (rating) {
+        query.rating = parseInt(rating);
+      }
+      
+      // Add product filter
+      if (productId) {
+        query.product = productId;
+      }
+      
+      // Add user filter
+      if (userId) {
+        query.user = userId;
+      }
+
+      // Build sort object
+      const sort = {};
+      sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
+
+      // Calculate skip
+      const skip = (page - 1) * limit;
+
+      // Base aggregate pipeline
+      let pipeline = [];
+
+      // Start with initial match if there are filters
+      if (Object.keys(query).length > 0) {
+        pipeline.push({ $match: query });
+      }
+
+      // Add search functionality for comment, user name, and user email
+      if (search) {
+        console.log('🔍 Search term:', search);
+        
+        // Add lookup for users first
+        pipeline.push({
+          $lookup: {
+            from: 'users',
+            localField: 'user',
+            foreignField: '_id',
+            as: 'userInfo'
+          }
+        });
+        
+        // Then add search match
+        pipeline.push({
+          $match: {
+            $or: [
+              { comment: { $regex: search, $options: 'i' } },
+              { 'userInfo.name': { $regex: search, $options: 'i' } },
+              { 'userInfo.email': { $regex: search, $options: 'i' } }
+            ]
+          }
+        });
+        
+        console.log('🔍 Search pipeline:', JSON.stringify(pipeline, null, 2));
+      }
+
+      // Add sorting
+      pipeline.push({ $sort: sort });
+
+      // Count total documents
+      const countPipeline = [...pipeline, { $count: 'total' }];
+      const countResult = await Review.aggregate(countPipeline);
+      const total = countResult.length > 0 ? countResult[0].total : 0;
+
+      // Add pagination
+      pipeline.push({ $skip: skip }, { $limit: limit });
+
+      // Add populate stages
+      pipeline.push(
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'user',
+            foreignField: '_id',
+            as: 'user'
+          }
+        },
+        {
+          $lookup: {
+            from: 'products',
+            localField: 'product',
+            foreignField: '_id',
+            as: 'product'
+          }
+        },
+        {
+          $lookup: {
+            from: 'orders',
+            localField: 'order',
+            foreignField: '_id',
+            as: 'order'
+          }
+        },
+        {
+          $unwind: { path: '$user', preserveNullAndEmptyArrays: true }
+        },
+        {
+          $unwind: { path: '$product', preserveNullAndEmptyArrays: true }
+        },
+        {
+          $unwind: { path: '$order', preserveNullAndEmptyArrays: true }
+        }
+      );
+
+      // Execute query
+      const documents = await Review.aggregate(pipeline);
+
+      // Calculate pagination
+      const totalPages = Math.ceil(total / limit);
+
+      return {
+        data: documents,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages
+        }
+      };
+    } catch (error) {
+      throw new AppError(`Failed to get all reviews: ${error.message}`, ERROR_CODES.INTERNAL_ERROR);
+    }
+  }
 }
 
 module.exports = ReviewService;

@@ -49,14 +49,18 @@
 }
 
 .outline {
-  background-color: transparent;
-  color: var(--color-text);
-  border-color: var(--color-muted);
+  background-color: white;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .outline:hover:not(:disabled) {
-  background-color: #f3f4f6;
-  border-color: #6b7280;
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(30, 64, 175, 0.3);
 }
 
 .ghost {

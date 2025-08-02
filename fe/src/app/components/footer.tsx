@@ -1,87 +1,102 @@
 import Link from "next/link";
-import styles from "../css/footer.module.css";
+import Image from "next/image";
+import styles from "../css/footer_modern.module.css";
 
 function AppFooter() {
   return (
     <footer className={styles.footer}>
-      <div className="container">
-        <div className="row">          {/* Logo và thông tin liên hệ - Cột 1 */}
-          <div className="col-lg-3 col-md-6 col-sm-12">
-            <div className={styles.footerSection}>              <div className={styles.logo}>
-                <Link href="/">
-                  <h2>FINO SHOP</h2>
-                </Link>
-              </div>
+      <div className={styles.container}>
+        {/* Main Footer Content - Horizontal Layout */}
+        <div className={styles.footerContent}>
+          {/* Brand Section */}
+          <div className={styles.brandSection}>
+            <Link href="/" className={styles.logo}>
+              <Image
+                src="/images/logo-fino-compact.svg"
+                alt="FINO Fashion Store"
+                width={140}
+                height={45}
+                className={styles.logoImage}
+              />
+            </Link>
+            <p className={styles.brandTagline}>
+              Thời trang Gen Z - Năng động & Hiện đại
+            </p>
+          </div>
 
-              
-              <div className={styles.newsletter}>
-                <h4>ĐĂNG KÝ NHẬN TIN</h4>
-                <p>Hãy là người đầu tiên nhận khuyến mãi lớn!</p>
-                <div className={styles.newsletterForm}>
-                  <input type="email" placeholder="Nhập địa chỉ email" />
-                  <button type="submit">ĐĂNG KÝ</button>
-                </div>
-              </div>
+          {/* Contact Info */}
+          <div className={styles.contactSection}>
+            <div className={styles.contactItem}>
+              <i className="fas fa-map-marker-alt"></i>
+              <span>Q.12, TP.HCM</span>
+            </div>
+            <div className={styles.contactItem}>
+              <i className="fas fa-phone"></i>
+              <span>0901.196.480</span>
+            </div>
+            <div className={styles.contactItem}>
+              <i className="fas fa-envelope"></i>
+              <span>fino@fashion.store</span>
+            </div>
+            <div className={styles.contactItem}>
+              <i className="fas fa-clock"></i>
+              <span>8:00 - 22:00</span>
             </div>
           </div>
 
-          {/* Hỗ trợ khách hàng - Cột 2 */}
-          <div className="col-lg-3 col-md-6 col-sm-12">
-            <div className={styles.footerSection}>
-              <h3>HỖ TRỢ KHÁCH HÀNG</h3>
-              <ul>
-                <li><a href="#">Chính sách đổi hàng và bảo hành</a></li>
-                <li><a href="#">Chính sách Membership</a></li>
-                <li><a href="#">Chính sách ưu đãi sinh nhật</a></li>
-                <li><a href="#">Chính sách bảo mật</a></li>
-                <li><a href="#">Chính sách giao hàng</a></li>
-              </ul>
-            </div>
-          </div>          {/* Fanpage và thanh toán - Cột 3 */}
-          <div className="col-lg-3 col-md-6 col-sm-12">
-            <div className={styles.footerSection}>
-              <h3>FANPAGE CHÚNG TÔI</h3>
-              <div className={styles.socialSection}>
-                <div className={styles.socialIcons}>
-                  <a href="#" className={styles.facebook}><i className="fab fa-facebook"></i></a>
-                  <a href="#" className={styles.instagram}><i className="fab fa-instagram"></i></a>
-                  <a href="#" className={styles.youtube}><i className="fab fa-youtube"></i></a>
-                  <a href="#" className={styles.tiktok}><i className="fab fa-tiktok"></i></a>
-                </div>
-              </div>
-              
-              <h3>PHƯƠNG THỨC THANH TOÁN</h3>
-              <div className={styles.paymentMethods}>
-                <div className={styles.paymentIcons}>
-                  <span className={styles.vnpay}>VNPAY</span>
-                  <span className={styles.cod}>COD</span>
-                </div>
-              </div>
-              
-              <div className={styles.certifications}>
-                <img src="/images/certification1.svg" alt="Đã thông báo" />
-                <img src="/images/dmca-protection.svg" alt="DMCA Protected" />
-              </div>
+          {/* Social Media */}
+          <div className={styles.socialSection}>
+            <h4>Follow Us</h4>
+            <div className={styles.socialIcons}>
+              <a href="#" className={styles.socialIcon} aria-label="Facebook">
+                <i className="fab fa-facebook-f"></i>
+              </a>
+              <a href="#" className={styles.socialIcon} aria-label="Instagram">
+                <i className="fab fa-instagram"></i>
+              </a>
+              <a href="#" className={styles.socialIcon} aria-label="TikTok">
+                <i className="fab fa-tiktok"></i>
+              </a>
+              <a href="#" className={styles.socialIcon} aria-label="YouTube">
+                <i className="fab fa-youtube"></i>
+              </a>
             </div>
           </div>
 
-          {/* Kết nối với chúng tôi - Cột 4 */}
-          <div className="col-lg-3 col-md-6 col-sm-12">
-            <div className={styles.footerSection}>
-              <h3>KẾT NỐI VỚI CHÚNG TÔI</h3>
-              <div className={styles.contactInfo}>
-                <p><i className="fas fa-phone"></i> Tổng đài CSKH: 0287306060</p>
-                <p><i className="fas fa-envelope"></i> Email: cskh@finoshop.com</p>
+          {/* Payment Methods */}
+          <div className={styles.paymentSection}>
+            <h4>Thanh toán</h4>
+            <div className={styles.paymentMethods}>
+              <div className={styles.paymentIcon}>
+                <Image
+                  src="/images/vnpay-logo.svg"
+                  alt="VNPay"
+                  width={60}
+                  height={24}
+                  className={styles.paymentLogo}
+                />
+              </div>
+              <div className={styles.paymentIcon}>
+                <i className="fas fa-money-bill-wave"></i>
+                <span>COD</span>
               </div>
             </div>
           </div>
-        </div>        
+        </div>
+
         {/* Footer Bottom */}
         <div className={styles.footerBottom}>
-          <p>&copy; Bản quyền thuộc về <a href="/">FINOSHOP</a></p>
+          <div className={styles.footerBottomContent}>
+            <p>&copy; 2025 FINO Fashion Store. All rights reserved.</p>
+            <div className={styles.footerLinks}>
+              <Link href="/privacy">Privacy</Link>
+              <Link href="/terms">Terms</Link>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
   );
 }
+
 export default AppFooter;

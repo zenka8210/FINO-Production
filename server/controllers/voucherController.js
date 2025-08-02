@@ -51,13 +51,17 @@ class VoucherController extends BaseController {
    */
   getAllVouchers = async (req, res, next) => {
     try {
+      console.log('🎯 VoucherController.getAllVouchers called');
+      console.log('📊 Query params:', req.query);
+      console.log('📊 Params:', req.params);
+      
       // Use new QueryBuilder with improved safety
       if (req.createQueryBuilder) {
         const queryBuilder = req.createQueryBuilder(Voucher);
         
         // Configure search and filters for vouchers
         const result = await queryBuilder
-          .search(['code', 'name', 'description'])
+          .search(['code'])
           .applyFilters({
             isActive: { type: 'boolean' },
             type: { type: 'exact' },
@@ -290,6 +294,20 @@ class VoucherController extends BaseController {
           note: 'Bạn đã sử dụng voucher này. Mỗi tài khoản chỉ được sử dụng 1 voucher duy nhất trong toàn bộ hệ thống.'
         }
       });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @description Lấy thống kê voucher (Admin)
+   * @param {import('express').Request} req - Đối tượng request
+   * @param {import('express').Response} res - Đối tượng response
+   */
+  getVoucherStatistics = async (req, res, next) => {
+    try {
+      const statistics = await this.service.getVoucherStatistics();
+      ResponseHandler.success(res, 'Thống kê voucher', statistics);
     } catch (error) {
       next(error);
     }

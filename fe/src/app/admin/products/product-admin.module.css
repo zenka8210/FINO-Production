@@ -1,60 +1,1127 @@
-/* CSS module cho trang quản lý sản p.productAdminTable tr:nth-child(even) {
-  background: #f4f7fa;
-}
-
-.productAdminButton {
-  background: #1976d2;
-  color: #fff;êng biệt */
+/* CSS module cho trang quản lý sản phẩm */
 .adminContainer {
   padding: 32px 24px;
   background: #f4f7fa;
   min-height: 100vh;
   font-family: 'Segoe UI', Arial, sans-serif;
 }
+
+.adminHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.adminTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1976d2;
+  margin: 0;
+}
+
+.adminActions {
+  display: flex;
+  gap: 12px;
+}
+
+.primaryButton {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.primaryButton:hover {
+  background: #1565c0;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+}
+
+.secondaryButton {
+  background: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.secondaryButton:hover {
+  background: #bbdefb;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+table.min-w-full.divide-y.divide-gray-200 {
+  width: 100%;
+}
+
+.statCard {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-left: 4px solid #1976d2;
+}
+
+.statNumber {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1976d2;
+  margin: 0;
+}
+
+.statLabel {
+  color: #666;
+  font-size: 1rem;
+  margin: 8px 0 0 0;
+}
+
+.filtersSection {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.filtersRow {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 250px;
+  padding: 12px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #333;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.searchInput::placeholder {
+  color: #999;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+.filterSelect {
+  padding: 12px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  min-width: 150px;
+  color: #333;
+  font-size: 1rem;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+.filterSelect option {
+  color: #333;
+  background: white;
+  padding: 8px;
+}
 .adminFormInput {
-  padding: 8px 12px;
-  border: 1px solid #d0d7de;
-  border-radius: 6px;
+  padding: 12px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
   margin-bottom: 8px;
   font-size: 1rem;
-  background: #f7f9fb;
-  transition: border 0.15s;
+  background: white;
+  transition: all 0.2s ease;
+  width: 100%;
 }
+
 .adminFormInput:focus {
-  border: 1.5px solid #1976d2;
+  border-color: #1976d2;
   outline: none;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
 }
+
 .adminTable {
   border-collapse: collapse;
   width: 100%;
-  background: #fff;
-  border-radius: 10px;
+  background: white;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin-top: 20px;
 }
-.adminTable th, .adminTable td {
-  padding: 12px 10px;
+
+.adminTable th, 
+.adminTable td {
+  padding: 16px 12px;
   text-align: left;
+  border-bottom: 1px solid #f0f0f0;
 }
+
 .adminTable th {
-  background: #f7f9fb;
-  font-weight: 600;
-  color: #444;
+  background: #f8f9fa;
+  font-weight: 700;
+  color: #1976d2;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
+
 .adminTable tr:nth-child(even) {
-  background: #f4f7fa;
+  background: #fafafa;
 }
+
+.adminTable tr:hover {
+  background: #e3f2fd;
+  transition: background 0.2s ease;
+}
+
+.productImage {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+}
+
+.productName {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.productSku {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.priceCell {
+  font-weight: 700;
+  color: #1976d2;
+}
+
+.stockCell {
+  font-weight: 600;
+}
+
+.stockHigh {
+  color: #4caf50;
+}
+
+.stockMedium {
+  color: #ff9800;
+}
+
+.stockLow {
+  color: #f44336;
+}
+
+.statusBadge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusActive {
+  background: #e8f5e8;
+  color: #2e7d2e;
+  border: 1px solid #4caf50;
+}
+
+.statusInactive {
+  background: #ffeaea;
+  color: #d32f2f;
+  border: 1px solid #f44336;
+}
+
+.statusDraft {
+  background: #fff3e0;
+  color: #f57c00;
+  border: 1px solid #ff9800;
+}
+
+/* Enhanced Action Buttons */
 .actionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  min-width: 32px;
+  height: 32px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.actionButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.actionButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Individual Button Styles */
+.editButton {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+}
+
+.editButton:hover {
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4) !important;
+}
+
+.viewButton {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+}
+
+.viewButton:hover {
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4) !important;
+}
+
+.deleteButton {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+}
+
+.deleteButton:hover {
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4) !important;
+}
+
+/* Action Buttons Container */
+.actionButtonsContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .actionButton {
+    min-width: 28px;
+    height: 28px;
+    padding: 6px;
+  }
+  
+  .actionButton svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .actionButtonsContainer {
+    gap: 4px;
+  }
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.paginationInfo {
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.paginationControls {
+  display: flex;
+  gap: 8px;
+}
+
+.pageButton {
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pageButton:hover {
+  background: #e3f2fd;
+  border-color: #1976d2;
+}
+
+.pageButton.active {
   background: #1976d2;
+  color: white;
+  border-color: #1976d2;
+}
+
+.pageButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .adminContainer {
+    padding: 16px;
+  }
+  
+  .adminHeader {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .filtersRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .searchInput {
+    min-width: auto;
+  }
+  
+  .adminTable {
+    font-size: 0.875rem;
+  }
+  
+  .adminTable th,
+  .adminTable td {
+    padding: 12px 8px;
+  }
+  
+  .actionButton {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
+}
+
+/* ========== FORM CHỈNH SỬA SẢN PHẨM ĐẸP, HIỆN ĐẠI ========== */
+.editProductForm {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(108, 71, 255, 0.08);
+  padding: 2.5rem 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height:90vh;
+  overflow: auto;
+}
+
+.editFormTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #6c47ff;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.editFormRow {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.editFormField {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.editFormLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #6c47ff;
+}
+
+.editFormInput,
+.editFormTextarea,
+.editFormSelect {
+  padding: 0.9rem 1.1rem;
+  border: 1.5px solid #e0e7ff;
+  border-radius: 0.7rem;
+  font-size: 1rem;
+  background: #f8fafc;
+  transition: border 0.2s, box-shadow 0.2s;
+  font-family: var(--font-body, 'Inter', sans-serif);
+}
+
+.editFormInput:focus,
+.editFormTextarea:focus,
+.editFormSelect:focus {
+  outline: none;
+  border-color: #6c47ff;
+  box-shadow: 0 0 0 2px #ede9fe;
+}
+
+.editFormActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.editFormButton {
+  padding: 0.8rem 2rem;
+  border-radius: 0.7rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(108, 71, 255, 0.06);
+}
+
+.editFormButton.save {
+  background: #6c47ff;
+  color: #fff;
+}
+
+.editFormButton.save:hover {
+  background: #4f2ccf;
+}
+
+.editFormButton.cancel {
+  background: #fff;
+  color: #6c47ff;
+  border: 1.5px solid #6c47ff;
+}
+
+.editFormButton.cancel:hover {
+  background: #f3e8ff;
+}
+
+/* ========== POPUP MODAL CHỈNH SỬA SẢN PHẨM ========== */
+.editProductModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeInModal 0.2s;
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.editProductForm {
+  animation: scaleIn 0.2s;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.imagePreviewList {
+  display: grid;
+  grid-template-columns: repeat(5, 56px);
+  gap: 12px;
+  margin-bottom: 0.5rem;
+  max-width: 100%;
+}
+.imagePreviewItem {
+  position: relative;
+  width: 56px;
+  height: 56px;
+}
+.imagePreview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #e0e7ff;
+  box-shadow: 0 1px 4px rgba(108, 71, 255, 0.08);
+}
+
+.deleteImageButton {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #f44336;
   color: #fff;
   border: none;
-  border-radius: 6px;
-  padding: 7px 16px;
-  margin-right: 6px;
-  font-size: 1rem;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 0.95rem;
   cursor: pointer;
+  box-shadow: 0 1px 4px rgba(244, 67, 54, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  padding: 0;
   transition: background 0.15s;
 }
-.actionButton:hover, .actionButton:focus {
-  background: #1256a3;
+.deleteImageButton:hover {
+  background: #d32f2f;
+}
+
+/* ======================================
+   NEW PRODUCT FORM - REDESIGNED
+   ====================================== */
+
+/* Force all text in form to be black */
+.newProductFormContainer,
+.newProductFormContainer * {
+  color: #000000 !important;
+}
+
+/* Override for specific elements that should have different colors */
+.formHeader,
+.formHeader *,
+.tabButton,
+.tabButton *,
+.addVariantButton,
+.addVariantButton *,
+.removeVariantButton,
+.removeVariantButton *,
+.cancelButton,
+.cancelButton *,
+.submitButton,
+.submitButton *,
+.modalCloseButton,
+.formHint {
+  color: inherit !important;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+}
+
+.newProductFormContainer {
+  position: relative;
+  background: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalCloseButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #666;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.modalCloseButton:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.formHeader {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+}
+
+.formHeader h2 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.formTabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.tabButton {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: blur(10px);
+}
+
+.tabButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.tabButton.active {
+  background: white;
+  color: #667eea;
+  border-color: white;
+}
+
+.productForm {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.tabContent {
+  padding: 2rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formLabel {
+  font-weight: 600;
+  color: #000000; /* Force black color for labels */
+  font-size: 0.875rem;
+}
+
+.formInput,
+.formSelect,
+.formTextarea {
+  padding: 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  background: white;
+  color: #000000; /* Force black text color */
+}
+
+.formInput:focus,
+.formSelect:focus,
+.formTextarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  color: #000000; /* Ensure black text on focus */
+}
+
+.formInput::placeholder,
+.formTextarea::placeholder {
+  color: #9ca3af; /* Gray placeholder text */
+  opacity: 1;
+}
+
+/* Ensure select options have black text */
+.formSelect option {
+  color: #000000;
+  background: white;
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.formHint {
+  font-size: 0.75rem;
+  color: #6b7280 !important; /* Keep gray color for hints */
+  margin-top: 0.25rem;
+}
+
+.formCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  color: #000000; /* Force black text for checkbox labels */
+}
+
+.formCheckbox input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: #667eea;
+}
+
+.imagePreviewGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.imagePreviewItem {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 2px solid #e5e7eb;
+}
+
+.imagePreview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imageIndex {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+}
+
+/* Variants Section */
+.variantsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.variantsHeader h3 {
+  margin: 0;
+  color: #000000; /* Force black color for variant section heading */
+  font-size: 1.25rem;
+}
+
+.addVariantButton {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.addVariantButton:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.emptyVariants {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280 !important; /* Keep gray for empty state message */
+  background: #f9fafb;
+  border-radius: 1rem;
+  border: 2px dashed #d1d5db;
+}
+
+.variantsList {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.variantItem {
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.variantHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.variantHeader h4 {
+  margin: 0;
+  color: #000000; /* Force black color for variant item headings */
+  font-size: 1.125rem;
+}
+
+.removeVariantButton {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.removeVariantButton:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* Form Actions */
+.formActions {
+  background: #f9fafb;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.cancelButton {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelButton:hover {
+  background: #4b5563;
+}
+
+.submitButton {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submitButton:hover {
+  background: #5a67d8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Select with Add New Button */
+.formFieldWithButton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.selectWithButton {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+  position: relative; /* Important for SearchableSelect dropdown */
+}
+
+.selectWithButton .formSelect {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+/* Override SearchableSelect styles to match form design */
+.selectWithButton .formSelect .searchableSelect {
+  width: 100%;
+}
+
+.selectWithButton .formSelect .input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  background: white;
+  color: #000 !important;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.addNewButton {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  min-width: 80px;
+}
+
+.addNewButton:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.addNewButton:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Mini Modal for Creating New Items */
+.miniModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  backdrop-filter: blur(2px);
+}
+
+.miniModal {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.miniModal h3 {
+  margin: 0 0 1.5rem 0;
+  color: #374151;
+  font-size: 1.25rem;
+  text-align: center;
+}
+
+.miniModalActions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.miniModalActions .cancelButton,
+.miniModalActions .submitButton {
+  flex: 1;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modalOverlay {
+    padding: 0.5rem;
+  }
+  
+  .newProductFormContainer {
+    max-width: 100%;
+    max-height: 95vh;
+  }
+  
+  .formHeader {
+    padding: 1.5rem;
+  }
+  
+  .formHeader h2 {
+    font-size: 1.5rem;
+  }
+  
+  .formTabs {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .tabContent {
+    padding: 1.5rem;
+  }
+  
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .variantsHeader {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .formActions {
+    padding: 1rem;
+    flex-direction: column;
+  }
+  
+  .cancelButton,
+  .submitButton {
+    width: 100%;
+    padding: 1rem;
+  }
 }

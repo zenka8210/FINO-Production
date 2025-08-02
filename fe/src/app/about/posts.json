@@ -1,23 +1,23 @@
 [
   {
     "id": "1",
-    "title": "Giới thiệu về Áo thun Shop.vn",
+    "title": "Giới thiệu về Fino Store",
     "image": "/images/anh1.jpg",
-    "content": "Áo thun Shop.vn là website chuyên cung cấp các sản phẩm áo thun nam, nữ, set quần áo và phụ kiện thời trang chất lượng cao. Chúng tôi cam kết mang đến cho khách hàng trải nghiệm mua sắm hiện đại, tiện lợi và giá cả hợp lý. Đội ngũ của chúng tôi luôn cập nhật xu hướng mới nhất để phục vụ khách hàng tốt nhất.",
+    "content": "Fino Store là website chuyên cung cấp các sản phẩm thời trang nam, nữ, set quần áo và phụ kiện thời trang chất lượng cao. Chúng tôi cam kết mang đến cho khách hàng trải nghiệm mua sắm hiện đại, tiện lợi và giá cả hợp lý. Đội ngũ của chúng tôi luôn cập nhật xu hướng mới nhất để phục vụ khách hàng tốt nhất.",
     "related": ["2", "3"]
   },
   {
     "id": "2",
-    "title": "Hướng dẫn chọn size áo thun phù hợp",
+    "title": "Hướng dẫn chọn size quần áo phù hợp",
     "image": "/images/anh2.jpg",
-    "content": "Việc chọn size áo thun phù hợp giúp bạn tự tin và thoải mái khi mặc. Hãy tham khảo bảng size trên website hoặc liên hệ tư vấn viên để được hỗ trợ tốt nhất.",
+    "content": "Việc chọn size quần áo phù hợp giúp bạn tự tin và thoải mái khi mặc. Hãy tham khảo bảng size trên website hoặc liên hệ tư vấn viên để được hỗ trợ tốt nhất.",
     "related": ["1", "3"]
   },
   {
     "id": "3",
-    "title": "Bí quyết bảo quản áo thun bền đẹp",
+    "title": "Bí quyết bảo quản quần áo bền đẹp",
     "image": "/images/anh3.jpg",
-    "content": "Để áo thun luôn bền đẹp, bạn nên giặt tay, tránh dùng chất tẩy mạnh và phơi nơi thoáng mát. Không nên là/ủi ở nhiệt độ quá cao.",
+    "content": "Để quần áo luôn bền đẹp, bạn nên giặt tay, tránh dùng chất tẩy mạnh và phơi nơi thoáng mát. Không nên là/ủi ở nhiệt độ quá cao.",
     "related": ["1", "2"]
   }
 ]

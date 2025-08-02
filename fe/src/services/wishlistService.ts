@@ -1,7 +1,7 @@
 import { apiClient } from '@/lib/api';
 import { 
-  WishList, 
-  WishListItem, 
+  PopulatedWishList, 
+  PopulatedWishListItem, 
   ApiResponse,
   PaginatedResponse
 } from '@/types';
@@ -40,9 +40,9 @@ export class WishlistService {
   /**
    * Get user's wishlist (with optional auth for guest session support)
    */
-  async getWishlist(): Promise<WishList> {
+  async getWishlist(): Promise<PopulatedWishList> {
     try {
-      const response = await apiClient.get<WishList>('/api/wishlist');
+      const response = await apiClient.get<PopulatedWishList>('/api/wishlist');
       return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch wishlist');

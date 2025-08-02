@@ -26,13 +26,11 @@ class VariantCacheService {
   async getProductVariants(productId: string): Promise<ProductVariantWithRefs[]> {
     // Check cache first
     if (this.cache.has(productId)) {
-      console.log(`📚 Using cached variants for product ${productId}`);
       return this.cache.get(productId)!;
     }
 
     // Check if already loading
     if (this.loadingPromises.has(productId)) {
-      console.log(`⏳ Waiting for existing variant request for product ${productId}`);
       return await this.loadingPromises.get(productId)!;
     }
 
@@ -46,7 +44,6 @@ class VariantCacheService {
       
       // Cache the result
       this.cache.set(productId, variants);
-      console.log(`✅ Cached ${variants.length} variants for product ${productId}`);
       
       return variants;
     } catch (error) {

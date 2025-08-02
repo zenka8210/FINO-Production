@@ -28,19 +28,24 @@ const Pagination: React.FC<PaginationProps> = ({
   showJumpToPage = true,
   showInfo = true
 }) => {
-  const [jumpToPageValue, setJumpToPageValue] = useState(pagination.page.toString());
+  // Early return if pagination is not valid
+  if (!pagination || !pagination.page || !pagination.totalPages) {
+    return null;
+  }
+
+  const [jumpToPageValue, setJumpToPageValue] = useState((pagination?.page || 1).toString());
 
   // Update jump to page value when currentPage changes
   useEffect(() => {
-    setJumpToPageValue(pagination.page.toString());
-  }, [pagination.page]);
+    setJumpToPageValue((pagination?.page || 1).toString());
+  }, [pagination?.page]);
 
   const handleJumpToPage = (page: number) => {
     if (page >= 1 && page <= pagination.totalPages) {
       onPageChange(page);
       setJumpToPageValue(page.toString());
     } else {
-      setJumpToPageValue(pagination.page.toString());
+      setJumpToPageValue((pagination?.page || 1).toString());
     }
   };
 

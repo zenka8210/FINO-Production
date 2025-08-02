@@ -118,13 +118,29 @@ export class ReviewService {
   // ========== ADMIN METHODS ==========
 
   /**
-   * Get all reviews (Admin only)
+   * Get all reviews (Admin only) with filters
    */
-  async getAllReviews(page: number = 1, limit: number = 10): Promise<PaginatedResponse<ReviewWithRefs>> {
+  async getAllReviews(page: number = 1, limit: number = 10, filters?: {
+    search?: string;
+    rating?: string;
+    productId?: string;
+    userId?: string;
+    sortBy?: string;
+    sortOrder?: string;
+  }): Promise<PaginatedResponse<ReviewWithRefs>> {
     try {
       const params = new URLSearchParams();
       params.append('page', page.toString());
       params.append('limit', limit.toString());
+
+      if (filters) {
+        if (filters.search) params.append('search', filters.search);
+        if (filters.rating && filters.rating !== 'all') params.append('rating', filters.rating);
+        if (filters.productId) params.append('productId', filters.productId);
+        if (filters.userId) params.append('userId', filters.userId);
+        if (filters.sortBy) params.append('sortBy', filters.sortBy);
+        if (filters.sortOrder) params.append('sortOrder', filters.sortOrder);
+      }
 
       const response = await apiClient.getPaginated<ReviewWithRefs>('/api/reviews/admin/all', params);
       return response;

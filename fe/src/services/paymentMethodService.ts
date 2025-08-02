@@ -21,10 +21,19 @@ export class PaymentMethodService {
    */
   async getActivePaymentMethods(): Promise<PaymentMethod[]> {
     try {
-      const response = await apiClient.get<PaymentMethod[]>('/api/payment-methods/active');
-      return response.data!;
+      // Use direct fetch since apiClient has response parsing issues
+      const response = await fetch('http://localhost:5000/api/payment-methods/active');
+      const data = await response.json();
+      
+      if (data.success && Array.isArray(data.message)) {
+        return data.message;
+      } else {
+        console.error('🏦 Invalid response format:', data);
+        throw new Error('Invalid response format from payment methods API');
+      }
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch active payment methods');
+      console.error('🏦 PaymentMethodService error:', error);
+      throw new Error(error.message || 'Failed to fetch active payment methods');
     }
   }
 

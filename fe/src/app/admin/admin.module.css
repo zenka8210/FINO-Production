@@ -1,148 +1,1722 @@
-/*
-  This file will contain styles for the admin dashboard page.
-  You can update it to match the UI in the provided sample image.
-*/
+/* ===================== ADMIN DASHBOARD CSS - BẢN TỐI ƯU CHO BÁO CÁO ===================== */
+
+:root {
+  --primary: #6c47ff;
+  --secondary: #f3f4f6;
+  --accent: #ffb300;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #dc2626;
+  --bg: #f8f9fb;
+  --card: #fff;
+  --border: #e5e7eb;
+  --text: #22223b;
+  --muted: #9ca3af;
+  --shadow: 0 2px 8px rgba(108, 71, 255, 0.08);
+  --shadow-lg: 0 10px 24px rgba(108, 71, 255, 0.12);
+  --font-heading: 'Poppins', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  
+  /* Stats Grid Colors */
+  --revenue-primary: #10b981;
+  --revenue-secondary: #059669;
+  --orders-primary: #3b82f6;
+  --orders-secondary: #1d4ed8;
+  --users-primary: #8b5cf6;
+  --users-secondary: #7c3aed;
+  --low-stock-primary: #dc2626;
+  --low-stock-secondary: #b91c1c;
+}
+
+/* ===================== STATS GRID COMPONENTS ===================== */
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+.statCard {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06), 0 4px 10px rgba(0, 0, 0, 0.03);
+  backdrop-filter: blur(20px);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.05);
+}
+
+.statCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--card-accent, var(--primary));
+  border-radius: 1.5rem 1.5rem 0 0;
+}
+
+.statCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.statCardTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.statCardActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.statCardRefreshButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  color: var(--muted);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statCardRefreshButton:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text);
+  transform: rotate(180deg);
+}
+
+.statCardIcon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  background: var(--card-gradient, linear-gradient(135deg, var(--primary) 0%, var(--primary) 100%));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.statCardValue {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 1rem;
+  line-height: 1;
+  font-family: var(--font-heading);
+}
+
+.statCardChange {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.statCardChange.positive {
+  color: var(--success);
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.statCardChange.negative {
+  color: var(--error);
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+.statCardChange.neutral {
+  color: var(--muted);
+  background: rgba(100, 116, 139, 0.1);
+  border: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+.statCardChangeIcon {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.statCardNote {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-style: italic;
+  margin: 0;
+}
+
+/* ===================== SPECIFIC STAT CARD VARIANTS ===================== */
+
+.statCard.revenue {
+  --card-accent: var(--revenue-primary);
+  --card-gradient: linear-gradient(135deg, var(--revenue-primary) 0%, var(--revenue-secondary) 100%);
+}
+
+.statCard.orders {
+  --card-accent: var(--orders-primary);
+  --card-gradient: linear-gradient(135deg, var(--orders-primary) 0%, var(--orders-secondary) 100%);
+}
+
+.statCard.users {
+  --card-accent: var(--users-primary);
+  --card-gradient: linear-gradient(135deg, var(--users-primary) 0%, var(--users-secondary) 100%);
+}
+
+.statCard.lowStock {
+  --card-accent: var(--low-stock-primary);
+  --card-gradient: linear-gradient(135deg, var(--low-stock-primary) 0%, var(--low-stock-secondary) 100%);
+}
+
+/* ===================== ANIMATIONS ===================== */
+
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px); 
+  }
+  50% { 
+    transform: translateY(-8px); 
+  }
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1); 
+  }
+  50% { 
+    transform: scale(1.02); 
+  }
+}
+
+.statCard {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.statCard:nth-child(1) { animation-delay: 0.1s; }
+.statCard:nth-child(2) { animation-delay: 0.2s; }
+.statCard:nth-child(3) { animation-delay: 0.3s; }
+.statCard:nth-child(4) { animation-delay: 0.4s; }
+
+/* ===================== RESPONSIVE DESIGN ===================== */
+
+@media (max-width: 768px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 0.5rem;
+  }
+  
+  .statCard {
+    padding: 1.5rem;
+  }
+  
+  .statCardValue {
+    font-size: 2rem;
+  }
+  
+  .statCardIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.25rem;
+  }
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+}
+
 .adminContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  background: linear-gradient(120deg, #fef8f3 60%, #fff3e0 100%);
-  font-family: 'Segoe UI', Arial, sans-serif;
-  padding: 0;
 }
+
 .dashboardHeader {
-  font-size: 2.3rem;
-  font-weight: 800;
-  margin: 0 0 32px 0;
-  color: #e65100;
-  padding: 38px 32px 0 32px;
-  letter-spacing: -1px;
-}
-.adminMainWrapper {
+  position: relative;
+  z-index: 20;
+  margin-left: 250px;
+  width: calc(100vw - 250px);
+  left: 0;
+  background: linear-gradient(90deg, #6c47ff 0%, #a084e8 100%);
+  color: #fff;
+  padding: 2.5rem 3rem 2rem 3rem;
   display: flex;
-  gap: 36px;
-  flex: 1;
-  padding: 0 32px 32px 32px;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 6px 24px rgba(108, 71, 255, 0.10);
+  border-radius: 0 0 2rem 2rem;
 }
+
+.headerTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.welcomeText {
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0;
+  color: #fff !important;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+
+.dateText {
+  font-size: 1rem;
+  opacity: 0.85;
+  font-weight: 400;
+  color: #ede9fe;
+}
+
+/* SIDEBAR */
 .adminNav {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(255, 152, 0, 0.10);
-  padding: 32px 0 32px 0;
-  min-width: 230px;
-  max-width: 260px;
-  position: sticky;
-  top: 38px;
-  align-self: flex-start;
-  border: 1.5px solid #fff3e0;
+  background: linear-gradient(135deg, #fff 60%, #ede9fe 100%);
+  border-right: 2px solid #e0e7ff;
+  min-width: 250px;
+  width: 250px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  box-shadow: 2px 0 16px rgba(108, 71, 255, 0.06);
+  padding: 2.5rem 0 2rem 0;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+}
+
+.adminNav.collapsed {
+  width: 80px;
+  min-width: 80px;
+}
+
+.navHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  margin-bottom: 2rem;
+}
+
+.collapseBtn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.collapseBtn:hover {
+  background: var(--primary);
+  transform: scale(1.1);
 }
 
 .adminNav h3 {
-  margin: 0 0 20px 0;
-  padding: 0 28px;
-  color: #e65100;
+  color: var(--primary);
   font-size: 1.1rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.08em;
+  margin: 0;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
 }
 .adminNavList {
   list-style: none;
-  padding: 0;
+  padding: 0 1.5rem;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 .adminNavListItem {
-  margin-bottom: 18px;
+  margin: 0;
 }
-.adminNavButton, .adminNavButton:visited {
-  display: block;
+.adminNavButton {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   width: 100%;
-  text-align: left;
-  font-size: 1.12rem;
-  padding: 13px 28px;
-  border-radius: 10px;
+  padding: 0.9rem 1.2rem;
   border: none;
-  background: none;
-  color: #222;
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  background: transparent;
+  color: var(--primary);
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 1rem;
   cursor: pointer;
-  text-decoration: none;
-  font-weight: 600;
-  letter-spacing: 0.2px;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  position: relative;
 }
-.adminNavButton:hover,
-.adminNavButton:focus,
-.adminNavButton.active {
-  background: linear-gradient(90deg, #fff3e0 60%, #ffcc80 100%);
-  color: var(--brand-color, #FF9800);
-  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.08);
-}
-.adminTable {
-  border-collapse: collapse;
-  width: 100%;
-  background: #fff;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 4px 24px rgba(255, 152, 0, 0.08);
-  margin-top: 18px;
-}
-.adminTable th, .adminTable td {
-  padding: 16px 14px;
-  text-align: left;
-  font-size: 1.04rem;
-}
-.adminTable th {
-  background: #fff3e0;
+.adminNavButton:hover, .adminNavButton.active {
+  background: linear-gradient(90deg, #ede9fe 0%, #c7d2fe 100%);
+  color: #6c47ff;
+  box-shadow: 0 2px 8px rgba(108, 71, 255, 0.08);
   font-weight: 700;
-  color: #e65100;
-  letter-spacing: 0.1px;
 }
-.adminTable tr:nth-child(even) {
-  background: #fef8f3;
+.navIcon {
+  font-size: 1.3rem;
+  opacity: 0.85;
+}
+.navText {
+  flex: 1;
+  font-family: var(--font-body);
+  font-weight: inherit;
+}
+.navBadge {
+  background: var(--error);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 1rem;
+  min-width: 1.2rem;
+  text-align: center;
 }
 
+/* MAIN CONTENT */
+.adminMainContent {
+  margin-left: 250px;
+  padding: 2.5rem 2rem 2rem 2rem;
+  background: #fff;
+  min-height: 100vh;
+  border-radius: 2rem 0 0 0;
+  box-shadow: 0 -4px 20px rgba(108, 71, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* DASHBOARD CARDS */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+.statCard {
+  background: linear-gradient(135deg, #ede9fe 0%, #fff 100%);
+  border: 1.5px solid #e0e7ff;
+  border-radius: 1.5rem;
+  padding: 2rem 1.5rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.statCard:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px) scale(1.01);
+}
+.statNumber {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+.statLabel {
+  color: var(--muted);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* TABLES */
+.adminTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: var(--shadow);
+  margin-top: 1rem;
+  overflow: hidden;
+}
+.adminTable th {
+  background: var(--secondary);
+  color: var(--primary);
+  font-weight: 700;
+  padding: 1rem 0.7rem;
+  text-align: center;
+  font-size: 1rem;
+  border-bottom: 2px solid #e0e7ff;
+}
+.adminTable td {
+  padding: 0.9rem 0.7rem;
+  text-align: center;
+  border-bottom: 1px solid #f1f1f1;
+  font-size: 1rem;
+}
+.adminTable tr:hover {
+  background: #f3f4f6;
+}
+
+
+
+/* BUTTONS */
 .adminButton {
-  background: var(--brand-color, #FF9800) !important;
-  color: #fff !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.3rem;
   border: none;
-  border-radius: 7px;
-  padding: 10px 22px;
-  margin-right: 10px;
-  font-size: 1.04rem;
-  cursor: pointer;
+  border-radius: 0.7rem;
+  font-size: 1rem;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.08);
-  transition: background 0.15s, box-shadow 0.15s;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+  font-family: var(--font-body);
+  box-shadow: 0 1px 4px rgba(108, 71, 255, 0.06);
 }
-.adminSubmitButton:hover, .adminSubmitButton:focus {
-  background: #e68900 !important;
-  box-shadow: 0 4px 16px rgba(255, 152, 0, 0.13);
+.adminButton.primary {
+  background: var(--primary);
+  color: #fff;
 }
-.adminFormInput {
-  padding: 12px 16px;
-  border: 1.5px solid #ffcc80;
-  border-radius: 9px;
-  margin-bottom: 12px;
-  font-size: 1.04rem;
-  background: #fef8f3;
-  transition: border 0.15s, box-shadow 0.15s;
-  box-shadow: 0 1px 4px rgba(255, 152, 0, 0.04);
+.adminButton.primary:hover {
+  background: #4f2ccf;
+  color: #fff;
 }
-.adminFormInput:focus {
-  border: 2px solid var(--brand-color, #FF9800);
+.adminButton.secondary {
+  background: #fff;
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
+}
+.adminButton.danger {
+  background: var(--error);
+  color: #fff;
+}
+.adminButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* FORMS */
+.adminForm {
+  background: #fff;
+  border: 1.5px solid #e0e7ff;
+  border-radius: 1.2rem;
+  padding: 2rem 1.5rem;
+  box-shadow: var(--shadow);
+}
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem;
+}
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.formLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+.formInput, .formTextarea, .formSelect {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border: 1.5px solid #e0e7ff;
+  border-radius: 0.7rem;
+  font-size: 1rem;
+  background: #fff;
+  transition: border 0.2s, box-shadow 0.2s;
+  font-family: var(--font-body);
+}
+.formInput:focus, .formTextarea:focus, .formSelect:focus {
   outline: none;
-  background: #fff3e0;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px #ede9fe;
 }
-@media (max-width: 900px) {
-  .adminMainWrapper {
-    flex-direction: column;
-    gap: 0;
-    padding: 0 8px 16px 8px;
+
+/* LOADING */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: var(--primary);
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: var(--shadow);
+}
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid #ede9fe;
+  border-top: 4px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1.2s linear infinite;
+  margin-bottom: 1.2rem;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .adminMainContent {
+    margin-left: 0;
+    padding: 1.5rem 0.5rem;
   }
   .adminNav {
     position: static;
-    max-width: 100%;
+    width: 100%;
     min-width: 0;
-    margin-bottom: 18px;
+    height: auto;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 1.5rem 0;
   }
+  .dashboardHeader {
+    margin-left: 0;
+    width: 100vw;
+  }
+}
+@media (max-width: 768px) {
+  .dashboardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.2rem 1rem;
+    border-radius: 0 0 1.2rem 1.2rem;
+    width: 100vw;
+    margin-left: 0;
+  }
+  .adminMainContent {
+    padding: 1rem 0.2rem;
+    border-radius: 0;
+  }
+  .adminNav {
+    padding: 1rem 0;
+  }
+  .statCard {
+    padding: 1.2rem 0.7rem;
+  }
+}
+@media (max-width: 480px) {
+  .welcomeText {
+    font-size: 1.3rem;
+  }
+  .statNumber {
+    font-size: 1.3rem;
+  }
+  .adminButton {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.7rem;
+  }
+}
+
+/* ===================== SALES ANALYSIS SECTION ===================== */
+
+.salesAnalysisCard {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 2rem;
+  padding: 2.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04);
+  margin-bottom: 2rem;
+  backdrop-filter: blur(20px);
+}
+
+.chartHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.chartTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  font-family: var(--font-heading);
+}
+
+.chartFilters {
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 0.25rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.chartFilterButton {
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.chartFilterButton:hover {
+  color: #475569;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.chartFilterButton.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.chartContainer {
+  height: 300px;
+  width: 100%;
+  position: relative;
+}
+
+.chartLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.chartLoadingSpinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e2e8f0;
+  border-radius: 50%;
+  border-top-color: #667eea;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===================== RESPONSIVE DESIGN ===================== */
+
+@media (max-width: 768px) {
+  .salesAnalysisCard {
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+  }
+  
+  .chartHeader {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .chartTitle {
+    font-size: 1.25rem;
+  }
+  
+  .chartFilters {
+    align-self: stretch;
+  }
+  
+  .chartFilterButton {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .chartContainer {
+    height: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .salesAnalysisCard {
+    padding: 1rem;
+    margin: 0 -0.5rem 2rem -0.5rem;
+  }
+  
+  .chartTitle {
+    font-size: 1.1rem;
+  }
+  
+  .chartFilterButton {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+  
+  .chartContainer {
+    height: 220px;
+  }
+}
+
+/* ===================== ORDER MANAGEMENT SECTION ===================== */
+
+.orderManagementSection {
+  margin-top: 1.5rem;
+}
+
+.orderManagementCard {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 2rem;
+  padding: 2.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04);
+}
+
+.orderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.orderHeaderInfo {
+  flex: 1;
+}
+
+.orderTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  margin-bottom: 0.5rem;
+}
+
+.orderSubtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.orderActions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.orderLoadingIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #667eea;
+  font-size: 0.875rem;
+}
+
+.orderLoadingSpinner {
+  animation: spin 1s linear infinite;
+}
+
+.orderActionButton {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid #667eea;
+  background: transparent;
+  color: #667eea;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 1;
+}
+
+.orderActionButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.orderActionButton.active {
+  background: #667eea;
+  color: white;
+}
+
+.orderActionButton.secondary {
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+}
+
+.ordersList {
+  display: grid;
+  gap: 1rem;
+  max-height: 600px;
+  overflow-y: visible;
+}
+
+.ordersList.expanded {
+  max-height: none;
+}
+
+.ordersList.scrollable {
+  overflow-y: auto;
+}
+
+.orderItem {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1.25rem;
+  background: rgba(248, 250, 252, 0.6);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  transition: all 0.2s;
+  cursor: pointer;
+  transform: translateY(0px);
+  box-shadow: none;
+}
+
+.orderItem:hover {
+  background: rgba(248, 250, 252, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.orderIcon {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.orderInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.orderCode {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.orderCustomer {
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.orderDate {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.orderAmount {
+  font-size: 1.1rem;
+  color: #059669;
+  font-weight: 700;
+  text-align: right;
+  padding: 0.5rem 1rem;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.orderStatus {
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.875rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+  min-width: 120px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.orderStatus.pending {
+  background: #f59e0b;
+}
+
+.orderStatus.delivered {
+  background: #10b981;
+}
+
+.orderStatus.confirmed {
+  background: #3b82f6;
+}
+
+.orderStatus.processing {
+  background: #8b5cf6;
+}
+
+.orderStatus.shipped {
+  background: #06b6d4;
+}
+
+.orderStatus.completed {
+  background: #059669;
+}
+
+.orderStatus.cancelled {
+  background: #dc2626;
+}
+
+.orderStatus.refunded {
+  background: #6b7280;
+}
+
+.orderStatusSelect {
+  padding: 0.6rem 1rem;
+  border-radius: 0.75rem;
+  border: 2px solid #e2e8f0;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: white;
+  font-weight: 600;
+  color: #374151;
+  min-width: 140px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.orderStatusSelect:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Payment Status Styles */
+.paymentStatus {
+  padding: 0.6rem 1rem;
+  border-radius: 0.75rem;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  min-width: 120px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.paymentStatus.pending {
+  background-color: #f59e0b;
+}
+
+.paymentStatus.paid {
+  background-color: #10b981;
+}
+
+.paymentStatus.failed {
+  background-color: #ef4444;
+}
+
+.paymentStatus.cancelled {
+  background-color: #6b7280;
+}
+
+.paymentStatusSelect {
+  padding: 0.6rem 1rem;
+  border-radius: 0.75rem;
+  border: 2px solid #e2e8f0;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: white;
+  font-weight: 600;
+  color: #374151;
+  min-width: 140px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.paymentStatusSelect:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* ======================================
+   ORDER MANAGEMENT SECTION - REDESIGNED
+   ====================================== */
+
+/* Main Container */
+.orderManagementSection {
+  margin-top: 1.5rem;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.5);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s ease;
+}
+
+.orderManagementSection:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
+}
+
+/* Header Section */
+.orderManagementHeader {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.orderManagementHeader::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.orderHeaderContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.orderHeaderInfo h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.orderHeaderInfo p {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.95rem;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+.orderHeaderActions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.orderActionButton {
+  padding: 0.75rem 1.25rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.orderActionButton:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.orderActionButton.secondary {
+  background: rgba(255, 255, 255, 0.9);
+  color: #667eea;
+  border-color: transparent;
+}
+
+.orderActionButton.secondary:hover {
+  background: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Content Container */
+.orderManagementContent {
+  padding: 0;
+  background: #ffffff;
+}
+
+/* Orders List Container */
+.ordersListContainer {
+  position: relative;
+  background: #ffffff;
+}
+
+.ordersList {
+  max-height: auto;
+  overflow-y: visible;
+  transition: all 0.3s ease;
+}
+
+.ordersList.expanded {
+  max-height: 600px;
+}
+
+.ordersList.scrollable {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
+}
+
+.ordersList.scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ordersList.scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ordersList.scrollable::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.3);
+  border-radius: 10px;
+}
+
+.ordersList.scrollable::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.5);
+}
+
+/* Individual Order Item */
+.orderItem {
+  display: grid;
+  grid-template-columns: 60px 1fr auto auto auto auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.orderItem:last-child {
+  border-bottom: none;
+}
+
+.orderItem:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.02) 0%, rgba(139, 92, 246, 0.02) 100%);
+}
+
+.orderItem::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  transform: scaleY(0);
+  transition: transform 0.2s ease;
+}
+
+.orderItem:hover::before {
+  transform: scaleY(1);
+}
+
+/* Order Item Elements */
+.orderIcon {
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+}
+
+.orderInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.orderCode {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1f2937;
+  letter-spacing: -0.025em;
+}
+
+.orderCustomer {
+  font-size: 0.875rem;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.orderDate {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.orderAmount {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #059669;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Status Badges */
+.orderStatus,
+.paymentStatus {
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-align: center;
+  min-width: 110px;
+  border: 2px solid;
+  transition: all 0.2s ease;
+}
+
+/* Status Colors */
+.orderStatus.pending {
+  background: rgba(251, 191, 36, 0.1);
+  color: #d97706;
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.orderStatus.processing {
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.orderStatus.shipped {
+  background: rgba(139, 92, 246, 0.1);
+  color: #7c3aed;
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.orderStatus.delivered {
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.orderStatus.cancelled {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.paymentStatus.pending {
+  background: rgba(251, 191, 36, 0.1);
+  color: #d97706;
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.paymentStatus.paid {
+  background: rgba(16, 185, 129, 1);
+  color: white;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.paymentStatus.failed {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.paymentStatus.cancelled {
+  background: rgba(107, 114, 128, 0.1);
+  color: #4b5563;
+  border-color: rgba(107, 114, 128, 0.3);
+}
+
+/* Select Dropdowns */
+.orderStatusSelect,
+.paymentStatusSelect {
+  padding: 0.5rem 0.75rem;
+  border: 2px solid rgba(226, 232, 240, 0.8);
+  border-radius: 0.75rem;
+  background: white;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 130px;
+}
+
+.orderStatusSelect:hover,
+.paymentStatusSelect:hover {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.orderStatusSelect:focus,
+.paymentStatusSelect:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+/* Stats Container - Redesigned */
+.orderStatsContainer {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
+  border-top: 1px solid rgba(226, 232, 240, 0.5);
+  padding: 1.5rem;
+  margin: 0;
+}
+
+.orderStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.orderStatItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: white;
+  border-radius: 1rem;
+  border: 1px solid rgba(226, 232, 240, 0.3);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.orderStatItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.orderStatIcon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.orderStatIcon.total {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.orderStatIcon.revenue {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.orderStatIcon.completed {
+  background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+}
+
+.orderStatIcon.pending {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.orderStatInfo {
+  flex: 1;
+}
+
+.orderStatLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.orderStatValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+}
+
+/* No Orders State */
+.noOrdersMessage {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #6b7280;
+}
+
+.noOrdersIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.noOrdersTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.noOrdersSubtitle {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+/* Loading States */
+.orderLoadingIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.orderLoadingSpinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .orderItem {
+    grid-template-columns: 50px 1fr auto auto auto;
+    gap: 0.75rem;
+  }
+  
+  .orderStatusSelect,
+  .paymentStatusSelect {
+    min-width: 100px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .orderManagementSection {
+    margin-top: 1rem;
+    border-radius: 1rem;
+  }
+  
+  .orderManagementHeader {
+    padding: 1rem;
+  }
+  
+  .orderHeaderContent {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .orderItem {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+    text-align: center;
+  }
+  
+  .orderStatsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.orderStatLabel {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-bottom: 0.25rem;
+}
+
+.orderStatValue {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.noOrdersMessage {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #64748b;
+}
+
+.noOrdersIcon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.noOrdersTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.noOrdersSubtitle {
+  font-size: 1rem;
+  color: #64748b;
+}
+
+/* Pagination styles */
+.orderPagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+  border-radius: 1.25rem;
+  border: 1px solid rgba(102, 126, 234, 0.15);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+}
+
+.paginationButton {
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.paginationButton:disabled {
+  background: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.paginationButton:not(:disabled):hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.paginationInfo {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.pageNumberButton {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+.pageNumberButton.active {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.pageNumberButton:not(.active):hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.currentPageIndicator {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 700;
+  min-width: 120px;
+  text-align: center;
 }

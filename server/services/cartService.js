@@ -1,5 +1,6 @@
 const BaseService = require('./baseService');
 const Cart = require('../models/CartSchema'); // Updated to use new CartSchema
+const Order = require('../models/OrderSchema'); // Import Order model for creating orders
 const ProductVariant = require('../models/ProductVariantSchema');
 const Address = require('../models/AddressSchema');
 const Voucher = require('../models/VoucherSchema');
@@ -11,17 +12,25 @@ class CartService extends BaseService {
     super(Cart); // Updated to use Cart model
   }
 
-  // Get user's cart (create if doesn't exist)
-  async getUserCart(userId) {
+  // Get user's cart (create if doesn't exist) - Original with full population
+  async getUserCart(userId, options = {}) {
     let cart = await Cart.findOrCreateCart(userId);
     
-    // Populate cart items with product details
+    // Optimized populate with minimal data for better performance
     await cart.populate([
       {
         path: 'items.productVariant',
+        select: 'product color size price stock isActive', // Only essential fields
         populate: [
-          { path: 'product', select: 'name description images' },
-          { path: 'color', select: 'name hexCode' },
+          { 
+            path: 'product', 
+            select: 'name images category price salePrice isActive', // Removed description for faster loading
+            populate: {
+              path: 'category',
+              select: 'name parent isActive'
+            }
+          },
+          { path: 'color', select: 'name isActive' },
           { path: 'size', select: 'name' }
         ]
       }
@@ -30,11 +39,107 @@ class CartService extends BaseService {
     return cart;
   }
 
+  // Get user's cart with ULTRA OPTIMIZED loading (for cart page)
+  async getUserCartOptimized(userId) {
+    let cart = await Cart.findOrCreateCart(userId);
+    
+    if (!cart || !cart.items || cart.items.length === 0) {
+      return cart;
+    }
+
+    // Only populate essential data for initial cart display
+    await cart.populate([
+      {
+        path: 'items.productVariant',
+        select: 'product color size price', // Minimal fields only
+        populate: [
+          { 
+            path: 'product', 
+            select: 'name images price salePrice', // Only display fields
+          },
+          { path: 'color', select: 'name' },
+          { path: 'size', select: 'name' }
+        ]
+      }
+    ]);
+    
+    return cart;
+  }
+
+  // Get cart items with pagination for cart page
+  async getCartWithPagination(userId, page = 1, limit = 10, filters = {}) {
+    let cart = await Cart.findOrCreateCart(userId);
+    
+    if (!cart || !cart.items || cart.items.length === 0) {
+      return {
+        cart: cart,
+        items: [],
+        totalItems: 0,
+        totalPages: 0,
+        currentPage: page,
+        hasNextPage: false,
+        hasPrevPage: false
+      };
+    }
+
+    // Calculate pagination
+    const totalItems = cart.items.length;
+    const totalPages = Math.ceil(totalItems / limit);
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+
+    // Get paginated items
+    const paginatedItemIds = cart.items.slice(startIndex, endIndex).map(item => item.productVariant);
+
+    // Populate only the paginated items for better performance
+    const populatedCart = await Cart.findById(cart._id).populate([
+      {
+        path: 'items.productVariant',
+        match: { _id: { $in: paginatedItemIds } },
+        select: 'product color size price stock isActive',
+        populate: [
+          { 
+            path: 'product', 
+            select: 'name images category price salePrice isActive',
+            populate: {
+              path: 'category',
+              select: 'name parent isActive'
+            }
+          },
+          { path: 'color', select: 'name isActive' },
+          { path: 'size', select: 'name' }
+        ]
+      }
+    ]);
+
+    // Filter populated items to match pagination
+    const paginatedItems = cart.items.slice(startIndex, endIndex);
+
+    return {
+      cart: {
+        ...cart.toObject(),
+        items: paginatedItems
+      },
+      totalItems,
+      totalPages,
+      currentPage: page,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1
+    };
+  }
+
   // Add item to cart
   async addItemToCart(userId, productVariantId, quantity) {
     // Validate product variant exists and has stock
     const variant = await ProductVariant.findById(productVariantId)
-      .populate('product', 'name isActive')
+      .populate({
+        path: 'product', 
+        select: 'name price salePrice isActive category',
+        populate: {
+          path: 'category',
+          select: 'name parent isActive'
+        }
+      })
       .populate('color', 'name')
       .populate('size', 'name');
       
@@ -83,12 +188,166 @@ class CartService extends BaseService {
     const itemPrice = variant.price || 100000;
     await cart.addItem(productVariantId, quantity, itemPrice);
     
-    return this.getUserCart(userId); // Return populated cart
+    // Save cart first for better performance
+    const savedCart = await cart.save();
+    
+    // Minimal populate for speed optimization - addItem operation
+    await savedCart.populate([
+      {
+        path: 'items.productVariant',
+        select: 'product color size price', // Minimal essential fields only
+        populate: [
+          { 
+            path: 'product', 
+            select: 'name images price salePrice' // Only display fields, no category nesting
+          },
+          { path: 'color', select: 'name' },
+          { path: 'size', select: 'name' }
+        ]
+      }
+    ]);
+    
+    return savedCart;
+  }
+
+  // Batch add multiple items to cart in single transaction
+  async batchAddItemsToCart(userId, items) {
+    console.log('🛒 batchAddItemsToCart called', { userId, itemsCount: items.length });
+    console.log('📦 Items to add:', items.map(item => ({ 
+      productVariantId: item.productVariant ? item.productVariant.toString() : 'NULL', 
+      quantity: item.quantity 
+    })));
+
+    const cart = await Cart.findOrCreateCart(userId);
+    let successCount = 0;
+    let errorCount = 0;
+    const errors = [];
+
+    console.log('📋 Current cart before batch add:', {
+      itemsCount: cart.items.length,
+      items: cart.items.map(item => ({ 
+        productVariant: item.productVariant.toString(), 
+        quantity: item.quantity 
+      }))
+    });
+
+    // Process all items in parallel for validation
+    const validationPromises = items.map(async (item) => {
+      try {
+        // Validate product variant exists and has stock
+        const variant = await ProductVariant.findById(item.productVariant)
+          .populate({
+            path: 'product', 
+            select: 'name price salePrice isActive'
+          })
+          .populate('color', 'name')
+          .populate('size', 'name');
+          
+        if (!variant) {
+          throw new Error(`Product variant ${item.productVariant} not found`);
+        }
+        
+        if (!variant.product) {
+          console.warn(`Product not found for variant ${item.productVariant}, proceeding with test`);
+        } else if (variant.product.isActive === false) {
+          throw new Error(`Product is not available`);
+        }
+        
+        if (variant.isActive === false) {
+          throw new Error(`Product variant is not available`);
+        }
+        
+        const availableStock = variant.stock || 999;
+        if (availableStock <= 0) {
+          throw new Error(`Product is out of stock`);
+        }
+        
+        if (availableStock < item.quantity) {
+          throw new Error(`Only ${availableStock} items available`);
+        }
+
+        return {
+          productVariantId: item.productVariant,
+          quantity: item.quantity,
+          price: variant.price || 100000
+        };
+      } catch (error) {
+        errors.push({ productVariant: item.productVariant, error: error.message });
+        return null;
+      }
+    });
+
+    // Wait for all validations
+    const validationResults = await Promise.allSettled(validationPromises);
+    const validItems = [];
+
+    validationResults.forEach((result) => {
+      if (result.status === 'fulfilled' && result.value) {
+        validItems.push(result.value);
+        successCount++;
+      } else {
+        errorCount++;
+      }
+    });
+
+    // Add all valid items to cart in one operation
+    if (validItems.length > 0) {
+      // Group items by productVariantId to merge quantities for duplicates
+      const groupedItems = {};
+      validItems.forEach(item => {
+        const variantId = item.productVariantId.toString();
+        if (groupedItems[variantId]) {
+          // Merge quantities for duplicate productVariants
+          groupedItems[variantId].quantity += item.quantity;
+        } else {
+          groupedItems[variantId] = {
+            productVariantId: item.productVariantId,
+            quantity: item.quantity,
+            price: item.price
+          };
+        }
+      });
+
+      // Add grouped items to cart (one call per unique productVariant)
+      for (const grouped of Object.values(groupedItems)) {
+        try {
+          console.log(`🛒 CartService: Adding item to cart`, {
+            productVariantId: grouped.productVariantId,
+            quantity: grouped.quantity,
+            price: grouped.price
+          });
+          
+          await cart.addItem(grouped.productVariantId, grouped.quantity, grouped.price);
+          
+          console.log(`✅ CartService: Successfully added item ${grouped.productVariantId}`);
+        } catch (error) {
+          console.error(`❌ CartService: Failed to add item ${grouped.productVariantId}:`, error);
+          // Don't throw here, just log and continue
+        }
+      }
+    }
+
+    // Save cart once after all additions
+    const savedCart = await cart.save();
+
+    // PERFORMANCE: Return minimal cart for batch operations
+    // Cart page will reload with optimized endpoint for full data
+    return {
+      cart: {
+        _id: savedCart._id,
+        user: savedCart.user,
+        items: savedCart.items,
+        totalAmount: savedCart.totalAmount
+      },
+      successCount,
+      errorCount,
+      errors
+    };
   }
 
   // Update cart item quantity
   async updateCartItemQuantity(userId, productVariantId, newQuantity) {
-    const cart = await Cart.findOne({ user: userId, type: 'cart' });
+    const cart = await Cart.findOrCreateCart(userId);
     if (!cart) {
       throw new AppError('Cart not found', ERROR_CODES.NOT_FOUND);
     }
@@ -96,7 +355,14 @@ class CartService extends BaseService {
     // Validate stock if increasing quantity
     if (newQuantity > 0) {
       const variant = await ProductVariant.findById(productVariantId)
-        .populate('product', 'name isActive')
+        .populate({
+          path: 'product', 
+          select: 'name price salePrice isActive category',
+          populate: {
+            path: 'category',
+            select: 'name parent isActive'
+          }
+        })
         .populate('color', 'name')
         .populate('size', 'name');
         
@@ -140,30 +406,72 @@ class CartService extends BaseService {
       }
     }
 
-    await cart.updateItemQuantity(productVariantId, newQuantity);
-    return this.getUserCart(userId);
+    await cart.updateItem(productVariantId, newQuantity);
+    
+    // Save cart first for better performance
+    const savedCart = await cart.save();
+    
+    // Minimal populate for speed optimization - updateItem operation
+    await savedCart.populate([
+      {
+        path: 'items.productVariant',
+        select: 'product color size price', // Minimal essential fields only
+        populate: [
+          { 
+            path: 'product', 
+            select: 'name images price salePrice' // Only display fields, no category nesting
+          },
+          { path: 'color', select: 'name' },
+          { path: 'size', select: 'name' }
+        ]
+      }
+    ]);
+    
+    return savedCart;
   }
 
   // Remove item from cart
   async removeItemFromCart(userId, productVariantId) {
-    const cart = await Cart.findOne({ user: userId, type: 'cart' });
+    const cart = await Cart.findOrCreateCart(userId);
     if (!cart) {
       throw new AppError('Cart not found', ERROR_CODES.NOT_FOUND);
     }
 
     await cart.removeItem(productVariantId);
-    return this.getUserCart(userId);
+    
+    // Save cart first for better performance
+    const savedCart = await cart.save();
+    
+    // Minimal populate for speed optimization - removeItem operation
+    await savedCart.populate([
+      {
+        path: 'items.productVariant',
+        select: 'product color size price', // Minimal essential fields only
+        populate: [
+          { 
+            path: 'product', 
+            select: 'name images price salePrice' // Only display fields, no category nesting
+          },
+          { path: 'color', select: 'name' },
+          { path: 'size', select: 'name' }
+        ]
+      }
+    ]);
+    
+    return savedCart;
   }
 
   // Clear entire cart
   async clearUserCart(userId) {
-    const cart = await Cart.findOne({ user: userId, type: 'cart' });
+    const cart = await Cart.findOrCreateCart(userId);
     if (!cart) {
       throw new AppError('Cart not found', ERROR_CODES.NOT_FOUND);
     }
 
     await cart.clearCart();
-    return this.getUserCart(userId);
+    
+    // Return empty cart (no need to populate empty items)
+    return cart;
   }
 
   // Sync client cart with server cart
@@ -183,7 +491,26 @@ class CartService extends BaseService {
       }
     }
     
-    return this.getUserCart(userId);
+    // Populate and return updated cart directly
+    await cart.populate([
+      {
+        path: 'items.productVariant',
+        populate: [
+          { 
+            path: 'product', 
+            select: 'name description images category price salePrice isActive',
+            populate: {
+              path: 'category',
+              select: 'name parent isActive'
+            }
+          },
+          { path: 'color', select: 'name isActive' },
+          { path: 'size', select: 'name' }
+        ]
+      }
+    ]);
+    
+    return cart;
   }
 
   // Validate cart (check stock, prices, etc.)
@@ -242,7 +569,7 @@ class CartService extends BaseService {
 
   // Get cart items count
   async getCartItemsCount(userId) {
-    const cart = await Cart.findOne({ user: userId, type: 'cart' });
+    const cart = await Cart.findOrCreateCart(userId);
     if (!cart) return 0;
     
     return cart.items.reduce((total, item) => total + item.quantity, 0);
@@ -264,11 +591,23 @@ class CartService extends BaseService {
       };
     }
 
+    // Calculate total using current product prices (like frontend)
+    let currentTotal = 0;
+    cart.items.forEach(item => {
+      if (item.productVariant?.product) {
+        // Use sale price if available, otherwise use regular price
+        const salePrice = item.productVariant.product.salePrice;
+        const regularPrice = item.productVariant.product.price;
+        const currentPrice = salePrice || regularPrice;
+        currentTotal += currentPrice * item.quantity;
+      }
+    });
+
     const calculation = {
-      total: cart.total, // Changed from subtotal to total
+      total: currentTotal, // Use calculated current total
       discountAmount: 0,
       shippingFee: 0,
-      finalTotal: cart.total // Changed from subtotal to total
+      finalTotal: currentTotal // Use calculated current total
     };
 
     // Calculate shipping fee if address provided
@@ -281,10 +620,25 @@ class CartService extends BaseService {
 
     // Apply voucher if provided
     if (options.voucher) {
+      console.log('🎫 Applying voucher with ID:', options.voucher);
       const voucher = await Voucher.findById(options.voucher);
+      console.log('🎫 Voucher found:', voucher ? {
+        code: voucher.code,
+        discountPercent: voucher.discountPercent,
+        maximumDiscountAmount: voucher.maximumDiscountAmount,
+        minimumOrderValue: voucher.minimumOrderValue,
+        isActive: voucher.isActive
+      } : 'NOT FOUND');
+      
       if (voucher && this.isVoucherValid(voucher, calculation.total)) {
+        console.log('🎫 Voucher is valid, calculating discount...');
         calculation.discountAmount = this.calculateVoucherDiscount(voucher, calculation.total);
+        console.log('🎫 Voucher discount applied:', calculation.discountAmount);
+      } else {
+        console.log('🎫 Voucher is invalid or not found');
       }
+    } else {
+      console.log('🎫 No voucher provided in options');
     }
 
     calculation.finalTotal = calculation.total - calculation.discountAmount + calculation.shippingFee;
@@ -305,57 +659,112 @@ class CartService extends BaseService {
   isVoucherValid(voucher, total) {
     const now = new Date();
     
-    return voucher.isActive &&
-           voucher.startDate <= now &&
-           voucher.endDate >= now &&
-           voucher.usedCount < voucher.usageLimit &&
-           total >= voucher.minOrderValue;
+    console.log('🎫 Checking voucher validity:', {
+      voucherCode: voucher.code,
+      isActive: voucher.isActive,
+      startDate: voucher.startDate,
+      endDate: voucher.endDate,
+      minimumOrderValue: voucher.minimumOrderValue,
+      total: total,
+      now: now
+    });
+    
+    const isActive = voucher.isActive;
+    const isInPeriod = voucher.startDate <= now && voucher.endDate >= now;
+    const meetsMinimum = total >= (voucher.minimumOrderValue || 0);
+    
+    console.log('🎫 Validity checks:', {
+      isActive,
+      isInPeriod,
+      meetsMinimum
+    });
+    
+    const isValid = isActive && isInPeriod && meetsMinimum;
+    console.log('🎫 Overall validity:', isValid);
+    
+    return isValid;
   }
 
   // Calculate voucher discount
   calculateVoucherDiscount(voucher, total) {
-    let discount = 0;
+    console.log('🎫 Calculating voucher discount:', {
+      voucherCode: voucher.code,
+      discountPercent: voucher.discountPercent,
+      maximumDiscountAmount: voucher.maximumDiscountAmount,
+      total: total
+    });
     
-    if (voucher.discountType === 'percentage') {
-      discount = (total * voucher.discountValue) / 100;
-      if (voucher.maxDiscountAmount) {
-        discount = Math.min(discount, voucher.maxDiscountAmount);
-      }
-    } else {
-      discount = voucher.discountValue;
+    // Calculate percentage discount
+    let discount = (total * voucher.discountPercent) / 100;
+    console.log('🎫 Raw percentage discount:', discount);
+    
+    // Apply maximum discount limits:
+    // 1. Maximum 50% of order total
+    // 2. Maximum discount amount from voucher setting (default 200,000 VND)
+    const maxDiscountByPercent = total * 0.5; // 50% of order total
+    const maxDiscountByAmount = voucher.maximumDiscountAmount || 200000; // Default 200k if not set
+    
+    const effectiveMaxDiscount = Math.min(maxDiscountByPercent, maxDiscountByAmount);
+    console.log('🎫 Max discount limits:', {
+      maxDiscountByPercent,
+      maxDiscountByAmount,
+      effectiveMaxDiscount
+    });
+    
+    if (discount > effectiveMaxDiscount) {
+      discount = effectiveMaxDiscount;
+      console.log('🎫 Applied discount limit, final discount:', discount);
     }
     
-    return Math.min(discount, total); // Don't discount more than total
+    // Don't discount more than total
+    discount = Math.min(discount, total);
+    
+    console.log('🎫 Final voucher discount:', discount);
+    return discount;
   }
 
   // Convert cart to order (checkout)
   async checkoutCart(userId, orderData) {
-    const cart = await Cart.findOne({ user: userId, type: 'cart' });
+    console.log('🛒 CartService.checkoutCart called with:', { userId, orderData });
+    
+    // Use getUserCart method which handles backward compatibility
+    const cart = await this.getUserCart(userId);
+    console.log('🛒 Cart found with', cart?.items?.length, 'items');
+    
     if (!cart || cart.items.length === 0) {
       throw new AppError('Cart is empty', ERROR_CODES.BAD_REQUEST);
     }
 
     // Validate cart before checkout
+    console.log('🛒 Validating cart...');
     const validation = await this.validateUserCart(userId);
     if (!validation.isValid) {
       throw new AppError('Cart validation failed. Please update your cart.', ERROR_CODES.BAD_REQUEST);
     }
+    console.log('✅ Cart validation passed');
 
     // Calculate totals
+    console.log('🛒 Calculating totals...');
     const calculation = await this.calculateCartTotal(userId, orderData);
+    console.log('🛒 Calculation result:', calculation);
 
-    // Convert cart to order
+    // Create order in Order collection (NOT Cart collection)
+    console.log('🏪 Creating order in Order collection...');
     const orderDetails = {
       ...orderData,
       discountAmount: calculation.discountAmount,
       shippingFee: calculation.shippingFee
     };
 
-    const order = await cart.convertToOrder(orderDetails);
+    // Use Order.createFromCart instead of cart.convertToOrder
+    const order = await Order.createFromCart(cart, orderDetails);
+    console.log('✅ Order created in Order collection:', order._id);
     
-    // Create new empty cart for user
-    await Cart.findOrCreateCart(userId);
+    // DO NOT clear cart here - only clear after successful payment
+    // This allows users to retry payment if first attempt fails
+    console.log('🛒 Cart preserved for potential payment retry');
     
+    console.log('✅ Checkout completed successfully. Order ID:', order._id);
     return order;
   }
 

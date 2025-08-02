@@ -260,7 +260,7 @@
 
 @media (min-width: 1280px) {
   .productsGrid {
-    grid-template-columns: repeat(4, 1fr); /* Large desktop: 4 columns */
+    grid-template-columns: repeat(3, 1fr); /* Large desktop: 3 columns */
   }
 }
 
@@ -287,22 +287,6 @@
 .noResults p {
   color: var(--color-muted);
   margin-bottom: 25px;
-}
-
-.resetFiltersBtn {
-  padding: 12px 24px;
-  background: #1E40AF;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.resetFiltersBtn:hover {
-  background: #1e3a8a;
-  transform: translateY(-1px);
 }
 
 /* Pagination */

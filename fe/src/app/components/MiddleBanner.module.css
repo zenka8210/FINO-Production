@@ -1,126 +1,230 @@
 .middleBanner {
   margin: 60px 0;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(30, 64, 175, 0.08);
+  position: relative;
+}
+
+.middleBanner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #1E40AF 0%, #3B82F6 50%, #1E40AF 100%);
 }
 
 .bannerContent {
   display: flex;
   align-items: center;
-  height: 400px; /* tăng chiều cao để ảnh áo hiển thị rõ */
+  min-height: 450px;
   padding: 0;
+  position: relative;
 }
 
 .textSection {
   flex: 1;
-  padding: 40px 50px;
+  padding: 50px 60px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.imageSection {
-  flex: 1;
-  height: 100%; /* cho ảnh cao bằng khung */
-  overflow: hidden;
   position: relative;
-  display: flex;
+  z-index: 2;
+}
+
+.badge {
+  display: inline-flex;
   align-items: center;
-  justify-content: flex-end; /* đẩy ảnh về sát bên phải */
-}
-
-.bannerImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* ảnh to và lấp đầy khung */
-  object-position: right center; /* canh ảnh sát phải */
-  transition: transform 0.3s ease;
-}
-
-.bannerImage:hover {
-  transform: scale(1.05);
+  gap: 8px;
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  width: fit-content;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
 }
 
 .title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 16px;
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin-bottom: 20px;
   line-height: 1.2;
+  background: linear-gradient(135deg, #1a202c 0%, #4a5568 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .subtitle {
-  font-size: 1.2rem;
-  color: #666;
+  font-size: 1.25rem;
+  color: #64748b;
   margin-bottom: 32px;
-  line-height: 1.5;
+  line-height: 1.6;
+  max-width: 500px;
 }
 
 .ctaButton {
-  display: inline-block;
-  background: var(--brand-color, #FF9800);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
   color: white;
   padding: 16px 32px;
   border-radius: 50px;
   text-decoration: none;
   font-weight: 600;
   font-size: 1.1rem;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  box-shadow: 0 4px 16px rgba(255, 152, 0, 0.3);
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
   width: fit-content;
+  border: 2px solid transparent;
 }
 
 .ctaButton:hover {
-  background: #e68900;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+  background: linear-gradient(135deg, #1E40AF 0%, #2563EB 100%);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 35px rgba(30, 64, 175, 0.4);
   color: white;
   text-decoration: none;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.ctaButton svg {
+  transition: transform 0.3s ease;
+}
+
+.ctaButton:hover svg {
+  transform: translateX(4px);
+}
+
+.imageSection {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imageWrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 20px 20px 0;
+}
+
+.bannerImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.imageWrapper:hover .bannerImage {
+  transform: scale(1.08);
+}
+
+.imageOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(30, 64, 175, 0.1) 0%,
+    rgba(59, 130, 246, 0.05) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
 }
 
 /* Responsive Design */
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
   .bannerContent {
-    flex-direction: column;
-    height: auto;
+    min-height: 400px;
   }
-
+  
   .textSection {
-    padding: 40px 30px;
-    text-align: center;
+    padding: 40px 40px;
   }
-
-  .imageSection {
-    height: 250px;
-    width: 100%;
-    justify-content: center;
-  }
-
+  
   .title {
-    font-size: 2rem;
-  }
-
-  .subtitle {
-    font-size: 1.1rem;
+    font-size: 2.4rem;
   }
 }
 
 @media (max-width: 768px) {
   .middleBanner {
     margin: 40px 0;
-    border-radius: 12px;
+    border-radius: 16px;
+  }
+  
+  .bannerContent {
+    flex-direction: column;
+    min-height: auto;
   }
 
+  .textSection {
+    padding: 40px 30px;
+    text-align: center;
+    order: 2;
+  }
+
+  .imageSection {
+    order: 1;
+    height: 250px;
+    width: 100%;
+  }
+  
+  .imageWrapper {
+    border-radius: 16px 16px 0 0;
+  }
+
+  .title {
+    font-size: 2.2rem;
+    margin-bottom: 16px;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 24px;
+  }
+  
+  .ctaButton {
+    padding: 14px 28px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .middleBanner {
+    margin: 30px 0;
+    border-radius: 12px;
+  }
+  
   .textSection {
     padding: 30px 20px;
   }
 
-  .imageSection {
-    height: 200px;
+  .badge {
+    font-size: 0.7rem;
+    padding: 6px 12px;
+    margin-bottom: 16px;
   }
 
   .title {
@@ -130,34 +234,43 @@
 
   .subtitle {
     font-size: 1rem;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
-
-  .ctaButton {
-    padding: 14px 28px;
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .middleBanner {
-    margin: 30px 0;
-  }
-
-  .textSection {
-    padding: 25px 15px;
-  }
-
-  .title {
-    font-size: 1.5rem;
-  }
-
-  .subtitle {
-    font-size: 0.9rem;
-  }
-
+  
   .ctaButton {
     padding: 12px 24px;
     font-size: 0.95rem;
+    gap: 8px;
+  }
+  
+  .imageSection {
+    height: 200px;
+  }
+}
+
+/* Loading State */
+.middleBanner:has(.loadingSpinner) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  .middleBanner {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .title {
+    background: linear-gradient(135deg, #f7fafc 0%, #e2e8f0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .subtitle {
+    color: #a0aec0;
   }
 }

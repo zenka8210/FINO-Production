@@ -39,14 +39,35 @@ class OrderController extends BaseController {
     }
   };
 
+  // Admin: Lấy đơn hàng theo ID (admin có thể xem tất cả đơn hàng)
+  getOrderByIdAdmin = async (req, res, next) => {
+    try {
+      const order = await this.service.getOrderWithDetails(req.params.id);
+      
+      if (!order) {
+        return ResponseHandler.notFound(res, orderMessages.ORDER_NOT_FOUND);
+      }
+
+      // Admin có thể xem tất cả đơn hàng, không cần check user ownership
+      ResponseHandler.success(res, orderMessages.ORDER_DETAIL_FETCHED_SUCCESSFULLY, order);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   // Lấy đơn hàng với thông tin đầy đủ
   getOrderById = async (req, res, next) => {
     try {
-      const order = await this.service.getOrderWithDetails(req.params.id); // Assuming getOrderWithDetails exists and handles not found
+      const order = await this.service.getOrderWithDetails(req.params.id);
       
       if (!order) {
-        // This check might be redundant if getOrderWithDetails throws AppError for not found
         return ResponseHandler.notFound(res, orderMessages.ORDER_NOT_FOUND);
+      }
+
+      // 🔒 SECURITY CHECK: Ensure user can only access their own orders
+      if (order.user._id.toString() !== req.user._id.toString()) {
+        console.log('🚫 Security violation: User', req.user._id, 'tried to access order', req.params.id, 'belonging to user', order.user._id);
+        return ResponseHandler.forbidden(res, 'Bạn không có quyền truy cập đơn hàng này');
       }
 
       ResponseHandler.success(res, orderMessages.ORDER_DETAIL_FETCHED_SUCCESSFULLY, order);
@@ -56,14 +77,51 @@ class OrderController extends BaseController {
     }
   };
 
+  // Lấy đơn hàng theo orderCode (for VNPay callbacks)
+  getOrderByCode = async (req, res, next) => {
+    try {
+      const { orderCode } = req.params;
+      console.log('🔍 Getting order by orderCode:', orderCode);
+      
+      const order = await this.service.getOrderByCode(orderCode);
+      
+      if (!order) {
+        return ResponseHandler.notFound(res, orderMessages.ORDER_NOT_FOUND);
+      }
+
+      // 🔒 SECURITY CHECK: Ensure user can only access their own orders
+      if (order.user._id.toString() !== req.user._id.toString()) {
+        console.log('🚫 Security violation: User', req.user._id, 'tried to access order', orderCode, 'belonging to user', order.user._id);
+        return ResponseHandler.forbidden(res, 'Bạn không có quyền truy cập đơn hàng này');
+      }
+
+      ResponseHandler.success(res, orderMessages.ORDER_DETAIL_FETCHED_SUCCESSFULLY, order);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   // Lấy đơn hàng của user hiện tại
   getUserOrders = async (req, res, next) => {
     try {
-      const { page, limit, status } = req.query;
+      const { page, limit, status, startDate, endDate } = req.query;
+      
+      console.log('🗓️ Date filter params:', { startDate, endDate });
+      
+      // Build date filter
+      const dateFilter = {};
+      if (startDate || endDate) {
+        dateFilter.createdAt = {};
+        if (startDate) dateFilter.createdAt.$gte = new Date(startDate);
+        if (endDate) dateFilter.createdAt.$lte = new Date(endDate);
+        console.log('🗓️ Date filter created:', dateFilter);
+      }
+      
       const options = {
         page: parseInt(page) || PAGINATION.DEFAULT_PAGE,
         limit: parseInt(limit) || PAGINATION.DEFAULT_LIMIT,
-        status
+        status,
+        dateFilter
       };
 
       const result = await this.service.getUserOrders(req.user._id, options);
@@ -148,6 +206,44 @@ class OrderController extends BaseController {
     }
   };
 
+  // GET /api/orders/admin/:id - Get order by ID (admin)
+  getOrderByIdAdmin = async (req, res, next) => {
+    try {
+      // Use direct query with population for admin view
+      const Order = require('../models/OrderSchema');
+      const order = await Order.findById(req.params.id)
+        .populate('user', 'name email phone')
+        .populate('address')
+        .populate('voucher')
+        .populate('paymentMethod')
+        .populate({
+          path: 'items.productVariant',
+          populate: [
+            {
+              path: 'product',
+              select: 'name price images'
+            },
+            {
+              path: 'color',
+              select: 'name hexCode'
+            },
+            {
+              path: 'size',
+              select: 'name'
+            }
+          ]
+        });
+      
+      if (!order) {
+        throw new AppError(orderMessages.ORDER_NOT_FOUND, ERROR_CODES.ORDER.NOT_FOUND);
+      }
+
+      ResponseHandler.success(res, 'Order retrieved successfully', order);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   // Cập nhật trạng thái đơn hàng (Admin)
   updateOrderStatus = async (req, res, next) => {
     try {
@@ -155,9 +251,58 @@ class OrderController extends BaseController {
       if (!status) {
         throw new AppError(orderMessages.ORDER_STATUS_REQUIRED, ERROR_CODES.BAD_REQUEST);
       }
-      // Further validation for valid status values can be added here
-      const order = await this.service.updateOrderStatus(req.params.id, status, req.user._id);
-      ResponseHandler.success(res, orderMessages.ORDER_STATUS_UPDATED_SUCCESSFULLY, order);
+      
+      // Auto-update payment status logic
+      let updateData = { status };
+      
+      // If order status is set to 'delivered', automatically set paymentStatus to 'paid'
+      if (status === 'delivered') {
+        updateData.paymentStatus = 'paid';
+        console.log('🔄 [AUTO-UPDATE] Order delivered -> Setting paymentStatus to paid');
+      }
+      
+      // Update order with both status and potentially paymentStatus
+      const updatedOrder = await Order.findByIdAndUpdate(
+        req.params.id,
+        updateData,
+        { new: true }
+      ).populate(['user', 'address', 'voucher', 'paymentMethod']);
+      
+      if (!updatedOrder) {
+        throw new AppError('Order not found', ERROR_CODES.NOT_FOUND);
+      }
+      
+      ResponseHandler.success(res, orderMessages.ORDER_STATUS_UPDATED_SUCCESSFULLY, updatedOrder);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Cập nhật trạng thái thanh toán (Admin)
+  updatePaymentStatus = async (req, res, next) => {
+    try {
+      const { paymentStatus } = req.body;
+      if (!paymentStatus) {
+        throw new AppError('Payment status is required', ERROR_CODES.BAD_REQUEST);
+      }
+      
+      // Validate payment status
+      const validPaymentStatuses = ['pending', 'paid', 'failed', 'cancelled'];
+      if (!validPaymentStatuses.includes(paymentStatus)) {
+        throw new AppError('Invalid payment status', ERROR_CODES.BAD_REQUEST);
+      }
+      
+      const updatedOrder = await Order.findByIdAndUpdate(
+        req.params.id,
+        { paymentStatus },
+        { new: true }
+      ).populate(['user', 'address', 'voucher', 'paymentMethod']);
+      
+      if (!updatedOrder) {
+        throw new AppError('Order not found', ERROR_CODES.NOT_FOUND);
+      }
+      
+      ResponseHandler.success(res, 'Payment status updated successfully', updatedOrder);
     } catch (error) {
       next(error);
     }
@@ -171,6 +316,46 @@ class OrderController extends BaseController {
       
       const order = await this.service.cancelOrder(req.params.id, userId, reason);
       ResponseHandler.success(res, orderMessages.ORDER_CANCELLED_SUCCESSFULLY, order);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Cập nhật trạng thái thanh toán (Admin)
+  updatePaymentStatus = async (req, res, next) => {
+    try {
+      const { paymentStatus } = req.body;
+      if (!paymentStatus) {
+        throw new AppError('Trạng thái thanh toán là bắt buộc', ERROR_CODES.BAD_REQUEST);
+      }
+      
+      const order = await this.service.updatePaymentStatus(req.params.id, paymentStatus, req.user._id);
+      ResponseHandler.success(res, 'Cập nhật trạng thái thanh toán thành công', order);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Kiểm tra tính nhất quán của đơn hàng (Admin)
+  validateOrderConsistency = async (req, res, next) => {
+    try {
+      const validation = await this.service.validateOrderConsistency(req.params.id);
+      ResponseHandler.success(res, 'Kiểm tra tính nhất quán hoàn tất', validation);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Tự động sửa các vấn đề về đơn hàng (Admin)
+  autoFixOrderInconsistencies = async (req, res, next) => {
+    try {
+      const result = await this.service.autoFixOrderInconsistencies(req.params.id, req.user._id);
+      
+      if (result.success) {
+        ResponseHandler.success(res, result.message, result);
+      } else {
+        ResponseHandler.badRequest(res, result.message, result);
+      }
     } catch (error) {
       next(error);
     }
@@ -278,6 +463,8 @@ class OrderController extends BaseController {
       const { userId } = req.params;
       const { page, limit, status } = req.query;
 
+      console.log('🔍 OrderController.getOrdersByUserId called with:', { userId, page, limit, status });
+
       const options = {
         page: parseInt(page) || PAGINATION.DEFAULT_PAGE,
         limit: parseInt(limit) || PAGINATION.DEFAULT_LIMIT,
@@ -285,8 +472,15 @@ class OrderController extends BaseController {
       };
 
       const result = await this.service.getOrdersByUserId(userId, options); // Assuming this method exists in service
+      console.log('📦 Orders result:', { 
+        ordersCount: result?.data?.length || 0, 
+        total: result?.total,
+        pagination: result?.pagination 
+      });
+      
       ResponseHandler.success(res, orderMessages.ORDERS_FETCHED_SUCCESSFULLY, result);
     } catch (error) {
+      console.error('❌ Error in getOrdersByUserId:', error.message);
       next(error);
     }
   };
@@ -300,7 +494,16 @@ class OrderController extends BaseController {
       }
 
       const shippingInfo = await this.service.calculateShippingFee(addressId);
-      ResponseHandler.success(res, 'Tính phí ship thành công', shippingInfo);
+      
+      // Transform response to match frontend expectation
+      const response = {
+        shippingFee: shippingInfo.fee,
+        location: shippingInfo.location,
+        description: shippingInfo.description,
+        address: shippingInfo.address
+      };
+      
+      ResponseHandler.success(res, 'Tính phí ship thành công', response);
     } catch (error) {
       next(error);
     }
@@ -339,30 +542,96 @@ class OrderController extends BaseController {
   // GET /api/orders/admin/all - Get all orders with Query Middleware
   getAllOrders = async (req, res, next) => {
     try {
-      if (req.createQueryBuilder) {
-        const result = await req.createQueryBuilder(Order)
-          .search(['orderCode', 'user.email', 'user.name'])
-          .applyFilters({
-            status: { type: 'string' },
-            paymentStatus: { type: 'string' },
-            user: { type: 'objectId' },
-            'finalTotal[min]': { type: 'number' },
-            'finalTotal[max]': { type: 'number' },
-            'total[min]': { type: 'number' },
-            'total[max]': { type: 'number' }
-          })
-          .execute();
+      // Skip QueryBuilder and use manual logic for better search control
+      let filter = {};
+      let sort = { createdAt: -1 };
+      
+      // Handle search for orderCode and user fields
+      if (req.query.search) {
+        console.log('🔍 [SEARCH DEBUG] Search term received:', req.query.search);
+        const searchTerm = req.query.search;
+        const searchRegex = { $regex: searchTerm, $options: 'i' };
         
-        ResponseHandler.success(res, 'Orders retrieved successfully', result);
-      } else {
-        // Fallback to legacy method
-        const sortConfig = AdminSortUtils.ensureAdminSort(req, 'Order');
-        const orders = await Order.find()
-          .populate(['user', 'address', 'voucher', 'paymentMethod', 'items.productVariant'])
-          .sort(sortConfig);
-        ResponseHandler.success(res, 'Orders retrieved successfully', orders);
+        // Find users matching the search term first
+        const User = require('../models/UserSchema');
+        const matchingUsers = await User.find({
+          $or: [
+            { name: searchRegex },
+            { email: searchRegex }
+          ]
+        }).select('_id');
+        
+        console.log('🔍 [SEARCH DEBUG] Matching users found:', matchingUsers.length);
+        const userIds = matchingUsers.map(u => u._id);
+        
+        // Build search filter for orders
+        filter.$or = [
+          { orderCode: searchRegex },
+          { user: { $in: userIds } }
+        ];
+        
+        console.log('🔍 [SEARCH DEBUG] Filter created:', JSON.stringify(filter, null, 2));
       }
+      
+      // Handle status filter
+      if (req.query.status && req.query.status !== 'all') {
+        filter.status = req.query.status;
+      }
+      
+      // Handle payment status filter
+      if (req.query.paymentStatus && req.query.paymentStatus !== 'all') {
+        filter.paymentStatus = req.query.paymentStatus;
+      }
+      
+      // Handle sort
+      if (req.query.sortBy && req.query.sortOrder) {
+        sort = { [req.query.sortBy]: req.query.sortOrder === 'asc' ? 1 : -1 };
+      }
+      
+      // Pagination
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const skip = (page - 1) * limit;
+      
+      console.log('🔍 [SEARCH DEBUG] Final query:', { filter, sort, page, limit });
+      
+      // Execute query
+      const orders = await Order.find(filter)
+        .populate([
+          'user', 
+          'address', 
+          'voucher', 
+          'paymentMethod',
+          {
+            path: 'items.productVariant',
+            populate: [
+              { path: 'product', select: 'name images' },
+              { path: 'color', select: 'name' },
+              { path: 'size', select: 'name' }
+            ]
+          }
+        ])
+        .sort(sort)
+        .skip(skip)
+        .limit(limit);
+        
+      const total = await Order.countDocuments(filter);
+      const totalPages = Math.ceil(total / limit);
+      
+      const result = {
+        data: orders,
+        total,
+        page,
+        limit,
+        totalPages
+      };
+      
+      console.log('🔍 [SEARCH DEBUG] Results:', { foundOrders: orders.length, total });
+      
+      ResponseHandler.success(res, 'Orders retrieved successfully', result);
+      
     } catch (error) {
+      console.error('Error in getAllOrders:', error);
       next(error);
     }
   };

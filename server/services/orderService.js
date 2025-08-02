@@ -3,6 +3,7 @@ const Order = require('../models/OrderSchema'); // Use Order model for orders
 const Cart = require('../models/CartSchema'); // For cart operations
 const Address = require('../models/AddressSchema');
 const VoucherService = require('./voucherService');
+const EmailService = require('./emailService');
 const { AppError } = require('../middlewares/errorHandler');
 const { orderMessages, ERROR_CODES, PAGINATION } = require('../config/constants');
 const ShippingUtils = require('./shippingUtils');
@@ -10,8 +11,9 @@ const { QueryUtils } = require('../utils/queryUtils');
 
 class OrderService extends BaseService {
   constructor() {
-    super(Order); // Use Order model
+    super(Order); // Use Order model - CORRECT collection for orders
     this.voucherService = new VoucherService();
+    this.emailService = new EmailService();
   }  // Create new order
   async createOrder(userId, orderData) {
     try {
@@ -75,13 +77,49 @@ class OrderService extends BaseService {
         status: 'pending'
       });
 
-      // 9. Get user email for sending confirmation
+      // 9. Get user and address info for email
       const User = require('../models/UserSchema');
       const user = await User.findById(userId);
+      const addressInfo = await Address.findById(orderData.address);
       
       // 10. Send order confirmation email
-      if (user && user.email) {
-        await this.sendOrderConfirmationEmail(newOrder, user.email);
+      console.log('📧 Preparing to send order confirmation email...');
+      console.log('📧 User:', user ? { id: user._id, email: user.email, name: user.name } : 'NOT FOUND');
+      console.log('📧 Address:', addressInfo ? { id: addressInfo._id, fullName: addressInfo.fullName } : 'NOT FOUND');
+      
+      if (user && user.email && addressInfo) {
+        try {
+          console.log('📧 Email service check:', !!this.emailService);
+          
+          const orderDataForEmail = {
+            _id: newOrder._id,
+            orderCode: newOrder.orderCode,
+            items: newOrder.items,
+            total: newOrder.total,
+            discountAmount: newOrder.discountAmount || 0,
+            shippingFee: newOrder.shippingFee || 0,
+            finalTotal: newOrder.finalTotal,
+            address: addressInfo,
+            createdAt: newOrder.createdAt,
+            paymentMethod: newOrder.paymentMethod,
+            voucher: voucherResult ? { code: orderData.voucherCode } : null
+          };
+          
+          console.log('📧 Sending order confirmation email to:', user.email);
+          await this.emailService.sendOrderConfirmationEmail(
+            user.email,
+            user.name || 'Khách hàng',
+            orderDataForEmail
+          );
+          
+          console.log('✅ Order confirmation email sent successfully');
+        } catch (emailError) {
+          console.error('❌ Failed to send order confirmation email:', emailError.message);
+          console.error('❌ Email error stack:', emailError.stack);
+          // Don't throw error - order creation should still succeed
+        }
+      } else {
+        console.log('❌ Cannot send email - missing user or address info');
       }
 
       // 11. Return order with voucher details if applied
@@ -104,16 +142,34 @@ class OrderService extends BaseService {
 
   // Get user orders
   async getUserOrders(userId, options = {}) {
-    const { page = PAGINATION.DEFAULT_PAGE, limit = PAGINATION.DEFAULT_LIMIT, status } = options;
+    const { page = PAGINATION.DEFAULT_PAGE, limit = PAGINATION.DEFAULT_LIMIT, status, dateFilter } = options;
     
     let filter = { user: userId };
     if (status) filter.status = status;
+    
+    // Apply date filter if provided
+    if (dateFilter && dateFilter.createdAt) {
+      filter.createdAt = dateFilter.createdAt;
+    }
 
     return await this.getAll({
       page,
       limit,
       filter,
-      sort: { createdAt: -1 }
+      sort: { createdAt: -1 },
+      populate: [
+        {
+          path: 'items.productVariant',
+          populate: [
+            { path: 'product', select: 'name images price salePrice' },
+            { path: 'color', select: 'name isActive' },
+            { path: 'size', select: 'name' }
+          ]
+        },
+        { path: 'address', select: 'fullName phone addressLine ward district city' },
+        { path: 'paymentMethod', select: 'method isActive' },
+        { path: 'voucher', select: 'code discountPercent' }
+      ]
     });
   }
 
@@ -144,10 +200,16 @@ class OrderService extends BaseService {
 
   // Update order status (Admin only - restricted to status updates only)
   async updateOrderStatus(orderId, newStatus, adminId) {
-    const order = await this.getById(orderId);
+    const order = await this.getById(orderId, [
+      { path: 'paymentMethod', select: 'method isActive' },
+      { path: 'voucher', select: 'code usedCount' }
+    ]);
+    
     if (!order) {
       throw new AppError(orderMessages.ORDER_NOT_FOUND, ERROR_CODES.ORDER.NOT_FOUND);
     }
+
+    const oldStatus = order.status;
 
     // Validate status transition
     const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
@@ -165,13 +227,228 @@ class OrderService extends BaseService {
       throw new AppError('Không thể thay đổi trạng thái đơn hàng đã hủy', ERROR_CODES.BAD_REQUEST);
     }
 
-    // Admin can only update status, not other fields
+    // VOUCHER LOGIC: Handle usedCount based on status changes
+    if (order.voucher) {
+      try {
+        // Increment usedCount when order is confirmed (pending -> processing)
+        if (oldStatus === 'pending' && newStatus === 'processing') {
+          await this.voucherService.incrementVoucherUsedCount(order.voucher._id);
+          console.log(`📈 Voucher ${order.voucher.code}: usedCount incremented (order confirmed)`);
+        }
+        
+        // Decrement usedCount when order is cancelled
+        if ((oldStatus === 'processing' || oldStatus === 'shipped') && newStatus === 'cancelled') {
+          await this.voucherService.decrementVoucherUsedCount(order.voucher._id);
+          console.log(`📉 Voucher ${order.voucher.code}: usedCount decremented (order cancelled)`);
+        }
+      } catch (voucherError) {
+        console.error('❌ Voucher usedCount update error:', voucherError.message);
+        // Don't block order status update if voucher update fails
+      }
+    }
+
+    // Prepare update data
     const updateData = { 
       status: newStatus,
       updatedBy: adminId
     };
 
+    // BUSINESS LOGIC: COD payment handling when delivered
+    if (newStatus === 'delivered') {
+      // Check if payment method is COD
+      const paymentMethod = order.paymentMethod?.method || order.paymentMethod;
+      
+      if (paymentMethod === 'COD' || paymentMethod === 'cod') {
+        // COD orders should be marked as paid when delivered (customer paid on delivery)
+        if (order.paymentStatus !== 'paid') {
+          updateData.paymentStatus = 'paid';
+          updateData.paymentDetails = {
+            ...order.paymentDetails,
+            paymentMethod: 'COD',
+            paidAt: new Date(),
+            updatedAt: new Date(),
+            source: 'admin_delivery_confirmation'
+          };
+          
+          console.log(`🚚💰 COD Order ${order.orderCode}: Auto-updating paymentStatus to 'paid' on delivery`);
+        }
+      }
+      // For VNPay/online payments, don't auto-update paymentStatus
+      // It should already be 'paid' if payment was successful
+    }
+
+    // Validation: Prevent COD orders from being delivered if not paid
+    if (newStatus === 'delivered') {
+      const paymentMethod = order.paymentMethod?.method || order.paymentMethod;
+      
+      if ((paymentMethod === 'COD' || paymentMethod === 'cod') && 
+          order.paymentStatus !== 'paid' && 
+          updateData.paymentStatus !== 'paid') {
+        throw new AppError(
+          'Đơn hàng COD phải được thanh toán trước khi có thể đánh dấu đã giao hàng',
+          ERROR_CODES.BAD_REQUEST
+        );
+      }
+    }
+
+    // Increment voucher usage count when order is delivered
+    if (newStatus === 'delivered' && order.voucher && order.status !== 'delivered') {
+      try {
+        await this.voucherService.incrementVoucherUsage(order.voucher);
+        console.log(`📝 Incremented usage count for voucher: ${order.voucher}`);
+      } catch (voucherError) {
+        console.warn(`⚠️ Failed to increment voucher usage: ${voucherError.message}`);
+        // Don't throw error, just log warning as this shouldn't block order completion
+      }
+    }
+
     return await this.updateById(orderId, updateData);
+  }
+
+  // Update payment status (Admin only)
+  async updatePaymentStatus(orderId, newPaymentStatus, adminId) {
+    const order = await this.getById(orderId, [
+      { path: 'paymentMethod', select: 'method isActive' }
+    ]);
+    
+    if (!order) {
+      throw new AppError(orderMessages.ORDER_NOT_FOUND, ERROR_CODES.ORDER.NOT_FOUND);
+    }
+
+    // Validate payment status
+    const validPaymentStatuses = ['pending', 'paid', 'failed', 'cancelled'];
+    if (!validPaymentStatuses.includes(newPaymentStatus)) {
+      throw new AppError('Trạng thái thanh toán không hợp lệ', ERROR_CODES.BAD_REQUEST);
+    }
+
+    // Business validation: COD orders delivered must be paid
+    if (order.status === 'delivered') {
+      const paymentMethod = order.paymentMethod?.method || order.paymentMethod;
+      
+      if ((paymentMethod === 'COD' || paymentMethod === 'cod') && newPaymentStatus !== 'paid') {
+        throw new AppError(
+          'Đơn hàng COD đã giao không thể có trạng thái thanh toán khác "paid"',
+          ERROR_CODES.BAD_REQUEST
+        );
+      }
+    }
+
+    // Prepare update data
+    const updateData = {
+      paymentStatus: newPaymentStatus,
+      updatedBy: adminId,
+      paymentDetails: {
+        ...order.paymentDetails,
+        updatedAt: new Date(),
+        source: 'admin_manual_update'
+      }
+    };
+
+    // Set payment completion time
+    if (newPaymentStatus === 'paid' && order.paymentStatus !== 'paid') {
+      updateData.paymentDetails.paidAt = new Date();
+    } else if (newPaymentStatus === 'failed' && order.paymentStatus !== 'failed') {
+      updateData.paymentDetails.failedAt = new Date();
+    }
+
+    return await this.updateById(orderId, updateData);
+  }
+
+  // Validate order consistency and fix inconsistencies
+  async validateOrderConsistency(orderId) {
+    const order = await this.getById(orderId, [
+      { path: 'paymentMethod', select: 'method isActive' }
+    ]);
+    
+    if (!order) {
+      throw new AppError(orderMessages.ORDER_NOT_FOUND, ERROR_CODES.ORDER.NOT_FOUND);
+    }
+
+    const issues = [];
+    const fixes = {};
+    const paymentMethod = order.paymentMethod?.method || order.paymentMethod;
+
+    // Check COD + delivered + unpaid inconsistency
+    if ((paymentMethod === 'COD' || paymentMethod === 'cod') && 
+        order.status === 'delivered' && 
+        order.paymentStatus !== 'paid') {
+      
+      issues.push({
+        type: 'COD_DELIVERED_UNPAID',
+        message: 'Đơn hàng COD đã giao nhưng chưa thanh toán',
+        severity: 'error',
+        autoFixable: true
+      });
+      
+      fixes.paymentStatus = 'paid';
+      fixes.paymentDetails = {
+        ...order.paymentDetails,
+        paymentMethod: 'COD',
+        paidAt: new Date(),
+        updatedAt: new Date(),
+        source: 'auto_fix_cod_delivered'
+      };
+    }
+
+    // Check VNPay orders that are delivered but payment status is pending
+    if ((paymentMethod === 'VNPay' || paymentMethod === 'vnpay') && 
+        order.status === 'delivered' && 
+        order.paymentStatus === 'pending') {
+      
+      issues.push({
+        type: 'VNPAY_DELIVERED_PENDING',
+        message: 'Đơn hàng VNPay đã giao nhưng thanh toán vẫn đang chờ',
+        severity: 'warning',
+        autoFixable: false,
+        suggestion: 'Kiểm tra lại trạng thái thanh toán trên cổng VNPay'
+      });
+    }
+
+    return {
+      order,
+      issues,
+      fixes,
+      hasIssues: issues.length > 0,
+      autoFixable: issues.some(issue => issue.autoFixable)
+    };
+  }
+
+  // Auto-fix order inconsistencies
+  async autoFixOrderInconsistencies(orderId, adminId) {
+    const validation = await this.validateOrderConsistency(orderId);
+    
+    if (!validation.hasIssues) {
+      return {
+        success: true,
+        message: 'Đơn hàng không có vấn đề gì',
+        order: validation.order
+      };
+    }
+
+    if (!validation.autoFixable) {
+      return {
+        success: false,
+        message: 'Có vấn đề nhưng không thể tự động sửa',
+        issues: validation.issues,
+        order: validation.order
+      };
+    }
+
+    // Apply fixes
+    const updateData = {
+      ...validation.fixes,
+      updatedBy: adminId
+    };
+
+    const updatedOrder = await this.updateById(orderId, updateData);
+    
+    return {
+      success: true,
+      message: 'Đã tự động sửa các vấn đề về đơn hàng',
+      fixes: validation.fixes,
+      issues: validation.issues,
+      order: updatedOrder
+    };
   }
   // Cancel order (user or admin with restrictions)
   async cancelOrder(orderId, userId, reason = null) {
@@ -184,7 +461,7 @@ class OrderService extends BaseService {
     
     const order = await this.Model.findOne(query);
     if (!order) {
-      throw new AppError(orderMessages.ORDER_NOT_FOUND_OR_NOT_OWNED, ERROR_CODES.ORDER.NOT_FOUND);
+      throw new AppError(orderMessages.ORDER_NOT_FOUND_OR_NOT_OWNED, ERROR_CODES.NOT_FOUND);
     }
 
     // Check if admin can cancel this order (only pending/processing)
@@ -232,14 +509,37 @@ class OrderService extends BaseService {
       .populate('paymentMethod')
       .populate({
         path: 'items.productVariant',
-        populate: {
-          path: 'product',
-          select: 'name images'
-        }
+        populate: [
+          { path: 'product', select: 'name images' },
+          { path: 'color', select: 'name isActive' },
+          { path: 'size', select: 'name' }
+        ]
       });
 
     if (!order) {
-      throw new AppError(orderMessages.ORDER_NOT_FOUND, ERROR_CODES.ORDER.NOT_FOUND);
+      throw new AppError(orderMessages.ORDER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
+    }
+    return order;
+  }
+
+  // Get order by orderCode with full details (for VNPay callbacks)
+  async getOrderByCode(orderCode) {
+    const order = await this.Model.findOne({ orderCode })
+      .populate('user', 'name email phone')
+      .populate('address')
+      .populate('voucher')
+      .populate('paymentMethod')
+      .populate({
+        path: 'items.productVariant',
+        populate: [
+          { path: 'product', select: 'name images' },
+          { path: 'color', select: 'name isActive' },
+          { path: 'size', select: 'name' }
+        ]
+      });
+
+    if (!order) {
+      throw new AppError(orderMessages.ORDER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
     }
     return order;
   }
@@ -408,16 +708,28 @@ class OrderService extends BaseService {
   async getOrdersByUserId(userId, options = {}) {
     const { page = PAGINATION.DEFAULT_PAGE, limit = PAGINATION.DEFAULT_LIMIT, status } = options;
     
+    console.log('🔍 OrderService.getOrdersByUserId called with:', { userId, page, limit, status });
+    
     let filter = { user: userId };
     if (status) filter.status = status;
 
-    return await this.getAll({
+    console.log('📋 Query filter:', filter);
+    
+    const result = await this.getAll({
       page,
       limit,
       filter,
       populate: 'address voucher paymentMethod',
       sort: { createdAt: -1 }
     });
+    
+    console.log('📦 OrderService result:', { 
+      documentsCount: result?.documents?.length || 0,
+      total: result?.pagination?.total || 0,
+      structure: Object.keys(result || {})
+    });
+    
+    return result;
   }
 
   // Migration method: Update shipping fees for existing orders based on their addresses
@@ -515,29 +827,10 @@ class OrderService extends BaseService {
 
   // ============= BUSINESS LOGIC METHODS (moved from schema) =============
 
-  // Generate order code
+  // Generate order code - Use Order model method
   async generateOrderCode() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    
-    // Format: DH + YYYYMMDD + 5 digit counter
-    const prefix = `DH${year}${month}${day}`;
-    
-    // Tìm order cuối cùng trong ngày
-    const lastOrder = await this.Model.findOne({
-      orderCode: { $regex: `^${prefix}` }
-    }).sort({ orderCode: -1 });
-    
-    let counter = 1;
-    if (lastOrder) {
-      const lastCounter = parseInt(lastOrder.orderCode.slice(-5));
-      counter = lastCounter + 1;
-    }
-    
-    const orderCode = prefix + String(counter).padStart(5, '0');
-    return orderCode;
+    // Use Order model static method instead of Cart
+    return await this.Model.generateOrderCode();
   }
 
   // Check stock availability
@@ -563,30 +856,43 @@ class OrderService extends BaseService {
     return order.status === 'delivered';
   }
 
-  // Send order confirmation email
+  // Send order confirmation email with EmailService
   async sendOrderConfirmationEmail(order, userEmail) {
     try {
-      // TODO: Implement email service integration
       console.log(`📧 Sending order confirmation email to ${userEmail} for order ${order.orderCode}`);
       
-      // For now, just log the email content
-      const emailContent = {
-        to: userEmail,
-        subject: `Xác nhận đơn hàng ${order.orderCode}`,
-        html: `
-          <h2>Cảm ơn bạn đã đặt hàng!</h2>
-          <p>Mã đơn hàng: <strong>${order.orderCode}</strong></p>
-          <p>Tổng tiền: <strong>${order.finalTotal?.toLocaleString('vi-VN')} VNĐ</strong></p>
-          <p>Trạng thái: <strong>${order.status}</strong></p>
-          <p>Chúng tôi sẽ xử lý đơn hàng của bạn trong thời gian sớm nhất.</p>
-        `
+      // Get user info
+      const User = require('../models/UserSchema');
+      const user = await User.findOne({ email: userEmail });
+      
+      // Get address info
+      const addressInfo = await Address.findById(order.address);
+      
+      if (!user || !addressInfo) {
+        throw new Error('Missing user or address information');
+      }
+
+      const orderDataForEmail = {
+        orderCode: order.orderCode,
+        items: order.items || [],
+        total: order.total || 0,
+        finalTotal: order.finalTotal || 0,
+        address: addressInfo,
+        createdAt: order.createdAt,
+        paymentMethod: order.paymentMethod || 'COD',
+        voucher: order.voucher ? { code: 'DISCOUNT' } : null
       };
+
+      const result = await this.emailService.sendOrderConfirmationEmail(
+        userEmail,
+        user.name || 'Khách hàng',
+        orderDataForEmail
+      );
       
-      console.log('📧 Email content:', emailContent);
-      
-      return { success: true, message: 'Email sent successfully' };
+      console.log('✅ Order confirmation email sent successfully:', result.messageId);
+      return result;
     } catch (error) {
-      console.error('❌ Failed to send email:', error.message);
+      console.error('❌ Failed to send order confirmation email:', error.message);
       return { success: false, error: error.message };
     }
   }
@@ -631,7 +937,7 @@ class OrderService extends BaseService {
       const twelveMonthsAgo = new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), 1);
 
       // Main order statistics aggregation
-      const statistics = await Order.aggregate([
+      const statistics = await this.Model.aggregate([
         {
           $group: {
             _id: null,
@@ -703,7 +1009,7 @@ class OrderService extends BaseService {
       ]);
 
       // Monthly revenue for the last 12 months
-      const monthlyRevenue = await Order.aggregate([
+      const monthlyRevenue = await this.Model.aggregate([
         {
           $match: {
             createdAt: { $gte: twelveMonthsAgo },
@@ -742,7 +1048,7 @@ class OrderService extends BaseService {
       ]);
 
       // Top selling products (from order items)
-      const topProducts = await Order.aggregate([
+      const topProducts = await this.Model.aggregate([
         {
           $match: {
             status: { $in: ['delivered', 'shipped', 'processing'] }
@@ -842,7 +1148,7 @@ class OrderService extends BaseService {
       const endDate = new Date();
       const startDate = new Date(endDate.getTime() - days * 24 * 60 * 60 * 1000);
 
-      const trends = await Order.aggregate([
+      const trends = await this.Model.aggregate([
         {
           $match: {
             createdAt: { $gte: startDate, $lte: endDate }
@@ -892,6 +1198,209 @@ class OrderService extends BaseService {
       return trends;
     } catch (error) {
       throw new AppError(`Error getting order trends: ${error.message}`, ERROR_CODES.INTERNAL_ERROR);
+    }
+  }
+
+  // ============= VNPAY PAYMENT METHODS =============
+
+  /**
+   * Get order by ID
+   * @param {string} orderId - Order ID
+   * @returns {Object} Order object
+   */
+  async getOrderById(orderId) {
+    try {
+      const order = await this.Model.findById(orderId)
+        .populate('user', 'name email phone')
+        .populate('address')
+        .populate('voucher')
+        .populate('paymentMethod')
+        .populate({
+          path: 'items.productVariant',
+          populate: {
+            path: 'product color size',
+            select: 'name images price salePrice'
+          }
+        });
+
+      if (!order) {
+        throw new AppError(orderMessages.ORDER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
+      }
+
+      return order;
+    } catch (error) {
+      throw new AppError(`Error getting order: ${error.message}`, ERROR_CODES.INTERNAL_ERROR);
+    }
+  }
+
+  /**
+   * Update order payment status (for VNPay integration)
+   * @param {string} orderId - Order ID
+   * @param {string} paymentStatus - Payment status ('pending', 'paid', 'failed', 'cancelled')
+   * @param {Object} paymentDetails - Payment details from VNPay
+   * @returns {Object} Updated order
+   */
+  async updateOrderPaymentStatus(orderId, paymentStatus, paymentDetails = {}) {
+    try {
+      console.log('💳 Updating order payment status:', {
+        orderId,
+        paymentStatus,
+        paymentDetails
+      });
+
+      // Validate payment status
+      const validStatuses = ['pending', 'paid', 'failed', 'cancelled'];
+      if (!validStatuses.includes(paymentStatus)) {
+        throw new AppError('Invalid payment status', ERROR_CODES.BAD_REQUEST);
+      }
+
+      // Find order
+      const order = await this.Model.findById(orderId);
+      if (!order) {
+        throw new AppError(orderMessages.ORDER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
+      }
+
+      // Prepare update data
+      const updateData = {
+        paymentStatus,
+        paymentDetails: {
+          ...order.paymentDetails,
+          ...paymentDetails,
+          updatedAt: new Date()
+        }
+      };
+
+      // If payment is successful, update order status
+      if (paymentStatus === 'paid') {
+        // Only update status if it's still pending
+        if (order.status === 'pending') {
+          updateData.status = 'processing';
+        }
+        
+        // Set payment date
+        updateData.paymentDetails.paidAt = new Date();
+        
+        console.log('✅ Payment successful, updating order to processing');
+      } else if (paymentStatus === 'failed') {
+        // Keep order as pending but mark payment as failed
+        updateData.paymentDetails.failedAt = new Date();
+        
+        console.log('❌ Payment failed, keeping order as pending');
+      }
+
+      // Update order
+      const updatedOrder = await this.Model.findByIdAndUpdate(
+        orderId,
+        updateData,
+        { new: true, runValidators: true }
+      ).populate('user', 'name email phone')
+       .populate('address')
+       .populate('voucher')
+       .populate('paymentMethod')
+       .populate({
+         path: 'items.productVariant',
+         populate: {
+           path: 'product color size',
+           select: 'name images price salePrice'
+         }
+       });
+
+      console.log('✅ Order payment status updated:', {
+        orderId,
+        newPaymentStatus: updatedOrder.paymentStatus,
+        newStatus: updatedOrder.status
+      });
+
+      // Send confirmation email for successful payment (VNPay or COD)
+      if (paymentStatus === 'paid' && updatedOrder.user && updatedOrder.user.email) {
+        try {
+          console.log('📧 Sending payment confirmation email for order:', updatedOrder.orderCode);
+          
+          const orderDataForEmail = {
+            _id: updatedOrder._id,
+            orderCode: updatedOrder.orderCode,
+            items: updatedOrder.items,
+            total: updatedOrder.total,
+            discountAmount: updatedOrder.discountAmount || 0,
+            shippingFee: updatedOrder.shippingFee || 0,
+            finalTotal: updatedOrder.finalTotal,
+            address: updatedOrder.address,
+            createdAt: updatedOrder.createdAt,
+            paymentMethod: updatedOrder.paymentMethod,
+            voucher: updatedOrder.voucher
+          };
+          
+          await this.emailService.sendOrderConfirmationEmail(
+            updatedOrder.user.email,
+            updatedOrder.user.name || 'Khách hàng',
+            orderDataForEmail
+          );
+          
+          console.log('✅ Payment confirmation email sent successfully');
+        } catch (emailError) {
+          console.error('❌ Failed to send payment confirmation email:', emailError.message);
+          // Don't throw error - payment update should still succeed
+        }
+      }
+
+      return updatedOrder;
+    } catch (error) {
+      console.error('❌ Error updating order payment status:', error);
+      throw new AppError(`Error updating payment status: ${error.message}`, ERROR_CODES.INTERNAL_ERROR);
+    }
+  }
+
+  /**
+   * Get order by order code (for VNPay transaction reference)
+   * @param {string} orderCode - Order code
+   * @returns {Object} Order object
+   */
+  async getOrderByCode(orderCode) {
+    try {
+      const order = await this.Model.findOne({ orderCode })
+        .populate('user', 'name email phone')
+        .populate('address')
+        .populate('voucher')
+        .populate('paymentMethod')
+        .populate({
+          path: 'items.productVariant',
+          populate: {
+            path: 'product color size',
+            select: 'name images price salePrice'
+          }
+        });
+
+      if (!order) {
+        throw new AppError(orderMessages.ORDER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
+      }
+
+      return order;
+    } catch (error) {
+      throw new AppError(`Error getting order by code: ${error.message}`, ERROR_CODES.INTERNAL_ERROR);
+    }
+  }
+
+  /**
+   * Check if order can be paid (for VNPay validation)
+   * @param {string} orderId - Order ID
+   * @returns {boolean} Whether order can be paid
+   */
+  async canOrderBePaid(orderId) {
+    try {
+      const order = await this.Model.findById(orderId);
+      
+      if (!order) {
+        return false;
+      }
+
+      // Order can be paid if:
+      // 1. Payment status is pending
+      // 2. Order status is pending or processing
+      return order.paymentStatus === 'pending' && 
+             ['pending', 'processing'].includes(order.status);
+    } catch (error) {
+      console.error('Error checking if order can be paid:', error);
+      return false;
     }
   }
 }

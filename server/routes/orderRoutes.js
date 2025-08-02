@@ -28,6 +28,9 @@ router.get('/shipping-fee/:addressId', validateObjectId('addressId'), orderContr
 // GET /api/orders/:id - Get order by ID (user can only see their own orders)
 router.get('/:id', validateObjectId('id'), orderController.getOrderById);
 
+// GET /api/orders/code/:orderCode - Get order by orderCode (for VNPay callbacks)
+router.get('/code/:orderCode', orderController.getOrderByCode);
+
 // PUT /api/orders/:id/cancel - Cancel order (user can only cancel their own orders)
 router.put('/:id/cancel', validateObjectId('id'), orderController.cancelOrder);
 
@@ -35,8 +38,8 @@ router.put('/:id/cancel', validateObjectId('id'), orderController.cancelOrder);
 router.get('/:productId/can-review', validateObjectId('productId'), orderController.canReviewProduct);
 
 // ========== ADMIN ROUTES ==========
-// GET /api/orders/admin/all - Get all orders with filters (admin)
-router.get('/admin/all', authenticateToken, adminMiddleware, adminSortForModel('Order'), queryParserMiddleware(), orderController.getOrders);
+// GET /api/orders/admin/all - Get all orders with filters (admin) - Custom search logic
+router.get('/admin/all', authenticateToken, adminMiddleware, orderController.getAllOrders);
 
 // GET /api/orders/admin/stats - Get order statistics (admin)
 router.get('/admin/stats', authenticateToken, adminMiddleware, orderController.getOrderStats);
@@ -75,8 +78,20 @@ router.get('/admin/payment-method/:paymentMethod', authenticateToken, adminMiddl
 // GET /api/orders/admin/user/:userId - Get orders by user ID (admin)
 router.get('/admin/user/:userId', authenticateToken, adminMiddleware, adminSortForModel('Order'), validateObjectId('userId'), orderController.getOrdersByUserId);
 
+// GET /api/orders/admin/:id - Get order by ID (admin) - Must be AFTER specific routes to avoid conflicts
+router.get('/admin/:id', authenticateToken, adminMiddleware, validateObjectId('id'), orderController.getOrderByIdAdmin);
+
 // PUT /api/orders/admin/:id/status - Update order status ONLY (admin restriction)
 router.put('/admin/:id/status', authenticateToken, adminMiddleware, validateObjectId('id'), orderController.updateOrderStatus);
+
+// PUT /api/orders/admin/:id/payment-status - Update payment status (admin only)
+router.put('/admin/:id/payment-status', authenticateToken, adminMiddleware, validateObjectId('id'), orderController.updatePaymentStatus);
+
+// GET /api/orders/admin/:id/validate - Validate order consistency (admin only)
+router.get('/admin/:id/validate', authenticateToken, adminMiddleware, validateObjectId('id'), orderController.validateOrderConsistency);
+
+// PUT /api/orders/admin/:id/auto-fix - Auto-fix order inconsistencies (admin only)
+router.put('/admin/:id/auto-fix', authenticateToken, adminMiddleware, validateObjectId('id'), orderController.autoFixOrderInconsistencies);
 
 // PUT /api/orders/admin/:id/cancel - Admin cancel order (restricted to pending/processing)
 router.put('/admin/:id/cancel', authenticateToken, adminMiddleware, validateObjectId('id'), orderController.cancelOrder);

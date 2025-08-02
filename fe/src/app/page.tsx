@@ -6,14 +6,13 @@ import ProductList from "./components/ProductList";
 import BannerSlider from "./components/BannerSlider";
 import CategorySidebar from "./components/CategorySidebar";
 import FlashSale from "./components/FlashSale";
-import CategoryCards from "./components/CategoryCards";
 import MiddleBanner from "./components/MiddleBanner";
 import News from "./components/News";
 import { LoadingSpinner } from "./components/ui";
 import ProductItem from "./components/ProductItem";
-import { isProductOnSale, getDiscountPercent } from '@/lib/productUtils';
-import { useProducts } from "@/hooks";
+import { useProducts, useProductStats } from "@/hooks";
 import { productService } from "@/services";
+import { homePageService } from "@/services/homePageService"; // ADD: Optimized home service
 import { useEffect, useState } from "react";
 import { ProductWithCategory } from "@/types";
 
@@ -21,11 +20,49 @@ export default function Home() {
   const { getProducts, loading, error } = useProducts();
   const [products, setProducts] = useState<ProductWithCategory[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<ProductWithCategory[]>([]);
-  const [saleProducts, setSaleProducts] = useState<ProductWithCategory[]>([]);
   const [newProducts, setNewProducts] = useState<ProductWithCategory[]>([]);
+  
+  // ADD: Optimized loading state
+  const [isOptimizedLoading, setIsOptimizedLoading] = useState(true);
+  const [hasTriedOptimized, setHasTriedOptimized] = useState(false);
+
+  // Get real product statistics for all products
+  const allProductIds = [...featuredProducts, ...newProducts].map(p => p._id);
+  const { stats: productStats, loading: statsLoading } = useProductStats(allProductIds);
 
   useEffect(() => {
     const fetchProducts = async () => {
+      // TRY OPTIMIZED APPROACH FIRST - Single API call for all home data
+      if (!hasTriedOptimized) {
+        try {
+          console.log('🚀 OPTIMIZED: Trying single API call for all home data...');
+          setHasTriedOptimized(true);
+          
+          const homeData = await homePageService.getHomePageData();
+          console.log('✅ OPTIMIZED: Home data fetched successfully');
+          console.log('📊 OPTIMIZED Data summary:', {
+            categories: homeData.categories?.length || 0,
+            banners: homeData.banners?.length || 0,
+            featuredProducts: homeData.featuredProducts?.length || 0,
+            newProducts: homeData.newProducts?.length || 0,
+            saleProducts: homeData.saleProducts?.length || 0,
+            posts: homeData.posts?.length || 0
+          });
+
+          // Set all data from optimized response
+          setProducts([...homeData.featuredProducts, ...homeData.newProducts, ...homeData.saleProducts]);
+          setFeaturedProducts(homeData.featuredProducts || []);
+          setNewProducts(homeData.newProducts || []);
+          setIsOptimizedLoading(false);
+          return; // SUCCESS - Don't run fallback
+        } catch (optimizedError) {
+          console.warn('⚠️ OPTIMIZED: Failed, falling back to individual API calls:', optimizedError);
+          setIsOptimizedLoading(false);
+          // Continue to fallback below
+        }
+      }
+
+      // FALLBACK - Original logic (KEEPS EXACT SAME BEHAVIOR)
       try {
         // Fetch regular products for sale and new products
         const response = await getProducts({ 
@@ -41,14 +78,7 @@ export default function Home() {
         
         setProducts(productsArray);
         
-        // 1. Sale Products - Currently on sale with best discounts first
-        const saleProducts = productsArray
-          .filter((product: ProductWithCategory) => isProductOnSale(product))
-          .sort((a: ProductWithCategory, b: ProductWithCategory) => getDiscountPercent(b) - getDiscountPercent(a))
-          .slice(0, 6);
-        setSaleProducts(saleProducts);
-        
-        // 2. Featured Products - Use REAL backend API with business metrics
+        // 1. Featured Products - Use REAL backend API with business metrics
         console.log('🎯 Homepage: Fetching REAL featured products from API...');
         const featuredResponse = await productService.getFeaturedProducts(6);
         console.log('✅ Real featured products:', featuredResponse);
@@ -58,11 +88,10 @@ export default function Home() {
                                     (featuredResponse as any)?.data || [];
         setFeaturedProducts(featuredProductsData);
         
-        // 3. New Products - Most recently added 
+        // 2. New Products - Most recently added 
         const newProducts = productsArray
           .filter((product: ProductWithCategory) => 
-            product.isActive !== false &&
-            !isProductOnSale(product)
+            product.isActive !== false
           )
           .slice(-8) // Take last 8 as "newest"
           .reverse() // Reverse to show newest first
@@ -74,9 +103,10 @@ export default function Home() {
     };
 
     fetchProducts();
-  }, [getProducts]);
+  }, [getProducts, hasTriedOptimized]);
 
-  if (loading) {
+  // Show loading while either optimized or fallback is loading
+  if (loading || isOptimizedLoading) {
     return <LoadingSpinner fullscreen text="Đang tải sản phẩm..." />;
   }
 
@@ -122,32 +152,6 @@ export default function Home() {
                 {/* Flash Sale Section */}
         <FlashSale /> {/* Removed aggressive refresh to prevent infinite loops */}
 
-        {/* Category Cards */}
-        <CategoryCards />
-
-        {/* Sale Products Section */}
-        {saleProducts.length > 0 && (
-          <section className={styles.section}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>
-                🔥 Sản Phẩm Giảm Giá
-              </h2>
-              <p className={styles.sectionSubtitle}>Ưu đãi hấp dẫn, tiết kiệm ngay hôm nay</p>
-            </div>
-            <div className={styles.productGrid}>
-              {saleProducts.map((product) => (
-                <ProductItem key={product._id} product={product} layout="grid" />
-              ))}
-            </div>
-            <div className={styles.sectionFooter}>
-              <a href="/sale" className={styles.viewMoreBtn}>
-                Xem thêm sản phẩm khác
-                <span className={styles.viewMoreArrow}>→</span>
-              </a>
-            </div>
-          </section>
-        )}
-
         {/* Featured Products */}
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
@@ -155,9 +159,19 @@ export default function Home() {
             <p className={styles.sectionSubtitle}>Được yêu thích và lựa chọn nhiều nhất</p>
           </div>
           <div className={styles.productGrid}>
-            {featuredProducts.map((product) => (
-              <ProductItem key={product._id} product={product} layout="grid" />
-            ))}
+            {featuredProducts.map((product) => {
+              const productStatsData = productStats[product._id];
+              return (
+                <ProductItem 
+                  key={product._id} 
+                  product={product} 
+                  layout="grid"
+                  averageRating={productStatsData?.averageRating || 0}
+                  reviewCount={productStatsData?.reviewCount || 0}
+                  showRatingBadge={true}
+                />
+              );
+            })}
           </div>
           <div className={styles.sectionFooter}>
             <a href="/featured" className={styles.viewMoreBtn}>
@@ -177,9 +191,19 @@ export default function Home() {
             <p className={styles.sectionSubtitle}>Bộ sưu tập thời trang mới nhất</p>
           </div>
           <div className={styles.productGrid}>
-            {newProducts.map((product) => (
-              <ProductItem key={product._id} product={product} layout="grid" />
-            ))}
+            {newProducts.map((product) => {
+              const productStatsData = productStats[product._id];
+              return (
+                <ProductItem 
+                  key={product._id} 
+                  product={product} 
+                  layout="grid"
+                  averageRating={productStatsData?.averageRating || 0}
+                  reviewCount={productStatsData?.reviewCount || 0}
+                  showRatingBadge={true}
+                />
+              );
+            })}
           </div>
           <div className={styles.sectionFooter}>
             <a href="/new" className={styles.viewMoreBtn}>

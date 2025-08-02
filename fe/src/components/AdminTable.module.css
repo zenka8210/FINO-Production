@@ -1,0 +1,248 @@
+/* AdminTable.module.css - Enhanced Modern Design */
+.tableContainer {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.08);
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.adminTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.adminTable th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  padding: 14px 16px;
+  text-align: left;
+  border: none;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.adminTable th:first-child {
+  padding-left: 20px;
+}
+
+.adminTable th:last-child {
+  padding-right: 20px;
+}
+
+.adminTable td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  vertical-align: middle;
+  color: #334155;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.adminTable td:first-child {
+  padding-left: 20px;
+  font-weight: 500;
+}
+
+.adminTable td:last-child {
+  padding-right: 20px;
+}
+
+.adminTable tbody tr {
+  transition: all 0.2s ease;
+}
+
+.adminTable tbody tr:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.04) 0%, rgba(118, 75, 162, 0.04) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.adminTable tbody tr:nth-child(even) {
+  background: rgba(248, 250, 252, 0.5);
+}
+
+.adminTable tbody tr:nth-child(even):hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.06) 0%, rgba(118, 75, 162, 0.06) 100%);
+}
+
+/* Enhanced State Styles */
+.loadingState, .emptyState, .errorState {
+  padding: 48px 20px;
+  text-align: center;
+  color: #64748b;
+  font-size: 15px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.02) 0%, rgba(118, 75, 162, 0.02) 100%);
+}
+
+.loadingState {
+  position: relative;
+}
+
+.loadingState::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #667eea;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.retryButton {
+  margin-top: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.retryButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+}
+
+/* Enhanced Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.02) 0%, rgba(118, 75, 162, 0.02) 100%);
+  backdrop-filter: blur(10px);
+}
+
+.paginationInfo {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.paginationControls {
+  display: flex;
+  gap: 6px;
+}
+
+.paginationButton {
+  min-width: 36px;
+  height: 36px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  background: white;
+  color: #475569;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.paginationButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-color: #667eea;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.paginationButton:disabled {
+  background: #f8fafc;
+  color: #cbd5e1;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+  box-shadow: none;
+}
+
+.paginationButtonActive {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  border-color: #667eea !important;
+  box-shadow: 0 2px 12px rgba(102, 126, 234, 0.4) !important;
+}
+
+.paginationButtonActive:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.5) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .adminTable th,
+  .adminTable td {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .adminTable th:first-child,
+  .adminTable td:first-child {
+    padding-left: 16px;
+  }
+  
+  .adminTable th:last-child,
+  .adminTable td:last-child {
+    padding-right: 16px;
+  }
+  
+  .pagination {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+  
+  .paginationControls {
+    order: -1;
+  }
+  
+  .paginationButton {
+    min-width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tableContainer {
+    border-radius: 12px;
+    margin: 0 -8px;
+  }
+  
+  .adminTable th,
+  .adminTable td {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  
+  .adminTable th:first-child,
+  .adminTable td:first-child {
+    padding-left: 12px;
+  }
+  
+  .adminTable th:last-child,
+  .adminTable td:last-child {
+    padding-right: 12px;
+  }
+}

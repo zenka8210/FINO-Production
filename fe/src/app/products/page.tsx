@@ -1,668 +1,413 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ProductWithCategory, ProductFilters, PaginatedResponse, Category } from '@/types';
-import { useProducts, useCategories } from '@/hooks';
-import ProductList from '@/app/components/ProductList';
-import { LoadingSpinner, Button, Pagination } from '@/app/components/ui';
-import SearchBar from '@/app/components/ui/SearchBar';
-import { formatCurrency } from '@/lib/utils';
-import styles from './page.module.css';
+import { ProductWithCategory, ProductFilters, PaginatedResponse } from '@/types';
+import { useProducts, useProductStats } from '@/hooks';
+import ProductItem from '@/app/components/ProductItem';
+import FilterSidebar from '@/app/components/FilterSidebar';
+import { LoadingSpinner, Button, Pagination, PageHeader } from '@/app/components/ui';
+import { FaShoppingBag } from 'react-icons/fa';
+import styles from './products.module.css';
 
-// Sort options following design system
+// Sort options following design system - Including sale filter as sort option
 const SORT_OPTIONS = [
-  { value: 'newest', label: 'Mới nhất', sort: 'createdAt', order: 'desc' as const },
-  { value: 'price-asc', label: 'Giá: Thấp đến Cao', sort: 'price', order: 'asc' as const },
-  { value: 'price-desc', label: 'Giá: Cao đến Thấp', sort: 'price', order: 'desc' as const },
-  { value: 'name-asc', label: 'Tên: A-Z', sort: 'name', order: 'asc' as const },
-  { value: 'name-desc', label: 'Tên: Z-A', sort: 'name', order: 'desc' as const },
+  { value: 'newest', label: 'Mới nhất', sort: 'createdAt' as const, order: 'desc' as const },
+  { value: 'rating-desc', label: 'Đánh giá cao nhất', sort: 'rating' as const, order: 'desc' as const },
+  { value: 'price-asc', label: 'Giá: Thấp đến Cao', sort: 'price' as const, order: 'asc' as const },
+  { value: 'price-desc', label: 'Giá: Cao đến Thấp', sort: 'price' as const, order: 'desc' as const },
+  { value: 'name-asc', label: 'Tên: A-Z', sort: 'name' as const, order: 'asc' as const },
+  { value: 'name-desc', label: 'Tên: Z-A', sort: 'name' as const, order: 'desc' as const },
+  { value: 'on-sale', label: 'Đang giảm giá', sort: 'createdAt' as const, order: 'desc' as const }, // Special filter for sale items
 ] as const;
-
-const ITEMS_PER_PAGE_OPTIONS = [12, 24, 36];
-const PRICE_RANGES = [
-  { label: 'Dưới 100k', min: 0, max: 100000 },
-  { label: '100k - 300k', min: 100000, max: 300000 },
-  { label: '300k - 500k', min: 300000, max: 500000 },
-  { label: '500k - 1tr', min: 500000, max: 1000000 },
-  { label: 'Trên 1tr', min: 1000000, max: undefined },
-];
 
 export default function ProductsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  // Hooks
   const { getProducts, loading, error } = useProducts();
-  const { getCategories, loading: categoriesLoading } = useCategories();
   
-  // State
+  // State management
   const [products, setProducts] = useState<ProductWithCategory[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 12,
-    totalPages: 1,
-    totalProducts: 0,
-    hasNextPage: false,
-    hasPrevPage: false
-  });
-  
-  const [layout, setLayout] = useState<'grid' | 'list'>('grid');
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [jumpToPageValue, setJumpToPageValue] = useState('1');
-  
-  // Local state for real-time search
+  const [filteredProducts, setFilteredProducts] = useState<ProductWithCategory[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
+  const [priceRange, setPriceRange] = useState({ min: '', max: '' });
+  const [selectedCategory, setSelectedCategory] = useState('');
 
-  // Parse URL params to filters
-  const filters = useMemo((): ProductFilters => {
-    const result = {
-      page: parseInt(searchParams.get('page') || '1'),
-      limit: parseInt(searchParams.get('limit') || '12'),
-      category: searchParams.get('category') || undefined,
-      minPrice: searchParams.get('minPrice') ? parseInt(searchParams.get('minPrice')!) : undefined,
-      maxPrice: searchParams.get('maxPrice') ? parseInt(searchParams.get('maxPrice')!) : undefined,
-      search: searchParams.get('search') || undefined,
-      sort: (searchParams.get('sort') as ProductFilters['sort']) || 'createdAt',
-      order: (searchParams.get('order') as ProductFilters['order']) || 'desc',
-      isOnSale: searchParams.get('isOnSale') === 'true' || undefined,
-    };
-    console.log('🔍 Current filters from URL:', result);
-    return result;
+  const productsPerPage = 12;
+
+  // Helper function to get all child category IDs for a given parent category ID
+  const getAllChildCategoryIds = (parentCategoryId: string, allProducts: ProductWithCategory[]): string[] => {
+    const childCategoryIds = new Set<string>();
+    
+    // Get all categories from products
+    const allCategories = allProducts
+      .map(product => product.category)
+      .filter((category): category is NonNullable<typeof category> => 
+        category !== null && category !== undefined && typeof category === 'object'
+      );
+    
+    // Find child categories that have this parent
+    allCategories.forEach(category => {
+      if (category.parent === parentCategoryId) {
+        childCategoryIds.add(category._id);
+        // Recursively find children of children
+        const grandChildren = getAllChildCategoryIds(category._id, allProducts);
+        grandChildren.forEach(id => childCategoryIds.add(id));
+      }
+    });
+    
+    return Array.from(childCategoryIds);
+  };
+
+  // Get real product statistics
+  const productIds = products.map(p => p._id);
+  const { stats: productStats, loading: statsLoading } = useProductStats(productIds);
+
+  useEffect(() => {
+    // Get URL parameters
+    const page = searchParams.get('page') ? parseInt(searchParams.get('page')!) : 1;
+    const search = searchParams.get('search') || '';
+    const sort = searchParams.get('sort') || 'newest';
+    const category = searchParams.get('category') || '';
+    const minPrice = searchParams.get('minPrice') || '';
+    const maxPrice = searchParams.get('maxPrice') || '';
+
+    setCurrentPage(page);
+    setSearchTerm(search);
+    setSortBy(sort);
+    setSelectedCategory(category);
+    setPriceRange({ min: minPrice, max: maxPrice });
   }, [searchParams]);
 
-  // Update URL with new filters
-  const updateFilters = useCallback((newFilters: Partial<ProductFilters>) => {
-    const params = new URLSearchParams(searchParams.toString());
-    
-    // Update params
-    Object.entries(newFilters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        params.set(key, value.toString());
-      } else {
-        params.delete(key);
-      }
-    });
-
-    // Reset to page 1 when filters change (except page itself)
-    if (!newFilters.hasOwnProperty('page')) {
-      params.set('page', '1');
-    }
-
-    router.push(`/products?${params.toString()}`);
-  }, [searchParams, router]);
-
-  // Debounce search term
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 300); // 300ms debounce
-
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
-  // Update URL when debounced search term changes (avoid loop)
-  useEffect(() => {
-    // Only update if user is actually typing, not syncing from URL
-    const currentUrlSearch = searchParams.get('search') || '';
-    if (debouncedSearchTerm !== currentUrlSearch && 
-        searchTerm === debouncedSearchTerm) { // Only if debounce is complete
-      updateFilters({ 
-        search: debouncedSearchTerm || undefined,
-        page: 1 // Reset to page 1 when searching
-      });
-    }
-  }, [debouncedSearchTerm]); // Remove searchParams, updateFilters from dependencies to avoid loop
-
-  // Sync search term with URL on load (one-time sync)
-  useEffect(() => {
-    const urlSearchTerm = searchParams.get('search') || '';
-    setSearchTerm(urlSearchTerm);
-    setDebouncedSearchTerm(urlSearchTerm);
-  }, []); // Empty dependency to run once on mount
-
-  // Sync when URL changes externally (like back/forward navigation)
-  useEffect(() => {
-    const urlSearchTerm = searchParams.get('search') || '';
-    if (urlSearchTerm !== debouncedSearchTerm) {
-      setSearchTerm(urlSearchTerm);
-      setDebouncedSearchTerm(urlSearchTerm);
-    }
-  }, [searchParams]); // Only depend on searchParams
-
-  // Fetch products
-  const fetchProducts = useCallback(async () => {
-    console.log('🚀 Starting fetchProducts with filters:', filters);
-    try {
-      // Handle isOnSale filter with frontend logic (same as FlashSale.tsx)
-      if (filters.isOnSale) {        
-        // Fetch products without isOnSale filter, then apply frontend filtering
-        const backendFilters = { ...filters };
-        delete (backendFilters as any).isOnSale;
+    const fetchAllProducts = async () => {
+      try {
+        console.log('🛒 Products Page: Fetching all products...');
         
-        const result: PaginatedResponse<ProductWithCategory> = await getProducts({
-          ...backendFilters,
-          limit: 100 // Get more products to filter from
+        // Always fetch all products - filtering will be done client-side
+        const response = await getProducts({
+          limit: 1000,          // High limit to get all products
+          sort: 'createdAt',    
+          order: 'desc'         
         });
         
-        // Handle different response structures like new page
-        const productsArray = Array.isArray(result.data) ? result.data : 
-                             (result.data && Array.isArray((result.data as any).data)) ? (result.data as any).data : [];
+        console.log('📦 Products Page: Raw response:', {
+          responseType: typeof response,
+          isArray: Array.isArray(response),
+          hasData: response && typeof response === 'object' && 'data' in response,
+          responseKeys: response ? Object.keys(response) : 'no response'
+        });
         
-        if (productsArray && productsArray.length > 0) {
-          // Only show products with explicit sale price in database
-          const saleProducts = productsArray.filter((product: ProductWithCategory) => 
-            product.salePrice && product.salePrice < product.price
-          );
-          
-          console.log('✅ Products Page Sale filter: Found', saleProducts.length, 'sale products');
-          
-          // Apply frontend sorting to sale products
-          if (filters.sort && saleProducts.length > 0) {
-            saleProducts.sort((a: ProductWithCategory, b: ProductWithCategory) => {
-              let aValue: any, bValue: any;
-              
-              switch (filters.sort) {
-                case 'price':
-                  // Use sale price if available, otherwise regular price
-                  aValue = (a as any).dynamicSalePrice || a.salePrice || a.price;
-                  bValue = (b as any).dynamicSalePrice || b.salePrice || b.price;
-                  break;
-                case 'name':
-                  aValue = a.name.toLowerCase();
-                  bValue = b.name.toLowerCase();
-                  break;
-                case 'createdAt':
-                  aValue = new Date(a.createdAt).getTime();
-                  bValue = new Date(b.createdAt).getTime();
-                  break;
-                default:
-                  return 0;
-              }
-              
-              if (filters.order === 'desc') {
-                return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
-              } else {
-                return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-              }
-            });
-          }
-          
-          setProducts(saleProducts);
-          
-          // Set simple pagination for frontend-filtered results
-          setPagination({
-            page: 1,
-            limit: saleProducts.length,
-            totalPages: 1,
-            totalProducts: saleProducts.length,
-            hasNextPage: false,
-            hasPrevPage: false
-          });
-        } else {
-          setProducts([]);
-        }
-        return;
-      }
-      
-      // Normal flow for non-sale filters      
-      const result: PaginatedResponse<ProductWithCategory> = await getProducts(filters);
-      
-      // Handle different response structures like new page
-      const productsArray = Array.isArray(result.data) ? result.data : 
-                           (result.data && Array.isArray((result.data as any).data)) ? (result.data as any).data : [];
-      
-      // Ensure we have valid data
-      if (productsArray && productsArray.length > 0) {
-        setProducts(productsArray);
-      } else {
+        const productsArray = Array.isArray(response.data) ? response.data : 
+                             (response.data && Array.isArray((response.data as any).data)) ? (response.data as any).data : [];
+        
+        console.log('📦 Products Page: Raw products received:', productsArray.length);
+        
+        // Filter active products
+        const activeProducts = productsArray.filter((product: ProductWithCategory) => 
+          product.isActive !== false
+        );
+
+        console.log('📦 Products Page: Active products:', activeProducts.length);
+        setProducts(activeProducts);
+      } catch (err: any) {
+        console.error('❌ Failed to fetch products:', err);
         setProducts([]);
       }
-      
-      // Safely handle pagination
-      if (result && result.pagination) {
-        const currentPage = result.pagination.current || 1;
-        const totalPages = result.pagination.totalPages || 1;
-        
-        setPagination({
-          page: currentPage,
-          limit: result.pagination.limit || 12,
-          totalPages: totalPages,
-          totalProducts: result.pagination.total || 0,
-          hasNextPage: currentPage < totalPages,
-          hasPrevPage: currentPage > 1
-        });
-      } else {
-        // Default pagination if none provided
-        setPagination({
-          page: 1,
-          limit: 12,
-          totalPages: 1,
-          totalProducts: productsArray.length,
-          hasNextPage: false,
-          hasPrevPage: false
-        });
-      }
-    } catch (err: any) {
-      console.error('Failed to fetch products:', err);
-      setProducts([]);
-      setPagination({
-        page: 1,
-        limit: 12,
-        totalPages: 1,
-        totalProducts: 0,
-        hasNextPage: false,
-        hasPrevPage: false
-      });
-    }
-  }, [getProducts, filters]);
-
-  // Effects
-  useEffect(() => {
-    fetchProducts().catch(err => {
-      console.error('ProductsPage: fetchProducts error:', err);
-    });
-  }, [fetchProducts]);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const result = await getCategories();
-        setCategories(result);
-      } catch (err) {
-        console.error('Failed to fetch categories:', err);
-      }
     };
-    
-    fetchCategories();
-  }, [getCategories]);
 
-  // Update jump to page value when pagination changes
+    fetchAllProducts();
+  }, [getProducts]); // Only fetch once - all filtering/sorting done client-side
+
+  // Filter and sort products based on current filters
   useEffect(() => {
-    setJumpToPageValue(pagination.page.toString());
-  }, [pagination.page]);
+    let filtered = [...products];
+    
+    console.log('🔍 Products Page: Starting filter/sort with', products.length, 'products');
 
-  // Filter handlers
-  const handleSortChange = (value: string) => {
-    console.log('🔄 Sort change triggered:', value);
-    const option = SORT_OPTIONS.find(opt => opt.value === value);
-    console.log('🎯 Found option:', option);
-    if (option) {
-      console.log('✅ Updating filters with sort:', option.sort, 'order:', option.order);
-      updateFilters({
-        sort: option.sort,
-        order: option.order
+    // Apply search filter
+    if (searchTerm.trim()) {
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (typeof product.category === 'object' && product.category?.name?.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    // Apply "on-sale" filter first (if sortBy is 'on-sale', treat it as a filter)
+    if (sortBy === 'on-sale') {
+      filtered = filtered.filter(product => 
+        product.salePrice && 
+        product.salePrice < product.price && 
+        product.isActive !== false
+      );
+    }
+
+    // Apply category filter - include products from child categories too
+    if (selectedCategory) {
+      // Get all child category IDs for the selected category
+      const childCategoryIds = getAllChildCategoryIds(selectedCategory, products);
+      const allTargetCategoryIds = [selectedCategory, ...childCategoryIds];
+      
+      filtered = filtered.filter(product => {
+        if (typeof product.category === 'object' && product.category?._id) {
+          const productCategoryId = product.category._id;
+          return allTargetCategoryIds.includes(productCategoryId);
+        }
+        return false;
       });
     }
-  };
 
-  const handleCategoryChange = (categoryId: string) => {
-    updateFilters({ 
-      category: categoryId === 'all' ? undefined : categoryId 
-    });
-  };
+    // Apply price filter
+    if (priceRange.min) {
+      const minPrice = parseFloat(priceRange.min);
+      filtered = filtered.filter(product => {
+        const price = product.salePrice || product.price;
+        return price >= minPrice;
+      });
+    }
+    if (priceRange.max) {
+      const maxPrice = parseFloat(priceRange.max);
+      filtered = filtered.filter(product => {
+        const price = product.salePrice || product.price;
+        return price <= maxPrice;
+      });
+    }
 
-  const handlePriceRangeChange = (range: typeof PRICE_RANGES[0]) => {
-    updateFilters({
-      minPrice: range.min,
-      maxPrice: range.max
-    });
-  };
-
-  const handlePageChange = (page: number) => {
-    // Immediate UI update for better UX
-    setPagination(prev => ({
-      ...prev,
-      page
-    }));
+    // Apply sorting (no need to filter sale products again, already done at fetch level)
+    const sortOption = SORT_OPTIONS.find(opt => opt.value === sortBy) || SORT_OPTIONS[0];
     
-    updateFilters({ page });
-    // Scroll to top smoothly
+    if (sortBy !== 'on-sale') {
+      // Only sort for non-sale options (sale products are already sorted by newest at fetch level)
+      filtered.sort((a, b) => {
+        let aValue: any, bValue: any;
+        
+        switch (sortOption.sort) {
+          case 'rating':
+            // Sort by average rating descending, prioritize products with actual reviews
+            const aStats = productStats[a._id];
+            const bStats = productStats[b._id];
+            const aRating = aStats?.averageRating || 0;
+            const bRating = bStats?.averageRating || 0;
+            const aReviews = aStats?.reviewCount || 0;
+            const bReviews = bStats?.reviewCount || 0;
+            
+            // If one has reviews and other doesn't, prioritize the one with reviews
+            if (aReviews > 0 && bReviews === 0) return -1;
+            if (bReviews > 0 && aReviews === 0) return 1;
+            
+            // If both have reviews or both don't have reviews, sort by rating
+            if (bRating !== aRating) return bRating - aRating;
+            
+            // If ratings are equal, use review count as tiebreaker
+            return bReviews - aReviews;
+          case 'price':
+            aValue = a.salePrice || a.price;
+            bValue = b.salePrice || b.price;
+            break;
+          case 'name':
+            aValue = a.name.toLowerCase();
+            bValue = b.name.toLowerCase();
+            break;
+          case 'createdAt':
+            aValue = new Date(a.createdAt).getTime();
+            bValue = new Date(b.createdAt).getTime();
+            break;
+          default:
+            return 0;
+        }
+        
+        // Apply sorting order
+        if (sortOption.order === 'desc') {
+          return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+        } else {
+          return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+        }
+      });
+    }
+
+    setFilteredProducts(filtered);
+    console.log('✅ Products Page: Final filtered products count:', filtered.length);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [products, searchTerm, selectedCategory, priceRange, sortBy, productStats]);
+
+  // Calculate pagination
+  useEffect(() => {
+    const total = Math.ceil(filteredProducts.length / productsPerPage);
+    setTotalPages(total);
+  }, [filteredProducts.length, productsPerPage]);
+
+  // Get current page products
+  const getCurrentPageProducts = () => {
+    const startIndex = (currentPage - 1) * productsPerPage;
+    const endIndex = startIndex + productsPerPage;
+    return filteredProducts.slice(startIndex, endIndex);
+  };
+
+  // Update URL when filters change
+  const updateURL = (newFilters: any) => {
+    const params = new URLSearchParams();
+    
+    if (newFilters.page && newFilters.page > 1) params.set('page', newFilters.page.toString());
+    if (newFilters.search) params.set('search', newFilters.search);
+    if (newFilters.sort && newFilters.sort !== 'newest') params.set('sort', newFilters.sort);
+    if (newFilters.category) params.set('category', newFilters.category);
+    if (newFilters.minPrice) params.set('minPrice', newFilters.minPrice);
+    if (newFilters.maxPrice) params.set('maxPrice', newFilters.maxPrice);
+
+    const newURL = params.toString() ? `/products?${params.toString()}` : '/products';
+    router.push(newURL, { scroll: false });
+  };
+
+  // Handlers
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    updateURL({ page, search: searchTerm, sort: sortBy, category: selectedCategory, 
+               minPrice: priceRange.min, maxPrice: priceRange.max });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleLimitChange = (limit: number) => {
-    updateFilters({ limit });
+  const handleSearchChange = (search: string) => {
+    setSearchTerm(search);
+    setCurrentPage(1); // Reset to first page
+    // Don't update URL immediately to prevent reload
   };
 
-  const clearAllFilters = () => {
+  const handleSortChange = (sort: string) => {
+    setSortBy(sort);
+    setCurrentPage(1); // Reset to first page
+    // Don't update URL immediately to prevent reload
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    setCurrentPage(1); // Reset to first page
+    // Don't update URL immediately to prevent reload
+  };
+
+  const handlePriceRangeChange = (range: { min: string; max: string }) => {
+    setPriceRange(range);
+    updateURL({ search: searchTerm, sort: sortBy, category: selectedCategory, 
+               minPrice: range.min, maxPrice: range.max });
+  };
+
+  const clearFilters = () => {
     setSearchTerm('');
-    setDebouncedSearchTerm('');
-    router.push('/products');
+    setSortBy('newest');
+    setSelectedCategory('');
+    setPriceRange({ min: '', max: '' });
+    setCurrentPage(1);
+    router.push('/products', { scroll: false });
   };
 
-  const toggleSaleFilter = () => {
-    console.log('Toggling sale filter. Current:', filters.isOnSale);
-    updateFilters({
-      isOnSale: filters.isOnSale ? undefined : true
-    });
-  };
+  if (loading) {
+    return <LoadingSpinner fullscreen text="Đang tải sản phẩm..." />;
+  }
 
-  const handleSearch = (query: string) => {
-    // Update local search term for real-time search
-    setSearchTerm(query);
-  };
-
-  // Handle immediate search input change for real-time
-  const handleSearchChange = (query: string) => {
-    setSearchTerm(query);
-  };
-
-  // Get current sort option
-  const currentSortOption = SORT_OPTIONS.find(
-    opt => opt.sort === filters.sort && opt.order === filters.order
-  ) || SORT_OPTIONS[0];
-
-  // Get selected category
-  const selectedCategory = categories?.find(cat => cat._id === filters.category);
-
-  // Loading states
-  if (loading && products.length === 0) {
+  if (error) {
     return (
-      <div className={styles.loadingContainer}>
-        <LoadingSpinner size="lg" />
-        <p>Đang tải sản phẩm...</p>
+      <div className="container">
+        <div className={styles.errorContainer}>
+          <h2>Có lỗi xảy ra</h2>
+          <p>Không thể tải sản phẩm. Vui lòng thử lại sau.</p>
+          <Button onClick={() => window.location.reload()} className={styles.retryButton}>
+            Thử lại
+          </Button>
+        </div>
       </div>
     );
   }
 
+  const currentPageProducts = getCurrentPageProducts();
+
   return (
-    <div className={styles.productsPage}>
-      {/* Page Header */}
-      <div className={styles.pageHeader}>
-        <div className={styles.container}>
-          <h1 className={styles.pageTitle}>Sản phẩm</h1>
-          <p className={styles.pageDescription}>
-            Khám phá bộ sưu tập thời trang GenZ với phong cách năng động, 
-            xu hướng mới nhất và chất lượng tuyệt vời
-          </p>
-        </div>
-      </div>
+    <div className="container">
+      <div className={styles.pageContainer}>
+        {/* Page Header */}
+        <PageHeader
+          title="Tất Cả Sản Phẩm"
+          subtitle={`Tìm thấy ${filteredProducts.length} sản phẩm`}
+          icon={FaShoppingBag}
+          breadcrumbs={[
+            { label: 'Trang chủ', href: '/' },
+            { label: 'Sản phẩm', href: '/products' }
+          ]}
+        />
 
-      <div className={styles.container}>
-        <div className={styles.productsMain}>
+        <div className={styles.contentWrapper}>
           {/* Filters Sidebar */}
-          <aside className={`${styles.filtersSidebar} ${isFiltersOpen ? styles.filtersOpen : ''}`}>
-            <div className={styles.filtersHeader}>
-              <h3>Bộ lọc</h3>
-              <button 
-                className={styles.filtersClose}
-                onClick={() => setIsFiltersOpen(false)}
-                aria-label="Đóng bộ lọc"
-              >
-                ×
-              </button>
-            </div>
+          <FilterSidebar
+            searchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
+            sortBy={sortBy}
+            sortOptions={SORT_OPTIONS.map(opt => ({
+              value: opt.value,
+              label: opt.label
+            }))}
+            onSortChange={handleSortChange}
+            selectedCategory={selectedCategory}
+            onCategoryChange={handleCategoryChange}
+            priceRange={priceRange}
+            onPriceRangeChange={handlePriceRangeChange}
+            onClearFilters={clearFilters}
+          />
 
-            <div className={styles.filtersContent}>
-              {/* Categories */}
-              <div className={styles.filterGroup}>
-                <h4>Danh mục</h4>
-                <div className={styles.filterOptions}>
-                  <label className={styles.filterOption}>
-                    <input
-                      type="radio"
-                      name="category"
-                      checked={!filters.category}
-                      onChange={() => handleCategoryChange('all')}
-                    />
-                    <span>Tất cả</span>
-                  </label>
-                  {categories?.map(category => (
-                    <label key={category._id} className={styles.filterOption}>
-                      <input
-                        type="radio"
-                        name="category"
-                        checked={filters.category === category._id}
-                        onChange={() => handleCategoryChange(category._id)}
+          {/* Products Container */}
+          <div className={styles.productsContainer}>
+            {currentPageProducts.length > 0 ? (
+              <div className={styles.productsGrid}>
+                {currentPageProducts.map((product: ProductWithCategory) => {
+                  // Get real stats for this product
+                  const productStatsData = productStats[product._id];
+                  
+                  return (
+                    <div key={product._id} className={styles.productWrapper}>
+                      <ProductItem 
+                        product={product} 
+                        layout="grid"
+                        averageRating={productStatsData?.averageRating || 0}
+                        reviewCount={productStatsData?.reviewCount || 0}
+                        showRatingBadge={true}
                       />
-                      <span>{category.name}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Price Range */}
-              <div className={styles.filterGroup}>
-                <h4>Khoảng giá</h4>
-                <div className={styles.filterOptions}>
-                  <label className={styles.filterOption}>
-                    <input
-                      type="radio"
-                      name="priceRange"
-                      checked={!filters.minPrice && !filters.maxPrice}
-                      onChange={() => updateFilters({ minPrice: undefined, maxPrice: undefined })}
-                    />
-                    <span>Tất cả</span>
-                  </label>
-                  {PRICE_RANGES.map((range, index) => (
-                    <label key={index} className={styles.filterOption}>
-                      <input
-                        type="radio"
-                        name="priceRange"
-                        checked={filters.minPrice === range.min && filters.maxPrice === range.max}
-                        onChange={() => handlePriceRangeChange(range)}
-                      />
-                      <span>{range.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* On Sale */}
-              <div className={styles.filterGroup}>
-                <label className={styles.filterOption}>
-                  <input
-                    type="checkbox"
-                    checked={!!filters.isOnSale}
-                    onChange={toggleSaleFilter}
-                  />
-                  <span>Đang giảm giá</span>
-                </label>
-              </div>
-
-              {/* Clear Filters */}
-              <Button
-                variant="secondary"
-                onClick={clearAllFilters}
-                className={styles.clearFiltersBtn}
-              >
-                Xóa tất cả bộ lọc
-              </Button>
-            </div>
-          </aside>
-
-          {/* Main Content */}
-          <main className={styles.productsContent}>
-            {/* Search Bar */}
-            <div className={styles.searchSection}>
-              <div className={styles.searchHeader}>
-                <h2 className={styles.searchTitle}>Tìm kiếm sản phẩm</h2>
-                <p className={styles.searchDescription}>
-                  Khám phá bộ sưu tập với từ khóa yêu thích của bạn
-                </p>
-              </div>
-              <SearchBar
-                value={searchTerm}
-                onChange={handleSearchChange}
-                onSearch={handleSearch}
-                placeholder="Nhập tên sản phẩm, thương hiệu hoặc từ khóa..."
-                className={styles.searchBar}
-                showSuggestions={false}
-              />
-            </div>
-
-            {/* Toolbar */}
-            <div className={styles.toolbar}>
-              <div className={styles.toolbarLeft}>
-                <button
-                  className={styles.filtersToggle}
-                  onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-                  aria-label="Hiển thị bộ lọc"
-                >
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
-                  </svg>
-                  Bộ lọc
-                </button>
-
-                <div className={styles.resultsInfo}>
-                  {pagination.totalProducts > 0 ? (
-                    <>
-                      Hiển thị {((pagination.page - 1) * pagination.limit) + 1}-
-                      {Math.min(pagination.page * pagination.limit, pagination.totalProducts)} 
-                      trong tổng số <strong>{pagination.totalProducts}</strong> sản phẩm
-                      {selectedCategory && (
-                        <span className={styles.categoryInfo}>
-                          trong danh mục <strong>{selectedCategory.name}</strong>
-                        </span>
-                      )}
-                    </>
-                  ) : (
-                    'Không tìm thấy sản phẩm nào'
-                  )}
-                </div>
-              </div>
-
-              <div className={styles.toolbarRight}>
-                {/* Sort */}
-                <select
-                  className={styles.sortSelect}
-                  value={currentSortOption.value}
-                  onChange={(e) => handleSortChange(e.target.value)}
-                >
-                  {SORT_OPTIONS.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-
-                {/* Items per page */}
-                <select
-                  className={styles.limitSelect}
-                  value={filters.limit}
-                  onChange={(e) => handleLimitChange(parseInt(e.target.value))}
-                >
-                  {ITEMS_PER_PAGE_OPTIONS.map(limit => (
-                    <option key={limit} value={limit}>
-                      {limit} sản phẩm
-                    </option>
-                  ))}
-                </select>
-
-                {/* Layout Toggle */}
-                <div className={styles.layoutToggle}>
-                  <button
-                    className={`${styles.layoutBtn} ${layout === 'grid' ? styles.active : ''}`}
-                    onClick={() => {
-                      console.log('Switching to grid layout');
-                      setLayout('grid');
-                    }}
-                    aria-label="Hiển thị dạng lưới"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                      <path d="M1 2.5A1.5 1.5 0 012.5 1h3A1.5 1.5 0 017 2.5v3A1.5 1.5 0 015.5 7h-3A1.5 1.5 0 011 5.5v-3zm0 8A1.5 1.5 0 012.5 9h3A1.5 1.5 0 017 10.5v3A1.5 1.5 0 015.5 15h-3A1.5 1.5 0 011 13.5v-3zm8-8A1.5 1.5 0 0110.5 1h3A1.5 1.5 0 0115 2.5v3A1.5 1.5 0 0113.5 7h-3A1.5 1.5 0 019 5.5v-3zm0 8A1.5 1.5 0 0110.5 9h3A1.5 1.5 0 0115 10.5v3A1.5 1.5 0 0113.5 15h-3A1.5 1.5 0 019 13.5v-3z"/>
-                    </svg>
-                  </button>
-                  <button
-                    className={`${styles.layoutBtn} ${layout === 'list' ? styles.active : ''}`}
-                    onClick={() => {
-                      console.log('Switching to list layout');
-                      setLayout('list');
-                    }}
-                    aria-label="Hiển thị dạng danh sách"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                      <path fillRule="evenodd" d="M2.5 12a.5.5 0 01.5-.5h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5zm0-4a.5.5 0 01.5-.5h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5zm0-4a.5.5 0 01.5-.5h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5z"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Active Filters */}
-            {(filters.category || filters.minPrice || filters.maxPrice || filters.isOnSale) && (
-              <div className={styles.activeFilters}>
-                <span className={styles.activeFiltersLabel}>Bộ lọc đang áp dụng:</span>
-                <div className={styles.activeFilterTags}>
-                  {selectedCategory && (
-                    <span className={styles.filterTag}>
-                      {selectedCategory.name}
-                      <button onClick={() => handleCategoryChange('all')}>×</button>
-                    </span>
-                  )}
-                  {(filters.minPrice || filters.maxPrice) && (
-                    <span className={styles.filterTag}>
-                      {filters.minPrice && filters.maxPrice
-                        ? `${formatCurrency(filters.minPrice)} - ${formatCurrency(filters.maxPrice)}`
-                        : filters.minPrice
-                        ? `Từ ${formatCurrency(filters.minPrice)}`
-                        : `Dưới ${formatCurrency(filters.maxPrice!)}`
-                      }
-                      <button onClick={() => updateFilters({ minPrice: undefined, maxPrice: undefined })}>×</button>
-                    </span>
-                  )}
-                  {filters.isOnSale && (
-                    <span className={styles.filterTag}>
-                      Đang giảm giá
-                      <button onClick={toggleSaleFilter}>×</button>
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Products Grid/List */}
-            {error ? (
-              <div className={styles.errorState}>
-                <h3>Có lỗi xảy ra</h3>
-                <p>{error}</p>
-                <Button onClick={fetchProducts}>Thử lại</Button>
-              </div>
-            ) : products.length === 0 ? (
-              <div className={styles.emptyState}>
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <circle cx="11" cy="11" r="8"/>
-                  <path d="21 21l-4.35-4.35"/>
-                </svg>
-                <h3>Không tìm thấy sản phẩm</h3>
-                <p>Không có sản phẩm nào phù hợp với tiêu chí tìm kiếm của bạn.</p>
-                <Button onClick={clearAllFilters}>Xóa bộ lọc</Button>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
-              <ProductList
-                products={products}
-                layout={layout}
-                itemsPerPage={pagination.limit}
-                showPagination={false}
-                showLayoutToggle={false}
-                showDescription={layout === 'list'}
-                className={styles.productsList}
-              />
+              <div className={styles.noResults}>
+                <div className={styles.noResultsIcon}>📦</div>
+                <h3>Không tìm thấy sản phẩm nào</h3>
+                <p>Hãy thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm</p>
+                <Button 
+                  onClick={clearFilters} 
+                  variant="primary" 
+                  size="md"
+                >
+                  Xem tất cả sản phẩm
+                </Button>
+              </div>
             )}
 
             {/* Pagination */}
-            {products.length > 0 && pagination.totalPages > 1 && (
+            {totalPages > 1 && (
               <Pagination
-                pagination={pagination}
+                pagination={{
+                  page: currentPage,
+                  limit: productsPerPage,
+                  totalPages: totalPages,
+                  totalProducts: filteredProducts.length,
+                  hasNextPage: currentPage < totalPages,
+                  hasPrevPage: currentPage > 1
+                }}
                 onPageChange={handlePageChange}
                 className={styles.paginationComponent}
               />
             )}
-          </main>
+          </div>
         </div>
       </div>
-
-      {/* Mobile Filters Overlay */}
-      {isFiltersOpen && (
-        <div 
-          className={styles.filtersOverlay}
-          onClick={() => setIsFiltersOpen(false)}
-        />
-      )}
     </div>
   );
 }

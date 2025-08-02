@@ -161,6 +161,18 @@ class CategoryController extends BaseController {
     };
 
     /**
+     * Get admin statistics for all categories
+     */
+    getAdminStatistics = async (req, res, next) => {
+        try {
+            const stats = await this.service.getAdminStatistics();
+            ResponseHandler.success(res, 'Lấy thống kê admin thành công', stats);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    /**
      * Check if category can be deleted
      */
     canDeleteCategory = async (req, res, next) => {

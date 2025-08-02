@@ -21,6 +21,10 @@ const corsOptions = {
     'http://127.0.0.1:3000',
     'http://127.0.0.1:3001',
     'http://127.0.0.1:3002',
+    'https://accounts.google.com', // Google OAuth
+    'https://www.googleapis.com', // Google APIs
+    'https://sandbox.vnpayment.vn', // VNPay Sandbox
+    'https://vnpay.vn', // VNPay Production
     process.env.FRONTEND_URL, // Frontend URL từ .env
     // Thêm domain production nếu có
   ].filter(Boolean), // Loại bỏ undefined values
@@ -33,7 +37,9 @@ const corsOptions = {
     'Accept',
     'Origin',
     'Cache-Control',
-    'Pragma'
+    'Pragma',
+    'X-CSRF-Token',
+    'Access-Control-Allow-Origin'
   ],
   exposedHeaders: ['Set-Cookie'] // Cho phép frontend đọc Set-Cookie header
 };
@@ -80,6 +86,8 @@ const wishListRoutes = require('./routes/wishListRoutes');
 const statisticsRoutes = require('./routes/statisticsRoutes');
 const productVariantRoutes = require('./routes/productVariantRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const homePageRoutes = require('./routes/homePage');
 
 // Routes
 app.use('/api/orders', orderRoutes);
@@ -99,6 +107,8 @@ app.use('/api/wishlist', wishListRoutes);
 app.use('/api/statistics', statisticsRoutes);
 app.use('/api/product-variants', productVariantRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/payment', paymentRoutes); // VNPay payment routes
+app.use('/api/home', homePageRoutes); // Homepage aggregated data routes - Re-enabled with simple service
 
 app.get('/', (req, res) => {
   res.send('Welcome to E-commerce API System!');
@@ -152,6 +162,10 @@ mongoose.connect(dbUri)
 .then(() => {
   console.log('✅ Successfully connected to MongoDB');
   console.log(`📊 Database: ${mongoose.connection.db.databaseName}`);
+  
+  // Initialize background job service
+  const backgroundJobService = require('./services/backgroundJobService');
+  console.log('🔧 Background job service initialized');
   
   // Chỉ khởi động server sau khi kết nối MongoDB thành công
   app.listen(port, () => {

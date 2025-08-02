@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { SearchBar } from '@/app/components/ui';
 import { useAuth } from '@/contexts';
 import { useCart, useWishlist } from '@/hooks';
-import styles from './Header.module.css';
+import styles from './Header_new.module.css';
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -16,12 +16,35 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const router = useRouter();
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = (query: string) => {
     if (query.trim()) {
       router.push(`/products?search=${encodeURIComponent(query.trim())}`);
     }
   };
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+
+    if (userMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [userMenuOpen]);
+
+  // Close user menu when navigating
+  useEffect(() => {
+    setUserMenuOpen(false);
+  }, [router]);
 
   const handleLogout = () => {
     logout();
@@ -38,10 +61,10 @@ export default function Header() {
 
   // Navigation links
   const navLinks = [
-    { href: '/', label: 'Trang chủ' },
-    { href: '/products', label: 'Sản phẩm' },
-    { href: '/news', label: 'Tin tức' },
-    { href: '/about', label: 'Giới thiệu' },
+    { href: '/', label: 'Trang chủ', icon: 'fas fa-home' },
+    { href: '/products', label: 'Sản phẩm', icon: 'fas fa-tshirt' },
+    { href: '/news', label: 'Tin tức', icon: 'fas fa-newspaper' },
+    { href: '/about', label: 'Giới thiệu', icon: 'fas fa-info-circle' },
   ];
 
   return (
@@ -52,8 +75,8 @@ export default function Header() {
           <Image
             src="/images/logo-fino-compact.svg"
             alt="FINO Fashion Store Logo"
-            width={100}
-            height={33}
+            width={130}
+            height={43}
             className={styles.logoImage}
           />
         </Link>
@@ -99,7 +122,7 @@ export default function Header() {
           </Link>
 
           {/* User Menu */}
-          <div className={styles.userMenu}>
+          <div className={styles.userMenu} ref={userMenuRef}>
             <button
               className={styles.userButton}
               onClick={toggleUserMenu}
@@ -119,15 +142,35 @@ export default function Header() {
                     <div className={styles.userInfo}>
                       <span className={styles.userEmail}>{user.email}</span>
                     </div>
-                    <Link href="/profile" className={styles.dropdownItem}>
+                    <Link 
+                      href="/profile?section=personal-info" 
+                      className={styles.dropdownItem}
+                      onClick={() => setUserMenuOpen(false)}
+                    >
                       <i className="fas fa-user-circle"></i>
                       Thông tin cá nhân
                     </Link>
-                    <Link href="/orders" className={styles.dropdownItem}>
+                    <Link 
+                      href="/profile?section=addresses" 
+                      className={styles.dropdownItem}
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      <i className="fas fa-map-marker-alt"></i>
+                      Địa chỉ
+                    </Link>
+                    <Link 
+                      href="/profile?section=orders" 
+                      className={styles.dropdownItem}
+                      onClick={() => setUserMenuOpen(false)}
+                    >
                       <i className="fas fa-box"></i>
                       Đơn hàng của tôi
                     </Link>
-                    <Link href="/security" className={styles.dropdownItem}>
+                    <Link 
+                      href="/profile?section=security" 
+                      className={styles.dropdownItem}
+                      onClick={() => setUserMenuOpen(false)}
+                    >
                       <i className="fas fa-shield-alt"></i>
                       Bảo mật
                     </Link>
@@ -142,11 +185,19 @@ export default function Header() {
                   </>
                 ) : (
                   <>
-                    <Link href="/login" className={styles.dropdownItem}>
+                    <Link 
+                      href="/login" 
+                      className={styles.dropdownItem}
+                      onClick={() => setUserMenuOpen(false)}
+                    >
                       <i className="fas fa-sign-in-alt"></i>
                       Đăng nhập
                     </Link>
-                    <Link href="/register" className={styles.dropdownItem}>
+                    <Link 
+                      href="/register" 
+                      className={styles.dropdownItem}
+                      onClick={() => setUserMenuOpen(false)}
+                    >
                       <i className="fas fa-user-plus"></i>
                       Đăng ký
                     </Link>
@@ -202,7 +253,7 @@ export default function Header() {
                 <span className={styles.mobileUserName}>{user.name || user.email}</span>
               </div>
               <Link
-                href="/profile"
+                href="/profile?section=personal-info"
                 className={styles.mobileNavLink}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -210,12 +261,28 @@ export default function Header() {
                 Thông tin cá nhân
               </Link>
               <Link
-                href="/orders"
+                href="/profile?section=addresses"
+                className={styles.mobileNavLink}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <i className="fas fa-map-marker-alt"></i>
+                Địa chỉ
+              </Link>
+              <Link
+                href="/profile?section=orders"
                 className={styles.mobileNavLink}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <i className="fas fa-box"></i>
                 Đơn hàng của tôi
+              </Link>
+              <Link
+                href="/profile?section=security"
+                className={styles.mobileNavLink}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <i className="fas fa-shield-alt"></i>
+                Bảo mật
               </Link>
               <button
                 className={styles.mobileLogoutButton}

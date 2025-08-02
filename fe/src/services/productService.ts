@@ -100,7 +100,8 @@ export class ProductService {
    */
   async getPublicDisplayProducts(): Promise<ProductWithCategory[]> {
     try {
-      const response = await apiClient.get('/api/products/public-display');
+      // Limit featured products to 50 as requested
+      const response = await apiClient.get('/api/products/public-display?limit=50');
       
       // API returns: { success: true, data: { products: [...], pagination: {...} } }
       if (response.data && response.data.products && Array.isArray(response.data.products)) {
@@ -149,12 +150,67 @@ export class ProductService {
   /**
    * Get product variants by product ID
    */
-  async getProductVariants(productId: string): Promise<ProductVariantWithRefs[]> {
+  async getProductVariants(productId: string, limit: number = 100): Promise<ProductVariantWithRefs[]> {
     try {
-      const response = await apiClient.get<ProductVariantWithRefs[]>(`/api/product-variants/product/${productId}`);
-      return response.data!;
+      const response = await apiClient.get<{ data: ProductVariantWithRefs[], pagination: any }>(
+        `/api/product-variants/product/${productId}?limit=${limit}&page=1`
+      );
+      
+      // Handle both paginated and direct array responses
+      if (response.data && 'data' in response.data) {
+        return response.data.data;
+      }
+      return response.data as unknown as ProductVariantWithRefs[];
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch product variants');
+    }
+  }
+
+  /**
+   * Get ALL product variants by product ID (handles pagination automatically)
+   */
+  async getAllProductVariants(productId: string): Promise<ProductVariantWithRefs[]> {
+    try {
+      let allVariants: ProductVariantWithRefs[] = [];
+      let page = 1;
+      let hasMore = true;
+      const limit = 50; // Load in chunks of 50
+
+      while (hasMore) {
+        const response = await apiClient.get<{ data: ProductVariantWithRefs[], pagination: any }>(
+          `/api/product-variants/product/${productId}?limit=${limit}&page=${page}`
+        );
+        
+        let variants: ProductVariantWithRefs[] = [];
+        let pagination: any = null;
+
+        // Handle both paginated and direct array responses
+        if (response.data && 'data' in response.data) {
+          variants = response.data.data;
+          pagination = response.data.pagination;
+        } else {
+          variants = response.data as unknown as ProductVariantWithRefs[];
+        }
+
+        allVariants = [...allVariants, ...variants];
+
+        // Check if there are more pages
+        if (pagination && pagination.totalPages && page < pagination.totalPages) {
+          page++;
+        } else {
+          hasMore = false;
+        }
+
+        // Safety check to prevent infinite loops
+        if (variants.length < limit) {
+          hasMore = false;
+        }
+      }
+
+      console.log(`📊 Loaded ${allVariants.length} total variants for product ${productId}`);
+      return allVariants;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch all product variants');
     }
   }
 
@@ -271,9 +327,24 @@ export class ProductService {
     try {
       const params = new URLSearchParams();
       
+      // For admin products page, optimize by default: NO variants, NO review stats
+      // Only include if explicitly requested
+      const includeVariants = filters?.includeVariants === true;
+      const includeReviewStats = filters?.includeReviewStats === true;
+      
+      console.log('🔧 ProductService.getAllProductsAdmin:', {
+        includeVariants,
+        includeReviewStats,
+        filters
+      });
+      
+      params.append('includeVariants', includeVariants.toString());
+      params.append('includeReviewStats', includeReviewStats.toString());
+      
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== '') {
+          if (value !== undefined && value !== null && value !== '' && 
+              key !== 'includeVariants' && key !== 'includeReviewStats') {
             params.append(key, value.toString());
           }
         });
@@ -323,6 +394,37 @@ export class ProductService {
       return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to update product');
+    }
+  }
+
+  /**
+   * Toggle product status (Admin only)
+   */
+  async toggleProductStatus(productId: string): Promise<Product> {
+    try {
+      // First get current product to know current status
+      const currentProduct = await this.getProductByIdAdmin(productId);
+      
+      // Toggle the isActive status
+      const updateData = {
+        name: currentProduct.name,
+        price: currentProduct.price,
+        description: currentProduct.description,
+        category: currentProduct.category._id,
+        images: currentProduct.images,
+        salePrice: currentProduct.salePrice,
+        saleStartDate: currentProduct.saleStartDate,
+        saleEndDate: currentProduct.saleEndDate,
+        isActive: !currentProduct.isActive // Toggle the status
+      };
+
+      console.log(`🔄 Toggling product ${productId} from ${currentProduct.isActive} to ${!currentProduct.isActive}`);
+      const response = await apiClient.put<Product>(`/api/products/${productId}`, updateData);
+      console.log('✅ Product status toggled successfully');
+      return response.data!;
+    } catch (error: any) {
+      console.error('❌ Error toggling product status:', error);
+      throw new Error(error.response?.data?.message || 'Failed to toggle product status');
     }
   }
 

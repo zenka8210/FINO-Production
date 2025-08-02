@@ -31,10 +31,25 @@ class CategoryService extends BaseService {
                 .skip(skip)
                 .limit(parseInt(limit));
 
+            // Populate productCount for each category
+            const categoriesWithProductCount = await Promise.all(
+                categories.map(async (category) => {
+                    const productCount = await Product.countDocuments({ 
+                        category: category._id,
+                        isActive: true 
+                    });
+                    
+                    return {
+                        ...category.toObject(),
+                        productCount: productCount
+                    };
+                })
+            );
+
             const total = await Category.countDocuments(filter);
 
             return {
-                data: categories,
+                data: categoriesWithProductCount,
                 total,
                 page: parseInt(page),
                 limit: parseInt(limit),
@@ -352,6 +367,93 @@ class CategoryService extends BaseService {
     }
 
     /**
+     * Get comprehensive admin statistics for categories
+     */
+    async getAdminStatistics() {
+        try {
+            const [
+                totalCategories,
+                activeCategories,
+                inactiveCategories,
+                totalProducts,
+                activeCategoriesWithProducts,
+                parentCategories,
+                childCategories
+            ] = await Promise.all([
+                Category.countDocuments({}),
+                Category.countDocuments({ isActive: true }),
+                Category.countDocuments({ isActive: false }),
+                Product.countDocuments({ isActive: true }),
+                this.getCategoriesWithProductsCount(),
+                
+                // Đếm danh mục cha (không có parent)
+                Category.countDocuments({ isActive: true, parent: null }),
+                
+                // Đếm danh mục con (có parent)
+                Category.countDocuments({ isActive: true, parent: { $ne: null } })
+            ]);
+            
+            return {
+                totalCategories,
+                activeCategories,
+                inactiveCategories,
+                parentCategories,
+                childCategories,
+                totalProducts,
+                categoriesWithProducts: activeCategoriesWithProducts,
+                categoriesWithoutProducts: activeCategories - activeCategoriesWithProducts,
+                productDistributionRatio: activeCategories > 0 
+                    ? Math.round((activeCategoriesWithProducts / activeCategories) * 100) 
+                    : 0,
+                // Thêm thông tin chi tiết về cấu trúc danh mục
+                categoryStructure: {
+                    parentCount: parentCategories,
+                    childCount: childCategories,
+                    avgChildrenPerParent: parentCategories > 0 
+                        ? Math.round((childCategories / parentCategories) * 10) / 10 
+                        : 0
+                }
+            };
+        } catch (error) {
+            throw new AppError('Lỗi lấy thống kê admin: ' + error.message, 500);
+        }
+    }
+
+    /**
+     * Helper method to count categories that have products
+     */
+    async getCategoriesWithProductsCount() {
+        try {
+            const activeCategoriesWithProducts = await Category.aggregate([
+                { 
+                    $match: { isActive: true } 
+                },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: '_id',
+                        foreignField: 'category',
+                        as: 'products'
+                    }
+                },
+                {
+                    $match: {
+                        'products.0': { $exists: true }
+                    }
+                },
+                {
+                    $count: 'total'
+                }
+            ]);
+            
+            return activeCategoriesWithProducts.length > 0 ? activeCategoriesWithProducts[0].total : 0;
+        } catch (error) {
+            console.error('Error counting categories with products:', error);
+            return 0;
+        }
+    }
+
+    /**
      * Get all categories using new Query Middleware
      * @param {Object} queryParams - Query parameters from request
      * @returns {Object} Query results with pagination
@@ -360,6 +462,25 @@ class CategoryService extends BaseService {
         try {
             // Sử dụng QueryUtils với pre-configured setup cho Category
             const result = await QueryUtils.getCategories(Category, queryParams);
+            
+            // Add productCount to each category
+            if (result.data && result.data.length > 0) {
+                const categoriesWithProductCount = await Promise.all(
+                    result.data.map(async (category) => {
+                        const productCount = await Product.countDocuments({ 
+                            category: category._id,
+                            isActive: true 
+                        });
+                        
+                        return {
+                            ...category.toObject(),
+                            productCount: productCount
+                        };
+                    })
+                );
+                
+                result.data = categoriesWithProductCount;
+            }
             
             return result;
         } catch (error) {

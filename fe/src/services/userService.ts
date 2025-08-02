@@ -18,12 +18,30 @@ interface UserFilters {
 }
 
 interface UserStatistics {
-  totalUsers: number;
-  activeUsers: number;
-  inactiveUsers: number;
-  customerCount: number;
-  adminCount: number;
-  monthlyRegistrations: { month: string; count: number }[];
+  overview?: {
+    totalUsers: number;
+    activeUsers: number;
+    inactiveUsers: number;
+    recentActiveUsers: number;
+  };
+  roleDistribution?: {
+    admin?: number;
+    customer?: number;
+    [key: string]: number | undefined;
+  };
+  monthlyRegistrations?: { year: number; month: number; monthName: string; count: number }[];
+  insights?: {
+    averageUsersPerMonth: number;
+    mostActiveMonth: { count: number };
+    growthTrend: number;
+  };
+  generatedAt?: Date;
+  // Legacy fields for backward compatibility
+  totalUsers?: number;
+  activeUsers?: number;
+  inactiveUsers?: number;
+  customerCount?: number;
+  adminCount?: number;
 }
 
 export class UserService {
@@ -179,14 +197,10 @@ export class UserService {
    * Change current user password
    */
   async changeCurrentUserPassword(currentPassword: string, newPassword: string): Promise<ApiResponse<any>> {
-    try {
-      return await apiClient.put('/api/users/me/password', {
-        currentPassword,
-        newPassword
-      });
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to change password');
-    }
+    return await apiClient.put('/api/users/me/password', {
+      currentPassword,
+      newPassword
+    });
   }
 
   // ========== USER ADDRESS MANAGEMENT ==========

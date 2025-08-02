@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// Cart Item Schema - aligned with OrderDetailsSchema structure
+// Cart Item Schema
 const CartItemSchema = new mongoose.Schema({
   productVariant: { type: mongoose.Schema.Types.ObjectId, ref: 'ProductVariant', required: true },
   quantity: { type: Number, required: true, min: 1 },
@@ -8,247 +8,292 @@ const CartItemSchema = new mongoose.Schema({
   totalPrice: { type: Number, required: true }, // quantity * price
 }, { _id: false });
 
-// Cart Schema - extends Order Schema structure
+// Cart Schema - for shopping cart only
 const CartSchema = new mongoose.Schema({
-  // User reference - same as Order
+  // User reference
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   
-  // Type field to distinguish cart vs order
-  type: { 
-    type: String, 
-    enum: ['cart', 'order'], 
-    default: 'cart',
-    required: true 
-  },
-  
-  // Order code - only for orders, null for carts (sparse index)
-  orderCode: { 
-    type: String, 
-    unique: true, 
-    sparse: true // Only for orders, not carts
-  },
-  
-  // Items - same structure as Order
+  // Cart items
   items: [CartItemSchema],
   
-  // Address - required for orders, optional for carts
-  address: { type: mongoose.Schema.Types.ObjectId, ref: 'Address', default: null },
-  
-  // Pricing fields - exactly same as OrderSchema
-  total: { type: Number, default: 0 }, // Total before discount and shipping
-  voucher: { type: mongoose.Schema.Types.ObjectId, ref: 'Voucher', default: null },
-  discountAmount: { type: Number, default: 0 }, // Discount from voucher
-  shippingFee: { type: Number, default: 0 }, // Shipping fee (calculated based on address)
-  finalTotal: { type: Number, default: 0 }, // total - discountAmount + shippingFee
-  
-  // Status fields - extended from OrderSchema
-  status: { 
-    type: String, 
-    enum: ['cart', 'pending', 'processing', 'shipped', 'delivered', 'cancelled'], 
-    default: 'cart' 
-  },
-  
-  // Payment fields - same as OrderSchema
-  paymentMethod: { type: mongoose.Schema.Types.ObjectId, ref: 'PaymentMethod', default: null },
-  paymentStatus: { 
-    type: String, 
-    enum: ['unpaid', 'paid', 'refunded'], 
-    default: 'unpaid' 
-  },
-  
-  // Cart-specific metadata
-  cartUpdatedAt: { type: Date, default: Date.now }, // Last cart update
-  orderPlacedAt: { type: Date }, // When cart became order
+  // Cart total (calculated automatically)
+  total: { type: Number, default: 0 },
   
 }, { timestamps: true });
 
-// Indexes for performance - same pattern as OrderSchema
-CartSchema.index({ user: 1, type: 1 }); // Find user's cart/orders
-CartSchema.index({ user: 1, createdAt: -1 }); // User order history
-CartSchema.index({ status: 1 }); // Filter by status
-CartSchema.index({ createdAt: -1 }); // Recent items first
+// Indexes for performance
+CartSchema.index({ user: 1 }); // Find user's cart
+CartSchema.index({ updatedAt: -1 }); // Recent updates first
 
-// Pre-save middleware to calculate totals - same logic as OrderSchema
+// Pre-save middleware to calculate totals
 CartSchema.pre('save', function(next) {
-  // Calculate total from items
-  this.total = this.items.reduce((sum, item) => sum + item.totalPrice, 0);
-  
-  // Calculate final total: total - discount + shipping
-  this.finalTotal = this.total - this.discountAmount + this.shippingFee;
-  
-  // Update cart timestamp
-  if (this.type === 'cart') {
-    this.cartUpdatedAt = new Date();
-  }
-  
-  // Set order placed timestamp when converting to order
-  if (this.type === 'order' && !this.orderPlacedAt) {
-    this.orderPlacedAt = new Date();
-  }
-  
-  next();
-});
-
-// Pre-save middleware for item totalPrice calculation
-CartSchema.pre('save', function(next) {
+  // Calculate each item's total price FIRST
   this.items.forEach(item => {
     item.totalPrice = item.quantity * item.price;
   });
+  
+  // Then calculate total from updated totalPrice values
+  this.total = this.items.reduce((sum, item) => sum + item.totalPrice, 0);
+  
   next();
 });
 
-// Static method to generate order code - same as OrderSchema
-CartSchema.statics.generateOrderCode = async function() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  
-  // Format: DH + YYYYMMDD + 5 digit counter (DH = Đơn Hàng)
-  const prefix = `DH${year}${month}${day}`;
-  
-  // Find last order in day
-  const lastOrder = await this.findOne({
-    orderCode: { $regex: `^${prefix}` },
-    type: 'order'
-  }).sort({ orderCode: -1 });
-  
-  let counter = 1;
-  if (lastOrder) {
-    const lastCounter = parseInt(lastOrder.orderCode.slice(-5));
-    counter = lastCounter + 1;
-  }
-  
-  return `${prefix}${counter.toString().padStart(5, '0')}`;
-};
-
-// Static method to find or create user cart
+// Static method to find or create user cart (with backward compatibility)
 CartSchema.statics.findOrCreateCart = async function(userId) {
+  console.log('🔍 Looking for cart for user:', userId);
+  
+  // First try to find cart with new structure (no type field)
   let cart = await this.findOne({ 
-    user: userId, 
-    type: 'cart' 
-  }).populate([
-    {
-      path: 'items.productVariant',
-      populate: [
-        { path: 'product', select: 'name description images isActive' },
-        { path: 'color', select: 'name hexCode' },
-        { path: 'size', select: 'name' }
-      ]
-    }
-  ]);
+    user: userId,
+    type: { $exists: false } // Only carts without type field (new structure)
+  });
   
-  if (!cart) {
-    cart = await this.create({
-      user: userId,
-      type: 'cart',
-      items: [],
-      status: 'cart'
-    });
+  console.log('🔍 New structure cart found:', cart ? 'YES' : 'NO');
+  if (cart) {
+    console.log('🔍 Cart items length:', cart.items ? cart.items.length : 'undefined');
   }
-  
-  return cart;
-};
 
-// Instance method to convert cart to order
-CartSchema.methods.convertToOrder = async function(orderDetails) {
-  // Generate order code
-  const orderCode = await this.constructor.generateOrderCode();
-  
-  // Update cart to order
-  this.type = 'order';
-  this.orderCode = orderCode;
-  this.status = 'pending';
-  this.address = orderDetails.address;
-  this.paymentMethod = orderDetails.paymentMethod;
-  this.voucher = orderDetails.voucher || null;
-  this.discountAmount = orderDetails.discountAmount || 0;
-  this.shippingFee = orderDetails.shippingFee || 0;
-  this.orderPlacedAt = new Date();
-  
-  await this.save();
-  
-  // Populate order details
-  await this.populate([
-    'user',
-    'address', 
-    'voucher', 
-    'paymentMethod',
-    {
-      path: 'items.productVariant',
-      populate: [
-        { path: 'product', select: 'name description images' },
-        { path: 'color', select: 'name hexCode' },
-        { path: 'size', select: 'name' }
-      ]
+  // If not found, try to find old-style cart and migrate it
+  if (!cart) {
+    console.log('🔍 Looking for old-style cart...');
+    const oldCart = await this.findOne({ 
+      user: userId,
+      type: 'cart' // Old structure with type field
+    });
+    
+    console.log('🔍 Old-style cart found:', oldCart ? 'YES' : 'NO');
+    if (oldCart) {
+      console.log('🔍 Old cart items length:', oldCart.items ? oldCart.items.length : 'undefined');
+      console.log('🔄 Found old-style cart, migrating...');
+      
+      // Migrate old cart to new structure
+      await this.updateOne(
+        { _id: oldCart._id },
+        { 
+          $unset: { 
+            type: 1, 
+            orderCode: 1, 
+            status: 1, 
+            address: 1, 
+            voucher: 1, 
+            discountAmount: 1, 
+            shippingFee: 1, 
+            finalTotal: 1, 
+            paymentMethod: 1, 
+            paymentStatus: 1, 
+            orderPlacedAt: 1,
+            cartUpdatedAt: 1
+          }
+        }
+      );
+      
+      // Now fetch the migrated cart
+      cart = await this.findOne({ 
+        user: userId,
+        type: { $exists: false }
+      });
+      
+      console.log('✅ Cart migrated successfully, items:', cart?.items?.length);
     }
-  ]);
-  
-  return this;
+  }
+
+  // If still no cart, create new one
+  if (!cart) {
+    console.log('🆕 Creating new cart...');
+    cart = new this({
+      user: userId,
+      items: []
+    });
+    await cart.save();
+    console.log('✅ Created new cart');
+  }
+
+  // Populate cart items
+  if (cart && cart.items && cart.items.length > 0) {
+    console.log('🔄 Populating cart items...');
+    await cart.populate([
+      {
+        path: 'items.productVariant',
+        populate: [
+          { path: 'product', select: 'name description images' },
+          { path: 'color', select: 'name isActive' },
+          { path: 'size', select: 'name' }
+        ]
+      }
+    ]);
+    console.log('✅ Cart items populated');
+  } else {
+    console.log('ℹ️  No items to populate');
+  }
+
+  console.log('🎯 Final cart items length:', cart?.items?.length);
+  return cart;
 };
 
 // Instance method to add item to cart
 CartSchema.methods.addItem = function(productVariantId, quantity, price) {
-  const existingItemIndex = this.items.findIndex(
-    item => item.productVariant.toString() === productVariantId.toString()
-  );
+  // Validate input parameters
+  if (!productVariantId) {
+    throw new Error('productVariantId is required');
+  }
   
+  console.log('🛒 CartSchema.addItem called', { 
+    productVariantId: productVariantId.toString(), 
+    quantity, 
+    price 
+  });
+  console.log('📋 Current cart items before adding:', this.items.map(item => ({ 
+    id: item.productVariant ? item.productVariant.toString() : 'NULL', 
+    quantity: item.quantity 
+  })));
+  
+  const existingItemIndex = this.items.findIndex(
+    item => {
+      if (!item.productVariant) return false;
+      
+      // Handle all possible productVariant types:
+      // 1. ObjectId
+      // 2. Populated object with _id
+      // 3. String ObjectId
+      let itemVariantId;
+      
+      if (typeof item.productVariant === 'object' && item.productVariant._id) {
+        // Populated object
+        itemVariantId = item.productVariant._id.toString();
+      } else if (typeof item.productVariant === 'object' && !item.productVariant._id) {
+        // Direct ObjectId object
+        itemVariantId = item.productVariant.toString();
+      } else {
+        // String ObjectId
+        itemVariantId = item.productVariant.toString();
+      }
+      
+      const targetVariantId = productVariantId.toString();
+      
+      console.log('🔍 Comparing variants:', {
+        itemVariantType: typeof item.productVariant,
+        hasId: !!item.productVariant._id,
+        itemVariantId,
+        targetVariantId,
+        match: itemVariantId === targetVariantId
+      });
+      
+      return itemVariantId === targetVariantId;
+    }
+  );
+
+  console.log('🔍 Existing item index:', existingItemIndex);
+
   if (existingItemIndex > -1) {
-    // Update existing item
+    // Update existing item - merge quantity
+    console.log('🔄 Merging with existing item - old quantity:', this.items[existingItemIndex].quantity, 'adding:', quantity);
     this.items[existingItemIndex].quantity += quantity;
+    this.items[existingItemIndex].totalPrice = 
+      this.items[existingItemIndex].quantity * this.items[existingItemIndex].price;
+    console.log('✅ New quantity after merge:', this.items[existingItemIndex].quantity);
   } else {
     // Add new item
+    console.log('➕ Adding new item to cart');
     this.items.push({
       productVariant: productVariantId,
-      quantity: quantity,
-      price: price,
+      quantity,
+      price,
       totalPrice: quantity * price
     });
   }
-  
-  this.cartUpdatedAt = new Date();
+
+  console.log('📋 Cart items after adding:', this.items.map(item => ({ 
+    id: item.productVariant ? item.productVariant.toString() : 'NULL', 
+    quantity: item.quantity 
+  })));
+
   return this.save();
 };
 
 // Instance method to update item quantity
-CartSchema.methods.updateItemQuantity = function(productVariantId, quantity) {
-  const itemIndex = this.items.findIndex(
-    item => item.productVariant.toString() === productVariantId.toString()
+CartSchema.methods.updateItem = function(productVariantId, quantity) {
+  // Validate input parameters
+  if (!productVariantId) {
+    throw new Error('productVariantId is required');
+  }
+  
+  console.log('🔄 CartSchema.updateItem called', { productVariantId, quantity });
+  console.log('📋 Current cart items:', this.items.map(item => ({ 
+    id: item.productVariant && item.productVariant._id ? item.productVariant._id.toString() : 
+        item.productVariant ? item.productVariant.toString() : 'NULL', 
+    quantity: item.quantity 
+  })));
+  
+  const item = this.items.find(
+    item => {
+      if (!item.productVariant) return false;
+      const itemId = item.productVariant._id ? item.productVariant._id.toString() : item.productVariant.toString();
+      return itemId === productVariantId.toString();
+    }
   );
-  
-  if (itemIndex === -1) {
-    throw new Error('Item not found in cart');
-  }
-  
-  if (quantity <= 0) {
-    // Remove item if quantity is 0 or negative
-    this.items.splice(itemIndex, 1);
+
+  console.log('🔍 Found item:', item ? `YES (current quantity: ${item.quantity})` : 'NO');
+
+  if (item) {
+    if (quantity <= 0) {
+      // Remove item if quantity is 0 or less
+      console.log('🗑️ Removing item (quantity <= 0)');
+      this.items = this.items.filter(
+        item => {
+          if (!item.productVariant) return false;
+          const itemId = item.productVariant._id ? item.productVariant._id.toString() : item.productVariant.toString();
+          return itemId !== productVariantId.toString();
+        }
+      );
+    } else {
+      // Update quantity
+      console.log('🔄 Updating quantity from', item.quantity, 'to', quantity);
+      item.quantity = quantity;
+      item.totalPrice = item.quantity * item.price;
+      console.log('✅ Updated item:', { quantity: item.quantity, totalPrice: item.totalPrice });
+    }
   } else {
-    // Update quantity
-    this.items[itemIndex].quantity = quantity;
+    console.log('❌ Item not found in cart');
   }
-  
-  this.cartUpdatedAt = new Date();
+
   return this.save();
 };
 
-// Instance method to remove item
+// Instance method to remove item from cart
 CartSchema.methods.removeItem = function(productVariantId) {
+  // Validate input parameters
+  if (!productVariantId) {
+    throw new Error('productVariantId is required');
+  }
+  
+  console.log('🗑️ CartSchema.removeItem called', { productVariantId });
+  console.log('📋 Current cart items before removal:', this.items.map(item => ({ 
+    id: item.productVariant && item.productVariant._id ? item.productVariant._id.toString() : 
+        item.productVariant ? item.productVariant.toString() : 'NULL', 
+    quantity: item.quantity 
+  })));
+  
   this.items = this.items.filter(
-    item => item.productVariant.toString() !== productVariantId.toString()
+    item => {
+      if (!item.productVariant) return true; // Keep items without productVariant for debugging
+      const itemId = item.productVariant._id ? item.productVariant._id.toString() : item.productVariant.toString();
+      return itemId !== productVariantId.toString();
+    }
   );
   
-  this.cartUpdatedAt = new Date();
+  console.log('📋 Cart items after removal:', this.items.map(item => ({ 
+    id: item.productVariant && item.productVariant._id ? item.productVariant._id.toString() : 
+        item.productVariant ? item.productVariant.toString() : 'NULL', 
+    quantity: item.quantity 
+  })));
+  console.log('✅ Item removed, saving cart...');
+  
   return this.save();
 };
 
 // Instance method to clear cart
 CartSchema.methods.clearCart = function() {
   this.items = [];
-  this.voucher = null;
-  this.discountAmount = 0;
-  this.shippingFee = 0;
-  this.cartUpdatedAt = new Date();
   return this.save();
 };
 

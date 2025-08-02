@@ -450,7 +450,7 @@ const vouchersData = [
     startDate: new Date('2025-01-01'),
     endDate: new Date('2025-03-31'),
     isActive: true,
-    usageLimit: 1,
+    totalUsageLimit: 1000,
     isOneTimePerUser: true
   },
   {
@@ -461,7 +461,7 @@ const vouchersData = [
     startDate: new Date('2025-01-15'),
     endDate: new Date('2025-02-15'),
     isActive: true,
-    usageLimit: 1,
+    totalUsageLimit: 1000,
     isOneTimePerUser: true
   },
   {
@@ -472,7 +472,7 @@ const vouchersData = [
     startDate: new Date('2025-01-01'),
     endDate: new Date('2025-12-31'),
     isActive: true,
-    usageLimit: 3,
+    totalUsageLimit: 1000,
     isOneTimePerUser: false
   }
 ];
@@ -924,7 +924,7 @@ async function seedOrders() {
         const finalTotal = total + shippingFee;
         
         // Create order
-        const orderCode = `DH${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}${String(orderCount + 1).padStart(5, '0')}`;
+        const orderCode = `FINO${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}${String(orderCount + 1).padStart(5, '0')}`;
         
         const order = new Order({
           orderCode,
@@ -936,7 +936,7 @@ async function seedOrders() {
           finalTotal,
           status: ['pending', 'processing', 'shipped', 'delivered'][Math.floor(Math.random() * 4)],
           paymentMethod: Math.random() > 0.5 ? codPayment._id : cardPayment._id,
-          paymentStatus: Math.random() > 0.3 ? 'paid' : 'unpaid'
+          paymentStatus: Math.random() > 0.3 ? 'paid' : 'pending'
         });
         
         const savedOrder = await order.save();

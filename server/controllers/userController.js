@@ -22,8 +22,13 @@ class UserController extends BaseController {
 
   getAllUsers = async (req, res, next) => {
     try {
+      console.log('🚀 UserController.getAllUsers called');
+      console.log('Query params:', req.query);
+      console.log('Has queryBuilder:', !!req.createQueryBuilder);
+      
       // Use new QueryBuilder with improved safety
       if (req.createQueryBuilder) {
+        console.log('📍 Using QueryBuilder path');
         const User = require('../models/UserSchema');
         const queryBuilder = req.createQueryBuilder(User);
         
@@ -37,6 +42,11 @@ class UserController extends BaseController {
           })
           .execute();
         
+        console.log('QueryBuilder result:', { 
+          dataCount: result.data?.length, 
+          pagination: result.pagination 
+        });
+        
         return res.status(200).json({
           success: true,
           message: userMessages.FETCH_ALL_SUCCESS,
@@ -44,6 +54,7 @@ class UserController extends BaseController {
           pagination: result.pagination
         });
       } else {
+        console.log('📍 Using legacy service path');
         // Fallback to legacy method if middleware not available
         const queryOptions = {
           page: req.query.page || PAGINATION.DEFAULT_PAGE,
@@ -55,17 +66,35 @@ class UserController extends BaseController {
           sortOrder: req.query.sortOrder || 'desc'
         };
         
+        console.log('Query options:', queryOptions);
+        
         // Apply admin sort
         const sortConfig = AdminSortUtils.ensureAdminSort(req, 'User');
         queryOptions.sort = sortConfig;
         
         const result = await this.service.getAllUsers(queryOptions);
         
+        console.log('Service result:', { 
+          dataCount: result.data?.length, 
+          total: result.total,
+          pagination: result.pagination || 'no pagination' 
+        });
+        
+        // Legacy service returns flat structure, need to format for frontend
+        const pagination = {
+          currentPage: result.page,
+          totalPages: result.totalPages,
+          totalItems: result.total,
+          itemsPerPage: result.limit,
+          hasNextPage: result.page < result.totalPages,
+          hasPrevPage: result.page > 1
+        };
+        
         return res.status(200).json({
           success: true,
           message: userMessages.FETCH_ALL_SUCCESS,
           data: result.data,
-          pagination: result.pagination
+          pagination: pagination
         });
       }
     } catch (error) {

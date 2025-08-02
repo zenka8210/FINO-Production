@@ -147,7 +147,27 @@ class VoucherService extends BaseService {
       throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
     }
     return voucher;
-  }  /**
+  }
+
+  /**
+   * @description Tăng số lần sử dụng của voucher
+   * @param {string} voucherId - ID của phiếu giảm giá
+   * @returns {Promise<object>} Phiếu giảm giá đã được cập nhật
+   * @throws {AppError} Nếu không tìm thấy phiếu giảm giá
+   */
+  async incrementVoucherUsage(voucherId) {
+    const voucher = await this.Model.findByIdAndUpdate(
+      voucherId,
+      { $inc: { usedCount: 1 } },
+      { new: true }
+    );
+    if (!voucher) {
+      throw new AppError(voucherMessages.VOUCHER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
+    }
+    return voucher;
+  }
+
+  /**
    * @description Kiểm tra và áp dụng phiếu giảm giá cho một đơn hàng
    * @param {string} code - Mã phiếu giảm giá
    * @param {number} orderTotal - Tổng giá trị đơn hàng
@@ -161,7 +181,20 @@ class VoucherService extends BaseService {
     // Check if voucher is active
     if (!voucher.isActive) {
       throw new AppError(voucherMessages.VOUCHER_INACTIVE || 'Voucher is not active', ERROR_CODES.VOUCHER.INVALID);
-    }    // KIỂM TRA RÀNG BUỘC MỚI: 1 user chỉ được sử dụng 1 voucher duy nhất trong toàn bộ hệ thống
+    }
+
+    // KIỂM TRA GIỚI HẠN SỐ LẦN SỬ DỤNG TỔNG CỦA VOUCHER
+    const currentUsedCount = voucher.usedCount || 0;
+    const totalUsageLimit = voucher.totalUsageLimit || 1000;
+    
+    if (currentUsedCount >= totalUsageLimit) {
+      throw new AppError(
+        `Voucher đã hết lượt sử dụng (${currentUsedCount}/${totalUsageLimit})`, 
+        ERROR_CODES.VOUCHER.APPLY_FAILED
+      );
+    }
+
+    // KIỂM TRA RÀNG BUỘC MỚI: 1 user chỉ được sử dụng 1 voucher duy nhất trong toàn bộ hệ thống
     if (userId) {
       const usedVoucherOrder = await this.getUserUsedVoucher(userId);
       if (usedVoucherOrder && usedVoucherOrder.voucher._id.toString() !== voucher._id.toString()) {
@@ -172,11 +205,14 @@ class VoucherService extends BaseService {
       }
     }
 
-    // Check usage limit if user is provided
+    // KIỂM TRA GIỚI HẠN PER USER: Chỉ kiểm tra nếu isOneTimePerUser = true
     if (userId && voucher.isOneTimePerUser) {
-      const usageCount = await this.getUserVoucherUsageCount(userId, voucher._id);
-      if (usageCount >= voucher.usageLimit) {
-        throw new AppError('Bạn đã sử dụng voucher này rồi và không thể sử dụng lại', ERROR_CODES.VOUCHER.APPLY_FAILED);
+      const userUsageCount = await this.getUserVoucherUsageCount(userId, voucher._id);
+      if (userUsageCount > 0) {
+        throw new AppError(
+          `Bạn đã sử dụng voucher này rồi. Mỗi người chỉ được sử dụng 1 lần.`, 
+          ERROR_CODES.VOUCHER.APPLY_FAILED
+        );
       }
     }
 
@@ -310,7 +346,7 @@ class VoucherService extends BaseService {
       
       if (voucher.isOneTimePerUser) {
         const usageCount = await this.getUserVoucherUsageCount(userId, voucher._id);
-        if (usageCount >= voucher.usageLimit) {
+        if (usageCount > 0) {
           return { canUse: false, reason: 'Bạn đã sử dụng voucher này rồi' };
         }
       }
@@ -324,7 +360,7 @@ class VoucherService extends BaseService {
           maximumOrderValue: voucher.maximumOrderValue,
           maximumDiscountAmount: voucher.maximumDiscountAmount,
           usageCount: voucher.isOneTimePerUser ? await this.getUserVoucherUsageCount(userId, voucher._id) : null,
-          usageLimit: voucher.usageLimit
+          totalUsageLimit: voucher.totalUsageLimit
         }
       };
     } catch (error) {
@@ -335,6 +371,122 @@ class VoucherService extends BaseService {
   /**
    * Get all vouchers using new Query Middleware
    * @param {Object} queryParams - Query parameters from request
+   * @param {Object} req - Express request object with QueryBuilder
+   * @returns {Promise<Object>} Paginated voucher results
+   */
+  async getAllVouchersWithQueryBuilder(queryParams, req) {
+    if (!req.createQueryBuilder) {
+      throw new AppError('QueryBuilder not available', ERROR_CODES.INTERNAL_SERVER_ERROR);
+    }
+
+    const queryBuilder = req.createQueryBuilder(this.Model);
+    return await queryBuilder
+      .search(['code'])
+      .applyFilters({
+        isActive: { type: 'boolean' },
+        startDate: { type: 'date' },
+        endDate: { type: 'date' },
+        'discountPercent[min]': { type: 'number', field: 'discountPercent' },
+        'discountPercent[max]': { type: 'number', field: 'discountPercent' }
+      })
+      .execute();
+  }
+
+  /**
+   * @description Cập nhật số lần sử dụng voucher khi đơn hàng thành công
+   * @param {string} voucherId - ID của voucher
+   * @returns {Promise<object>} Voucher đã được cập nhật
+   */
+  async incrementVoucherUsedCount(voucherId) {
+    try {
+      const voucher = await this.Model.findByIdAndUpdate(
+        voucherId,
+        { $inc: { usedCount: 1 } },
+        { new: true }
+      );
+      
+      if (!voucher) {
+        throw new AppError('Voucher không tồn tại', ERROR_CODES.NOT_FOUND);
+      }
+
+      return voucher;
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      throw new AppError('Lỗi khi cập nhật số lần sử dụng voucher', ERROR_CODES.INTERNAL_ERROR, error.message);
+    }
+  }
+
+  /**
+   * @description Giảm số lần sử dụng voucher khi đơn hàng bị hủy
+   * @param {string} voucherId - ID của voucher
+   * @returns {Promise<object>} Voucher đã được cập nhật
+   */
+  async decrementVoucherUsedCount(voucherId) {
+    try {
+      const voucher = await this.Model.findByIdAndUpdate(
+        voucherId,
+        { $inc: { usedCount: -1 } },
+        { new: true }
+      );
+      
+      if (!voucher) {
+        throw new AppError('Voucher không tồn tại', ERROR_CODES.NOT_FOUND);
+      }
+
+      // Đảm bảo usedCount không âm
+      if (voucher.usedCount < 0) {
+        voucher.usedCount = 0;
+        await voucher.save();
+      }
+
+      return voucher;
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      throw new AppError('Lỗi khi giảm số lần sử dụng voucher', ERROR_CODES.INTERNAL_ERROR, error.message);
+    }
+  }
+
+  /**
+   * @description Lấy thống kê voucher cho admin dashboard
+   * @returns {Promise<object>} Thống kê voucher
+   */
+  async getVoucherStatistics() {
+    const now = new Date();
+    
+    const [totalVouchers, activeVouchers, expiredVouchers, usedVouchers] = await Promise.all([
+      // Tổng số voucher
+      this.Model.countDocuments({}),
+      
+      // Voucher đang hoạt động (isActive = true và trong thời gian hiệu lực)
+      this.Model.countDocuments({
+        isActive: true,
+        startDate: { $lte: now },
+        endDate: { $gte: now }
+      }),
+      
+      // Voucher đã hết hạn HOẶC bị vô hiệu hóa
+      this.Model.countDocuments({
+        $or: [
+          { endDate: { $lt: now } },    // Hết hạn theo thời gian
+          { isActive: false }           // Bị vô hiệu hóa
+        ]
+      }),
+      
+      // Voucher đã được sử dụng (usedCount > 0)
+      this.Model.countDocuments({
+        usedCount: { $gt: 0 }
+      })
+    ]);
+
+    return {
+      totalVouchers,
+      activeVouchers,
+      expiredVouchers,
+      usedVouchers
+    };
+  }
+
+  /**
    * @returns {Object} Query results with pagination
    */
   async getAllVouchersWithQuery(queryParams) {

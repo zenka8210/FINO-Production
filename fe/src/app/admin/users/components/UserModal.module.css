@@ -1,0 +1,412 @@
+/* UserModal.module.css */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 16px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 24px 16px 24px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.userTitle {
+  flex: 1;
+}
+
+.userName {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.userEmail {
+  margin: 4px 0 0 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.closeButton:hover {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.userBadges {
+  display: flex;
+  gap: 8px;
+  padding: 0 24px 16px 24px;
+}
+
+.statusBadge, .roleBadge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tabsContainer {
+  display: flex;
+  border-bottom: 2px solid #f1f5f9;
+  margin: 0 24px;
+}
+
+.tab {
+  padding: 12px 20px;
+  border: none;
+  background: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  color: #1e293b;
+  background: #f8fafc;
+}
+
+.tab.active {
+  color: #6c47ff;
+  border-bottom-color: #6c47ff;
+  background: rgba(108, 71, 255, 0.05);
+}
+
+.tabContent {
+  padding: 24px;
+}
+
+/* Info Tab */
+.infoTab {
+  min-height: 200px;
+}
+
+.userInfo .infoGroup {
+  display: grid;
+  gap: 16px;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.infoLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoValue {
+  font-size: 1rem;
+  color: #1e293b;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.editButton {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: #6c47ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.editButton:hover {
+  background: #5b38e0;
+}
+
+/* Edit Form */
+.editForm {
+  display: grid;
+  gap: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: black;
+  background: white;
+}
+
+.formInput {
+  padding: 10px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  color: black;
+  background: white;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: #6c47ff;
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.saveButton {
+  padding: 10px 20px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.saveButton:hover {
+  background: #059669;
+}
+
+.saveButton:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  padding: 10px 20px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelButton:hover {
+  background: #e2e8f0;
+}
+
+/* Orders Tab */
+.ordersTab {
+  min-height: 300px;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+}
+
+.emptyOrders {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+}
+
+.ordersList {
+  display: grid;
+  gap: 12px;
+}
+
+.orderItem {
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  transition: all 0.2s;
+}
+
+.orderItem:hover {
+  border-color: #6c47ff;
+  background: rgba(108, 71, 255, 0.02);
+}
+
+.orderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.orderCode {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.orderStatus {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+}
+
+.orderDetails {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.orderMeta {
+  display: flex;
+  gap: 16px;
+}
+
+/* Modal Actions */
+.modalActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-top: 2px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+.leftActions, .rightActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.actionButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.lockButton {
+  background: #f59e0b;
+  color: white;
+}
+
+.lockButton:hover {
+  background: #d97706;
+}
+
+.unlockButton {
+  background: #10b981;
+  color: white;
+}
+
+.unlockButton:hover {
+  background: #059669;
+}
+
+.deleteButton {
+  background: #ef4444;
+  color: white;
+}
+
+.deleteButton:hover {
+  background: #dc2626;
+}
+
+.roleSelect {
+  padding: 8px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  color: black;
+}
+
+.roleSelect:focus {
+  outline: none;
+  border-color: #6c47ff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modalContent {
+    margin: 0;
+    border-radius: 0;
+    max-height: 100vh;
+    height: 100vh;
+  }
+  
+  .userBadges {
+    flex-wrap: wrap;
+  }
+  
+  .modalActions {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .leftActions, .rightActions {
+    justify-content: center;
+  }
+  
+  .orderMeta {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

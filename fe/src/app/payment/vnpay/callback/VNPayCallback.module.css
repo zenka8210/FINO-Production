@@ -1,0 +1,261 @@
+.callbackContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 2rem 0;
+}
+
+.processingCard,
+.resultCard,
+.errorCard {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 3rem;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+.processingCard {
+  border: 2px solid #e3f2fd;
+}
+
+.resultCard.success {
+  border: 2px solid #e8f5e8;
+  background: linear-gradient(135deg, #f8fff8 0%, #e8f5e8 100%);
+}
+
+.resultCard.error {
+  border: 2px solid #ffebee;
+  background: linear-gradient(135deg, #fff8f8 0%, #ffebee 100%);
+}
+
+.errorCard {
+  border: 2px solid #ffebee;
+  background: linear-gradient(135deg, #fff8f8 0%, #ffebee 100%);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #e3f2fd;
+  border-top: 4px solid #1e40af;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.resultIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.resultCard h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.resultCard.success h2 {
+  color: #10b981;
+}
+
+.resultCard.error h2 {
+  color: #dc2626;
+}
+
+.errorCard h2 {
+  color: #dc2626;
+}
+
+.resultMessage {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.paymentDetails {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  text-align: left;
+}
+
+.paymentDetails h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.detailRow:last-child {
+  border-bottom: none;
+}
+
+.detailRow span:first-child {
+  color: #666;
+  font-weight: 500;
+}
+
+.detailRow span:last-child {
+  color: #333;
+  font-weight: 600;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.successButton,
+.retryButton,
+.homeButton,
+.backButton {
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  min-width: 150px;
+}
+
+.successButton {
+  background: #10b981;
+  color: white;
+}
+
+.successButton:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+.retryButton {
+  background: #f59e0b;
+  color: white;
+}
+
+.retryButton:hover {
+  background: #d97706;
+  transform: translateY(-2px);
+}
+
+.homeButton {
+  background: #6b7280;
+  color: white;
+}
+
+.homeButton:hover {
+  background: #4b5563;
+  transform: translateY(-2px);
+}
+
+.backButton {
+  background: #1e40af;
+  color: white;
+}
+
+.backButton:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .callbackContainer {
+    padding: 1rem;
+    min-height: 70vh;
+  }
+
+  .processingCard,
+  .resultCard,
+  .errorCard {
+    padding: 2rem 1.5rem;
+    margin: 0 1rem;
+  }
+
+  .resultCard h2 {
+    font-size: 1.5rem;
+  }
+
+  .resultMessage {
+    font-size: 1rem;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .successButton,
+  .retryButton,
+  .homeButton,
+  .backButton {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .paymentDetails {
+    padding: 1rem;
+  }
+
+  .detailRow {
+    flex-direction: column;
+    gap: 0.2rem;
+    text-align: left;
+  }
+
+  .detailRow span:first-child {
+    font-size: 0.9rem;
+  }
+
+  .detailRow span:last-child {
+    font-size: 1rem;
+  }
+}
+
+/* Loading state improvements */
+.processingCard h2 {
+  color: #1e40af;
+  margin-bottom: 0.5rem;
+}
+
+.processingCard p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* Success/Error state improvements */
+.resultCard.success .paymentDetails {
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.resultCard.error .paymentDetails {
+  background: rgba(220, 38, 38, 0.05);
+  border: 1px solid rgba(220, 38, 38, 0.1);
+}

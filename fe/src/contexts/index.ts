@@ -8,6 +8,9 @@ export { WishlistProvider, useWishlist } from './WishlistContext';
 export { ProductProvider, useProduct } from './ProductContext';
 export { OrderProvider, useOrder } from './OrderContext';
 
+// ============= ADMIN CONTEXTS =============
+export { AdminProvider, useAdmin } from './AdminContext';
+
 // ============= APP PROVIDER =============
 export { AppProvider } from './AppProvider';
 

@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useProducts } from '@/hooks';
-import { ProductWithCategory } from '@/types';
+import { useProducts, useProductStats } from '@/hooks';
+import { ProductWithCategory, Category } from '@/types';
+import { categoryService } from '@/services';
 import ProductItem from '../components/ProductItem';
-import { LoadingSpinner, Button, Pagination } from '../components/ui';
+import { LoadingSpinner, Button, Pagination, PageHeader } from '../components/ui';
 import { isProductOnSale, getDiscountPercent } from '@/lib/productUtils';
 import FilterSidebar from '../components/FilterSidebar';
+import { FaFire } from 'react-icons/fa';
 import styles from './sale.module.css';
 
 export default function SaleProductsPage() {
@@ -19,6 +21,7 @@ export default function SaleProductsPage() {
   const [products, setProducts] = useState<ProductWithCategory[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<ProductWithCategory[]>([]);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  const [allCategories, setAllCategories] = useState<Category[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,7 +29,28 @@ export default function SaleProductsPage() {
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [selectedCategory, setSelectedCategory] = useState('');
 
-  const productsPerPage = 12; // 4 columns x 3 rows
+  const productsPerPage = 12;
+
+  // Helper function to get all child category IDs for a given parent category ID
+  const getAllChildCategoryIds = (parentCategoryId: string, categories: Category[]): string[] => {
+    const childCategoryIds = new Set<string>();
+    
+    // Find child categories that have this parent
+    categories.forEach(category => {
+      if (category.parent === parentCategoryId) {
+        childCategoryIds.add(category._id);
+        // Recursively find children of children
+        const grandChildren = getAllChildCategoryIds(category._id, categories);
+        grandChildren.forEach(id => childCategoryIds.add(id));
+      }
+    });
+    
+    return Array.from(childCategoryIds);
+  };
+
+  // Get real product statistics
+  const productIds = products.map(p => p._id);
+  const { stats: productStats, loading: statsLoading } = useProductStats(productIds);
 
   useEffect(() => {
     // Get URL parameters
@@ -44,6 +68,22 @@ export default function SaleProductsPage() {
     setPriceRange({ min: minPrice, max: maxPrice });
   }, [searchParams]);
 
+  // Fetch all categories for proper parent-child relationship
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoryService.getPublicCategories({ limit: 100 });
+        const categories = response.data || [];
+        const activeCategories = categories.filter((cat: Category) => cat.isActive);
+        setAllCategories(activeCategories);
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   useEffect(() => {
     const fetchSaleProducts = async () => {
       try {
@@ -52,7 +92,7 @@ export default function SaleProductsPage() {
         // Use EXACT same parameters as FlashSale.tsx that works successfully  
         const response = await getProducts({
           isOnSale: 'true',     // String like backend expects (not boolean)
-          limit: 100,           // Reasonable limit for sale page
+          limit: 1000,          // Increased limit for all sale products
           sort: 'createdAt',    // Same parameter name as FlashSale.tsx
           order: 'desc'         // Same parameter name as FlashSale.tsx
         });
@@ -122,12 +162,18 @@ export default function SaleProductsPage() {
       );
     }
 
-    // Category filter
+    // Category filter - include products from child categories too
     if (selectedCategory) {
+      // Get all child category IDs for the selected category
+      const childCategoryIds = getAllChildCategoryIds(selectedCategory, allCategories);
+      const allTargetCategoryIds = [selectedCategory, ...childCategoryIds];
+      
       filtered = filtered.filter(product => {
-        const categoryName = typeof product.category === 'object' && product.category?.name ? 
-          product.category.name : typeof product.category === 'string' ? product.category : '';
-        return categoryName.toLowerCase().includes(selectedCategory.toLowerCase());
+        if (typeof product.category === 'object' && product.category?._id) {
+          const productCategoryId = product.category._id;
+          return allTargetCategoryIds.includes(productCategoryId);
+        }
+        return false;
       });
     }
 
@@ -147,11 +193,30 @@ export default function SaleProductsPage() {
 
     // Sorting
     filtered.sort((a, b) => {
+      const aStats = productStats[a._id];
+      const bStats = productStats[b._id];
+
       switch (sortBy) {
         case 'discount-desc':
           return getDiscountPercent(b) - getDiscountPercent(a);
         case 'discount-asc':
           return getDiscountPercent(a) - getDiscountPercent(b);
+        case 'rating-desc':
+          // Sort by average rating descending, prioritize products with actual reviews
+          const aRating = aStats?.averageRating || 0;
+          const bRating = bStats?.averageRating || 0;
+          const aReviews = aStats?.reviewCount || 0;
+          const bReviews = bStats?.reviewCount || 0;
+          
+          // If one has reviews and other doesn't, prioritize the one with reviews
+          if (aReviews > 0 && bReviews === 0) return -1;
+          if (bReviews > 0 && aReviews === 0) return 1;
+          
+          // If both have reviews or both don't have reviews, sort by rating
+          if (bRating !== aRating) return bRating - aRating;
+          
+          // If ratings are equal, use review count as tiebreaker
+          return bReviews - aReviews;
         case 'price-asc':
           return (a.salePrice || a.price) - (b.salePrice || b.price);
         case 'price-desc':
@@ -167,7 +232,7 @@ export default function SaleProductsPage() {
 
     setFilteredProducts(filtered);
     setTotalPages(Math.ceil(filtered.length / productsPerPage));
-  }, [products, searchTerm, sortBy, selectedCategory, priceRange]);
+  }, [products, searchTerm, sortBy, selectedCategory, priceRange, allCategories, productStats]);
 
   // Debounced search URL update
   useEffect(() => {
@@ -271,15 +336,15 @@ export default function SaleProductsPage() {
     <div className="container">
       <div className={styles.pageContainer}>
         {/* Page Header */}
-        <div className={styles.pageHeader}>
-          <h1 className={styles.pageTitle}>
-            <span className={styles.saleIcon}>🔥</span>
-            Sản Phẩm Khuyến Mãi
-          </h1>
-          <p className={styles.pageSubtitle}>
-            Tìm thấy {filteredProducts.length} sản phẩm đang khuyến mãi
-          </p>
-        </div>
+        <PageHeader
+          title="Sản Phẩm Khuyến Mãi"
+          subtitle={`Tìm thấy ${filteredProducts.length} sản phẩm đang khuyến mãi`}
+          icon={FaFire}
+          breadcrumbs={[
+            { label: 'Trang chủ', href: '/' },
+            { label: 'Khuyến mãi', href: '/sale' }
+          ]}
+        />
 
         <div className={styles.contentWrapper}>
           {/* Filters Sidebar */}
@@ -290,13 +355,13 @@ export default function SaleProductsPage() {
             sortOptions={[
               { value: 'discount-desc', label: 'Giảm giá nhiều nhất' },
               { value: 'discount-asc', label: 'Giảm giá ít nhất' },
+              { value: 'rating-desc', label: 'Đánh giá cao nhất' },
               { value: 'price-asc', label: 'Giá thấp đến cao' },
               { value: 'price-desc', label: 'Giá cao đến thấp' },
               { value: 'name-asc', label: 'Tên A-Z' },
               { value: 'name-desc', label: 'Tên Z-A' }
             ]}
             onSortChange={handleSortChange}
-            availableCategories={availableCategories}
             selectedCategory={selectedCategory}
             onCategoryChange={handleCategoryChange}
             priceRange={priceRange}
@@ -308,20 +373,32 @@ export default function SaleProductsPage() {
           <div className={styles.productsContainer}>
             {currentPageProducts.length > 0 ? (
               <div className={styles.productsGrid}>
-                {currentPageProducts.map((product) => (
-                  <ProductItem 
-                    key={product._id} 
-                    product={product} 
-                    layout="grid"
-                  />
-                ))}
+                {currentPageProducts.map((product) => {
+                  // Get real stats for this product
+                  const productStatsData = productStats[product._id];
+                  
+                  return (
+                    <ProductItem 
+                      key={product._id} 
+                      product={product} 
+                      layout="grid"
+                      averageRating={productStatsData?.averageRating || 0}
+                      reviewCount={productStatsData?.reviewCount || 0}
+                      showRatingBadge={true}
+                    />
+                  );
+                })}
               </div>
             ) : (
               <div className={styles.noResults}>
                 <div className={styles.noResultsIcon}>📦</div>
                 <h3>Không tìm thấy sản phẩm nào</h3>
                 <p>Hãy thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm</p>
-                <Button onClick={clearFilters} className={styles.resetFiltersBtn}>
+                <Button 
+                  onClick={clearFilters} 
+                  variant="primary" 
+                  size="md"
+                >
                   Xem tất cả sản phẩm sale
                 </Button>
               </div>

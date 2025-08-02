@@ -63,28 +63,37 @@
   background: #e55a00;
 }
 
-/* Breadcrumb */
+/* Breadcrumb - styled like products page */
 .breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-  font-size: 0.9rem;
-  color: #666;
+  background: #f8fafc;
+  padding: 12px 0;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 24px;
 }
 
-.breadcrumb a {
+.breadcrumb span {
+  color: #64748b;
+  cursor: pointer;
+  margin: 0 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.breadcrumb span:first-child {
+  margin-left: 0;
+}
+
+.breadcrumb span.current {
+  color: #334155;
+  font-weight: 600;
+  cursor: default;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.breadcrumb span:hover:not(.current) {
   color: #ff6600;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.breadcrumb a:hover {
-  color: #e55a00;
-}
-
-.breadcrumb span:last-child {
-  color: #999;
 }
 
 /* Article */
@@ -493,7 +502,19 @@
   }
 
   .breadcrumb {
-    flex-wrap: wrap;
+    padding: 8px 0;
+    margin-bottom: 16px;
+  }
+
+  .breadcrumb span {
+    font-size: 12px;
+    margin: 0 4px;
+  }
+
+  .breadcrumb span.current {
+    display: block;
+    margin-top: 4px;
+    margin-left: 0;
   }
 
   .metadata {

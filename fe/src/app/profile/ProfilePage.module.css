@@ -1,0 +1,1216 @@
+/* Profile Page - Modern Design with 12-Column Grid System */
+
+/* ==================== MAIN LAYOUT ==================== */
+
+.pageContainer {
+  padding: 2rem 0;
+  background: transparent;
+}
+
+/* ==================== MAIN CONTENT ==================== */
+
+.mainContent {
+  padding: 2rem 0 0 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* ==================== USER INFO SECTION ==================== */
+
+.userInfoSection {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  text-align: center;
+}
+
+.userAvatar {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--color-primary, #1E40AF), #3b82f6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  box-shadow: 0 4px 15px rgba(30, 64, 175, 0.2);
+}
+
+.avatarText {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.userDetails {
+  margin-bottom: 1rem;
+}
+
+.userName {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+  color: var(--color-text, #111827);
+}
+
+.userEmail {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6B7280);
+  margin: 0 0 0.75rem 0;
+  word-break: break-word;
+}
+
+.userRole {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: linear-gradient(135deg, var(--color-primary, #1E40AF), #3b82f6);
+  color: white;
+  padding: 0.375rem 0.875rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.roleIcon {
+  font-size: 0.75rem;
+}
+
+.userActions {
+  display: flex;
+  justify-content: center;
+}
+
+.logoutButton {
+  background: #f3f4f6 !important;
+  border: 1px solid #d1d5db !important;
+  color: var(--color-text, #111827) !important;
+  font-size: 0.875rem !important;
+  padding: 0.5rem 1rem !important;
+}
+
+.logoutButton:hover {
+  background: #e5e7eb !important;
+  border-color: #9ca3af !important;
+}
+
+/* ==================== SIDEBAR CARD ==================== */
+
+.sidebarCard {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  position: sticky;
+  top: 2rem;
+  backdrop-filter: blur(20px);
+}
+
+.navigationMenu {
+  padding: 0;
+}
+
+.navTitle {
+  padding: 2rem 2rem 1rem 2rem;
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text, #111827);
+  border-bottom: 1px solid #f1f5f9;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.navItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 2rem;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--color-text-secondary, #6B7280);
+  font-size: 1rem;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+}
+
+.navItem::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--color-primary, #1E40AF);
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+
+.navItem:hover {
+  background: linear-gradient(135deg, #0580fa 100%, #f1f5f9 100%);
+  color: white !important;
+  transform: translateX(8px);
+}
+
+.navItem:hover::before {
+  transform: scaleY(1);
+}
+
+.navItemActive {
+  background: linear-gradient(135deg, var(--color-primary, #1E40AF), #3b82f6);
+  color: white !important;
+  font-weight: 600;
+  box-shadow: 0 4px 20px rgba(30, 64, 175, 0.3);
+}
+
+.navItemActive::before {
+  transform: scaleY(1);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.navIcon {
+  font-size: 1.25rem;
+  min-width: 24px;
+  transition: all 0.3s ease;
+}
+
+.navItemActive .navIcon {
+  color: white !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navLabel {
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+.navItemActive .navLabel {
+  color: white !important;
+}
+
+/* ==================== CONTENT CARD ==================== */
+
+.contentCard {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+}
+
+.section {
+  padding: 2.5rem;
+}
+
+.sectionHeader {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text, #111827);
+  margin: 0 0 0.75rem 0;
+}
+
+.sectionIcon {
+  font-size: 1.75rem;
+  color: var(--color-primary, #1E40AF);
+  padding: 0.5rem;
+  background: linear-gradient(135deg, rgba(30, 64, 175, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+  border-radius: 12px;
+}
+
+.sectionSubtitle {
+  color: var(--color-text-secondary, #6B7280);
+  font-size: 1.125rem;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* ==================== OVERVIEW GRID ==================== */
+
+.overviewGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+.overviewCard {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.overviewCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(135deg, var(--color-primary, #1E40AF), #3b82f6);
+  transform: scaleY(0);
+  transition: transform 0.4s ease;
+}
+
+.overviewCard:hover {
+  background: white;
+  border-color: var(--color-primary, #1E40AF);
+  box-shadow: 0 15px 35px rgba(30, 64, 175, 0.15);
+  transform: translateY(-5px);
+}
+
+.overviewCard:hover::before {
+  transform: scaleY(1);
+}
+
+.overviewCard .cardIcon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--color-primary, #1E40AF), #3b82f6);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white !important;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  box-shadow: 0 6px 20px rgba(30, 64, 175, 0.25);
+  transition: all 0.3s ease;
+}
+
+.overviewCard .cardIcon svg {
+  color: white !important;
+  fill: white !important;
+}
+
+.overviewCard .cardIcon * {
+  color: white !important;
+  fill: white !important;
+}
+
+.overviewCard:hover .cardIcon {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(30, 64, 175, 0.35);
+}
+
+.cardContent {
+  flex: 1;
+}
+
+.cardContent h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text, #111827);
+  margin: 0 0 0.375rem 0;
+  transition: color 0.3s ease;
+  line-height: 1.2;
+}
+
+.overviewCard:hover .cardContent h3 {
+  color: var(--color-primary, #1E40AF);
+}
+
+.cardContent p {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary, #6B7280);
+  margin: 0 0 0.125rem 0;
+  font-weight: 500;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardContent small {
+  font-size: 0.8125rem;
+  color: var(--color-muted, #9CA3AF);
+  font-weight: 400;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+/* ==================== FORM STYLES ==================== */
+
+.formContainer {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+  padding: 2.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+.profileForm {
+  max-width: 100%;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text, #111827);
+  margin-bottom: 0.75rem;
+}
+
+.input {
+  padding: 1rem 1.25rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+  font-weight: 500;
+  color: #111827; /* Ensure text is visible */
+}
+
+.input::placeholder {
+  color: #9CA3AF; /* Proper placeholder color */
+  opacity: 1;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary, #1E40AF);
+  box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1);
+  transform: translateY(-1px);
+  color: #111827; /* Maintain text color on focus */
+}
+
+.input:focus::placeholder {
+  color: #6B7280; /* Darker placeholder on focus */
+}
+
+.inputDisabled {
+  background: #f3f4f6;
+  color: #6B7280; /* Visible disabled text color */
+  cursor: not-allowed;
+  border-color: #d1d5db;
+}
+
+.inputDisabled::placeholder {
+  color: #9CA3AF;
+  opacity: 1;
+}
+
+.helpText {
+  font-size: 0.8125rem;
+  color: var(--color-muted, #9CA3AF);
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+}
+
+.buttonIcon {
+  font-size: 0.9375rem;
+  margin-right: 0.5rem;
+}
+
+/* ==================== ADDRESSES SECTION ==================== */
+
+.addressesHeader {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 2rem;
+}
+
+.addressesList {
+  display: grid;
+  gap: 1rem;
+}
+
+.addressCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.addressCard:hover {
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.addressDefault {
+  background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(59, 130, 246, 0.05));
+  border-color: var(--color-primary, #1E40AF);
+}
+
+.addressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.addressTitle {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.addressTitle h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text, #111827);
+  margin: 0;
+}
+
+.defaultBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: var(--color-primary, #1E40AF);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badgeIcon {
+  font-size: 0.625rem;
+}
+
+.addressActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.addressInfo {
+  margin-bottom: 1rem;
+}
+
+.addressPhone {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text, #111827);
+  margin: 0 0 0.5rem 0;
+}
+
+.addressLine {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary, #6B7280);
+  margin: 0;
+}
+
+.addressFooter {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1rem;
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* ==================== ORDERS SECTION ==================== */
+
+.ordersList {
+  display: grid;
+  gap: 1rem;
+}
+
+.orderCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.orderCard:hover {
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.orderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.orderInfo h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text, #111827);
+  margin: 0 0 0.25rem 0;
+}
+
+.orderDate {
+  font-size: 0.875rem;
+  color: var(--color-muted, #9CA3AF);
+  margin: 0;
+}
+
+.orderStatus {
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.statusPending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.statusProcessing {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.statusShipped {
+  background: #e0e7ff;
+  color: #5b21b6;
+}
+
+.statusDelivered {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.statusCancelled {
+  background: #fecaca;
+  color: #dc2626;
+}
+
+.orderItems {
+  margin-bottom: 1rem;
+}
+
+.orderItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary, #6B7280);
+}
+
+.moreItems {
+  font-size: 0.8125rem;
+  color: var(--color-muted, #9CA3AF);
+  font-style: italic;
+  margin: 0.5rem 0 0 0;
+}
+
+.orderFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1rem;
+}
+
+.orderTotal {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-primary, #1E40AF);
+}
+
+/* ==================== SECURITY SECTION ==================== */
+
+.securityContainer {
+  display: grid;
+  gap: 2rem;
+}
+
+.securityCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.cardHeader {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.cardHeader h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text, #111827);
+  margin: 0 0 0.5rem 0;
+}
+
+.cardHeader .cardIcon {
+  font-size: 1.125rem;
+  color: var(--color-primary, #1E40AF);
+}
+
+.cardHeader .cardIcon svg {
+  color: currentColor !important;
+  fill: currentColor !important;
+}
+
+.cardHeader p {
+  color: var(--color-text-secondary, #6B7280);
+  margin: 0;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.securityInfo {
+  display: grid;
+  gap: 1rem;
+}
+
+.securityItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.securityItem:last-child {
+  border-bottom: none;
+}
+
+.securityLabel {
+  font-weight: 600;
+  color: var(--color-text, #111827);
+}
+
+.securityValue {
+  color: var(--color-text-secondary, #6B7280);
+}
+
+.securityStatus {
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.statusActive {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.statusInactive {
+  background: #fecaca;
+  color: #dc2626;
+}
+
+/* ==================== EMPTY STATES ==================== */
+
+.emptyState {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: white;
+  border-radius: 12px;
+  border: 2px dashed #e2e8f0;
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  color: var(--color-muted, #9CA3AF);
+  margin-bottom: 1rem;
+}
+
+.emptyState h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text, #111827);
+  margin: 0 0 0.5rem 0;
+}
+
+.emptyState p {
+  color: var(--color-text-secondary, #6B7280);
+  margin: 0 0 2rem 0;
+}
+
+/* ==================== LOADING CONTAINER ==================== */
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.loadingContainer p {
+  margin-top: 1rem;
+  color: var(--color-text-secondary, #6B7280);
+  font-size: 1.125rem;
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+@media (max-width: 1200px) {
+  .profileContainer {
+    max-width: 1100px;
+    margin: 1rem auto;
+  }
+  
+  .sidebarNav {
+    width: 280px;
+  }
+  
+  .heroSection {
+    padding: 2.5rem 2rem;
+  }
+  
+  .heroTitle {
+    font-size: 1.875rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .profileContainer {
+    max-width: 100%;
+    margin: 0.5rem;
+    border-radius: 16px;
+  }
+  
+  .sidebarNav {
+    width: 260px;
+  }
+  
+  .mainContent {
+    padding: 1.5rem 0;
+  }
+  
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .overviewGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profileContainer {
+    flex-direction: column;
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    min-height: 100vh;
+  }
+  
+  .sidebarNav {
+    width: 100%;
+    position: relative;
+    top: 0;
+    height: auto;
+    border-radius: 12px 12px 0 0;
+    margin-bottom: 1rem;
+    backdrop-filter: blur(10px);
+  }
+  
+  .userInfoSection .userAvatar {
+    width: 60px;
+    height: 60px;
+    border: 3px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .userInfoSection .userName {
+    font-size: 1.5rem;
+  }
+  
+  .userInfoSection .userEmail {
+    font-size: 0.9375rem;
+  }
+  
+  .navList {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+  
+  .profileContent {
+    padding: 1.5rem;
+    border-radius: 0 0 12px 12px;
+    background: white;
+  }
+  
+  .contentGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .overviewGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .formContainer {
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+  
+  .actionButtons {
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+  }
+  
+  .userName {
+    font-size: 2rem;
+  }
+  
+  .userEmail {
+    font-size: 1rem;
+  }
+  
+  .mainContent {
+    padding: 2rem 0;
+  }
+  
+  .section {
+    padding: 1.5rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.5rem;
+  }
+  
+  .addressHeader {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .orderHeader {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .orderFooter {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroSection {
+    padding: 1.25rem 1rem 0.75rem;
+  }
+  
+  .heroTitle {
+    font-size: 1.125rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .heroSubtitle {
+    font-size: 0.8125rem;
+  }
+  
+  .userAvatar {
+    width: 50px;
+    height: 50px;
+    border-width: 2px;
+  }
+  
+  .avatarText {
+    font-size: 1.25rem;
+  }
+  
+  .userName {
+    font-size: 1.25rem;
+  }
+  
+  .userEmail {
+    font-size: 0.8125rem;
+  }
+  
+  .userHero {
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+  }
+  
+  .navList {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+  
+  .profileContent {
+    padding: 1rem;
+  }
+  
+  .formContainer {
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  
+  .formGrid {
+    gap: 1rem;
+  }
+  
+  .input {
+    padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+    border-radius: 8px;
+  }
+  
+  .addressCard,
+  .orderCard,
+  .securityCard {
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  
+  .overviewCard {
+    padding: 1rem;
+    flex-direction: column;
+    text-align: center;
+    border-radius: 8px;
+  }
+  
+  .cardIcon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
+  }
+  
+  .userName {
+    font-size: 1.75rem;
+  }
+  
+  .avatarText {
+    font-size: 1.5rem;
+  }
+}
+
+/* ==================== UTILITIES ==================== */
+
+.disabledDeleteButton {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  color: var(--color-muted, #9CA3AF) !important;
+}
+
+.disabledDeleteButton:hover {
+  background: transparent !important;
+  color: var(--color-muted, #9CA3AF) !important;
+  transform: none !important;
+}
+
+.statusDefault {
+  background: #f3f4f6;
+  color: var(--color-text, #111827);
+}
+
+/* ==================== ADDRESS FORM STYLES ==================== */
+
+.addressFormContainer {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.formHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.formTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text, #111827);
+  margin: 0;
+}
+
+.formSectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text, #111827);
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.addressForm {
+  padding: 0;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.checkboxGroup {
+  margin-top: 1rem;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--color-text, #111827);
+}
+
+.checkbox {
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkbox:checked {
+  background: var(--color-primary, #1E40AF);
+  border-color: var(--color-primary, #1E40AF);
+}
+
+.checkboxText {
+  font-weight: 500;
+}
+
+.required {
+  color: #ef4444;
+}
+
+.buttonIcon {
+  font-size: 0.875rem;
+}
+
+.cancelButton {
+  background: #f3f4f6 !important;
+  border: 1px solid #d1d5db !important;
+  color: var(--color-text, #111827) !important;
+}
+
+.cancelButton:hover {
+  background: #e5e7eb !important;
+  border-color: #9ca3af !important;
+}
+
+.submitButton {
+  background: var(--color-primary, #1E40AF) !important;
+  border: 1px solid var(--color-primary, #1E40AF) !important;
+  color: white !important;
+}
+
+.submitButton:hover {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+}
+
+/* ==================== RECENT ORDERS IN OVERVIEW ==================== */
+
+.recentOrdersSection {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+.recentOrdersSection .sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.recentOrdersSection .sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.viewMoreContainer {
+  text-align: center;
+  padding: 1.5rem 0 1rem 0;
+  border-top: 1px solid #f3f4f6;
+}
+
+/* ==================== RESPONSIVE DESIGN FOR RECENT ORDERS ==================== */
+
+@media (max-width: 768px) {
+  .recentOrdersSection {
+    margin: 1rem -1rem 0 -1rem;
+    border-radius: 0;
+    box-shadow: none;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .recentOrdersSection .sectionHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .viewMoreContainer {
+    padding: 1rem 0;
+  }
+}

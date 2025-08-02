@@ -63,9 +63,42 @@ export class VoucherService {
    */
   async getActiveVouchers(): Promise<Voucher[]> {
     try {
-      const response = await apiClient.get<Voucher[]>('/api/vouchers/active');
-      return response.data!;
+      const response = await apiClient.get<ApiResponse<PaginatedResponse<Voucher>>>('/api/vouchers/active');
+      
+      // Handle Axios response structure - the actual response is wrapped
+      const actualData = response.data;
+      
+      // Check if the response has success flag and vouchers data
+      if (actualData?.success && actualData?.data && Array.isArray(actualData.data.data)) {
+        return actualData.data.data;
+      }
+      
+      // Handle direct pagination response where data is the array
+      if (actualData?.success && Array.isArray(actualData?.data)) {
+        return actualData.data;
+      }
+      
+      // Handle case where the data is directly the array (no success wrapper)
+      if (Array.isArray(actualData?.data)) {
+        return actualData.data;
+      }
+      
+      // Fallback for direct array response
+      if (Array.isArray(actualData)) {
+        console.log('✅ Using actualData directly:', actualData);
+        return actualData;
+      }
+      
+      console.log('❌ No vouchers found, returning empty array');
+      console.log('❌ Debug info:');
+      console.log('- actualData.success:', actualData?.success);
+      console.log('- actualData.data type:', typeof actualData?.data);
+      console.log('- actualData.data isArray:', Array.isArray(actualData?.data));
+      console.log('- actualData.data.data exists:', !!actualData?.data?.data);
+      console.log('- actualData.data.data isArray:', Array.isArray(actualData?.data?.data));
+      return [];
     } catch (error: any) {
+      console.error('Voucher service error:', error);
       throw new Error(error.response?.data?.message || 'Failed to fetch active vouchers');
     }
   }
@@ -155,6 +188,28 @@ export class VoucherService {
       return response;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch admin vouchers');
+    }
+  }
+
+  /**
+   * Get voucher statistics for admin dashboard
+   */
+  async getVoucherStatistics(): Promise<{
+    totalVouchers: number;
+    activeVouchers: number;
+    expiredVouchers: number;
+    usedVouchers: number;
+  }> {
+    try {
+      const response = await apiClient.get<{
+        totalVouchers: number;
+        activeVouchers: number;
+        expiredVouchers: number;
+        usedVouchers: number;
+      }>('/api/vouchers/admin/statistics');
+      return response.data!;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch voucher statistics');
     }
   }
 

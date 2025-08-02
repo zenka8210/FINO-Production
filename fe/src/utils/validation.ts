@@ -197,9 +197,66 @@ export const validateLoginForm = (email: string, password: string): FormErrors =
 };
 
 /**
- * Validate register form - SYNCED WITH BACKEND
+ * Validate register form - SYNCED WITH BACKEND UserSchema
  */
 export const validateRegisterForm = (
+  name: string,
+  email: string, 
+  phone: string,
+  password: string, 
+  confirmPassword: string
+): FormErrors => {
+  const errors: FormErrors = {};
+  
+  // Name validation - sync with backend: maxlength: 60
+  if (!name) {
+    errors.name = 'Họ tên là bắt buộc';
+  } else if (name.trim().length < 2) {
+    errors.name = 'Họ tên phải có ít nhất 2 ký tự';
+  } else if (name.length > 60) { // Sync with backend maxlength: 60
+    errors.name = 'Họ tên không được quá 60 ký tự';
+  }
+  
+  // Email validation - sync with backend regex: /^\S+@\S+\.\S+$/
+  if (!email) {
+    errors.email = 'Email là bắt buộc';
+  } else if (!isValidEmail(email)) {
+    errors.email = 'Email không hợp lệ';
+  }
+  
+  // Phone validation - sync with backend maxlength: 11, Vietnamese format
+  if (!phone) {
+    errors.phone = 'Số điện thoại là bắt buộc';
+  } else if (phone.length > 11) { // Sync with backend maxlength: 11
+    errors.phone = 'Số điện thoại không được quá 11 ký tự';
+  } else if (!isValidPhone(phone)) {
+    errors.phone = 'Số điện thoại không hợp lệ (10-11 chữ số, bắt đầu bằng 0)';
+  }
+  
+  // Password validation - sync with backend minlength: 8
+  if (!password) {
+    errors.password = 'Mật khẩu là bắt buộc';
+  } else {
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      errors.password = passwordValidation.errors[0]; // Show first error
+    }
+  }
+  
+  // Confirm password validation
+  if (!confirmPassword) {
+    errors.confirmPassword = 'Xác nhận mật khẩu là bắt buộc';
+  } else if (password !== confirmPassword) {
+    errors.confirmPassword = 'Mật khẩu xác nhận không khớp';
+  }
+  
+  return errors;
+};
+
+/**
+ * Legacy validate register form for backward compatibility
+ */
+export const validateRegisterFormLegacy = (
   name: string, 
   email: string, 
   password: string, 

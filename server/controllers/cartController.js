@@ -12,7 +12,7 @@ class CartController extends BaseController {
     super(new CartService());
   }
 
-  // GET /api/cart - Get user's cart
+  // GET /api/cart - Get user's cart (legacy endpoint)
   getCart = async (req, res, next) => {
     try {
       const cart = await this.service.getUserCart(req.user._id);
@@ -22,13 +22,108 @@ class CartController extends BaseController {
     }
   };
 
+  // GET /api/cart/optimized - Get user's cart with optimized loading
+  getCartOptimized = async (req, res, next) => {
+    try {
+      const cart = await this.service.getUserCartOptimized(req.user._id);
+      ResponseHandler.success(res, MESSAGES.CART_SYNCED, cart);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // GET /api/cart/paginated - Get user's cart with pagination for cart page
+  getCartPaginated = async (req, res, next) => {
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const filters = {
+        search: req.query.search,
+        category: req.query.category,
+        minPrice: req.query.minPrice,
+        maxPrice: req.query.maxPrice
+      };
+
+      const result = await this.service.getCartWithPagination(req.user._id, page, limit, filters);
+      ResponseHandler.success(res, MESSAGES.CART_SYNCED, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // GET /api/cart/count - Get cart items count only (lightweight)
+  getCartCount = async (req, res, next) => {
+    try {
+      const cart = await Cart.findOne({ user: req.user._id }).select('items');
+      const count = cart ? cart.items.length : 0;
+      ResponseHandler.success(res, 'Cart count retrieved', { count });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // GET /api/cart/basic-info - Get cart basic info (count + total) for header
+  getCartBasicInfo = async (req, res, next) => {
+    try {
+      const cart = await Cart.findOne({ user: req.user._id }).select('items');
+      const count = cart ? cart.items.length : 0;
+      
+      // Calculate basic total without populating (use saved price in items)
+      let total = 0;
+      if (cart && cart.items) {
+        total = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      }
+      
+      ResponseHandler.success(res, 'Cart basic info retrieved', { count, total });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // DEBUG: Get raw cart data from database
+  debugCart = async (req, res, next) => {
+    try {
+      console.log('🔍 DEBUG: Getting raw cart for user:', req.user._id);
+      
+      // Get raw cart from database without any processing
+      const rawCart = await Cart.findOne({ user: req.user._id });
+      console.log('🔍 Raw cart found:', rawCart ? 'YES' : 'NO');
+      
+      if (rawCart) {
+        console.log('🔍 Raw cart keys:', Object.keys(rawCart.toObject()));
+        console.log('🔍 Raw cart items:', rawCart.items ? rawCart.items.length : 'undefined');
+        console.log('🔍 Raw cart type field:', rawCart.type);
+        console.log('🔍 Full raw cart:', JSON.stringify(rawCart.toObject(), null, 2));
+      }
+      
+      // Also check with old structure
+      const oldStyleCart = await Cart.findOne({ user: req.user._id, type: 'cart' });
+      console.log('🔍 Old style cart found:', oldStyleCart ? 'YES' : 'NO');
+      
+      ResponseHandler.success(res, 'Debug info logged', {
+        rawCart: rawCart,
+        hasOldStyle: !!oldStyleCart,
+        cartKeys: rawCart ? Object.keys(rawCart.toObject()) : []
+      });
+    } catch (error) {
+      console.error('🔍 DEBUG error:', error);
+      next(error);
+    }
+  };
+
   // POST /api/cart/items - Add item to cart
   addItem = async (req, res, next) => {
     try {
       const { productVariant, quantity } = req.body;
       
-      if (!productVariant || !quantity) {
-        throw new AppError('Product variant and quantity are required', ERROR_CODES.BAD_REQUEST);
+      console.log('📝 ADD ITEM REQUEST:', { productVariant, quantity });
+      
+      if (!productVariant) {
+        throw new AppError('Product variant is required', ERROR_CODES.BAD_REQUEST);
+      }
+      
+      if (!quantity) {
+        throw new AppError('Quantity is required', ERROR_CODES.BAD_REQUEST);
       }
       
       if (quantity <= 0) {
@@ -42,9 +137,51 @@ class CartController extends BaseController {
     }
   };
 
+  // POST /api/cart/batch-add - Add multiple items to cart in one operation
+  batchAddItems = async (req, res, next) => {
+    try {
+      const { items } = req.body;
+      
+      console.log('📦 BATCH ADD REQUEST:', { itemsCount: items?.length });
+      
+      if (!items || !Array.isArray(items) || items.length === 0) {
+        throw new AppError('Items array is required and cannot be empty', ERROR_CODES.BAD_REQUEST);
+      }
+      
+      // Validate each item
+      for (const item of items) {
+        if (!item.productVariant || !item.quantity) {
+          throw new AppError('Each item must have productVariant and quantity', ERROR_CODES.BAD_REQUEST);
+        }
+        
+        if (item.quantity <= 0) {
+          throw new AppError('Quantity must be greater than 0', ERROR_CODES.BAD_REQUEST);
+        }
+      }
+      
+      const result = await this.service.batchAddItemsToCart(req.user._id, items);
+      
+      console.log('✅ BATCH ADD SUCCESS:', { 
+        successCount: result.successCount,
+        errorCount: result.errorCount,
+        totalCartItems: result.cart.items.length
+      });
+      
+      ResponseHandler.success(res, `Added ${result.successCount} items to cart`, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   // PUT /api/cart/items/:productVariantId - Update item quantity
   updateItem = async (req, res, next) => {
     try {
+      console.log('🔄 UPDATE CART ITEM REQUEST:', {
+        productVariantId: req.params.productVariantId,
+        quantity: req.body.quantity,
+        userId: req.user._id
+      });
+      
       const { productVariantId } = req.params;
       const { quantity } = req.body;
       
@@ -57,8 +194,15 @@ class CartController extends BaseController {
         productVariantId, 
         quantity
       );
+      
+      console.log('✅ UPDATE CART ITEM SUCCESS:', {
+        cartItemsCount: cart.items.length,
+        updatedItem: cart.items.find(item => item.productVariant._id.toString() === productVariantId)?.quantity
+      });
+      
       ResponseHandler.success(res, MESSAGES.CART_ITEM_UPDATED, cart);
     } catch (error) {
+      console.error('❌ UPDATE CART ITEM ERROR:', error.message);
       next(error);
     }
   };
@@ -66,10 +210,22 @@ class CartController extends BaseController {
   // DELETE /api/cart/items/:productVariantId - Remove item from cart
   removeItem = async (req, res, next) => {
     try {
+      console.log('🗑️ REMOVE CART ITEM REQUEST:', {
+        productVariantId: req.params.productVariantId,
+        userId: req.user._id
+      });
+      
       const { productVariantId } = req.params;
       const cart = await this.service.removeItemFromCart(req.user._id, productVariantId);
+      
+      console.log('✅ REMOVE CART ITEM SUCCESS:', {
+        cartItemsCount: cart.items.length,
+        remainingItems: cart.items.map(item => item.productVariant._id)
+      });
+      
       ResponseHandler.success(res, MESSAGES.CART_ITEM_REMOVED, cart);
     } catch (error) {
+      console.error('❌ REMOVE CART ITEM ERROR:', error.message);
       next(error);
     }
   };
@@ -124,6 +280,29 @@ class CartController extends BaseController {
         paymentMethod,
         voucher
       });
+      
+      // Debug payment method for email processing
+      console.log('🔍 Payment method debug:', {
+        paymentMethod: paymentMethod,
+        paymentMethodType: typeof paymentMethod,
+        isObject: typeof paymentMethod === 'object',
+        orderPaymentMethod: order.paymentMethod
+      });
+      
+      // Check payment method from the created order (which is populated)
+      const isCodeOnDelivery = order.paymentMethod && order.paymentMethod.method === 'COD';
+      
+      if (isCodeOnDelivery) {
+        console.log('📧 COD order created - queuing email for background processing');
+        
+        // Use background job service for better performance and reliability
+        const backgroundJobService = require('../services/backgroundJobService');
+        backgroundJobService.queueOrderEmail(req.user.email, req.user.name, order);
+        
+        console.log(`✅ Email job queued for order: ${order.orderCode}`);
+      } else {
+        console.log('💳 VNPay order created - email will be sent after payment confirmation');
+      }
       
       ResponseHandler.created(res, 'Order created successfully', order);
     } catch (error) {
@@ -187,14 +366,19 @@ class CartController extends BaseController {
     }
   };
 
-  // GET /api/cart/admin/orders - Get all orders (type='order') with Query Middleware
+  // GET /api/cart/admin/orders - Get all orders from Order collection
   getAllOrders = async (req, res, next) => {
     try {
+      // This method should use OrderService instead of CartService
+      // Redirect to order controller or import OrderService
+      const OrderService = require('../services/orderService');
+      const orderService = new OrderService();
+      
       if (req.createQueryBuilder) {
-        const result = await req.createQueryBuilder(Cart)
+        const Order = require('../models/OrderSchema');
+        const result = await req.createQueryBuilder(Order)
           .search(['orderCode', 'user.email', 'user.name'])
           .applyFilters({
-            type: { type: 'string', default: 'order' },
             status: { type: 'string' },
             paymentStatus: { type: 'string' },
             user: { type: 'objectId' },
@@ -205,9 +389,10 @@ class CartController extends BaseController {
         
         ResponseHandler.success(res, 'Orders retrieved successfully', result);
       } else {
-        // Fallback to legacy method
-        const sortConfig = AdminSortUtils.ensureAdminSort(req, 'Cart');
-        const orders = await Cart.find({ type: 'order' })
+        // Fallback to legacy method using Order model
+        const Order = require('../models/OrderSchema');
+        const sortConfig = AdminSortUtils.ensureAdminSort(req, 'Order');
+        const orders = await Order.find({})
           .populate(['user', 'address', 'voucher', 'paymentMethod', 'items.productVariant'])
           .sort(sortConfig);
         ResponseHandler.success(res, 'Orders retrieved successfully', orders);
@@ -217,15 +402,13 @@ class CartController extends BaseController {
     }
   };
 
-  // GET /api/cart/admin/active-carts - Get all active carts (type='cart') with Query Middleware
+  // GET /api/cart/admin/active-carts - Get all active carts with Query Middleware
   getAllActiveCarts = async (req, res, next) => {
     try {
       if (req.createQueryBuilder) {
         const result = await req.createQueryBuilder(Cart)
           .search(['user.email', 'user.name'])
           .applyFilters({
-            type: { type: 'string', default: 'cart' },
-            status: { type: 'string', default: 'cart' },
             user: { type: 'objectId' },
             'total[min]': { type: 'number' },
             'total[max]': { type: 'number' }
@@ -234,9 +417,9 @@ class CartController extends BaseController {
         
         ResponseHandler.success(res, 'Active carts retrieved successfully', result);
       } else {
-        // Fallback to legacy method
+        // Fallback to legacy method - all carts are active carts now
         const sortConfig = AdminSortUtils.ensureAdminSort(req, 'Cart');
-        const carts = await Cart.find({ type: 'cart', status: 'cart' })
+        const carts = await Cart.find({})
           .populate(['user', 'items.productVariant'])
           .sort(sortConfig);
         ResponseHandler.success(res, 'Active carts retrieved successfully', carts);

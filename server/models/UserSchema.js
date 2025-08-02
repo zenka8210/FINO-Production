@@ -10,6 +10,10 @@ const UserSchema = new mongoose.Schema({
   address: { type: String },
   role: { type: String, enum: ['customer', 'admin'], default: 'customer' },
   isActive: { type: Boolean, default: true },
+  
+  // Password reset fields
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date },
 }, { timestamps: true });
 
 // Middleware to prevent email modification after creation

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { ProductWithCategory, ProductFilters } from '@/types';
-import { useProducts } from '@/hooks';
+import { useProducts, useProductStats } from '@/hooks';
 import ProductItem from './ProductItem';
 import { LoadingSpinner } from './ui';
 import { getCurrentPrice } from '@/lib/productUtils';
@@ -20,6 +20,7 @@ interface ProductListProps {
   emptyMessage?: string;
   categoryId?: string;
   filters?: ProductFilters;
+  showRatingBadge?: boolean;
 }
 
 export default function ProductList({
@@ -33,7 +34,8 @@ export default function ProductList({
   className = '',
   emptyMessage = 'Không tìm thấy sản phẩm nào.',
   categoryId,
-  filters
+  filters,
+  showRatingBadge = false
 }: ProductListProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc' | 'name'>('newest');
@@ -43,6 +45,10 @@ export default function ProductList({
 
   // Use provided products or empty array - ensure it's always an array
   const products = Array.isArray(propProducts) ? propProducts : [];
+  
+  // Get real product statistics if rating badge is enabled
+  const productIds = products.map(p => p._id);
+  const { stats: productStats, loading: statsLoading } = useProductStats(showRatingBadge ? productIds : []);
 
   // Sort products
   const sortedProducts = useMemo(() => {
@@ -199,14 +205,22 @@ export default function ProductList({
       {/* Product Grid/List */}
       {currentProducts.length > 0 ? (
         <div className={`${styles.productGrid} ${styles[layout]}`}>
-          {currentProducts.map((product) => (
-            <ProductItem
-              key={product._id}
-              product={product}
-              layout={layout}
-              showDescription={showDescription && layout === 'list'}
-            />
-          ))}
+          {currentProducts.map((product) => {
+            // Get real stats for this product if rating badge is enabled
+            const productStatsData = showRatingBadge ? productStats[product._id] : undefined;
+            
+            return (
+              <ProductItem
+                key={product._id}
+                product={product}
+                layout={layout}
+                showDescription={showDescription && layout === 'list'}
+                averageRating={productStatsData?.averageRating || 0}
+                reviewCount={productStatsData?.reviewCount || 0}
+                showRatingBadge={showRatingBadge}
+              />
+            );
+          })}
         </div>
       ) : (
         <div className={styles.emptyState}>

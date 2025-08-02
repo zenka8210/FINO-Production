@@ -69,7 +69,7 @@ const MODEL_CONFIGS = {
         },
         pagination: {
             defaultLimit: 12,
-            maxLimit: 50
+            maxLimit: 150  // Increased to allow more products to be fetched
         }
     },
     
@@ -118,6 +118,7 @@ const MODEL_CONFIGS = {
         filterableFields: {
             parent: { type: 'objectId' },
             isActive: { type: 'boolean' },
+            hasParent: { type: 'boolean' },
             level: { type: 'range', min: 0, max: 5 }
         }
     },

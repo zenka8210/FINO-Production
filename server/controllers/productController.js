@@ -27,11 +27,24 @@ class ProductController extends BaseController {
                 console.log('🔧 About to execute QueryBuilder...');
                 
                 try {
+                    // Handle hierarchical category filtering BEFORE QueryBuilder execution
+                    if (req.query.category) {
+                        console.log('🌳 Handling hierarchical category filtering for:', req.query.category);
+                        const categoryIds = await this.getHierarchicalCategoryIds(req.query.category);
+                        console.log('📊 Found category IDs (parent + children):', categoryIds);
+                        
+                        // Override the category filter to use $in with all related category IDs
+                        queryBuilder.filter.category = { $in: categoryIds };
+                        
+                        // Remove category from query to prevent QueryBuilder from overriding
+                        delete req.query.category;
+                    }
+                    
                     // Configure search and filters for products
                     const result = await queryBuilder
                         .search(['name', 'description'])
                         .applyFilters({
-                            category: { type: 'objectId' },
+                            // Skip category here since we handled it above
                             minPrice: { type: 'range', field: 'price' },
                             maxPrice: { type: 'range', field: 'price' },
                             brand: { type: 'regex' },
@@ -68,18 +81,26 @@ class ProductController extends BaseController {
             }
             
             // Fallback to legacy method for special parameters like isOnSale, includeVariants
+            let categoryIds = null;
+            if (req.query.category) {
+                categoryIds = await this.getHierarchicalCategoryIds(req.query.category);
+                console.log('🌳 Legacy method: Using hierarchical category IDs:', categoryIds);
+            }
+            
             const queryOptions = {
                 page: req.query.page || PAGINATION.DEFAULT_PAGE,
                 limit: req.query.limit || PAGINATION.DEFAULT_LIMIT,
                 search: req.query.search,
                 category: req.query.category,
+                categoryIds: categoryIds, // Pass hierarchical IDs to service
                 minPrice: req.query.minPrice,
                 maxPrice: req.query.maxPrice,
                 sortBy: req.query.sortBy || 'createdAt',
                 sortOrder: req.query.sortOrder || 'desc',
                 isOnSale: req.query.isOnSale,
                 includeVariants: req.query.includeVariants, // Support for variant population
-                includeReviewStats: req.query.includeReviewStats // Support for review statistics
+                includeReviewStats: req.query.includeReviewStats, // Support for review statistics
+                includeOutOfStock: req.query.includeOutOfStock === 'true' // Parse boolean properly
             };
             
             // Apply admin sort
@@ -130,6 +151,10 @@ class ProductController extends BaseController {
         try {
             const productData = req.body;
             
+            console.log('🆕 ProductController.createProduct called');
+            console.log('📝 Product data keys:', Object.keys(productData));
+            console.log('🎨 Variants data:', productData.variants ? `${productData.variants.length} variants` : 'No variants');
+            
             // Validate product data before creation
             const validation = await this.service.validateProductData(productData);
             if (!validation.isValid) {
@@ -137,8 +162,10 @@ class ProductController extends BaseController {
             }
             
             const newProduct = await this.service.createProduct(productData);
+            console.log('✅ Product created successfully');
             ResponseHandler.created(res, MESSAGES.PRODUCT_CREATED, newProduct);
         } catch (error) {
+            console.error('❌ Error creating product:', error.message);
             next(error);
         }
     };
@@ -148,6 +175,11 @@ class ProductController extends BaseController {
             const { id } = req.params;
             const updateData = req.body;
             
+            console.log('🔄 ProductController.updateProduct called');
+            console.log('📦 Product ID:', id);
+            console.log('📝 Update data keys:', Object.keys(updateData));
+            console.log('🎨 Variants data:', updateData.variants ? `${updateData.variants.length} variants` : 'No variants');
+            
             // Validate product data before update
             const validation = await this.service.validateProductData(updateData);
             if (!validation.isValid) {
@@ -155,8 +187,10 @@ class ProductController extends BaseController {
             }
             
             const updatedProduct = await this.service.updateProduct(id, updateData);
+            console.log('✅ Product updated successfully');
             ResponseHandler.success(res, MESSAGES.PRODUCT_UPDATED, updatedProduct);
         } catch (error) {
+            console.error('❌ Error updating product:', error.message);
             next(error);
         }
     };
@@ -434,6 +468,42 @@ class ProductController extends BaseController {
             next(error);
         }
     };
+
+    /**
+     * Get all category IDs including parent and its children
+     * For hierarchical category filtering
+     */
+    async getHierarchicalCategoryIds(categoryId) {
+        try {
+            const Category = require('../models/CategorySchema');
+            const mongoose = require('mongoose');
+            
+            if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+                return [categoryId];
+            }
+            
+            // Get the selected category
+            const selectedCategory = await Category.findById(categoryId);
+            if (!selectedCategory) {
+                return [];
+            }
+            
+            const categoryIds = [categoryId];
+            
+            // If it's a parent category, get all its children
+            if (!selectedCategory.parent) {
+                const childCategories = await Category.find({ parent: categoryId });
+                const childIds = childCategories.map(child => child._id.toString());
+                categoryIds.push(...childIds);
+                console.log(`🌳 Parent category ${selectedCategory.name} has ${childIds.length} children`);
+            }
+            
+            return categoryIds;
+        } catch (error) {
+            console.error('❌ Error in getHierarchicalCategoryIds:', error);
+            return [categoryId]; // Fallback to original category
+        }
+    }
 }
 
 module.exports = ProductController;

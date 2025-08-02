@@ -29,17 +29,6 @@ const optionalAuth = (req, res, next) => {
   }
 };
 
-// Middleware to restrict admin CRUD operations on wishlist
-const restrictAdminWishlistCRUD = (req, res, next) => {
-  if (req.user && req.user.role === ROLES.ADMIN) {
-    return res.status(403).json({
-      success: false,
-      message: 'Admin chỉ được phép xem wishlist, không được thêm/sửa/xóa'
-    });
-  }
-  next();
-};
-
 // ============= PUBLIC ROUTES (with optional auth for session handling) =============
 
 // GET /api/wishlist - Get user's wishlist (database) or session wishlist (guest)
@@ -51,25 +40,25 @@ router.get('/count', optionalAuth, wishListController.getWishListCount);
 // GET /api/wishlist/check/:productId - Check if product is in wishlist
 router.get('/check/:productId', optionalAuth, validateObjectId('productId'), wishListController.checkInWishList);
 
-// POST /api/wishlist - Add product to wishlist (restricted for admin)
-router.post('/', optionalAuth, restrictAdminWishlistCRUD, wishListController.addToWishList);
+// POST /api/wishlist - Add product to wishlist
+router.post('/', optionalAuth, wishListController.addToWishList);
 
-// POST /api/wishlist/toggle - Toggle product in wishlist (restricted for admin)  
-router.post('/toggle', optionalAuth, restrictAdminWishlistCRUD, wishListController.toggleWishList);
+// POST /api/wishlist/toggle - Toggle product in wishlist  
+router.post('/toggle', optionalAuth, wishListController.toggleWishList);
 
-// DELETE /api/wishlist/clear - Clear wishlist (restricted for admin)
-router.delete('/clear', optionalAuth, restrictAdminWishlistCRUD, wishListController.clearWishList);
+// DELETE /api/wishlist/clear - Clear wishlist
+router.delete('/clear', optionalAuth, wishListController.clearWishList);
 
-// DELETE /api/wishlist/:productId - Remove product from wishlist (restricted for admin)
-router.delete('/:productId', optionalAuth, restrictAdminWishlistCRUD, validateObjectId('productId'), wishListController.removeFromWishList);
+// DELETE /api/wishlist/:productId - Remove product from wishlist
+router.delete('/:productId', optionalAuth, validateObjectId('productId'), wishListController.removeFromWishList);
 
 // ============= AUTHENTICATED USER ROUTES =============
 
 // POST /api/wishlist/sync - Sync session wishlist to database after login
-router.post('/sync', authenticateToken, restrictAdminWishlistCRUD, wishListController.syncWishListFromSession);
+router.post('/sync', authenticateToken, wishListController.syncWishListFromSession);
 
 // POST /api/wishlist/multiple - Add multiple products to wishlist (authenticated only)
-router.post('/multiple', authenticateToken, restrictAdminWishlistCRUD, wishListController.addMultipleToWishList);
+router.post('/multiple', authenticateToken, wishListController.addMultipleToWishList);
 
 // ============= ADMIN ROUTES (read-only access) =============
 

@@ -61,6 +61,13 @@ router.get('/:id/public', validateObjectId('id'), categoryController.getCategory
 // ============= ADMIN ROUTES (Require Auth and Admin Role) =============
 
 /**
+ * @route   GET /api/categories/admin/statistics
+ * @desc    Lấy thống kê tổng quan cho admin (tổng categories, products, etc.)
+ * @access  Private (Admin)
+ */
+router.get('/admin/statistics', authMiddleware, adminMiddleware, categoryController.getAdminStatistics);
+
+/**
  * @route   GET /api/categories
  * @desc    Lấy tất cả danh mục (admin - có phân trang, tìm kiếm, filter)
  * @access  Private (Admin)

@@ -21,8 +21,9 @@ export class ColorService {
    */
   async getColors(): Promise<Color[]> {
     try {
-      const response = await apiClient.get<Color[]>('/api/colors/public');
-      return response.data!;
+      // Add limit=1000 to get all colors without pagination
+      const response = await apiClient.get<ApiResponse<Color[]>>('/api/colors/public?limit=1000');
+      return response.data?.data || [];
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch colors');
     }
@@ -119,18 +120,6 @@ export class ColorService {
   }
 
   /**
-   * Create new color (Admin)
-   */
-  async createColor(colorData: Omit<Color, '_id' | 'createdAt' | 'updatedAt'>): Promise<Color> {
-    try {
-      const response = await apiClient.post<Color>('/api/colors', colorData);
-      return response.data!;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create color');
-    }
-  }
-
-  /**
    * Update color (Admin)
    */
   async updateColor(id: string, colorData: Partial<Color>): Promise<Color> {
@@ -164,6 +153,19 @@ export class ColorService {
       return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to check if color can be deleted');
+    }
+  }
+
+  /**
+   * Create a new color (Admin only)
+   * POST /api/colors
+   */
+  async createColor(colorData: { name: string }): Promise<Color> {
+    try {
+      const response = await apiClient.post<ApiResponse<Color>>('/api/colors', colorData);
+      return response.data?.data!;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to create color');
     }
   }
 

@@ -121,7 +121,7 @@ const POPULATE_CONFIGS = {
     productVariant: 'product color size',
     order: 'user items.productVariant paymentMethod address',
     review: 'user product order',
-    post: 'author',
+    post: { path: 'author', select: 'name email' },
     wishList: 'user items.productVariant',
     cart: 'user items.productVariant'
 };

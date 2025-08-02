@@ -172,7 +172,7 @@ class QueryBuilder {
      */
     applyFilters(filterConfig = {}) {
         try {
-            const excludedParams = ['page', 'limit', 'sort', 'sortBy', 'sortOrder', 'order', 'select', 'populate', 'search', 'includeReviewStats', 'includeVariants', 'isOnSale'];
+            const excludedParams = ['page', 'limit', 'sort', 'sortBy', 'sortOrder', 'order', 'select', 'populate', 'search', 'includeReviewStats', 'includeVariants', 'isOnSale', 'isAdmin', 'adminSort'];
             
             // Parse nested filter syntax like filter[isActive]=true
             this.parseNestedFilters();
@@ -181,6 +181,16 @@ class QueryBuilder {
                 if (!excludedParams.includes(key) && this.queryParams[key] !== undefined && this.queryParams[key] !== '') {
                     const value = this.queryParams[key];
                     const config = filterConfig[key] || {};
+
+                    // Special handling for hasParent filter
+                    if (key === 'hasParent') {
+                        if (value === 'true' || value === true) {
+                            this.filter.parent = { $ne: null };
+                        } else if (value === 'false' || value === false) {
+                            this.filter.parent = null;
+                        }
+                        return;
+                    }
 
                     // Handle different filter types with safety checks
                     switch (config.type) {
@@ -346,8 +356,14 @@ class QueryBuilder {
             console.log('✅ QueryBuilder queries completed');
             console.log('📊 Found', data.length, 'documents, total:', total);
 
+            // Enhance data with additional fields for specific models
+            let enhancedData = data;
+            if (this.model.modelName === 'Category') {
+                enhancedData = await this.enhanceCategoriesWithProductCount(data);
+            }
+
             return {
-                data,
+                data: enhancedData,
                 pagination: {
                     page: this.page,
                     limit: this.limit,
@@ -366,6 +382,37 @@ class QueryBuilder {
             throw error;
         }
     }
+
+    /**
+     * Enhance categories with product count
+     * @param {Array} categories - Category documents
+     * @returns {Promise<Array>} Enhanced categories with productCount
+     */
+    async enhanceCategoriesWithProductCount(categories) {
+        try {
+            const Product = require('../models/ProductSchema');
+            
+            const enhancedCategories = await Promise.all(
+                categories.map(async (category) => {
+                    const productCount = await Product.countDocuments({ 
+                        category: category._id,
+                        isActive: true 
+                    });
+                    
+                    return {
+                        ...category.toObject(),
+                        productCount: productCount
+                    };
+                })
+            );
+            
+            return enhancedCategories;
+        } catch (error) {
+            console.error('❌ Error enhancing categories with product count:', error.message);
+            // Return original data if enhancement fails
+            return categories;
+        }
+    }
 }
 
 /**
@@ -376,6 +423,10 @@ class QueryBuilder {
 const queryParserMiddleware = (options = {}) => {
     return (req, res, next) => {
         try {
+            console.log('🔧 QueryParserMiddleware called for:', req.url);
+            console.log('📊 Query params:', req.query);
+            console.log('📊 URL params:', req.params);
+            
             // Simply create factory function for QueryBuilder - MUCH FASTER
             req.createQueryBuilder = (model) => new QueryBuilder(model, req.query);
             next();

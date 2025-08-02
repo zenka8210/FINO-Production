@@ -12,18 +12,16 @@ interface FlashSaleProps {
   maxProducts?: number;
   autoSlide?: boolean;
   slideInterval?: number;
+  initialProducts?: ProductWithCategory[]; // Add support for SSR data
 }
 
 export default function FlashSale({ 
   maxProducts = 20, 
   autoSlide = true, 
-  slideInterval = 5000 
+  slideInterval = 5000,
+  initialProducts // Add initial data prop
 }: FlashSaleProps) {
-  console.log('🚀 FlashSale component mounted with props:', { maxProducts, autoSlide, slideInterval });
-  console.log('⏰ Current timestamp:', new Date().toISOString());
-  
   const { getProducts, loading } = useProducts();
-  console.log('📊 useProducts hook state:', { loading });
   const [flashSaleProducts, setFlashSaleProducts] = useState<ProductWithCategory[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [timeLeft, setTimeLeft] = useState({
@@ -33,7 +31,7 @@ export default function FlashSale({
   });
   const [saleEndTime, setSaleEndTime] = useState<Date | null>(null);
   const [hasInitialized, setHasInitialized] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // PERFORMANCE: Track loading state
+  const [isLoading, setIsLoading] = useState(false);
   
   // PERFORMANCE: Add memory cache to prevent unnecessary API calls
   const cacheRef = useRef<{
@@ -48,45 +46,42 @@ export default function FlashSale({
 
   // PERFORMANCE FIX: Use useEffect with simple dependency to prevent multiple API calls
   useEffect(() => {
-    console.log('🧪 DEBUG: useEffect triggered, hasInitialized:', hasInitialized);
-    
-    if (hasInitialized) {
-      console.log('🧪 DEBUG: Already initialized, skipping');
-      return; // Already initialized
+    // Use initial data if provided (SSR case)
+    if (initialProducts && initialProducts.length > 0) {
+      console.log('📦 FlashSale: Using SSR initial products');
+      // Filter only products on sale from initial data
+      const saleProducts = initialProducts.filter(product => isProductOnSale(product));
+      setFlashSaleProducts(saleProducts.slice(0, maxProducts));
+      setHasInitialized(true);
+      return; // Don't fetch if we have initial data
     }
 
+    if (hasInitialized) return; // Already initialized, skip
+    
     // PERFORMANCE: Check cache first
     const now = Date.now();
     if (cacheRef.current.data && (now - cacheRef.current.timestamp) < cacheRef.current.expiry) {
-      console.log('📄 FlashSale: Using cached data');
       setFlashSaleProducts(cacheRef.current.data);
       setHasInitialized(true);
       return;
     }
 
-    console.log('🔄 FlashSale: useEffect initialization...');
     setHasInitialized(true);
     setIsLoading(true);
     
     const fetchProducts = async () => {
       try {
-        console.log('🔍 FlashSale: Fetching products for homepage flash sale...');
-        
-        // PERFORMANCE: Try to get sale products from backend with reduced limit
+        // Get sale products for display (limited to maxProducts)
         const response = await getProducts({
           isOnSale: true,
-          limit: maxProducts + 5, // PERFORMANCE: Only get what we need + small buffer
+          limit: maxProducts, // Only get exactly what we need to display
           sort: 'createdAt', 
           order: 'desc' 
         });
         
-        console.log('📦 FlashSale API response:', response);
-        
         // Use EXACT same data parsing as sale page
         const productsArray = Array.isArray(response.data) ? response.data : 
                              (response.data && Array.isArray((response.data as any).data)) ? (response.data as any).data : [];
-        
-        console.log('📦 FlashSale: Raw sale products received:', productsArray.length);
         
         let saleProducts = [];
         
@@ -98,14 +93,11 @@ export default function FlashSale({
               product.salePrice < product.price && 
               product.isActive !== false
             )
-            .slice(0, maxProducts);
+            .slice(0, maxProducts); // Ensure we don't exceed maxProducts
         }
-        
-        console.log('✅ FlashSale: Final filtered sale products:', saleProducts.length);
         
         // Only set products if we have actual sale products - NO FALLBACK
         if (saleProducts.length > 0) {
-          console.log('🛍️ FlashSale: Found valid sale products:', saleProducts.length);
           setFlashSaleProducts(saleProducts);
           
           // PERFORMANCE: Cache the results
@@ -114,33 +106,22 @@ export default function FlashSale({
             timestamp: Date.now(),
             expiry: 5 * 60 * 1000 // 5 minutes
           };
-          
-          console.log('🛍️ FlashSale: First sale product:', saleProducts[0]);
         }
       } catch (error) {
         console.error('❌ FlashSale Error:', error);
         setFlashSaleProducts([]);
       } finally {
-        setIsLoading(false); // PERFORMANCE: Reset loading state
+        setIsLoading(false);
       }
     };
     
     fetchProducts();
-  }, []); // Empty dependency array - only run once
-
-  // Separate useEffect for calculating sale end time when products change
-  useEffect(() => {
-    if (flashSaleProducts.length > 0 && !saleEndTime) {
-      calculateSaleEndTime(flashSaleProducts);
-    }
-  }, [flashSaleProducts, saleEndTime]);
+  }, [initialProducts, maxProducts]); // Add dependencies
 
   const autoSlideRef = useRef<NodeJS.Timeout | null>(null);
   
   // Calculate realistic sale end time based on flash sale logic
   const calculateSaleEndTime = useCallback((products: ProductWithCategory[]) => {
-    console.log('🕒 Calculating sale end time for products:', products.length);
-    
     // Check if any product has real saleEndDate
     const productsWithSaleDate = products.filter(p => 
       p.saleEndDate && new Date(p.saleEndDate) > new Date()
@@ -152,7 +133,6 @@ export default function FlashSale({
         .map(p => new Date(p.saleEndDate!))
         .sort((a, b) => a.getTime() - b.getTime())[0];
       
-      console.log('✅ Using real sale end date:', earliestEndDate);
       setSaleEndTime(earliestEndDate);
       return;
     }
@@ -166,7 +146,6 @@ export default function FlashSale({
       // Sale ends at 9 PM today
       const endTime = new Date();
       endTime.setHours(21, 0, 0, 0);
-      console.log('✅ Using daily flash sale end time (9 PM):', endTime);
       setSaleEndTime(endTime);
     } else {
       // Sale starts again at 9 AM next day
@@ -176,7 +155,6 @@ export default function FlashSale({
         nextSaleStart.setDate(nextSaleStart.getDate() + 1);
       }
       nextSaleStart.setHours(21, 0, 0, 0); // End at 9 PM next day
-      console.log('✅ Using next day flash sale end time:', nextSaleStart);
       setSaleEndTime(nextSaleStart);
     }
   }, []);
@@ -197,10 +175,15 @@ export default function FlashSale({
     } else {
       // Sale ended, reset timer
       setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
-      // Could trigger refetch here if needed
-      console.log('⏰ Flash sale ended, timer reset');
     }
   }, [saleEndTime]);
+
+  // Separate useEffect for calculating sale end time when products change
+  useEffect(() => {
+    if (flashSaleProducts.length > 0 && !saleEndTime) {
+      calculateSaleEndTime(flashSaleProducts);
+    }
+  }, [flashSaleProducts, calculateSaleEndTime]); // Remove saleEndTime from dependency to prevent loop
 
   // Cố định 4 sản phẩm mỗi slide (theo yêu cầu)
   const productsPerSlide = 4;
@@ -251,34 +234,9 @@ export default function FlashSale({
   };
 
   // Format timer
-  // Update countdown every second
-  useEffect(() => {
-    if (saleEndTime) {
-      const timer = setInterval(updateCountdown, 1000);
-      updateCountdown(); // Initial call
-      
-      return () => clearInterval(timer);
-    }
-  }, [saleEndTime]);
-
-  // Check if the sale is still active (prevent showing expired countdown)
-  useEffect(() => {
-    if (flashSaleProducts.length > 0 && !saleEndTime) {
-      calculateSaleEndTime(flashSaleProducts);
-    }
-  }, [flashSaleProducts, calculateSaleEndTime]);
-
   const formatTime = (time: number) => {
     return time.toString().padStart(2, '0');
   };
-
-  // Debug log để kiểm tra state
-  console.log('🎬 FlashSale Render State:', {
-    loading,
-    productsCount: flashSaleProducts.length,
-    totalSlides,
-    currentSlide
-  });
 
   if (loading || isLoading) {
     return (
@@ -287,7 +245,6 @@ export default function FlashSale({
           <div className={styles.titleSection}>
             <h2 className={styles.title}>
               <FaFire className={styles.fireIcon} />
-              <span className={styles.flashText}>FLASH</span>
               <span className={styles.saleText}>SALE</span>
             </h2>
           </div>
@@ -309,7 +266,6 @@ export default function FlashSale({
           <div className={styles.titleSection}>
             <h2 className={styles.title}>
               <FaFire className={styles.fireIcon} />
-              <span className={styles.flashText}>FLASH</span>
               <span className={styles.saleText}>SALE</span>
             </h2>
           </div>
@@ -317,7 +273,7 @@ export default function FlashSale({
         <div className={styles.productsSection}>
           <div className={styles.emptyState}>
             <FaFire className={styles.emptyStateIcon} />
-            <h3 className={styles.emptyStateTitle}>Chưa có sản phẩm Flash Sale</h3>
+            <h3 className={styles.emptyStateTitle}>Chưa có sản phẩm Sale</h3>
             <p className={styles.emptyStateText}>
               Hãy quay lại sau để không bỏ lỡ những ưu đãi hấp dẫn nhất!
             </p>
@@ -334,9 +290,7 @@ export default function FlashSale({
         <div className={styles.titleSection}>
           <h2 className={styles.title}>
             <FaFire className={styles.fireIcon} />
-            <span className={styles.flashText}>FLASH</span>
             <span className={styles.saleText}>SALE</span>
-            <span className={styles.productCount}>({flashSaleProducts.length})</span>
           </h2>
           
           <div className={styles.subtitle}>
@@ -367,7 +321,8 @@ export default function FlashSale({
         
         <div className={styles.viewAllSection}>
           <a href="/sale" className={styles.viewAllLink}>
-            Xem tất cả
+            Xem thêm sản phẩm khác
+            <span className={styles.viewAllArrow}></span>
           </a>
         </div>
       </div>

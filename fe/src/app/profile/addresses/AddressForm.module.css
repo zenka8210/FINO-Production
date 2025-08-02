@@ -1,0 +1,234 @@
+/* ==================== ADDRESS FORM STYLES ==================== */
+
+.pageContainer {
+  background: #f9fafb;
+  min-height: 100vh;
+  padding: 2rem 0;
+}
+
+.formContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.formHeader {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.formTitle {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.formSubtitle {
+  font-size: 1rem;
+  color: #6B7280;
+  margin: 0;
+}
+
+.form {
+  display: grid;
+  gap: 2rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroupFull {
+  grid-column: 1 / -1;
+}
+
+.label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.75rem;
+}
+
+.required {
+  color: #dc2626;
+  margin-left: 0.25rem;
+}
+
+.input {
+  padding: 1rem 1.25rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #111827;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.input::placeholder {
+  color: #9CA3AF;
+  opacity: 1;
+  font-weight: 400;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #1E40AF;
+  box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1);
+  transform: translateY(-1px);
+  color: #111827;
+}
+
+.input:focus::placeholder {
+  color: #6B7280;
+}
+
+.inputError {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.inputError:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+}
+
+.errorMessage {
+  font-size: 0.8125rem;
+  color: #dc2626;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.helpText {
+  font-size: 0.8125rem;
+  color: #6B7280;
+  margin-top: 0.5rem;
+}
+
+.checkboxGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.checkbox {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.checkbox:checked {
+  background: #1E40AF;
+  border-color: #1E40AF;
+}
+
+.checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.checkboxLabel {
+  font-size: 0.9375rem;
+  color: #111827;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.formActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 1rem;
+}
+
+.backButton {
+  color: #6B7280;
+  text-decoration: none;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.backButton:hover {
+  color: #111827;
+}
+
+.submitButton {
+  min-width: 150px;
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 1rem;
+  }
+  
+  .formContainer {
+    margin: 0;
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+  
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .formActions {
+    flex-direction: column-reverse;
+    gap: 1rem;
+  }
+  
+  .submitButton {
+    width: 100%;
+  }
+  
+  .backButton {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .formContainer {
+    padding: 1rem;
+  }
+  
+  .formTitle {
+    font-size: 1.5rem;
+  }
+  
+  .input {
+    padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+  }
+}
