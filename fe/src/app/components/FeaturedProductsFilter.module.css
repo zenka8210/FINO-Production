@@ -1,0 +1,159 @@
+/* FeaturedProductsFilter.module.css - Filter component cho section sản phẩm nổi bật */
+
+.filterContainer {
+  margin-bottom: 2rem;
+  padding: 0 0 1rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.filterTabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.filterTab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  min-height: 44px; /* Touch target size */
+  outline: none; /* Remove default outline */
+  text-decoration: none; /* Remove any text decoration */
+  user-select: none; /* Prevent text selection */
+  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+}
+
+.filterTab:hover {
+  border-color: #1E40AF;
+  color: #1E40AF;
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.1);
+}
+
+.filterTab.active {
+  background: #1E40AF;
+  border-color: #1E40AF;
+  color: white;
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+}
+
+.filterTab.active:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.filterTab.loading {
+  pointer-events: none;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.filterTab:disabled {
+  pointer-events: none;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.filterIcon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.filterLabel {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.loadingSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 0.25rem;
+}
+
+.filterDescription {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-style: italic;
+  margin-top: 0.5rem;
+  padding-left: 0.25rem;
+}
+
+/* Loading animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .filterTabs {
+    justify-content: center;
+    gap: 0.25rem;
+  }
+  
+  .filterTab {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    min-width: auto;
+  }
+  
+  .filterIcon {
+    font-size: 0.875rem;
+  }
+  
+  .filterLabel {
+    display: none; /* Hide text on mobile, show only icons */
+  }
+}
+
+@media (min-width: 480px) and (max-width: 768px) {
+  .filterLabel {
+    display: inline; /* Show text on larger mobile screens */
+  }
+}
+
+/* Focus states for accessibility */
+.filterTab:focus {
+  outline: 2px solid #1E40AF;
+  outline-offset: 2px;
+}
+
+.filterTab:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Hover animation for better UX */
+.filterTab {
+  animation: none;
+}
+
+.filterTab:not(.active):hover .filterIcon {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+.filterTab.active .filterIcon {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}

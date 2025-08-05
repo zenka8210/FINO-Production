@@ -26,7 +26,7 @@ class HomePageService {
       }>(this.baseUrl);
       
       console.log('✅ HomePageService: Home data fetched successfully');
-      return response.data.data;
+      return response.data?.data || {} as HomePageData;
     } catch (error) {
       console.error('❌ HomePageService: Error fetching home data:', error);
       throw error;
@@ -39,7 +39,7 @@ class HomePageService {
   async getCategories() {
     try {
       const response = await apiClient.get(`${this.baseUrl}/categories`);
-      return response.data.data;
+      return response.data || [];
     } catch (error) {
       console.error('❌ HomePageService: Error fetching categories:', error);
       throw error;
@@ -52,7 +52,7 @@ class HomePageService {
   async getBanners() {
     try {
       const response = await apiClient.get(`${this.baseUrl}/banners`);
-      return response.data.data;
+      return response.data || [];
     } catch (error) {
       console.error('❌ HomePageService: Error fetching banners:', error);
       throw error;
@@ -60,17 +60,36 @@ class HomePageService {
   }
 
   /**
-   * Get featured products only
+   * Get featured products only - Based on business metrics:
+   * 1. Top rated products (highest average rating)
+   * 2. Most wishlisted products 
+   * 3. Best selling products (completed orders)
    */
-  async getFeaturedProducts(limit: number = 6) {
+  async getFeaturedProducts(limit: number = 6, filterType: string = 'combined') {
     try {
+      console.log(`⭐ HomePageService: Fetching featured products with filter ${filterType}, limit ${limit}...`);
       const response = await apiClient.get(`${this.baseUrl}/featured`, {
-        params: { limit }
+        params: { limit, filter: filterType }
       });
-      return response.data.data;
+      console.log('🔍 Featured products response:', response);
+      
+      // FIXED: ApiClient.get() returns {success, data, message}
+      if (response && response.success && response.data) {
+        const products = response.data;
+        if (Array.isArray(products)) {
+          console.log(`✅ HomePageService: Found ${products.length} featured products (${filterType})`);
+          return products;
+        } else {
+          console.warn('⚠️ HomePageService: Featured data is not an array:', typeof products);
+          return [];
+        }
+      } else {
+        console.warn('⚠️ HomePageService: Invalid featured products response structure');
+        return [];
+      }
     } catch (error) {
       console.error('❌ HomePageService: Error fetching featured products:', error);
-      throw error;
+      return []; // Return empty array instead of throwing
     }
   }
 
@@ -79,13 +98,35 @@ class HomePageService {
    */
   async getNewProducts(limit: number = 6) {
     try {
-      const response = await apiClient.get(`${this.baseUrl}/new`, {
-        params: { limit }
-      });
-      return response.data.data;
+      console.log(`🆕 HomePageService: Fetching new products with limit ${limit}...`);
+      const response = await apiClient.get(`${this.baseUrl}/new?limit=${limit}`);
+      console.log('🔍 HomePageService response:', response);
+      console.log('🔍 Response data structure:', typeof response, response);
+      
+      // FIXED: ApiClient.get() returns the full response {success, data, message}
+      // NOT response.data.data, but response.data!
+      if (response && response.success && response.data) {
+        const products = response.data;
+        if (Array.isArray(products)) {
+          console.log('✅ HomePageService: Found new products:', products.length);
+          return products;
+        } else {
+          console.warn('⚠️ HomePageService: Data is not an array:', typeof products);
+          return [];
+        }
+      } else {
+        console.warn('⚠️ HomePageService: Invalid response structure - Expected {success: true, data: [...]}');
+        console.warn('🔍 Actual response:', {
+          hasSuccess: !!response?.success,
+          hasData: !!response?.data,
+          successValue: response?.success,
+          dataValue: response?.data
+        });
+        return [];
+      }
     } catch (error) {
       console.error('❌ HomePageService: Error fetching new products:', error);
-      throw error;
+      return []; // Return empty array instead of throwing
     }
   }
 
@@ -97,7 +138,7 @@ class HomePageService {
       const response = await apiClient.get(`${this.baseUrl}/sale`, {
         params: { limit }
       });
-      return response.data.data;
+      return response.data || [];
     } catch (error) {
       console.error('❌ HomePageService: Error fetching sale products:', error);
       throw error;
@@ -112,7 +153,7 @@ class HomePageService {
       const response = await apiClient.get(`${this.baseUrl}/posts`, {
         params: { limit }
       });
-      return response.data.data;
+      return response.data || [];
     } catch (error) {
       console.error('❌ HomePageService: Error fetching posts:', error);
       throw error;
@@ -124,9 +165,10 @@ class HomePageService {
    */
   async clearCache(cacheKey?: string) {
     try {
-      await apiClient.delete(`${this.baseUrl}/cache`, {
-        params: cacheKey ? { cacheKey } : undefined
-      });
+      const url = cacheKey 
+        ? `${this.baseUrl}/cache?cacheKey=${encodeURIComponent(cacheKey)}`
+        : `${this.baseUrl}/cache`;
+      await apiClient.delete(url);
       console.log('🗑️ Cache cleared successfully');
     } catch (error) {
       console.error('❌ HomePageService: Error clearing cache:', error);

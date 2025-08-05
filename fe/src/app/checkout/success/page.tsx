@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, useCart } from '@/hooks';
 import { Button, PageHeader, LoadingSpinner } from '@/app/components/ui';
@@ -21,11 +21,12 @@ export default function CheckoutSuccessPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const orderId = searchParams.get('orderId');
-  const orderCode = searchParams.get('orderCode'); // From VNPay callback
-  const transactionId = searchParams.get('transactionId'); // VNPay transaction ID
-  const paymentType = searchParams.get('payment'); // 'vnpay' if came from VNPay
+  const orderCode = searchParams.get('orderCode'); // From VNPay/MoMo callback
+  const transactionId = searchParams.get('transactionId'); // VNPay/MoMo transaction ID
+  const paymentMethod = searchParams.get('paymentMethod'); // 'vnpay' or 'momo' if came from payment gateway
+  const paymentType = searchParams.get('payment'); // Legacy 'vnpay' support
   const paymentStatus = searchParams.get('status'); // 'success' if payment successful
-  const vnpayAmount = searchParams.get('amount'); // Amount from VNPay callback
+  const amount = searchParams.get('amount'); // Amount from payment callback
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -35,90 +36,90 @@ export default function CheckoutSuccessPage() {
     }
   }, [user, router, authLoading]);
 
-  // Load order details
-  useEffect(() => {
-    const loadOrderDetails = async () => {
-      const finalOrderId = orderCode || orderId; // Prefer orderCode from VNPay callback
-      if (!finalOrderId || !user) return;
+  // Load order details - memoized to prevent unnecessary re-renders
+  const loadOrderDetails = useCallback(async () => {
+    const finalOrderId = orderCode || orderId; // Prefer orderCode from VNPay callback
+    if (!finalOrderId || !user) return;
 
-      try {
-        setIsLoading(true);
-        
-        console.log('🔍 SUCCESS PAGE - Loading order details for ID:', finalOrderId);
-        
-        // Check if the ID looks like an ObjectId (24 hex chars) or orderCode (starts with FINO)
-        let order;
-        const isObjectId = /^[0-9a-fA-F]{24}$/.test(finalOrderId);
-        const isOrderCode = finalOrderId.startsWith('FINO');
-        
-        if (isOrderCode) {
-          console.log('🔍 SUCCESS PAGE - Getting order by orderCode:', finalOrderId);
-          order = await orderService.getOrderByCode(finalOrderId);
-        } else if (isObjectId) {
-          console.log('🔍 SUCCESS PAGE - Getting order by ObjectId:', finalOrderId);
-          order = await orderService.getOrderById(finalOrderId);
-        } else {
-          throw new Error('Invalid order identifier format');
-        }
-        
-        console.log('✅ Order details loaded:', order);
-        
-        // Recalculate discount if voucher exists but discountAmount is 0
-        if (order.voucher && order.discountAmount === 0 && order.voucher.discountPercent > 0 && order.total) {
-          console.log('🔄 Recalculating discount for voucher:', order.voucher.code);
-          
-          const calculatedDiscount = Math.floor(order.total * (order.voucher.discountPercent / 100));
-          const maxDiscount = order.voucher.maximumDiscountAmount || 200000;
-          const finalDiscount = Math.min(calculatedDiscount, maxDiscount);
-          
-          // Update order with correct calculations
-          order.discountAmount = finalDiscount;
-          order.finalTotal = order.total - finalDiscount + (order.shippingFee || 0);
-          
-          console.log('✅ Corrected calculations:', {
-            originalTotal: order.total,
-            calculatedDiscount: calculatedDiscount,
-            maxDiscount: maxDiscount,
-            finalDiscount: finalDiscount,
-            correctedFinalTotal: order.finalTotal
-          });
-        }
-        
-        setOrderDetails(order);
-        
-        // Only clear cart if NOT coming from VNPay (VNPay already cleared in processing page)
-        const fromVNPay = searchParams.get('paymentMethod') === 'vnpay';
-        if (!fromVNPay) {
-          console.log('🧹 Clearing cart after successful order (non-VNPay)...');
-          try {
-            // Silent clear - no toast needed since user already knows order succeeded
-            clearCart('');
-          } catch (cartError) {
-            console.warn('⚠️ Cart clear failed but order was successful:', cartError);
-          }
-          console.log('✅ Cart cleared on success page');
-        } else {
-          console.log('🔍 VNPay payment detected - cart already cleared in processing page');
-        }
-      } catch (error: any) {
-        console.error('❌ Error loading order details:', error);
-        
-        // Handle specific error cases
-        if (error.message.includes('không có quyền') || error.message.includes('forbidden')) {
-          console.error('🚫 Access denied - redirecting to orders page');
-          router.push('/profile?section=orders');
-        } else if (error.message.includes('Không tìm thấy')) {
-          console.error('📭 Order not found - redirecting to orders page');
-          router.push('/profile?section=orders');
-        }
-        // For other errors, stay on page but show error state
-      } finally {
-        setIsLoading(false);
+    try {
+      setIsLoading(true);
+      
+      console.log('🔍 SUCCESS PAGE - Loading order details for ID:', finalOrderId);
+      
+      // Check if the ID looks like an ObjectId (24 hex chars) or orderCode (starts with FINO)
+      let order;
+      const isObjectId = /^[0-9a-fA-F]{24}$/.test(finalOrderId);
+      const isOrderCode = finalOrderId.startsWith('FINO');
+      
+      if (isOrderCode) {
+        console.log('🔍 SUCCESS PAGE - Getting order by orderCode:', finalOrderId);
+        order = await orderService.getOrderByCode(finalOrderId);
+      } else if (isObjectId) {
+        console.log('🔍 SUCCESS PAGE - Getting order by ObjectId:', finalOrderId);
+        order = await orderService.getOrderById(finalOrderId);
+      } else {
+        throw new Error('Invalid order identifier format');
       }
-    };
+      
+      console.log('✅ Order details loaded:', order);
+      
+      // Recalculate discount if voucher exists but discountAmount is 0
+      if (order.voucher && order.discountAmount === 0 && order.voucher.discountPercent > 0 && order.total) {
+        console.log('🔄 Recalculating discount for voucher:', order.voucher.code);
+        
+        const calculatedDiscount = Math.floor(order.total * (order.voucher.discountPercent / 100));
+        const maxDiscount = order.voucher.maximumDiscountAmount || 200000;
+        const finalDiscount = Math.min(calculatedDiscount, maxDiscount);
+        
+        // Update order with correct calculations
+        order.discountAmount = finalDiscount;
+        order.finalTotal = order.total - finalDiscount + (order.shippingFee || 0);
+        
+        console.log('✅ Corrected calculations:', {
+          originalTotal: order.total,
+          calculatedDiscount: calculatedDiscount,
+          maxDiscount: maxDiscount,
+          finalDiscount: finalDiscount,
+          correctedFinalTotal: order.finalTotal
+        });
+      }
+      
+      setOrderDetails(order);
+      
+      // Only clear cart if NOT coming from payment gateway (VNPay/MoMo already cleared in processing page)
+      const fromPaymentGateway = ['vnpay', 'momo'].includes(searchParams.get('paymentMethod') || '');
+      if (!fromPaymentGateway) {
+        console.log('🧹 Clearing cart after successful order (non-payment gateway)...');
+        try {
+          // Silent clear - no toast needed since user already knows order succeeded
+          clearCart('');
+        } catch (cartError) {
+          console.warn('⚠️ Cart clear failed but order was successful:', cartError);
+        }
+        console.log('✅ Cart cleared on success page');
+      } else {
+        console.log('🔍 Payment gateway detected - cart already cleared in processing page');
+      }
+    } catch (error: any) {
+      console.error('❌ Error loading order details:', error);
+      
+      // Handle specific error cases
+      if (error.message.includes('không có quyền') || error.message.includes('forbidden')) {
+        console.error('🚫 Access denied - redirecting to orders page');
+        router.push('/profile?section=orders');
+      } else if (error.message.includes('Không tìm thấy')) {
+        console.error('📭 Order not found - redirecting to orders page');
+        router.push('/profile?section=orders');
+      }
+      // For other errors, stay on page but show error state
+    } finally {
+      setIsLoading(false);
+    }
+  }, [orderCode, orderId, user, router]);
 
+  useEffect(() => {
     loadOrderDetails();
-  }, [orderId, user]);
+  }, [loadOrderDetails]);
 
   // Loading state
   if (authLoading || isLoading) {
@@ -186,12 +187,20 @@ export default function CheckoutSuccessPage() {
                   ? 'Thanh toán khi nhận hàng' 
                   : orderDetails.paymentMethod?.method === 'VNPay'
                     ? 'VNPay (Thanh toán online)'
-                    : orderDetails.paymentMethod?.method}
+                    : orderDetails.paymentMethod?.method === 'MoMo'
+                      ? 'MoMo (Thanh toán online)'
+                      : orderDetails.paymentMethod?.method}
               </strong></span>
-              {paymentType === 'vnpay' && paymentStatus === 'success' && (
+              {(paymentMethod === 'vnpay' || paymentType === 'vnpay') && paymentStatus === 'success' && (
                 <span className={styles.vnpaySuccess}>
                   <FaCheckCircle />
                   Thanh toán VNPay thành công
+                </span>
+              )}
+              {paymentMethod === 'momo' && paymentStatus === 'success' && (
+                <span className={styles.momoSuccess}>
+                  <FaCheckCircle />
+                  Thanh toán MoMo thành công
                 </span>
               )}
             </div>
@@ -301,7 +310,14 @@ export default function CheckoutSuccessPage() {
           {/* Action Buttons */}
           <div className={styles.actionButtons}>
             <Button
-              onClick={() => router.push(orderDetails?._id ? `/orders/${orderDetails._id}?fromPayment=true` : '/profile?section=orders')}
+              onClick={() => {
+                // Only add fromPayment=true for payment gateway payments, not for COD
+                const fromPaymentGateway = ['vnpay', 'momo'].includes(searchParams.get('paymentMethod') || '');
+                const targetUrl = orderDetails?._id 
+                  ? `/orders/${orderDetails._id}${fromPaymentGateway ? '?fromPayment=true' : ''}`
+                  : '/profile?section=orders';
+                router.push(targetUrl);
+              }}
               className={styles.primaryButton}
             >
               <FaShoppingBag />

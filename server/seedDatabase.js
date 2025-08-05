@@ -207,7 +207,8 @@ const sizesData = [
 // 5. PAYMENT METHODS DATA
 const paymentMethodsData = [
   { method: 'COD', isActive: true },
-  { method: 'VNPay', isActive: true }
+  { method: 'VNPay', isActive: true },
+  { method: 'Momo', isActive: true }
 ];
 
 // 6. PRODUCTS DATA (Real fashion products)
@@ -885,7 +886,8 @@ async function seedOrders() {
   try {
     const customers = createdData.users.filter(user => user.role === 'customer');
     const codPayment = createdData.paymentMethods.find(pm => pm.method === 'COD');
-    const cardPayment = createdData.paymentMethods.find(pm => pm.method === 'CreditCard');
+    const vnpayPayment = createdData.paymentMethods.find(pm => pm.method === 'VNPay');
+    const momoPayment = createdData.paymentMethods.find(pm => pm.method === 'Momo');
     
     let orderCount = 0;
     

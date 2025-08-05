@@ -4,9 +4,10 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useCart, useApiNotification } from '@/hooks';
 import { Button, PageHeader, LoadingSpinner } from '@/app/components/ui';
+import AddressSelectionModal from '@/app/components/AddressSelectionModal';
 import { FaCreditCard, FaShoppingCart, FaMapMarkerAlt, FaTicketAlt, FaExclamationTriangle } from 'react-icons/fa';
 import { formatCurrency } from '@/lib/utils';
-import { addressService, voucherService, cartService, paymentMethodService, vnpayService, orderService } from '@/services';
+import { addressService, voucherService, cartService, paymentMethodService, vnpayService, momoService, orderService } from '@/services';
 import { Address, Voucher, PaymentMethod } from '@/types';
 import Image from 'next/image';
 import axios from 'axios';
@@ -65,6 +66,7 @@ export default function CheckoutPage() {
   const [checkoutSuccess, setCheckoutSuccess] = useState(false); // Track checkout success
   const [shippingFee, setShippingFee] = useState(30000); // Default shipping fee
   const [isLoadingShipping, setIsLoadingShipping] = useState(false);
+  const [showAddressModal, setShowAddressModal] = useState(false); // Modal state
 
   // Filter available vouchers based on order subtotal (before shipping)
   const eligibleVouchers = useMemo(() => {
@@ -328,8 +330,41 @@ export default function CheckoutPage() {
     calculateShipping();
   }, [defaultAddress?._id]);
 
+  // Handle address selection from modal
+  const handleAddressSelect = async (address: Address) => {
+    setDefaultAddress(address);
+    
+    // Recalculate shipping fee for new address
+    try {
+      setIsLoadingShipping(true);
+      const result = await orderService.calculateShippingFee(address._id);
+      setShippingFee(result.shippingFee || 30000);
+    } catch (error) {
+      console.error('Error calculating shipping for selected address:', error);
+      // Keep default shipping fee if calculation fails
+      setShippingFee(30000);
+    } finally {
+      setIsLoadingShipping(false);
+    }
+  };
+
+  // Helper function to determine address badge
+  const getAddressBadge = () => {
+    if (!defaultAddress) return null;
+    
+    // Only show "Địa chỉ mặc định" badge if the address is actually marked as default in the system
+    if (defaultAddress.isDefault) {
+      return { text: 'Địa chỉ mặc định', className: styles.defaultBadge };
+    }
+    
+    // If it's not the default address but was selected, show selected badge
+    return { text: 'Địa chỉ đã chọn', className: styles.selectedBadge };
+  };
+
   // Handle checkout
   const handleCheckout = async () => {
+    console.log('🚀 CHECKOUT DEBUG - handleCheckout function called!');
+    
     if (!defaultAddress) {
       showError('Vui lòng thiết lập địa chỉ mặc định');
       return;
@@ -349,10 +384,17 @@ export default function CheckoutPage() {
         voucherId: selectedVoucher || undefined
       };
 
-      // Check if payment method is VNPay
+      // Check payment method and handle accordingly
       const selectedPaymentMethod = availablePaymentMethods.find(pm => pm._id === paymentMethod);
 
+      console.log('🔍 CHECKOUT DEBUG - Selected payment method:', selectedPaymentMethod);
+      console.log('🔍 CHECKOUT DEBUG - Available methods:', availablePaymentMethods);
+      console.log('🔍 CHECKOUT DEBUG - Payment method ID:', paymentMethod);
+      console.log('🔍 CHECKOUT DEBUG - Method value:', selectedPaymentMethod?.method);
+      console.log('🔍 CHECKOUT DEBUG - Method comparison result:', selectedPaymentMethod?.method === 'Momo');
+
       if (selectedPaymentMethod?.method === 'VNPay') {
+        console.log('🔄 CHECKOUT DEBUG - Processing VNPay payment...');
         try {
           // Use new VNPay checkout endpoint that handles everything properly
           const vnpayResponse = await vnpayService.createVNPayCheckout(checkoutData);
@@ -373,9 +415,36 @@ export default function CheckoutPage() {
           showError('Không thể tạo thanh toán VNPay', vnpayError);
           return;
         }
+
+      } else if (selectedPaymentMethod?.method === 'Momo') {
+        try {
+          console.log('🔄 CHECKOUT DEBUG - Processing MoMo payment...');
+          
+          // Use MoMo checkout endpoint similar to VNPay
+          const momoResponse = await momoService.createMoMoCheckout(checkoutData);
+          
+          console.log('✅ CHECKOUT DEBUG - MoMo response:', momoResponse);
+          
+          // Show loading message
+          showSuccess('Đang chuyển hướng đến MoMo...');
+          
+          // Small delay to show the message
+          setTimeout(() => {
+            // Redirect to MoMo payment page
+            console.log('🚀 CHECKOUT DEBUG - Redirecting to MoMo URL:', momoResponse.paymentUrl);
+            window.location.href = momoResponse.paymentUrl;
+          }, 1000);
+          
+          return; // Exit early - order will be created after successful payment
+          
+        } catch (momoError) {
+          console.error('❌ MoMo checkout creation failed:', momoError);
+          showError('Không thể tạo thanh toán MoMo', momoError);
+          return;
+        }
         
       } else {
-        // For COD and other methods: Create order immediately
+        // For COD only: Create order immediately
         const result = await cartService.checkout(checkoutData);
         
         // Mark checkout as successful to prevent cart redirect
@@ -461,7 +530,11 @@ export default function CheckoutPage() {
                   <div className={styles.addressDetails}>
                     <div className={styles.addressName}>
                       {defaultAddress.fullName} - {defaultAddress.phone}
-                      <span className={styles.defaultBadge}>Địa chỉ mặc định</span>
+                      {getAddressBadge() && (
+                        <span className={getAddressBadge()?.className}>
+                          {getAddressBadge()?.text}
+                        </span>
+                      )}
                     </div>
                     <div className={styles.addressText}>
                       {defaultAddress.addressLine}, {defaultAddress.ward}, {defaultAddress.district}, {defaultAddress.city}
@@ -470,7 +543,7 @@ export default function CheckoutPage() {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => router.push('/profile?section=addresses')}
+                    onClick={() => setShowAddressModal(true)}
                   >
                     Thay đổi
                   </Button>
@@ -717,6 +790,18 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      {/* Address Selection Modal */}
+      <AddressSelectionModal
+        isOpen={showAddressModal}
+        onClose={() => setShowAddressModal(false)}
+        currentAddress={defaultAddress}
+        onSelectAddress={handleAddressSelect}
+        onCreateNew={() => {
+          setShowAddressModal(false);
+          router.push('/profile?section=addresses');
+        }}
+      />
     </div>
   );
 }

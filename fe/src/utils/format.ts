@@ -9,6 +9,34 @@ export function formatPrice(price: number): string {
 }
 
 /**
+ * Format large numbers to compact format (1.2M, 1.5B, etc.)
+ */
+export function formatCompactNumber(num: number): string {
+  if (num === 0) return '0';
+  
+  const absNum = Math.abs(num);
+  const sign = num < 0 ? '-' : '';
+  
+  if (absNum >= 1e9) {
+    return sign + (absNum / 1e9).toFixed(1).replace('.0', '') + 'B';
+  } else if (absNum >= 1e6) {
+    return sign + (absNum / 1e6).toFixed(1).replace('.0', '') + 'M';
+  } else if (absNum >= 1e3) {
+    return sign + (absNum / 1e3).toFixed(1).replace('.0', '') + 'K';
+  } else {
+    return num.toString();
+  }
+}
+
+/**
+ * Format price in compact format for dashboard
+ */
+export function formatCompactPrice(price: number): string {
+  const compactNum = formatCompactNumber(price);
+  return compactNum + 'đ';
+}
+
+/**
  * Format number with thousand separators
  */
 export function formatNumber(num: number): string {

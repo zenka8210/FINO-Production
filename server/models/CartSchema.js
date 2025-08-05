@@ -142,10 +142,10 @@ CartSchema.methods.addItem = function(productVariantId, quantity, price) {
     quantity, 
     price 
   });
-  console.log('📋 Current cart items before adding:', this.items.map(item => ({ 
-    id: item.productVariant ? item.productVariant.toString() : 'NULL', 
-    quantity: item.quantity 
-  })));
+  // console.log('📋 Current cart items before adding:', this.items.map(item => ({ 
+  //   id: item.productVariant ? item.productVariant.toString() : 'NULL', 
+  //   quantity: item.quantity 
+  // })));
   
   const existingItemIndex = this.items.findIndex(
     item => {
@@ -202,10 +202,10 @@ CartSchema.methods.addItem = function(productVariantId, quantity, price) {
     });
   }
 
-  console.log('📋 Cart items after adding:', this.items.map(item => ({ 
-    id: item.productVariant ? item.productVariant.toString() : 'NULL', 
-    quantity: item.quantity 
-  })));
+  // console.log('📋 Cart items after adding:', this.items.map(item => ({ 
+  //   id: item.productVariant ? item.productVariant.toString() : 'NULL', 
+  //   quantity: item.quantity 
+  // })));
 
   return this.save();
 };
@@ -218,11 +218,11 @@ CartSchema.methods.updateItem = function(productVariantId, quantity) {
   }
   
   console.log('🔄 CartSchema.updateItem called', { productVariantId, quantity });
-  console.log('📋 Current cart items:', this.items.map(item => ({ 
-    id: item.productVariant && item.productVariant._id ? item.productVariant._id.toString() : 
-        item.productVariant ? item.productVariant.toString() : 'NULL', 
-    quantity: item.quantity 
-  })));
+  // console.log('📋 Current cart items:', this.items.map(item => ({ 
+  //   id: item.productVariant && item.productVariant._id ? item.productVariant._id.toString() : 
+  //       item.productVariant ? item.productVariant.toString() : 'NULL', 
+  //   quantity: item.quantity 
+  // })));
   
   const item = this.items.find(
     item => {
@@ -267,11 +267,11 @@ CartSchema.methods.removeItem = function(productVariantId) {
   }
   
   console.log('🗑️ CartSchema.removeItem called', { productVariantId });
-  console.log('📋 Current cart items before removal:', this.items.map(item => ({ 
-    id: item.productVariant && item.productVariant._id ? item.productVariant._id.toString() : 
-        item.productVariant ? item.productVariant.toString() : 'NULL', 
-    quantity: item.quantity 
-  })));
+  // console.log('📋 Current cart items before removal:', this.items.map(item => ({ 
+  //   id: item.productVariant && item.productVariant._id ? item.productVariant._id.toString() : 
+  //       item.productVariant ? item.productVariant.toString() : 'NULL', 
+  //   quantity: item.quantity 
+  // })));
   
   this.items = this.items.filter(
     item => {
@@ -281,11 +281,11 @@ CartSchema.methods.removeItem = function(productVariantId) {
     }
   );
   
-  console.log('📋 Cart items after removal:', this.items.map(item => ({ 
-    id: item.productVariant && item.productVariant._id ? item.productVariant._id.toString() : 
-        item.productVariant ? item.productVariant.toString() : 'NULL', 
-    quantity: item.quantity 
-  })));
+  // console.log('📋 Cart items after removal:', this.items.map(item => ({ 
+  //   id: item.productVariant && item.productVariant._id ? item.productVariant._id.toString() : 
+  //       item.productVariant ? item.productVariant.toString() : 'NULL', 
+  //   quantity: item.quantity 
+  // })));
   console.log('✅ Item removed, saving cart...');
   
   return this.save();

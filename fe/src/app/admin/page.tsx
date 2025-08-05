@@ -51,6 +51,15 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [lastUpdateTime, setLastUpdateTime] = useState<string>("");
   
+  // Daily revenue states
+  const [dailyRevenue, setDailyRevenue] = useState({
+    today: 0,
+    yesterday: 0,
+    changePercent: 0,
+    todayOrders: 0
+  });
+  const [isLoadingDailyRevenue, setIsLoadingDailyRevenue] = useState(false);
+  
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -440,6 +449,7 @@ export default function AdminPage() {
   // Load initial revenue data
   useEffect(() => {
     loadRevenueData(chartPeriod);
+    loadDailyRevenue();
   }, []);
 
   // Log để debug
@@ -453,6 +463,261 @@ export default function AdminPage() {
     totalOrders,
     error
   });
+
+  // Function to get status color
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'pending': return '#f59e0b';
+      case 'processing': return '#8b5cf6';
+      case 'shipped': return '#06b6d4';
+      case 'delivered': return '#10b981';
+      case 'cancelled': return '#ef4444';
+      default: return '#64748b';
+    }
+  };
+
+  // Function to get status label
+  const getStatusLabel = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'pending': return 'Chờ xử lý';
+      case 'processing': return 'Đang xử lý';
+      case 'shipped': return 'Đã gửi hàng';
+      case 'delivered': return 'Đã giao hàng';
+      case 'cancelled': return 'Đã hủy';
+      default: return status;
+    }
+  };
+
+  // Function to get payment status color
+  const getPaymentStatusColor = (paymentStatus: string) => {
+    switch (paymentStatus.toLowerCase()) {
+      case 'pending': return '#f59e0b';
+      case 'paid': return '#10b981';
+      case 'failed': return '#ef4444';
+      case 'cancelled': return '#6b7280';
+      default: return '#64748b';
+    }
+  };
+
+  // Function to get payment status label
+  const getPaymentStatusLabel = (paymentStatus: string) => {
+    switch (paymentStatus.toLowerCase()) {
+      case 'pending': return 'Chờ thanh toán';
+      case 'paid': return 'Đã thanh toán';
+      case 'failed': return 'Thất bại';
+      case 'cancelled': return 'Đã hủy';
+      default: return paymentStatus;
+    }
+  };
+
+  // Function to handle chart period change
+  const handleChartPeriodChange = (period: '7' | '30' | '90') => {
+    setChartPeriod(period);
+    loadRevenueData(period);
+  };
+
+  // Function to refresh revenue data specifically
+  const refreshRevenueData = async () => {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` })
+    };
+
+    try {
+      console.log('🔄 Refreshing revenue data (FIXED)...');
+      const ordersRes = await fetch(`${BASE_URL}/api/orders`, { headers });
+      const ordersData = await ordersRes.json();
+      
+      if (ordersData.data || ordersData.orders || Array.isArray(ordersData)) {
+        const orders = ordersData.data || ordersData.orders || ordersData;
+        
+        let totalRevenue = 0;
+        orders.forEach((order: any) => {
+          const orderTotal = order.finalTotal || order.total || 0;
+          const paymentStatus = (order.paymentStatus || '').toLowerCase();
+          const isPaid = paymentStatus === 'paid';
+          
+          if (isPaid) {
+            totalRevenue += parseFloat(orderTotal) || 0;
+          }
+        });
+        
+        setStats(prev => ({
+          ...prev,
+          earnings: totalRevenue
+        }));
+        
+        console.log('💰 Revenue refreshed (FIXED):', totalRevenue);
+      }
+    } catch (error) {
+      console.error('❌ Failed to refresh revenue:', error);
+    }
+  };
+
+  // Function to refresh all stats
+  const refreshAllStats = async () => {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` })
+    };
+
+    setLoading(true);
+    
+    try {
+      console.log('🔄 Refreshing all stats...');
+      
+      // Load individual APIs
+      const [ordersRes, usersRes, productsRes] = await Promise.all([
+        fetch(`${BASE_URL}/api/orders`, { headers }).catch(() => null),
+        fetch(`${BASE_URL}/api/users`, { headers }).catch(() => null),
+        fetch(`${BASE_URL}/api/products`, { headers }).catch(() => null)
+      ]);
+
+      let newStats = { earnings: 0, users: 0, products: 0, orders: 0, lowStock: 0 };
+
+      if (ordersRes) {
+        const ordersData = await ordersRes.json();
+        const orders = ordersData.data || ordersData.orders || ordersData;
+        if (Array.isArray(orders)) {
+          newStats.orders = orders.length;
+          newStats.earnings = orders.reduce((sum: number, order: any) => {
+            const orderTotal = order.finalTotal || order.total || 0;
+            const paymentStatus = (order.paymentStatus || '').toLowerCase();
+            return paymentStatus === 'paid' ? sum + (parseFloat(orderTotal) || 0) : sum;
+          }, 0);
+        }
+      }
+
+      if (usersRes) {
+        const usersData = await usersRes.json();
+        const users = usersData.data || usersData.users || usersData;
+        if (Array.isArray(users)) newStats.users = users.length;
+      }
+
+      if (productsRes) {
+        const productsData = await productsRes.json();
+        const products = productsData.data || productsData.products || productsData;
+        if (Array.isArray(products)) {
+          newStats.products = products.length;
+          // Calculate low stock items
+          newStats.lowStock = products.filter((product: any) => (product.stock || 0) < 5).length;
+        }
+      }
+
+      setStats(newStats);
+      console.log('All stats refreshed:', newStats);
+      
+      // Also refresh daily revenue and orders
+      await loadDailyRevenue();
+      await loadOrdersPage(currentPage);
+      
+      alert('Dữ liệu đã được cập nhật!');
+    } catch (error) {
+      console.error('Failed to refresh stats:', error);
+      alert('Lỗi khi cập nhật dữ liệu. Vui lòng thử lại!');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to update order status
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` })
+    };
+
+    try {
+      console.log(`Updating order ${orderId} to status: ${newStatus}`);
+      
+      const response = await fetch(`${BASE_URL}/api/orders/admin/${orderId}/status`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      const result = await response.json();
+      
+      if (result.success || response.ok) {
+        // Update local state
+        setRecentOrders(prev => 
+          prev.map(order => 
+            order._id === orderId 
+              ? { ...order, status: newStatus, updatedAt: new Date().toISOString() }
+              : order
+          )
+        );
+        
+        setAllOrders(prev => 
+          prev.map(order => 
+            order._id === orderId 
+              ? { ...order, status: newStatus, updatedAt: new Date().toISOString() }
+              : order
+          )
+        );
+        
+        console.log('Order status updated successfully');
+        alert('Cập nhật trạng thái đơn hàng thành công!');
+      } else {
+        throw new Error(result.message || 'Failed to update order status');
+      }
+    } catch (error) {
+      console.error('Failed to update order status:', error);
+      alert('Lỗi khi cập nhật trạng thái đơn hàng. Vui lòng thử lại!');
+    }
+  };
+
+  // Function to update payment status
+  const updatePaymentStatus = async (orderId: string, newPaymentStatus: string) => {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+
+    try {
+      const response = await fetch(`${BASE_URL}/api/orders/admin/${orderId}/payment-status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ paymentStatus: newPaymentStatus })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // Update local state
+        setRecentOrders(prev => 
+          prev.map(order => 
+            order._id === orderId 
+              ? { ...order, paymentStatus: newPaymentStatus, updatedAt: new Date().toISOString() }
+              : order
+          )
+        );
+        
+        setAllOrders(prev => 
+          prev.map(order => 
+            order._id === orderId 
+              ? { ...order, paymentStatus: newPaymentStatus, updatedAt: new Date().toISOString() }
+              : order
+          )
+        );
+        
+        console.log('Payment status updated successfully');
+        alert('Cập nhật trạng thái thanh toán thành công!');
+      } else {
+        throw new Error(result.message || 'Failed to update payment status');
+      }
+    } catch (error) {
+      console.error('Failed to update payment status:', error);
+      alert('Lỗi khi cập nhật trạng thái thanh toán. Vui lòng thử lại!');
+    }
+  };
 
   // Function to load orders with pagination
   const loadOrdersPage = async (page: number = 1) => {
@@ -512,6 +777,64 @@ export default function AdminPage() {
       console.error('Failed to load orders page:', error);
     } finally {
       setIsLoadingOrders(false);
+    }
+  };
+
+  // Function to load daily revenue data
+  const loadDailyRevenue = async () => {
+    setIsLoadingDailyRevenue(true);
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    
+    try {
+      const response = await fetch(`${BASE_URL}/api/statistics/daily-revenue`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setDailyRevenue(data.data);
+        }
+      } else {
+        // Fallback calculation from recent orders
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        
+        const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+        const yesterdayEnd = new Date(todayStart.getTime() - 1);
+        
+        const todayOrders = recentOrders.filter(order => {
+          const orderDate = new Date(order.createdAt);
+          return orderDate >= todayStart && order.paymentStatus === 'paid';
+        });
+        
+        const yesterdayOrders = recentOrders.filter(order => {
+          const orderDate = new Date(order.createdAt);
+          return orderDate >= yesterdayStart && orderDate <= yesterdayEnd && order.paymentStatus === 'paid';
+        });
+        
+        const todayRevenue = todayOrders.reduce((sum, order) => sum + (order.finalTotal || order.total || 0), 0);
+        const yesterdayRevenue = yesterdayOrders.reduce((sum, order) => sum + (order.finalTotal || order.total || 0), 0);
+        
+        const changePercent = yesterdayRevenue > 0 ? ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100 : 0;
+        
+        setDailyRevenue({
+          today: todayRevenue,
+          yesterday: yesterdayRevenue,
+          changePercent,
+          todayOrders: todayOrders.length
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load daily revenue:', error);
+    } finally {
+      setIsLoadingDailyRevenue(false);
     }
   };
 
@@ -592,379 +915,7 @@ export default function AdminPage() {
     return data;
   };
 
-  // Handle chart period change
-  const handleChartPeriodChange = (period: '7' | '30' | '90') => {
-    setChartPeriod(period);
-    loadRevenueData(period);
-  };
-
-  // Function to refresh revenue data specifically
-  const refreshRevenueData = async () => {
-    const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
-    };
-
-    try {
-      console.log('🔄 Refreshing revenue data (FIXED)...');
-      const ordersRes = await fetch(`${BASE_URL}/api/orders`, { headers });
-      const ordersData = await ordersRes.json();
-      
-      if (ordersData.data || ordersData.orders || Array.isArray(ordersData)) {
-        const orders = ordersData.data || ordersData.orders || ordersData;
-        
-        let totalRevenue = 0;
-        orders.forEach((order: any) => {
-          const orderTotal = order.finalTotal || 
-                            order.total || 
-                            order.totalAmount || 
-                            order.totalPrice ||
-                            order.grandTotal ||
-                            order.amount ||
-                            0;
-          
-          // FIXED: Use consistent logic - only count orders with paymentStatus: 'paid'
-          const paymentStatus = (order.paymentStatus || '').toLowerCase();
-          const isPaid = paymentStatus === 'paid';
-          
-          if (isPaid) {
-            totalRevenue += parseFloat(orderTotal) || 0;
-          }
-        });
-        
-        setStats(prev => ({
-          ...prev,
-          earnings: totalRevenue
-        }));
-        
-        console.log('💰 Revenue refreshed (FIXED):', totalRevenue);
-      }
-    } catch (error) {
-      console.error('❌ Failed to refresh revenue:', error);
-    }
-  };
-
-  // Function to refresh all stats
-  const refreshAllStats = async () => {
-    const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
-    };
-
-    setLoading(true);
-    
-    try {
-      console.log('🔄 Refreshing all stats using optimized API...');
-      
-      // Try the optimized complete dashboard API first
-      try {
-        const completeRes = await fetch(
-          `${BASE_URL}/api/statistics/complete-dashboard?ordersPage=${currentPage}&ordersLimit=${ordersPerPage}&revenueChartPeriod=week`,
-          { headers }
-        );
-        const completeData = await completeRes.json();
-        
-        if (completeData.success && completeData.data) {
-          const data = completeData.data;
-          
-          // Update all states from single API call
-          setStats({
-            earnings: data.totalRevenue || 0,
-            users: data.totalUsers || 0,
-            products: data.totalProducts || 0,
-            orders: data.totalOrders || 0,
-            lowStock: data.totalLowStock || 0,
-          });
-          
-          if (data.recentOrders) setRecentOrders(data.recentOrders);
-          if (data.paginatedOrders) {
-            setAllOrders(data.paginatedOrders.data || []);
-            if (data.paginatedOrders.pagination) {
-              setCurrentPage(data.paginatedOrders.pagination.currentPage);
-              setTotalPages(data.paginatedOrders.pagination.totalPages);
-              setTotalOrders(data.paginatedOrders.pagination.total);
-            }
-          }
-          if (data.revenueChart) {
-            const chartData = [];
-            if (data.revenueChart.labels && data.revenueChart.data) {
-              for (let i = 0; i < data.revenueChart.labels.length; i++) {
-                chartData.push({
-                  date: data.revenueChart.labels[i],
-                  revenue: data.revenueChart.data[i] || 0
-                });
-              }
-            }
-            if (chartData.length > 0) setRevenueData(chartData);
-          }
-          if (data.recentActivity) setRecentActivity(data.recentActivity);
-          
-          console.log('✅ All data refreshed successfully from optimized API!');
-          alert('Dữ liệu đã được cập nhật thành công!');
-          return;
-        }
-      } catch (error) {
-        console.log('❌ Optimized API failed, falling back to individual APIs...', error);
-      }
-      
-      // Fallback: Try dashboard API first
-      try {
-        const dashboardRes = await fetch(`${BASE_URL}/api/statistics/dashboard`, { headers });
-        const dashboardData = await dashboardRes.json();
-        
-        if (dashboardData.success && dashboardData.data) {
-          setStats({
-            earnings: dashboardData.data.totalRevenue || 0,
-            users: dashboardData.data.totalUsers || 0,
-            products: dashboardData.data.totalProducts || 0,
-            orders: dashboardData.data.totalOrders || 0,
-            lowStock: dashboardData.data.totalLowStock || 0,
-          });
-          console.log('All stats refreshed from dashboard API');
-        } else {
-          throw new Error('Dashboard API not available');
-        }
-      } catch (error) {
-        console.log('Dashboard API failed, using individual APIs...');
-        
-        // Fallback to individual APIs
-        const [ordersRes, usersRes, productsRes, newsRes] = await Promise.all([
-          fetch(`${BASE_URL}/api/orders`, { headers }).catch(() => null),
-          fetch(`${BASE_URL}/api/users`, { headers }).catch(() => null),
-          fetch(`${BASE_URL}/api/products`, { headers }).catch(() => null),
-          fetch(`${BASE_URL}/api/posts`, { headers }).catch(() => null)
-        ]);
-
-        let newStats = { earnings: 0, users: 0, products: 0, orders: 0, lowStock: 0 };
-
-        if (ordersRes) {
-          const ordersData = await ordersRes.json();
-          const orders = ordersData.data || ordersData.orders || ordersData;
-          if (Array.isArray(orders)) {
-            newStats.orders = orders.length;
-            // FIXED: Use consistent revenue logic
-            newStats.earnings = orders.reduce((sum: number, order: any) => {
-              const orderTotal = order.finalTotal || order.total || order.totalAmount || 0;
-              // Only count paid orders
-              const paymentStatus = (order.paymentStatus || '').toLowerCase();
-              const isPaid = paymentStatus === 'paid';
-              return isPaid ? sum + parseFloat(orderTotal || 0) : sum;
-            }, 0);
-          }
-        }
-
-        if (usersRes) {
-          const usersData = await usersRes.json();
-          const users = usersData.data || usersData.users || usersData;
-          if (Array.isArray(users)) newStats.users = users.length;
-        }
-
-        if (productsRes) {
-          const productsData = await productsRes.json();
-          const products = productsData.data || productsData.products || productsData;
-          if (Array.isArray(products)) newStats.products = products.length;
-        }
-
-        if (newsRes) {
-          const newsData = await newsRes.json();
-          const news = newsData.data || newsData.posts || newsData;
-          if (Array.isArray(news)) newStats.lowStock = news.length; // Temporary, should be changed to actual low stock API
-        }
-
-        setStats(newStats);
-        console.log('All stats refreshed from individual APIs:', newStats);
-      }
-      
-      alert('Dữ liệu đã được cập nhật!');
-    } catch (error) {
-      console.error('Failed to refresh stats:', error);
-      alert('Lỗi khi cập nhật dữ liệu. Vui lòng thử lại!');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Function to update order status
-  const updateOrderStatus = async (orderId: string, newStatus: string) => {
-    const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
-    };
-
-    try {
-      console.log(`Updating order ${orderId} to status: ${newStatus}`);
-      
-      const response = await fetch(`${BASE_URL}/api/orders/admin/${orderId}/status`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify({ status: newStatus })
-      });
-
-      const result = await response.json();
-      
-      if (result.success || response.ok) {
-        // Update local state với data mới từ server response (bao gồm cả paymentStatus đã tự động cập nhật)
-        const updatedOrder = result.data || result.order;
-        
-        setRecentOrders(prev => 
-          prev.map(order => 
-            order._id === orderId 
-              ? { 
-                  ...order, 
-                  status: newStatus, 
-                  paymentStatus: updatedOrder?.paymentStatus || order.paymentStatus,
-                  updatedAt: new Date().toISOString() 
-                }
-              : order
-          )
-        );
-        
-        setAllOrders(prev => 
-          prev.map(order => 
-            order._id === orderId 
-              ? { 
-                  ...order, 
-                  status: newStatus, 
-                  paymentStatus: updatedOrder?.paymentStatus || order.paymentStatus,
-                  updatedAt: new Date().toISOString() 
-                }
-              : order
-          )
-        );
-        
-        // Refresh revenue if status affects payment
-        const statusesThatMightAffectPayment = ['delivered', 'cancelled'];
-        if (statusesThatMightAffectPayment.includes(newStatus.toLowerCase())) {
-          console.log('🔄 Status change might affect revenue, refreshing...');
-          refreshRevenueData();
-        }
-        
-        console.log('Order status updated successfully');
-        
-        // Refresh all dashboard data to sync with database
-        console.log('🔄 Refreshing dashboard data to sync with database...');
-        await loadOrdersPage(currentPage);
-        await loadRevenueData();
-        
-        // Show success message with COD auto-payment info if applicable
-        let successMessage = 'Cập nhật trạng thái đơn hàng thành công!';
-        if (newStatus === 'delivered' && updatedOrder?.paymentStatus === 'paid') {
-          successMessage += '\n� Trạng thái thanh toán COD đã tự động cập nhật thành "Đã thanh toán".';
-        }
-        
-        alert(successMessage);
-      } else {
-        throw new Error(result.message || 'Failed to update order status');
-      }
-    } catch (error) {
-      console.error('Failed to update order status:', error);
-      alert('Lỗi khi cập nhật trạng thái đơn hàng. Vui lòng thử lại!');
-    }
-  };
-
-  // Function to update payment status
-  const updatePaymentStatus = async (orderId: string, newPaymentStatus: string) => {
-    const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-
-    try {
-      const response = await fetch(`${BASE_URL}/api/orders/admin/${orderId}/payment-status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ paymentStatus: newPaymentStatus })
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        // Update local state for recent orders
-        setRecentOrders(prev => 
-          prev.map(order => 
-            order._id === orderId 
-              ? { ...order, paymentStatus: newPaymentStatus, updatedAt: new Date().toISOString() }
-              : order
-          )
-        );
-        
-        // Update local state for all orders
-        setAllOrders(prev => 
-          prev.map(order => 
-            order._id === orderId 
-              ? { ...order, paymentStatus: newPaymentStatus, updatedAt: new Date().toISOString() }
-              : order
-          )
-        );
-        
-        // Refresh all data to sync with database
-        console.log('🔄 Payment status changed, refreshing all data...');
-        await loadOrdersPage(currentPage);
-        await loadRevenueData();
-        
-        console.log('Payment status updated successfully');
-        alert('Cập nhật trạng thái thanh toán thành công!');
-      } else {
-        throw new Error(result.message || 'Failed to update payment status');
-      }
-    } catch (error) {
-      console.error('Failed to update payment status:', error);
-      alert('Lỗi khi cập nhật trạng thái thanh toán. Vui lòng thử lại!');
-    }
-  };
-
-  // Function to get status color
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'pending': return '#f59e0b';
-      case 'processing': return '#8b5cf6';
-      case 'shipped': return '#06b6d4';
-      case 'delivered': return '#10b981';
-      case 'cancelled': return '#ef4444';
-      default: return '#64748b';
-    }
-  };
-
-  // Function to get status label
-  const getStatusLabel = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'pending': return 'Chờ xử lý';
-      case 'processing': return 'Đang xử lý';
-      case 'shipped': return 'Đã gửi hàng';
-      case 'delivered': return 'Đã giao hàng';
-      case 'cancelled': return 'Đã hủy';
-      default: return status;
-    }
-  };
-
-  // Function to get payment status color
-  const getPaymentStatusColor = (paymentStatus: string) => {
-    switch (paymentStatus.toLowerCase()) {
-      case 'pending': return '#f59e0b';
-      case 'paid': return '#10b981';
-      case 'failed': return '#ef4444';
-      case 'cancelled': return '#6b7280';
-      default: return '#64748b';
-    }
-  };
-
-  // Function to get payment status label
-  const getPaymentStatusLabel = (paymentStatus: string) => {
-    switch (paymentStatus.toLowerCase()) {
-      case 'pending': return 'Chờ thanh toán';
-      case 'paid': return 'Đã thanh toán';
-      case 'failed': return 'Thất bại';
-      case 'cancelled': return 'Đã hủy';
-      default: return paymentStatus;
-    }
-  };
+  // Hiển thị loading khi đang load auth hoặc chưa có user
 
   // Function to auto-fix order inconsistencies
   const autoFixOrderInconsistencies = async (orderId: string) => {
@@ -1046,6 +997,112 @@ export default function AdminPage() {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
+        
+        /* Enhanced popup styling for order selects */
+        .orderItem {
+          position: relative;
+          z-index: 1;
+          overflow: visible !important;
+        }
+        
+        .orderItem:focus-within {
+          z-index: 100 !important;
+          position: relative;
+          background: rgba(102, 126, 234, 0.05) !important;
+          border-radius: 0.75rem;
+          margin: 0.25rem 0;
+          box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2) !important;
+          transform: scale(1.01);
+        }
+        
+        .orderStatusSelect:focus,
+        .paymentStatusSelect:focus {
+          z-index: 1000 !important;
+          position: relative;
+          transform: scale(1.05);
+          box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3) !important;
+        }
+        
+        /* Ensure dropdowns appear above everything */
+        select:focus {
+          position: relative;
+          z-index: 9999 !important;
+        }
+        
+        /* Container improvements for popup visibility */
+        .ordersList {
+          overflow: visible !important;
+        }
+        
+        .orderManagementContent {
+          overflow: visible !important;
+        }
+        
+        .ordersListContainer {
+          overflow: visible !important;
+        }
+        
+        /* Better spacing and visual hierarchy */
+        .orderItem > * {
+          transition: all 0.2s ease;
+        }
+        
+        .orderItem:hover > * {
+          transform: translateY(-1px);
+        }
+        
+        .orderItem:focus-within > *:not(select) {
+          opacity: 0.9;
+        }
+        
+        .orderItem:focus-within select {
+          opacity: 1;
+          font-weight: 600;
+        }
+        
+        /* Ensure select options are visible */
+        select option {
+          background: white !important;
+          color: #374151 !important;
+          padding: 8px 12px !important;
+          border: none !important;
+        }
+        
+        /* Stats Grid responsive improvements for 7 cards */
+        @media (max-width: 1399px) {
+          .statsGrid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+            gap: 1rem !important;
+          }
+        }
+        
+        @media (max-width: 1199px) {
+          .statsGrid {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+            gap: 0.875rem !important;
+          }
+        }
+        
+        @media (max-width: 991px) {
+          .statsGrid {
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
+            gap: 0.75rem !important;
+          }
+        }
+        
+        @media (max-width: 767px) {
+          .statsGrid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 0.75rem !important;
+          }
+        }
+        
+        @media (max-width: 575px) {
+          .statsGrid {
+            grid-template-columns: 1fr !important;
+            gap: 0.75rem !important;
+          }
+        }
       `}</style>
       
       {/* Stats Grid Header */}
@@ -1109,7 +1166,7 @@ export default function AdminPage() {
       <section className={styles.statsGrid}>
         <StatCard
           title="Tổng Doanh Thu"
-          value={stats.earnings}
+          value={stats.earnings.toLocaleString('vi-VN')}
           icon="💰"
           variant="revenue"
           change={{
@@ -1121,6 +1178,22 @@ export default function AdminPage() {
           onRefresh={refreshRevenueData}
           refreshLabel="Làm mới dữ liệu doanh thu"
           loading={loading}
+        />
+
+        <StatCard
+          title="Doanh thu hôm nay"
+          value={dailyRevenue.today}
+          icon="📈"
+          variant="daily-revenue"
+          change={{
+            type: dailyRevenue.changePercent >= 0 ? 'positive' : 'negative',
+            value: `${dailyRevenue.changePercent >= 0 ? '+' : ''}${dailyRevenue.changePercent.toFixed(1)}% so với hôm qua`,
+            icon: dailyRevenue.changePercent >= 0 ? '↗' : '↘'
+          }}
+          note={`*${dailyRevenue.todayOrders} đơn hàng hôm nay`}
+          onRefresh={loadDailyRevenue}
+          refreshLabel="Làm mới doanh thu ngày"
+          loading={isLoadingDailyRevenue}
         />
 
         <StatCard
@@ -1411,11 +1484,29 @@ export default function AdminPage() {
             
             {/* Content Section */}
             <div className={styles.orderManagementContent}>
-              <div className={styles.ordersListContainer}>
-                <div className={`${styles.ordersList} ${showAllOrders ? styles.expanded : ''} ${showAllOrders && allOrders.length > 10 ? styles.scrollable : ''}`}>
+              <div className={styles.ordersListContainer} style={{ 
+                position: 'relative',
+                overflow: 'visible',
+                zIndex: 1
+              }}>
+                <div className={`${styles.ordersList} ${showAllOrders ? styles.expanded : ''} ${showAllOrders && allOrders.length > 10 ? styles.scrollable : ''}`} style={{
+                  position: 'relative',
+                  overflow: showAllOrders && allOrders.length > 10 ? 'auto' : 'visible',
+                  zIndex: 1
+                }}>
                 {(showAllOrders ? allOrders : recentOrders).length > 0 ? (
                   (showAllOrders ? allOrders : recentOrders).map((order) => (
-                    <div key={order._id} className={styles.orderItem}>
+                    <div key={order._id} className={styles.orderItem} style={{
+                      display: 'grid',
+                      gridTemplateColumns: '60px 2fr 1fr 120px 120px 140px 140px',
+                      gap: '1rem',
+                      alignItems: 'center',
+                      padding: '1.25rem 1.5rem',
+                      borderBottom: '1px solid rgba(226, 232, 240, 0.5)',
+                      transition: 'all 0.2s ease',
+                      position: 'relative',
+                      zIndex: 1
+                    }}>
                       {/* Order Icon */}
                       <div className={styles.orderIcon}>
                         📦
@@ -1459,6 +1550,24 @@ export default function AdminPage() {
                         onChange={(e) => updateOrderStatus(order._id, e.target.value)}
                         onClick={(e) => e.stopPropagation()}
                         className={styles.orderStatusSelect}
+                        style={{
+                          position: 'relative',
+                          zIndex: 10,
+                          minWidth: '140px',
+                          maxWidth: '140px'
+                        }}
+                        onFocus={(e) => {
+                          e.target.style.zIndex = '1000';
+                          if (e.target.parentElement) {
+                            e.target.parentElement.style.zIndex = '100';
+                          }
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.zIndex = '10';
+                          if (e.target.parentElement) {
+                            e.target.parentElement.style.zIndex = '1';
+                          }
+                        }}
                       >
                         <option value="pending">🕐 Chờ xử lý</option>
                         <option value="processing">⚙️ Đang xử lý</option>
@@ -1473,6 +1582,24 @@ export default function AdminPage() {
                         onChange={(e) => updatePaymentStatus(order._id, e.target.value)}
                         onClick={(e) => e.stopPropagation()}
                         className={styles.paymentStatusSelect}
+                        style={{
+                          position: 'relative',
+                          zIndex: 10,
+                          minWidth: '140px',
+                          maxWidth: '140px'
+                        }}
+                        onFocus={(e) => {
+                          e.target.style.zIndex = '1000';
+                          if (e.target.parentElement) {
+                            e.target.parentElement.style.zIndex = '100';
+                          }
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.zIndex = '10';
+                          if (e.target.parentElement) {
+                            e.target.parentElement.style.zIndex = '1';
+                          }
+                        }}
                       >
                         <option value="pending">💳 Chờ thanh toán</option>
                         <option value="paid">✅ Đã thanh toán</option>

@@ -165,6 +165,55 @@ export class VoucherService {
     }
   }
 
+  /**
+   * Get best voucher suggestion for cart value
+   */
+  async getBestVoucherForCart(orderValue: number): Promise<{ voucher: Voucher | null; discountAmount: number; savings: string } | null> {
+    try {
+      // Get all active vouchers
+      const vouchers = await this.getActiveVouchers();
+      
+      if (!vouchers || vouchers.length === 0) {
+        return null;
+      }
+
+      let bestVoucher: Voucher | null = null;
+      let maxDiscount = 0;
+
+      // Find the voucher that gives maximum discount for current cart value
+      for (const voucher of vouchers) {
+        // Check if cart value meets minimum requirement
+        if (orderValue >= voucher.minimumOrderValue) {
+          // Calculate discount (all vouchers are percentage based)
+          let discount = (orderValue * voucher.discountPercent) / 100;
+          
+          // Apply maximum discount limit
+          if (voucher.maximumDiscountAmount) {
+            discount = Math.min(discount, voucher.maximumDiscountAmount);
+          }
+
+          if (discount > maxDiscount) {
+            maxDiscount = discount;
+            bestVoucher = voucher;
+          }
+        }
+      }
+
+      if (bestVoucher && maxDiscount > 0) {
+        return {
+          voucher: bestVoucher,
+          discountAmount: maxDiscount,
+          savings: `Tiết kiệm ${Math.round((maxDiscount / orderValue) * 100)}%`
+        };
+      }
+
+      return null;
+    } catch (error: any) {
+      console.error('Error getting best voucher:', error);
+      return null;
+    }
+  }
+
   // ========== ADMIN ROUTES ==========
 
   /**

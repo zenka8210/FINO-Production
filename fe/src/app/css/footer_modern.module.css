@@ -228,9 +228,15 @@
   border-top: 1px solid #e2e8f0;
   padding: var(--spacing-4) 0;
   background: #f8fafc;
+  width: 100%;
+  margin: 0;
+  position: relative;
 }
 
 .footerBottomContent {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-4);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -310,6 +316,7 @@
     flex-direction: column;
     text-align: center;
     gap: var(--spacing-2);
+    padding: 0 var(--spacing-4);
   }
 }
 
@@ -349,6 +356,10 @@
     min-width: 60px;
     height: 32px;
     padding: var(--spacing-1) var(--spacing-2);
+  }
+
+  .footerBottomContent {
+    padding: 0 var(--spacing-3);
   }
 }
 

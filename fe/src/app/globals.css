@@ -443,15 +443,15 @@ button.btn-secondary:hover {
 }
 
 /* CSS toàn cục cho ảnh sản phẩm */
-img[alt*="sản phẩm"], 
-img[alt*="product"], 
+img[alt*="sản phẩm"],
+img[alt*="product"],
 .product-image,
 .productImage {
   max-width: 100%;
   height: auto;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
-  background: #f8f9fa;
+  background: transparent;
 }
 
 /* Đảm bảo tất cả ảnh trong container sản phẩm có kích thước nhất quán */
@@ -459,9 +459,139 @@ img[alt*="product"],
 .product-item img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
   transition: transform 0.3s ease;
+  background: transparent;
+}
+
+/* Thêm style mới cho container ảnh sản phẩm */
+.productImageContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+}
+
+.productImageContainer img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  transition: transform 0.3s ease;
+  background: transparent;
+}
+
+/* Hiệu ứng nền mờ cho ảnh sản phẩm - loại bỏ viền trắng */
+.productImageContainer {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.productImageContainer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--blur-bg, none);
+  background-size: cover;
+  background-position: center;
+  filter: blur(25px) brightness(1.3);
+  z-index: 1;
+  opacity: 1;
+}
+
+.productImageContainer img {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: transparent;
+  transition: transform 0.3s ease;
+}
+
+/* Áp dụng cho tất cả container ảnh sản phẩm */
+.imageContainer,
+.productImageContainer,
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.imageContainer::before,
+.imageWrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--blur-bg, none);
+  background-size: cover;
+  background-position: center;
+  filter: blur(25px) brightness(1.3);
+  z-index: 1;
+  opacity: 1;
+}
+
+.imageContainer img,
+.imageWrapper img {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: transparent;
+  transition: transform 0.3s ease;
+}
+
+/* Đảm bảo tất cả khung sản phẩm có kích thước bằng nhau */
+.productItem,
+.product-item,
+.productCard {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px; /* Đảm bảo chiều cao tối thiểu */
+}
+
+.productInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Đảm bảo tên sản phẩm nằm trên một dòng */
+.productName,
+.product-name,
+.productItem .productName,
+.product-item .productName,
+.productCard .productName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-height: 1.4rem;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 /* CSS cho ảnh loading và error state */
@@ -485,4 +615,88 @@ img[src="#"] {
   100% {
     background-position: -200% 0;
   }
+}
+
+/* Đảm bảo container ảnh có kích thước cố định */
+.imageContainer,
+.productImageContainer,
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 200px !important; /* Chiều cao cố định */
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  flex-shrink: 0 !important; /* Không cho phép co lại */
+}
+
+/* Đảm bảo tất cả product wrapper có cùng kích thước */
+.productWrapper {
+  position: relative !important;
+  height: 450px !important;
+  min-height: 450px !important;
+  max-height: 450px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* Đảm bảo grid layout nhất quán */
+.productsGrid {
+  display: grid !important;
+  grid-template-columns: repeat(1, 1fr) !important; /* Mobile: 1 column */
+  gap: 2rem !important;
+  align-items: stretch !important; /* Đảm bảo tất cả items có cùng chiều cao */
+  grid-auto-rows: 1fr !important; /* Force equal row heights */
+  width: 100% !important;
+}
+
+/* Responsive grid */
+@media (min-width: 480px) {
+  .productsGrid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-auto-rows: 1fr !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .productsGrid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-auto-rows: 1fr !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .productsGrid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-auto-rows: 1fr !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .productsGrid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-auto-rows: 1fr !important;
+  }
+}
+
+/* Ultimate override for uniform product sizing */
+.productsGrid .productWrapper,
+.productsGrid > .productWrapper,
+.productsGrid [class*="productWrapper"],
+[class*="productsGrid"] .productWrapper,
+[class*="productsGrid"] > .productWrapper {
+  height: 450px !important;
+  min-height: 450px !important;
+  max-height: 450px !important;
+  width: 100% !important;
+  flex: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
 }

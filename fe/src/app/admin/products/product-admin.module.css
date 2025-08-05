@@ -207,9 +207,10 @@ table.min-w-full.divide-y.divide-gray-200 {
 .productImage {
   width: 60px;
   height: 60px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 8px;
   border: 2px solid #e0e0e0;
+  background: transparent;
 }
 
 .productName {

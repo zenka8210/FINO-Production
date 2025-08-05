@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts';
 import { PageHeader, Button } from '@/app/components/ui';
@@ -203,36 +203,9 @@ export default function OrderDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showInvoice, setShowInvoice] = useState(false);
+  const [hasRefreshedFromPayment, setHasRefreshedFromPayment] = useState(false);
 
-  useEffect(() => {
-    console.log('🔍 Auth state:', { user: !!user, authLoading, isAuthenticated, orderId });
-    
-    if (authLoading) {
-      console.log('⏳ Auth still loading...');
-      return; // Wait for auth to load
-    }
-    
-    if (orderId) {
-      console.log('✅ Proceeding to fetch order');
-      fetchOrderDetail();
-    }
-  }, [orderId, authLoading]);
-
-  // Force refresh order data when coming from payment success
-  useEffect(() => {
-    const fromPayment = searchParams.get('fromPayment');
-    const refresh = searchParams.get('refresh');
-    
-    if ((fromPayment === 'true' || refresh === 'true') && orderId && !loading) {
-      console.log('🔄 Force refreshing order data after payment');
-      // Small delay to ensure VNPay callback has completed
-      setTimeout(() => {
-        fetchOrderDetail();
-      }, 1000);
-    }
-  }, [searchParams, orderId, loading]);
-
-  const fetchOrderDetail = async () => {
+  const fetchOrderDetail = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -247,7 +220,43 @@ export default function OrderDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId]);
+
+  useEffect(() => {
+    console.log('🔍 Auth state:', { user: !!user, authLoading, isAuthenticated, orderId });
+    
+    if (authLoading) {
+      console.log('⏳ Auth still loading...');
+      return; // Wait for auth to load
+    }
+    
+    if (orderId) {
+      console.log('✅ Proceeding to fetch order');
+      fetchOrderDetail();
+    }
+  }, [orderId, authLoading, fetchOrderDetail]);
+
+  // Force refresh order data when coming from payment success - only once
+  useEffect(() => {
+    const fromPayment = searchParams.get('fromPayment');
+    const refresh = searchParams.get('refresh');
+    
+    if ((fromPayment === 'true' || refresh === 'true') && orderId && !hasRefreshedFromPayment) {
+      console.log('🔄 Force refreshing order data after payment');
+      setHasRefreshedFromPayment(true);
+      
+      // Clear the query parameters to prevent further refreshes
+      const url = new URL(window.location.href);
+      url.searchParams.delete('fromPayment');
+      url.searchParams.delete('refresh');
+      router.replace(url.pathname + url.search, { scroll: false });
+      
+      // Small delay to ensure VNPay callback has completed
+      setTimeout(() => {
+        fetchOrderDetail();
+      }, 1000);
+    }
+  }, [searchParams, orderId, hasRefreshedFromPayment, fetchOrderDetail, router]);
 
   const handleCancelOrder = async () => {
     if (!order || !window.confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {

@@ -4,10 +4,10 @@ import { useState, useEffect, useMemo, memo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useCart, useApiNotification } from '@/hooks';
 import { Button, PageHeader, LoadingSpinner, Pagination } from '@/app/components/ui';
-import { FaShoppingCart, FaTrash, FaPlus, FaMinus, FaCreditCard } from 'react-icons/fa';
+import { FaShoppingCart, FaTrash, FaPlus, FaMinus, FaCreditCard, FaTag, FaGift } from 'react-icons/fa';
 import { formatCurrency } from '@/lib/utils';
-import { addressService } from '@/services';
-import { CartWithRefs, Address } from '@/types';
+import { addressService, voucherService } from '@/services';
+import { CartWithRefs, Address, Voucher } from '@/types';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './CartPage.module.css';
@@ -41,6 +41,12 @@ export default function CartPage() {
   const [sortBy, setSortBy] = useState('price-asc'); // Keep only basic sorting
   const [hasDefaultAddress, setHasDefaultAddress] = useState<boolean | null>(null);
   const [hasReloadedOnce, setHasReloadedOnce] = useState(false);
+  const [voucherSuggestion, setVoucherSuggestion] = useState<{
+    voucher: Voucher | null;
+    discountAmount: number;
+    savings: string;
+  } | null>(null);
+  const [loadingVoucher, setLoadingVoucher] = useState(false);
   
   const itemsPerPage = 10;
 
@@ -76,6 +82,34 @@ export default function CartPage() {
       checkDefaultAddress();
     }
   }, [user]); // Remove showError from dependency to prevent infinite loop
+
+  // Load voucher suggestion when cart total changes
+  useEffect(() => {
+    const loadVoucherSuggestion = async () => {
+      if (!cart?.items?.length || cartLoading) return;
+      
+      const cartTotal = getCartTotal();
+      if (cartTotal <= 0) {
+        setVoucherSuggestion(null);
+        return;
+      }
+
+      setLoadingVoucher(true);
+      try {
+        const suggestion = await voucherService.getBestVoucherForCart(cartTotal);
+        setVoucherSuggestion(suggestion);
+      } catch (error) {
+        console.error('Error loading voucher suggestion:', error);
+        setVoucherSuggestion(null);
+      } finally {
+        setLoadingVoucher(false);
+      }
+    };
+
+    // Debounce to avoid too many API calls
+    const timeoutId = setTimeout(loadVoucherSuggestion, 500);
+    return () => clearTimeout(timeoutId);
+  }, [cart?.items, cartLoading, getCartTotal]);
 
   // Smart auto-reload: Only reload once when detecting unpopulated data
   useEffect(() => {
@@ -327,15 +361,28 @@ export default function CartPage() {
                   <FaTrash />
                   Xóa tất cả
                 </Button>
+                
+                {/* Simple Checkout Button - Similar to Wishlist "Buy All" Button */}
                 <Button
                   onClick={handleCheckoutClick}
-                  className={styles.checkoutButton}
-                  disabled={hasDefaultAddress === false}
+                  className={`${styles.checkoutButton} ${voucherSuggestion && hasDefaultAddress !== false ? styles.checkoutButtonWithVoucher : ''}`}
+                  disabled={hasDefaultAddress === false || loadingVoucher}
                 >
                   <FaCreditCard />
-                  {hasDefaultAddress === false ? 
-                    'Thiết lập địa chỉ để thanh toán' : 
-                    `Thanh toán (${formatCurrency(subtotal)})`}
+                  {loadingVoucher ? 
+                    'Đang tải...' :
+                    hasDefaultAddress === false ? 
+                      'Thiết lập địa chỉ' : 
+                      voucherSuggestion ?
+                        `Thanh toán (${formatCurrency(subtotal - voucherSuggestion.discountAmount)})` :
+                        `Thanh toán (${formatCurrency(subtotal)})`
+                  }
+                  {voucherSuggestion && hasDefaultAddress !== false && (
+                    <span className={styles.voucherBadge}>
+                      <FaGift />
+                      -{formatCurrency(voucherSuggestion.discountAmount)}
+                    </span>
+                  )}
                 </Button>
               </div>
               <div className={styles.resultsInfo}>
@@ -523,20 +570,32 @@ const CartItemCard = memo(function CartItemCard({ item, onQuantityChange, onRemo
         <span className={styles.totalPrice}>{formatCurrency(totalPrice)}</span>
       </div>
 
-      {/* Remove Button */}
-      <button
-        type="button"
-        onClick={() => {
-          if (productVariant._id) {
-            onRemove(productVariant._id);
-          }
-        }}
-        disabled={!productVariant._id}
-        className={styles.removeButton}
-        title="Xóa sản phẩm"
-      >
-        <FaTrash />
-      </button>
+      {/* Action Buttons */}
+      <div className={styles.itemActions}>
+        {/* Edit Variants Button */}
+        <Link 
+          href={`/products/${product._id}?variant=${productVariant._id}`}
+          className={styles.editVariantButton}
+          title="Sửa đổi kích thước/màu sắc"
+        >
+          ⚙️
+        </Link>
+        
+        {/* Remove Button */}
+        <button
+          type="button"
+          onClick={() => {
+            if (productVariant._id) {
+              onRemove(productVariant._id);
+            }
+          }}
+          disabled={!productVariant._id}
+          className={styles.removeButton}
+          title="Xóa sản phẩm"
+        >
+          <FaTrash />
+        </button>
+      </div>
     </div>
   );
 });

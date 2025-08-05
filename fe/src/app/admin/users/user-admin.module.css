@@ -117,35 +117,54 @@
 }
 
 .filtersGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
   align-items: end;
   color: black;
+  padding: 0.5rem 0;
+  width: 100%;
+  justify-content: space-between;
+  overflow: hidden; /* Prevent overflow */
 }
 
 .filterGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 120px; /* Reduced minimum width */
+  max-width: none;
+  position: relative;
+  white-space: nowrap;
 }
 
 .filterLabel {
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.7rem;
+  font-weight: 600;
   color: #374151;
-  margin-bottom: 0.125rem;
-  line-height: 1.2;
+  margin-bottom: 0.15rem;
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: fit-content;
 }
 
 .searchInput, .filterSelect, .dateInput {
-  padding: 10px 14px;
+  padding: 8px 10px;
   border: 2px solid #e5e7eb;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   transition: all 0.2s;
   background: white;
   color: black;
+  height: 38px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
 }
 
 .searchInput:focus, .filterSelect:focus, .dateInput:focus {
@@ -155,20 +174,25 @@
 }
 
 .sortContainer {
-  display: grid;
-  grid-template-columns: 1fr 120px;
-  gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+  min-width: 0;
 }
 
 .sortSelect {
-  padding: 10px 14px;
+  padding: 8px 10px;
   border: 2px solid #e5e7eb;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   transition: all 0.2s;
   background: white;
   color: black;
-  min-width: 120px;
+  width: 100%;
+  height: 38px;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .sortSelect:focus {
@@ -178,14 +202,24 @@
 }
 
 .clearButton {
-  padding: 10px 20px;
+  padding: 8px 12px;
   background: #f3f4f6;
   color: #374151;
-  border: 1px solid #d1d5db;
+  border: 2px solid #d1d5db;
   border-radius: 8px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  width: 100%;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  min-width: 0;
 }
 
 .clearButton:hover {
@@ -577,7 +611,12 @@
 /* Responsive Design */
 @media (max-width: 1200px) {
   .filtersGrid {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.4rem;
+    overflow: hidden;
+  }
+  
+  .filterGroup {
+    min-width: 110px;
   }
 }
 
@@ -597,12 +636,44 @@
   }
   
   .filtersGrid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 0.25rem;
+    padding: 0.5rem 0;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+  
+  .filterGroup {
+    flex: 1;
+    gap: 0.15rem;
+    min-width: 100px;
+  }
+  
+  .filterLabel {
+    font-size: 0.65rem;
+    margin-bottom: 0.1rem;
+  }
+  
+  .searchInput, .filterSelect, .dateInput {
+    font-size: 0.75rem;
+    padding: 6px 8px;
+    height: 36px;
   }
   
   .sortContainer {
-    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+  
+  .sortSelect {
+    font-size: 0.75rem;
+    padding: 6px 8px;
+    height: 36px;
+  }
+  
+  .clearButton {
+    font-size: 0.7rem;
+    padding: 6px 10px;
+    height: 36px;
   }
   
   .usersGrid {

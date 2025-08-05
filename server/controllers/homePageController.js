@@ -77,17 +77,26 @@ class HomePageController extends BaseController {
 
   /**
    * Get featured products only
-   * @route GET /api/home/featured
+   * @route GET /api/home/featured?limit=6&filter=combined|topRated|mostWishlisted|bestSelling
    */
   async getFeaturedProducts(req, res) {
     try {
       const limit = parseInt(req.query.limit) || 6;
-      const products = await homePageService.getFeaturedProducts(limit);
+      const filterType = req.query.filter || 'combined';
+      
+      console.log(`🌟 HomePageController: Fetching featured products with filter: ${filterType}, limit: ${limit}`);
+      
+      const products = await homePageService.getFeaturedProducts(limit, filterType);
       
       return res.status(200).json({
         success: true,
-        message: 'Featured products fetched successfully',
-        data: products
+        message: `Featured products (${filterType}) fetched successfully`,
+        data: products,
+        meta: {
+          filter: filterType,
+          count: products.length,
+          limit
+        }
       });
     } catch (error) {
       console.error('❌ HomePageController: Error fetching featured products:', error);
@@ -101,7 +110,8 @@ class HomePageController extends BaseController {
    */
   async getNewProducts(req, res) {
     try {
-      const limit = parseInt(req.query.limit) || 6;
+      const limit = parseInt(req.query.limit) || 8;
+      console.log(`🆕 HomePageController: Fetching new products with limit ${limit}`);
       const products = await homePageService.getNewProducts(limit);
       
       return res.status(200).json({

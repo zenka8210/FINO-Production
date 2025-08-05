@@ -83,7 +83,7 @@ export interface ProductVariant extends BaseEntity {
 
 // ============= 8. PAYMENT METHOD SCHEMA =============
 export interface PaymentMethod extends BaseEntity {
-  method: 'COD' | 'VNPay'; // required
+  method: 'COD' | 'VNPay' | 'Momo'; // required - Updated to match database case
   isActive: boolean; // default: true
 }
 

@@ -6,7 +6,7 @@ interface StatCardProps {
   title: string;
   value: string | number;
   icon: string;
-  variant: 'revenue' | 'orders' | 'users' | 'lowStock';
+  variant: 'revenue' | 'orders' | 'users' | 'lowStock' | 'daily-revenue' | 'weekly-revenue' | 'monthly-revenue';
   change?: {
     type: 'positive' | 'negative' | 'neutral';
     value: string;
@@ -29,8 +29,22 @@ export default function StatCard({
   refreshLabel,
   loading = false
 }: StatCardProps) {
+  // Convert variant to className
+  const getVariantClass = (variant: string) => {
+    switch (variant) {
+      case 'daily-revenue':
+        return 'dailyRevenue';
+      case 'weekly-revenue':
+        return 'weeklyRevenue';
+      case 'monthly-revenue':
+        return 'monthlyRevenue';
+      default:
+        return variant;
+    }
+  };
+
   return (
-    <article className={`${styles.statCard} ${styles[variant]}`}>
+    <article className={`${styles.statCard} ${styles[getVariantClass(variant)]}`}>
       <header className={styles.statCardHeader}>
         <h3 className={styles.statCardTitle}>{title}</h3>
         <div className={styles.statCardActions}>
@@ -64,7 +78,7 @@ export default function StatCard({
       
       <div className={styles.statCardValue} aria-live="polite">
         {typeof value === 'number' ? value.toLocaleString("vi-VN") : value}
-        {variant === 'revenue' && '₫'}
+        {(variant === 'revenue' || variant === 'daily-revenue') && '₫'}
         {variant === 'users' && '+'}
       </div>
       

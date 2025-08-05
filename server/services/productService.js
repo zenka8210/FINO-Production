@@ -649,18 +649,54 @@ class ProductService extends BaseService {
 
     async deleteProduct(productId) {
         try {
-            // Check if product has any variants
-            const variantsCount = await ProductVariant.countDocuments({ product: productId });
-            if (variantsCount > 0) {
-                throw new AppError(MESSAGES.PRODUCT_HAS_VARIANTS || "Sản phẩm có biến thể, không thể xóa. Xóa các biến thể trước.", 400, ERROR_CODES.PRODUCT.HAS_VARIANTS);
-            }
-
-            const product = await Product.findByIdAndDelete(productId);
+            console.log('🗑️ ProductService.deleteProduct called for ID:', productId);
+            
+            // First check if product exists
+            const product = await Product.findById(productId);
             if (!product) {
+                console.error('❌ Product not found:', productId);
                 throw new AppError(MESSAGES.PRODUCT_NOT_FOUND, 404, ERROR_CODES.PRODUCT.NOT_FOUND);
             }
-            return { message: MESSAGES.PRODUCT_DELETED };
+            
+            console.log('✅ Product found:', product.name);
+            
+            // Check if product has any variants WITH DETAILED INFO
+            const variants = await ProductVariant.find({ product: productId }).populate(['color', 'size']);
+            const variantsCount = variants.length;
+            console.log('📊 Variants count:', variantsCount);
+            
+            if (variantsCount > 0) {
+                console.error('❌ Product has variants, cannot delete');
+                console.log('🔍 Variant details:', variants.map(v => ({
+                    id: v._id,
+                    color: v.color?.name || 'Unknown',
+                    size: v.size?.name || 'Unknown',
+                    stock: v.stock
+                })));
+                
+                // Return detailed error with variant information
+                const variantDetails = variants.map(v => 
+                    `${v.color?.name || 'Unknown'} - ${v.size?.name || 'Unknown'} (Tồn kho: ${v.stock})`
+                ).join(', ');
+                
+                const detailedMessage = `${MESSAGES.PRODUCT_HAS_VARIANTS}\n\n📋 Chi tiết biến thể:\n${variantDetails}\n\n🔧 Vui lòng xóa tất cả ${variantsCount} biến thể trước khi xóa sản phẩm.`;
+                
+                throw new AppError(detailedMessage, 400, ERROR_CODES.PRODUCT.HAS_VARIANTS);
+            }
+
+            // Delete the product
+            const deletedProduct = await Product.findByIdAndDelete(productId);
+            console.log('✅ Product deleted successfully:', deletedProduct.name);
+            
+            return { 
+                message: MESSAGES.PRODUCT_DELETED,
+                deletedProduct: {
+                    id: deletedProduct._id,
+                    name: deletedProduct.name
+                }
+            };
         } catch (error) {
+            console.error('❌ Error in deleteProduct:', error);
             if (error instanceof AppError) throw error;
             throw new AppError(MESSAGES.PRODUCT_DELETE_FAILED, 500, ERROR_CODES.PRODUCT.DELETE_FAILED);
         }

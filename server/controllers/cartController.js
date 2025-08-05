@@ -106,7 +106,7 @@ class CartController extends BaseController {
         cartKeys: rawCart ? Object.keys(rawCart.toObject()) : []
       });
     } catch (error) {
-      console.error('🔍 DEBUG error:', error);
+      // console.error('🔍 DEBUG error:', error);
       next(error);
     }
   };

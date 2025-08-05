@@ -11,10 +11,7 @@ import {
   FaChevronDown,
   FaSpinner,
   FaExclamationTriangle,
-  FaLayerGroup,
-  FaStore,
-  FaFolder,
-  FaFolderOpen
+  FaLayerGroup
 } from 'react-icons/fa';
 
 interface CategoryWithChildren extends Category {
@@ -239,17 +236,6 @@ export default function CategorySidebar({
           >
             <div className={styles.categoryContent}>
               <div className={styles.categoryInfo}>
-                {isChild ? (
-                  <FaStore className={styles.categoryIcon} />
-                ) : hasChildren ? (
-                  isExpanded ? (
-                    <FaFolderOpen className={styles.categoryIcon} />
-                  ) : (
-                    <FaFolder className={styles.categoryIcon} />
-                  )
-                ) : (
-                  <FaStore className={styles.categoryIcon} />
-                )}
                 <span className={styles.categoryName}>{category.name}</span>
               </div>
               <FaChevronRight className={styles.categoryArrow} />

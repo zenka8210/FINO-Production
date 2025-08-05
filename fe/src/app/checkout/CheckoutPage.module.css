@@ -209,6 +209,15 @@
   font-weight: 500;
 }
 
+.selectedBadge {
+  background: #1e40af;
+  color: white;
+  padding: 0.125rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
 .noAddress {
   display: flex;
   align-items: center;

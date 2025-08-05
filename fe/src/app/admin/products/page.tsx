@@ -203,6 +203,137 @@ export default function AdminProductsPage() {
     return matchesCategory && matchesStock && matchesSearch;
   });
 
+  // Handler functions
+  const handleCreate = () => {
+    setEditing(null);
+    setShowForm(true);
+  };
+
+  const handleEdit = (product: ProductWithCategory) => {
+    setEditing(product);
+    setShowForm(true);
+  };
+
+  const handleToggleStatus = async (product: ProductWithCategory) => {
+    try {
+      console.log(`🔄 Toggling status for product: ${product.name}`);
+      await toggleProductStatus(product._id);
+      await fetchProducts(); // Refresh data
+      showSuccess(`${product.isActive ? 'Vô hiệu hóa' : 'Kích hoạt'} sản phẩm thành công`);
+    } catch (error: any) {
+      console.error('❌ Error toggling status:', error);
+      showError(`Lỗi khi thay đổi trạng thái: ${error.message}`);
+    }
+  };
+
+  // Helper function to check and display product variants before deletion
+  const checkProductVariants = async (product: ProductWithCategory): Promise<boolean> => {
+    try {
+      // Check if product has stockInfo with variants
+      const stockInfo = (product as any).stockInfo;
+      const variantCount = stockInfo?.totalVariants || 0;
+      
+      if (variantCount > 0) {
+        const variantMessage = `🚨 Sản phẩm "${product.name}" có ${variantCount} biến thể\n\n` +
+          `📊 Thông tin chi tiết:\n` +
+          `• Tổng số lượng tồn kho: ${stockInfo?.totalStock || 0} sản phẩm\n` +
+          `• Số lượng biến thể: ${variantCount} biến thể\n\n` +
+          `⚠️ Bạn cần xóa tất cả ${variantCount} biến thể trước khi có thể xóa sản phẩm này.\n\n` +
+          `🔧 Cách thực hiện:\n` +
+          `1. Vào trang "Quản lý biến thể sản phẩm"\n` +
+          `2. Tìm và xóa tất cả biến thể của sản phẩm "${product.name}"\n` +
+          `3. Quay lại đây để xóa sản phẩm\n\n` +
+          `💡 Gợi ý: Có thể "Vô hiệu hóa" sản phẩm thay vì xóa hoàn toàn.`;
+        
+        alert(variantMessage);
+        return false; // Don't proceed with deletion
+      }
+      
+      return true; // Can proceed with deletion
+    } catch (error) {
+      console.error('Error checking product variants:', error);
+      return true; // If can't check, let the delete attempt proceed
+    }
+  };
+
+  const handleDelete = async (product: ProductWithCategory) => {
+    // First check variants before showing confirmation
+    const canProceed = await checkProductVariants(product);
+    if (!canProceed) {
+      return; // Stop if product has variants
+    }
+    
+    // Create more informative confirmation message
+    const confirmMessage = `Bạn có chắc muốn xóa sản phẩm "${product.name}"?\n\n⚠️ Lưu ý:\n- Hành động này không thể hoàn tác\n- Sản phẩm sẽ bị xóa hoàn toàn khỏi hệ thống\n\nBấm OK để tiếp tục`;
+    
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    try {
+      console.log('🗑️ Deleting product:', product._id, product.name);
+      
+      await deleteProduct(product._id);
+      console.log('✅ Product deleted successfully');
+      
+      // Refresh products list and statistics
+      await fetchProducts();
+      await fetchStatistics();
+      
+      // Show success message
+      showSuccess(`✅ Xóa sản phẩm "${product.name}" thành công!`);
+      
+    } catch (err: any) {
+      console.error('❌ Error deleting product:', err);
+      
+      // Handle specific error cases with more detailed messages
+      let errorMessage = '';
+      
+      if (err.message?.includes('có biến thể') || err.message?.includes('variants') || err.message?.includes('HAS_VARIANTS')) {
+        errorMessage = `❌ Không thể xóa sản phẩm "${product.name}"\n\n🔍 Nguyên nhân: Sản phẩm này có biến thể (màu sắc, kích thước)\n\n✅ Giải pháp:\n1. Vào quản lý biến thể sản phẩm\n2. Xóa tất cả biến thể của sản phẩm này\n3. Sau đó mới có thể xóa sản phẩm\n\n💡 Hoặc có thể vô hiệu hóa sản phẩm thay vì xóa hoàn toàn.`;
+      } else if (err.message?.includes('not found') || err.message?.includes('không tìm thấy')) {
+        errorMessage = `❌ Sản phẩm "${product.name}" không tồn tại hoặc đã bị xóa trước đó.`;
+      } else if (err.message?.includes('permission') || err.message?.includes('unauthorized')) {
+        errorMessage = `❌ Bạn không có quyền xóa sản phẩm "${product.name}". Vui lòng liên hệ quản trị viên.`;
+      } else if (err.message?.includes('Failed to delete')) {
+        errorMessage = `❌ Lỗi hệ thống khi xóa sản phẩm "${product.name}". Vui lòng thử lại sau hoặc liên hệ hỗ trợ kỹ thuật.`;
+      } else {
+        errorMessage = `❌ Lỗi xóa sản phẩm "${product.name}": ${err.message || 'Lỗi không xác định. Vui lòng thử lại sau.'}`;
+      }
+      
+      // Use alert for detailed error message with proper formatting
+      alert(errorMessage);
+      showError(`Không thể xóa sản phẩm "${product.name}"`);
+    }
+  };
+
+  const handleFormSubmit = async (formData: any) => {
+    try {
+      if (editing) {
+        console.log('🔄 Updating product:', editing._id);
+        await updateProduct(editing._id, formData);
+        showSuccess('Cập nhật sản phẩm thành công');
+      } else {
+        console.log('🔄 Creating new product');
+        await createProduct(formData);
+        showSuccess('Tạo sản phẩm thành công');
+      }
+      
+      setShowForm(false);
+      setEditing(null);
+      await fetchProducts();
+      await fetchStatistics();
+    } catch (error: any) {
+      console.error('❌ Error submitting form:', error);
+      showError(`Lỗi ${editing ? 'cập nhật' : 'tạo'} sản phẩm: ${error.message}`);
+    }
+  };
+
+  const handleFormCancel = () => {
+    setShowForm(false);
+    setEditing(null);
+  };
+
   // Status mapping for display
   const getStatusDisplay = (isActive: boolean) => {
     return isActive 
@@ -355,54 +486,7 @@ export default function AdminProductsPage() {
     }
   ];
 
-  const handleEdit = (product: ProductWithCategory) => {
-    setEditing(product);
-    setShowForm(true);
-  };
-
-  const handleToggleStatus = async (product: ProductWithCategory) => {
-    try {
-      console.log('🔄 Toggling status for product:', product.name, 'Current status:', product.isActive);
-      
-      const updatedProduct = await toggleProductStatus(product._id);
-      
-      // Show success notification
-      const action = product.isActive ? 'vô hiệu hóa' : 'kích hoạt';
-      const newStatus = updatedProduct.isActive ? 'kích hoạt' : 'vô hiệu hóa';
-      showSuccess(`Đã ${action} sản phẩm "${product.name}" thành công! Trạng thái hiện tại: ${newStatus}`);
-      
-      // Refresh data from server to update UI
-      console.log('🔄 Refreshing products data...');
-      await fetchProducts();
-      console.log('✅ Products data refreshed');
-      
-    } catch (err: any) {
-      console.error('❌ Error toggling product status:', err);
-      const action = product.isActive ? 'vô hiệu hóa' : 'kích hoạt';
-      showError(`Lỗi ${action} sản phẩm "${product.name}": ${err.message || 'Vui lòng thử lại'}`);
-    }
-  };
-
-  const handleDelete = async (product: ProductWithCategory) => {
-    if (!confirm(`Bạn có chắc muốn xóa sản phẩm "${product.name}"?\nHành động này không thể hoàn tác!`)) {
-      return;
-    }
-
-    try {
-      await deleteProduct(product._id);
-      // Refresh data from server
-      fetchProducts();
-      alert('Xóa sản phẩm thành công!');
-    } catch (err: any) {
-      console.error('Error deleting product:', err);
-      alert(`Lỗi xóa sản phẩm: ${err.message || 'Vui lòng thử lại'}`);
-    }
-  };
-
-  const handleCreate = () => {
-    setEditing(null);
-    setShowForm(true);
-  };
+  // Removed duplicate functions - using functions defined above
 
   const handleSubmit = async (formData: any) => {
     try {

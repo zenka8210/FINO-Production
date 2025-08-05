@@ -17,6 +17,7 @@ export { postService, PostService } from './postService';
 export { bannerService, BannerService } from './bannerService';
 export { statisticsService, StatisticsService } from './statisticsService';
 export { vnpayService } from './vnpayService';
+export { momoService } from './momoService';
 
 // Re-export types
 export type { StatisticsData } from './statisticsService';

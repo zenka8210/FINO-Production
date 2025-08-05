@@ -197,10 +197,16 @@ class ProductController extends BaseController {
 
     deleteProduct = async (req, res, next) => {
         try {
+            console.log('🎯 ProductController.deleteProduct called');
             const { id } = req.params;
-            await this.service.deleteProduct(id);
-            ResponseHandler.success(res, MESSAGES.PRODUCT_DELETED, null);
+            console.log('🗑️ Deleting product ID:', id);
+            
+            const result = await this.service.deleteProduct(id);
+            console.log('✅ Product deleted successfully:', result);
+            
+            ResponseHandler.success(res, result.message, result.deletedProduct);
         } catch (error) {
+            console.error('❌ Error in ProductController.deleteProduct:', error);
             next(error);
         }
     };

@@ -42,6 +42,23 @@ router.post('/vnpay/verify', authMiddleware, (req, res, next) => {
   paymentController.verifyVNPayPayment(req, res, next);
 });
 
+// ============= MOMO PAYMENT ROUTES =============
+
+// POST /api/payment/momo/checkout - Create MoMo session and payment URL (Authenticated)
+router.post('/momo/checkout', authMiddleware, (req, res, next) => {
+  paymentController.createMoMoCheckout(req, res, next);
+});
+
+// GET /api/payment/momo/callback - MoMo return callback (Public)
+router.get('/momo/callback', (req, res, next) => {
+  paymentController.handleMoMoCallback(req, res, next);
+});
+
+// POST /api/payment/momo/ipn - MoMo IPN handler (Public)
+router.post('/momo/ipn', (req, res, next) => {
+  paymentController.handleMoMoIPN(req, res, next);
+});
+
 // ============= TEST ROUTES =============
 
 // GET /api/payment/test - Test VNPay integration (Public for testing)

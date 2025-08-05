@@ -3,21 +3,26 @@ const { AppError } = require('../middlewares/errorHandler');
 const ResponseHandler = require('../services/responseHandler');
 const { ERROR_CODES } = require('../config/constants');
 
+// Payment services
+const VnPayService = require('../services/vnpayService');
+const VnPayCheckoutService = require('../services/vnpayCheckoutService');
+const MomoService = require('../services/momoService');
+const MomoCheckoutService = require('../services/momoCheckoutService');
+
 class PaymentController extends BaseController {
   constructor() {
     super();
     
-    // Initialize services
-    const VNPayService = require('../services/vnpayService');
-    const VNPayCheckoutService = require('../services/vnpayCheckoutService');
-    const OrderService = require('../services/orderService');
-    
-    this.vnpayService = new VNPayService();
-    this.vnpayCheckoutService = new VNPayCheckoutService();
-    this.orderService = new OrderService();
+    // Initialize payment services
+    this.vnpayService = new VnPayService();
+    this.vnpayCheckoutService = new VnPayCheckoutService();
+    this.momoService = new MomoService();
+    this.momoCheckoutService = new MomoCheckoutService();
   }
 
-  // POST /api/payment/vnpay/checkout - Create VNPay session and payment URL (New proper flow)
+  // ============= VNPAY PAYMENT METHODS =============
+
+  // POST /api/payment/vnpay/checkout - Create VNPay session and payment URL
   createVNPayCheckout = async (req, res, next) => {
     try {
       console.log('🛒 Creating VNPay checkout session for user:', req.user._id);
@@ -30,7 +35,7 @@ class PaymentController extends BaseController {
         throw new AppError('Missing required checkout information', ERROR_CODES.BAD_REQUEST);
       }
 
-      // Update client IP for VNPay
+      // Get client IP for VNPay
       const clientIp = this.vnpayService.getClientIp(req);
 
       // Create VNPay session and payment URL
@@ -38,16 +43,18 @@ class PaymentController extends BaseController {
       
       console.log('✅ VNPay checkout session created:', {
         orderCode: result.order.orderCode,
-        amount: result.orderCalculation.finalTotal,
+        amount: result.order.finalTotal,
         clientIp: clientIp
       });
 
       ResponseHandler.success(res, 'VNPay checkout session created', {
-        paymentUrl: result.paymentUrl,
+        paymentUrl: result.payment.paymentUrl,
         orderCode: result.order.orderCode,
         orderId: result.order._id,
-        amount: result.orderCalculation.finalTotal,
-        status: result.order.status
+        amount: result.order.finalTotal,
+        status: result.order.status,
+        vnpTxnRef: result.payment.vnpTxnRef,
+        vnpOrderInfo: result.payment.vnpOrderInfo
       });
 
     } catch (error) {
@@ -56,87 +63,56 @@ class PaymentController extends BaseController {
     }
   };
 
-  // POST /api/payment/vnpay/create - Create VNPay payment URL (Original endpoint - kept for compatibility)
+  // POST /api/payment/vnpay/create - Create VNPay payment URL (Legacy endpoint)
   createVNPayPayment = async (req, res, next) => {
     try {
-      const { orderId, amount, orderDescription } = req.body;
+      console.log('🔄 Legacy VNPay payment creation for user:', req.user._id);
 
-      console.log('💳 Creating VNPay payment:', {
-        orderId,
-        amount,
-        orderDescription,
-        userId: req.user?._id
-      });
+      const checkoutData = req.body;
+      const user = req.user;
 
-      // Validate required fields
-      if (!orderId || !amount || !orderDescription) {
-        throw new AppError('Missing required payment information', ERROR_CODES.BAD_REQUEST);
-      }
-
-      // Get client IP
+      // Get client IP for VNPay
       const clientIp = this.vnpayService.getClientIp(req);
 
-      console.log('🔧 PaymentController - Creating payment with:', {
-        orderId,
-        amount: parseFloat(amount),
-        orderDescription,
-        clientIp
-      });
+      // Create VNPay payment URL using legacy method
+      const result = await this.vnpayService.createPaymentUrl(checkoutData, user, clientIp);
+      
+      console.log('✅ Legacy VNPay payment URL created');
 
-      // Create payment URL
-      const paymentUrl = await this.vnpayService.createPaymentUrl({
-        orderId,
-        amount: parseFloat(amount),
-        orderDescription,
-        clientIp
-      });
+      ResponseHandler.success(res, 'VNPay payment URL created', result);
 
-      console.log('🔧 PaymentController - Payment URL result:', {
-        type: typeof paymentUrl,
-        length: paymentUrl?.length,
-        isString: typeof paymentUrl === 'string',
-        preview: typeof paymentUrl === 'string' ? paymentUrl.substring(0, 100) : paymentUrl
-      });
-
-      console.log('✅ VNPay payment URL created successfully:', orderId);
-
-      ResponseHandler.success(res, 'Payment URL created successfully', {
-        paymentUrl,
-        orderId,
-        amount
-      });
     } catch (error) {
       console.error('❌ Create VNPay payment error:', error);
       next(error);
     }
   };
 
-  // GET /api/payment/vnpay/callback - Handle VNPay callback (Enhanced)
+  // GET /api/payment/vnpay/callback - Handle VNPay callback
   handleVNPayCallback = async (req, res, next) => {
     try {
       console.log('📨 VNPay callback received:', req.query);
 
-      // Process VNPay callback and create order if payment successful
-      const result = await this.vnpayCheckoutService.processVNPayCallback(req.query);
+      // Process VNPay callback
+      const result = await this.vnpayCheckoutService.handleVNPayCallback(req.query);
 
-      console.log('✅ VNPay callback processed successfully:', {
+      console.log('✅ VNPay callback processed:', {
         success: result.success,
-        orderCode: result.order?.orderCode,
-        transactionId: result.vnpayData?.vnp_TransactionNo
+        isSuccess: result.isSuccess,
+        orderCode: result.order?.orderCode
       });
 
       // Redirect to success or error page based on payment result
-      if (result.success) {
-        const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/checkout/success?orderCode=${result.order.orderCode}&transactionId=${result.vnpayData.vnp_TransactionNo}&paymentMethod=vnpay&amount=${result.order.finalTotal}`;
+      if (result.success && result.isSuccess) {
+        const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/checkout/success?orderCode=${result.order.orderCode}&transactionId=${result.payment.transactionId}&paymentMethod=vnpay&amount=${result.payment.amount}`;
         return res.redirect(redirectUrl);
       } else {
-        const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/checkout/error?message=${encodeURIComponent(result.message)}`;
+        const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/checkout/error?message=${encodeURIComponent(result.message || 'Payment failed')}`;
         return res.redirect(redirectUrl);
       }
 
     } catch (error) {
       console.error('❌ VNPay callback error:', error);
-      const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/checkout/error?message=${encodeURIComponent('Payment processing failed')}`;
+      const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/checkout/error?message=${encodeURIComponent('Callback processing failed')}`;
       return res.redirect(redirectUrl);
     }
   };
@@ -144,42 +120,43 @@ class PaymentController extends BaseController {
   // POST /api/payment/vnpay/callback - Process VNPay callback from frontend
   processVNPayCallback = async (req, res, next) => {
     try {
-      console.log('📨 Frontend VNPay callback processing:', req.body);
+      console.log('📨 VNPay frontend callback received:', req.body);
 
-      // Process VNPay callback data (same as GET but return JSON)
-      const callbackData = req.body;
-      const result = await this.vnpayCheckoutService.processVNPayCallback(callbackData);
+      // Process VNPay callback data from frontend
+      const result = await this.vnpayCheckoutService.handleVNPayCallback(req.body);
 
-      console.log('✅ Frontend VNPay callback processed:', {
+      console.log('✅ VNPay frontend callback processed:', {
         success: result.success,
-        orderCode: result.order?.orderCode,
-        transactionId: result.vnpayData?.vnp_TransactionNo
+        orderCode: result.order?.orderCode
       });
 
-      // Return JSON response instead of redirect
-      return ResponseHandler.success(res, 'VNPay callback processed successfully', {
-        success: result.success,
-        order: result.order,
-        message: result.message,
-        transactionId: result.vnpayData?.vnp_TransactionNo
-      });
+      ResponseHandler.success(res, 'VNPay callback processed', result);
 
     } catch (error) {
-      console.error('❌ Frontend VNPay callback error:', error);
-      return ResponseHandler.error(res, 'Failed to process VNPay callback', error);
+      console.error('❌ VNPay frontend callback error:', error);
+      next(error);
     }
   };
 
   // POST /api/payment/vnpay/ipn - Handle VNPay IPN (Instant Payment Notification)
   handleVNPayIPN = async (req, res, next) => {
     try {
-      console.log('🔔 VNPay IPN received:', req.body);
+      console.log('📢 VNPay IPN received:', req.body);
 
-      // Process IPN with VNPayCheckoutService
-      const ipnResult = await this.vnpayCheckoutService.processVNPayIPN(req.body);
+      // Process VNPay IPN
+      const result = await this.vnpayCheckoutService.handleVNPayIPN(req.body);
 
-      // Return IPN response
-      return res.json(ipnResult);
+      console.log('✅ VNPay IPN processed:', {
+        success: result.success,
+        orderCode: result.order?.orderCode
+      });
+
+      // VNPay expects specific response format
+      if (result.success) {
+        return res.json({ RspCode: '00', Message: 'Success' });
+      } else {
+        return res.json({ RspCode: '01', Message: result.message || 'Failed' });
+      }
 
     } catch (error) {
       console.error('❌ VNPay IPN error:', error);
@@ -187,70 +164,20 @@ class PaymentController extends BaseController {
     }
   };
 
-  // GET /api/payment/:orderId/status - Get payment status of an order
-  getPaymentStatus = async (req, res, next) => {
-    try {
-      const { orderId } = req.params;
-
-      console.log('📊 Getting payment status for order:', orderId);
-
-      // Get order details
-      const order = await this.orderService.getOrderById(orderId);
-      
-      if (!order) {
-        throw new AppError('Order not found', ERROR_CODES.NOT_FOUND);
-      }
-
-      // Check if user has permission to view this order
-      if (req.user.role !== 'admin' && order.user.toString() !== req.user._id.toString()) {
-        throw new AppError('Unauthorized to view this order', ERROR_CODES.FORBIDDEN);
-      }
-
-      ResponseHandler.success(res, 'Payment status retrieved', {
-        orderId,
-        paymentStatus: order.paymentStatus,
-        status: order.status,
-        paymentDetails: order.paymentDetails
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  // GET /api/payment/test - Test endpoint for VNPay integration
-  testVNPayIntegration = async (req, res, next) => {
-    try {
-      const testOrder = {
-        orderId: `TEST_${Date.now()}`,
-        amount: 100000, // 100,000 VND
-        orderDescription: 'Test VNPay Integration',
-        clientIp: this.vnpayService.getClientIp(req)
-      };
-
-      const paymentUrl = await this.vnpayService.createPaymentUrl(testOrder);
-
-      ResponseHandler.success(res, 'Test payment URL created', {
-        ...testOrder,
-        paymentUrl,
-        note: 'This is a test payment URL for VNPay integration'
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
   // GET /api/payment/vnpay/methods - Get VNPay payment methods
   getVNPayMethods = async (req, res, next) => {
     try {
-      // Return available VNPay payment methods
-      const methods = [
-        { code: 'VNPAYQR', name: 'VNPay QR Code' },
-        { code: 'VNBANK', name: 'Ngân hàng nội địa' },
-        { code: 'INTCARD', name: 'Thẻ quốc tế' }
-      ];
+      console.log('📋 Getting VNPay payment methods');
+
+      // Get available VNPay payment methods
+      const methods = await this.vnpayService.getPaymentMethods();
+
+      console.log('✅ VNPay payment methods retrieved');
 
       ResponseHandler.success(res, 'VNPay payment methods retrieved', methods);
+
     } catch (error) {
+      console.error('❌ Get VNPay methods error:', error);
       next(error);
     }
   };
@@ -258,102 +185,157 @@ class PaymentController extends BaseController {
   // POST /api/payment/vnpay/verify - Verify payment status
   verifyVNPayPayment = async (req, res, next) => {
     try {
-      const { orderId } = req.body;
+      console.log('🔍 Verifying VNPay payment:', req.body);
 
-      if (!orderId) {
-        throw new AppError('Order ID is required', ERROR_CODES.BAD_REQUEST);
-      }
+      const verificationData = req.body;
 
-      // Get order details
-      const order = await this.orderService.getOrderById(orderId);
-      
-      if (!order) {
-        throw new AppError('Order not found', ERROR_CODES.NOT_FOUND);
-      }
+      // Verify VNPay payment status
+      const result = await this.vnpayService.verifyPayment(verificationData);
 
-      // Check if user has permission to view this order
-      if (req.user.role !== 'admin' && order.user.toString() !== req.user._id.toString()) {
-        throw new AppError('Unauthorized to view this order', ERROR_CODES.FORBIDDEN);
-      }
+      console.log('✅ VNPay payment verification completed');
 
-      ResponseHandler.success(res, 'Payment verification completed', {
-        orderId,
-        paymentStatus: order.paymentStatus,
-        status: order.status,
-        paymentDetails: order.paymentDetails
-      });
+      ResponseHandler.success(res, 'VNPay payment verified', result);
+
     } catch (error) {
+      console.error('❌ VNPay payment verification error:', error);
       next(error);
     }
   };
 
-  // POST /api/payment/test-email - Test order confirmation email
-  testOrderEmail = async (req, res, next) => {
+  // ============= MOMO PAYMENT METHODS =============
+
+  // POST /api/payment/momo/checkout - Create MoMo session and payment URL
+  createMoMoCheckout = async (req, res, next) => {
     try {
-      const { orderCode } = req.body;
+      console.log('🛒 Creating MoMo checkout session for user:', req.user._id);
+
+      const checkoutData = req.body;
+      const user = req.user;
+
+      // Validate required fields
+      if (!checkoutData.addressId || !checkoutData.paymentMethodId) {
+        throw new AppError('Missing required checkout information', ERROR_CODES.BAD_REQUEST);
+      }
+
+      // Get client IP for MoMo
+      const clientIp = this.momoService.getClientIp(req);
+
+      // Create MoMo session and payment URL
+      const result = await this.momoCheckoutService.createMoMoSession(checkoutData, user, clientIp);
       
-      if (!orderCode) {
-        return ResponseHandler.error(res, 'Order code is required', null, 400);
-      }
+      console.log('✅ MoMo checkout session created:', {
+        orderCode: result.order.orderCode,
+        amount: result.order.finalTotal,
+        clientIp: clientIp
+      });
 
-      console.log('🧪 Testing email for order:', orderCode);
-
-      // Find the order
-      const Order = require('../models/OrderSchema');
-      const order = await Order.findOne({ orderCode: orderCode })
-        .populate('user')
-        .populate('address')
-        .populate('paymentMethod')
-        .populate('voucher')
-        .populate({
-          path: 'items.productVariant',
-          populate: [
-            { path: 'product' },
-            { path: 'color' },
-            { path: 'size' }
-          ]
-        });
-
-      if (!order) {
-        return ResponseHandler.error(res, 'Order not found', null, 404);
-      }
-
-      console.log('📧 Found order, sending test email...');
-
-      // Prepare order data for email
-      const orderDataForEmail = {
-        _id: order._id,
-        orderCode: order.orderCode,
-        items: order.items,
-        total: order.total,
-        discountAmount: order.discountAmount || 0,
-        shippingFee: order.shippingFee || 0,
-        finalTotal: order.finalTotal,
-        address: order.address,
-        createdAt: order.createdAt,
-        paymentMethod: order.paymentMethod,
-        voucher: order.voucher
-      };
-
-      // Send email
-      const EmailService = require('../services/emailService');
-      const emailService = new EmailService();
-      await emailService.sendOrderConfirmationEmail(
-        order.user.email,
-        order.user.name || order.address.fullName,
-        orderDataForEmail
-      );
-
-      console.log('✅ Test email sent successfully');
-
-      return ResponseHandler.success(res, 'Test email sent successfully', {
-        orderCode: order.orderCode,
-        email: order.user.email,
-        recipient: order.user.name || order.address.fullName
+      ResponseHandler.success(res, 'MoMo checkout session created', {
+        paymentUrl: result.payment.paymentUrl,
+        orderCode: result.order.orderCode,
+        orderId: result.order._id,
+        amount: result.order.finalTotal,
+        status: result.order.status,
+        momoOrderId: result.payment.momoOrderId,
+        requestId: result.payment.requestId
       });
 
     } catch (error) {
-      console.error('❌ Test email failed:', error);
+      console.error('❌ Create MoMo checkout error:', error);
+      next(error);
+    }
+  };
+
+  // GET /api/payment/momo/callback - Handle MoMo callback
+  handleMoMoCallback = async (req, res, next) => {
+    try {
+      console.log('📨 MoMo callback received:', req.query);
+
+      // Process MoMo callback
+      const result = await this.momoCheckoutService.handleMoMoCallback(req.query);
+
+      console.log('✅ MoMo callback processed:', {
+        success: result.success,
+        isSuccess: result.isSuccess,
+        orderCode: result.order?.orderCode
+      });
+
+      // Redirect to success or error page based on payment result
+      if (result.success && result.isSuccess) {
+        const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/checkout/success?orderCode=${result.order.orderCode}&transactionId=${result.payment.transactionId}&paymentMethod=momo&amount=${result.payment.amount}`;
+        return res.redirect(redirectUrl);
+      } else {
+        const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/checkout/error?message=${encodeURIComponent(result.message || 'Payment failed')}`;
+        return res.redirect(redirectUrl);
+      }
+
+    } catch (error) {
+      console.error('❌ MoMo callback error:', error);
+      const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/checkout/error?message=${encodeURIComponent('Callback processing failed')}`;
+      return res.redirect(redirectUrl);
+    }
+  };
+
+  // POST /api/payment/momo/ipn - Handle MoMo IPN (Instant Payment Notification)
+  handleMoMoIPN = async (req, res, next) => {
+    try {
+      console.log('📢 MoMo IPN received:', req.body);
+
+      // Process MoMo IPN
+      const result = await this.momoCheckoutService.handleMoMoIPN(req.body);
+
+      console.log('✅ MoMo IPN processed:', {
+        success: result.success,
+        orderCode: result.order?.orderCode
+      });
+
+      // MoMo expects specific response format
+      if (result.success) {
+        return res.json({ resultCode: 0, message: 'Success' });
+      } else {
+        return res.json({ resultCode: 1, message: result.message || 'Failed' });
+      }
+
+    } catch (error) {
+      console.error('❌ MoMo IPN error:', error);
+      return res.json({ resultCode: 99, message: 'Unknown error' });
+    }
+  };
+
+  // ============= TEST METHODS =============
+
+  // GET /api/payment/test - Test VNPay integration
+  testVNPayIntegration = async (req, res, next) => {
+    try {
+      console.log('🧪 Testing VNPay integration');
+
+      // Test VNPay configuration and connectivity
+      const testResult = await this.vnpayService.testConnection();
+
+      console.log('✅ VNPay integration test completed');
+
+      ResponseHandler.success(res, 'VNPay integration test completed', testResult);
+
+    } catch (error) {
+      console.error('❌ VNPay integration test failed:', error);
+      next(error);
+    }
+  };
+
+  // POST /api/payment/test-email - Test email sending with order code
+  testOrderEmail = async (req, res, next) => {
+    try {
+      console.log('📧 Testing order email functionality');
+      
+      const { orderCode } = req.body;
+
+      // Test email sending functionality
+      const result = await this.vnpayService.testEmail(orderCode);
+      
+      console.log('✅ Order email test successful');
+      return ResponseHandler.success(res, 'Order email test successful', result);
+      
+    } catch (error) {
+      console.error('❌ Order email test failed:', error);
       return ResponseHandler.error(res, 'Failed to send test email', error);
     }
   };

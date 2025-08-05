@@ -10,10 +10,11 @@ import MiddleBanner from "./components/MiddleBanner";
 import News from "./components/News";
 import { LoadingSpinner } from "./components/ui";
 import ProductItem from "./components/ProductItem";
+import FeaturedProductsFilter, { FeaturedFilterType } from "./components/FeaturedProductsFilter";
 import { useProducts, useProductStats } from "@/hooks";
 import { productService } from "@/services";
 import { homePageService } from "@/services/homePageService"; // ADD: Optimized home service
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ProductWithCategory } from "@/types";
 
 export default function Home() {
@@ -21,6 +22,10 @@ export default function Home() {
   const [products, setProducts] = useState<ProductWithCategory[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<ProductWithCategory[]>([]);
   const [newProducts, setNewProducts] = useState<ProductWithCategory[]>([]);
+  
+  // ADD: Featured products filter state
+  const [featuredFilter, setFeaturedFilter] = useState<FeaturedFilterType>('combined');
+  const [featuredLoading, setFeaturedLoading] = useState(false);
   
   // ADD: Optimized loading state
   const [isOptimizedLoading, setIsOptimizedLoading] = useState(true);
@@ -79,31 +84,60 @@ export default function Home() {
         setProducts(productsArray);
         
         // 1. Featured Products - Use REAL backend API with business metrics
-        console.log('🎯 Homepage: Fetching REAL featured products from API...');
-        const featuredResponse = await productService.getFeaturedProducts(6);
+        console.log(`🎯 Homepage: Fetching REAL featured products from API with filter: ${featuredFilter}...`);
+        const featuredResponse = await homePageService.getFeaturedProducts(6, featuredFilter);
         console.log('✅ Real featured products:', featuredResponse);
         
         // Handle response structure
-        const featuredProductsData = Array.isArray(featuredResponse) ? featuredResponse : 
-                                    (featuredResponse as any)?.data || [];
+        const featuredProductsData = Array.isArray(featuredResponse) ? featuredResponse : [];
         setFeaturedProducts(featuredProductsData);
         
-        // 2. New Products - Most recently added 
-        const newProducts = productsArray
-          .filter((product: ProductWithCategory) => 
-            product.isActive !== false
-          )
-          .slice(-8) // Take last 8 as "newest"
-          .reverse() // Reverse to show newest first
-          .slice(0, 6); // Limit to 6 for display
-        setNewProducts(newProducts);
+        // 2. New Products - Use dedicated backend endpoint (avoid logic duplication)
+        console.log('🆕 Homepage: Fetching newest products from dedicated endpoint...');
+        const newProductsResponse = await homePageService.getNewProducts(6); // Request 6 products
+        console.log('✅ Real newest products from homePageService:', newProductsResponse);
+        console.log('📊 New products count:', newProductsResponse?.length || 0);
+        
+        // Use data directly from optimized backend endpoint
+        const newProductsData = Array.isArray(newProductsResponse) ? newProductsResponse : [];
+        console.log(`📦 New products loaded: ${newProductsData.length} products (expecting 6)`);
+        
+        if (newProductsData.length === 0) {
+          console.warn('⚠️ No new products found! Check database or backend');
+        }
+        
+        setNewProducts(newProductsData);
       } catch (err) {
         console.error('Failed to fetch products:', err);
       }
     };
 
     fetchProducts();
-  }, [getProducts, hasTriedOptimized]);
+  }, [getProducts, hasTriedOptimized]); // Keep original dependencies without featuredFilter
+
+  // Handle featured products filter change with useCallback to prevent re-renders
+  const handleFeaturedFilterChange = useCallback(async (newFilter: FeaturedFilterType) => {
+    if (newFilter === featuredFilter || featuredLoading) {
+      return; // No change needed or already loading
+    }
+    
+    console.log(`🔄 Changing featured filter from ${featuredFilter} to: ${newFilter}`);
+    setFeaturedLoading(true);
+    
+    try {
+      const featuredResponse = await homePageService.getFeaturedProducts(6, newFilter);
+      console.log(`✅ Featured products loaded for filter ${newFilter}:`, featuredResponse.length);
+      
+      const featuredProductsData = Array.isArray(featuredResponse) ? featuredResponse : [];
+      setFeaturedProducts(featuredProductsData);
+      setFeaturedFilter(newFilter); // Set filter after successful load
+    } catch (error) {
+      console.error('❌ Error loading filtered featured products:', error);
+      // Don't reset products on error, keep current ones
+    } finally {
+      setFeaturedLoading(false);
+    }
+  }, [featuredFilter, featuredLoading]); // Only depend on current filter and loading state
 
   // Show loading while either optimized or fallback is loading
   if (loading || isOptimizedLoading) {
@@ -158,12 +192,20 @@ export default function Home() {
             <h2 className={styles.sectionTitle}>⭐ Sản Phẩm Nổi Bật</h2>
             <p className={styles.sectionSubtitle}>Được yêu thích và lựa chọn nhiều nhất</p>
           </div>
+          
+          {/* Featured Products Filter */}
+          <FeaturedProductsFilter
+            activeFilter={featuredFilter}
+            onFilterChange={handleFeaturedFilterChange}
+            loading={featuredLoading}
+          />
+          
           <div className={styles.productGrid}>
             {featuredProducts.map((product) => {
               const productStatsData = productStats[product._id];
               return (
                 <ProductItem 
-                  key={product._id} 
+                  key={`${product._id}-${featuredFilter}`} // Add filter to key for re-render
                   product={product} 
                   layout="grid"
                   averageRating={productStatsData?.averageRating || 0}

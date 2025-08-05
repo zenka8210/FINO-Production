@@ -83,15 +83,15 @@ function AppFooter() {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Footer Bottom */}
-        <div className={styles.footerBottom}>
-          <div className={styles.footerBottomContent}>
-            <p>&copy; 2025 FINO Fashion Store. All rights reserved.</p>
-            <div className={styles.footerLinks}>
-              <Link href="/privacy">Privacy</Link>
-              <Link href="/terms">Terms</Link>
-            </div>
+      {/* Footer Bottom - Outside container to span full width */}
+      <div className={styles.footerBottom}>
+        <div className={styles.footerBottomContent}>
+          <p>&copy; 2025 FINO Fashion Store. All rights reserved.</p>
+          <div className={styles.footerLinks}>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/terms">Terms</Link>
           </div>
         </div>
       </div>
