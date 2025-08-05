@@ -5,6 +5,7 @@ import styles from "./page.module.css";
 import ProductList from "./components/ProductList";
 import BannerSlider from "./components/BannerSlider";
 import CategorySidebar from "./components/CategorySidebar";
+import PersonalizedCategorySidebar from "./components/PersonalizedCategorySidebar";
 import FlashSale from "./components/FlashSale";
 import MiddleBanner from "./components/MiddleBanner";
 import News from "./components/News";
@@ -16,8 +17,10 @@ import { productService } from "@/services";
 import { homePageService } from "@/services/homePageService"; // ADD: Optimized home service
 import { useEffect, useState, useCallback } from "react";
 import { ProductWithCategory } from "@/types";
+import { useAuth } from "@/contexts";
 
 export default function Home() {
+  const { user } = useAuth();
   const { getProducts, loading, error } = useProducts();
   const [products, setProducts] = useState<ProductWithCategory[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<ProductWithCategory[]>([]);
@@ -173,7 +176,12 @@ export default function Home() {
       {/* Hero Section - Sidebar và Banner nằm cùng hàng */}
       <div className="container">
         <div className={styles.heroSection}>
-          <CategorySidebar />
+          {/* Use PersonalizedCategorySidebar for enhanced UX */}
+          <PersonalizedCategorySidebar 
+            maxCategories={10}
+            showAllCategoriesLink={true}
+            showPersonalizationInfo={false}
+          />
           <div className={styles.bannerContainer}>
             <BannerSlider />
           </div>

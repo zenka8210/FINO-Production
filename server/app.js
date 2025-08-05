@@ -88,6 +88,7 @@ const productVariantRoutes = require('./routes/productVariantRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const homePageRoutes = require('./routes/homePage');
+const personalizationRoutes = require('./routes/personalizationRoutes');
 
 // Routes
 app.use('/api/orders', orderRoutes);
@@ -109,6 +110,7 @@ app.use('/api/product-variants', productVariantRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/payment', paymentRoutes); // VNPay payment routes
 app.use('/api/home', homePageRoutes); // Homepage aggregated data routes - Re-enabled with simple service
+app.use('/api/personalization', personalizationRoutes); // Personalization routes for category sidebar
 
 app.get('/', (req, res) => {
   res.send('Welcome to E-commerce API System!');
