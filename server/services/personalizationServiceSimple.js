@@ -97,18 +97,63 @@ class PersonalizationService extends BaseService {
     try {
       console.log('🔍 Analyzing user behavior for:', userId);
       
-      // Lấy số lượng đơn hàng đơn giản (không populate)
-      const recentOrdersCount = await Order.countDocuments({ 
+      // Lấy đơn hàng đã đặt trong 90 ngày gần đây (tất cả status trừ cancelled)
+      const validOrders = await Order.find({ 
         user: userId,
-        createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+        status: { $nin: ['cancelled'] }, // Lấy tất cả orders trừ cancelled
+        createdAt: { $gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) }
+      })
+      .populate({
+        path: 'items.productVariant',
+        populate: {
+          path: 'product',
+          populate: {
+            path: 'category',
+            select: 'name _id'
+          }
+        }
+      })
+      .lean();
+
+      // Lấy số lượng đơn hàng đơn giản (không populate)
+      const recentOrdersCount = validOrders.length;
+      
+      // Tính tổng giá trị đơn hàng
+      const totalOrderValue = validOrders.reduce((sum, order) => sum + (order.finalTotal || 0), 0);
+      const totalOrderItems = validOrders.reduce((sum, order) => 
+        sum + (order.items?.length || 0), 0);
+
+      console.log('📦 Order analysis:', {
+        validOrdersCount: validOrders.length,
+        totalOrderValue,
+        totalOrderItems
       });
 
-      // Lấy wishlist đơn giản
-      const wishlist = await WishList.findOne({ user: userId }).lean();
+      // Lấy wishlist với populate để phân tích categories
+      const wishlist = await WishList.findOne({ user: userId })
+        .populate({
+          path: 'items.product',
+          populate: {
+            path: 'category',
+            select: 'name _id parent'
+          }
+        })
+        .lean();
       const wishlistItemsCount = wishlist?.items?.length || 0;
 
-      // Lấy cart đơn giản
-      const cart = await Cart.findOne({ user: userId }).lean();
+      // Lấy cart với populate để phân tích categories  
+      const cart = await Cart.findOne({ user: userId })
+        .populate({
+          path: 'items.productVariant',
+          populate: {
+            path: 'product',
+            populate: {
+              path: 'category',
+              select: 'name _id'
+            }
+          }
+        })
+        .lean();
       const cartItemsCount = cart?.items?.length || 0;
 
       console.log('📊 Behavior data:', {
@@ -121,9 +166,9 @@ class PersonalizationService extends BaseService {
         recentOrdersCount,
         wishlistItemsCount,
         cartItemsCount,
-        totalOrderValue: 0, // Simplified
-        totalOrderItems: 0, // Simplified
-        recentOrders: [], // Simplified
+        totalOrderValue,
+        totalOrderItems,
+        recentOrders: validOrders, // Include detailed order data for analysis
         currentWishlist: wishlist,
         currentCart: cart
       };
@@ -164,22 +209,26 @@ class PersonalizationService extends BaseService {
     });
 
     try {
-      // FIXED: Phân tích thực tế từ wishlist items
+      // FIXED: Phân tích thực tế từ wishlist items (đã được populate)
       if (behaviorData.currentWishlist?.items?.length > 0) {
-        console.log('📝 Analyzing wishlist items for category preferences...');
-        
         for (const item of behaviorData.currentWishlist.items) {
           try {
-            // Populate product để lấy category
-            const product = await Product.findById(item.product).populate('category').lean();
+            // Data đã được populate trong analyzeUserBehaviorSimple
+            const product = item.product;
+            
             if (product?.category) {
               const categoryId = product.category._id.toString();
-              const categoryScore = categoryScores.get(categoryId);
+              let categoryScore = categoryScores.get(categoryId);
+              
+              // If child category not found, try to find parent category
+              if (!categoryScore && product.category.parent) {
+                const parentId = product.category.parent.toString();
+                categoryScore = categoryScores.get(parentId);
+              }
               
               if (categoryScore) {
                 categoryScore.score += 50; // Mỗi item wishlist = 50 điểm
                 categoryScore.wishlistCount += 1;
-                console.log(`➕ Category "${product.category.name}" +50 points from wishlist`);
               }
             }
           } catch (itemError) {
@@ -188,21 +237,27 @@ class PersonalizationService extends BaseService {
         }
       }
 
-      // FIXED: Phân tích từ cart items
+      // FIXED: Phân tích từ cart items (đã được populate)
       if (behaviorData.currentCart?.items?.length > 0) {
-        console.log('🛒 Analyzing cart items for category preferences...');
-        
         for (const item of behaviorData.currentCart.items) {
           try {
-            const product = await Product.findById(item.product).populate('category').lean();
+            // Data đã được populate trong analyzeUserBehaviorSimple
+            const product = item.productVariant?.product;
+            
             if (product?.category) {
               const categoryId = product.category._id.toString();
-              const categoryScore = categoryScores.get(categoryId);
+              let categoryScore = categoryScores.get(categoryId);
+              
+              // If child category not found, try to find parent category
+              if (!categoryScore && product.category.parent) {
+                const parentId = product.category.parent.toString();
+                categoryScore = categoryScores.get(parentId);
+              }
               
               if (categoryScore) {
-                categoryScore.score += 30; // Mỗi item cart = 30 điểm  
-                categoryScore.cartCount += 1;
-                console.log(`➕ Category "${product.category.name}" +30 points from cart`);
+                const itemScore = 30 * (item.quantity || 1); // Mỗi item cart = 30 điểm * quantity
+                categoryScore.score += itemScore;
+                categoryScore.cartCount += item.quantity || 1;
               }
             }
           } catch (itemError) {
@@ -211,7 +266,39 @@ class PersonalizationService extends BaseService {
         }
       }
 
-      // TODO: Phân tích từ recent orders (simplified version không implement)
+      // IMPLEMENTED: Phân tích từ recent orders
+      if (behaviorData.recentOrders?.length > 0) {
+        console.log('📦 Analyzing order history for category preferences...');
+        
+        for (const order of behaviorData.recentOrders) {
+          if (order.items?.length > 0) {
+            for (const orderItem of order.items) {
+              try {
+                // Order items đã được populate: items.productVariant.product.category
+                const product = orderItem.productVariant?.product;
+                if (product?.category) {
+                  const categoryId = product.category._id.toString();
+                  const categoryScore = categoryScores.get(categoryId);
+                  
+                  if (categoryScore) {
+                    // Điểm cao hơn cho orders vì thể hiện hành vi mua thực tế
+                    const orderPoints = 100;
+                    const quantityBonus = (orderItem.quantity || 1) * 10; // Bonus cho số lượng
+                    const totalPoints = orderPoints + quantityBonus;
+                    
+                    categoryScore.score += totalPoints;
+                    categoryScore.orderFrequency += 1;
+                    categoryScore.totalValue += (orderItem.price * orderItem.quantity) || 0;
+                    console.log(`➕ Category "${product.category.name}" +${totalPoints} points from order (qty: ${orderItem.quantity})`);
+                  }
+                }
+              } catch (itemError) {
+                console.error('❌ Error analyzing order item:', itemError);
+              }
+            }
+          }
+        }
+      }
       
     } catch (error) {
       console.error('❌ Error analyzing user preferences:', error);
@@ -400,6 +487,334 @@ class PersonalizationService extends BaseService {
         personalizationLevel: 'new'
       }
     };
+  }
+
+  /**
+   * Lấy top sản phẩm bán chạy trong 30 ngày (cho guest/new users)
+   */
+  async getTopSellingProducts(limit = 12, excludeIds = []) {
+    try {
+      console.log('🔥 Getting top selling products in last 30 days...');
+      
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      
+      // Aggregate để tính sản phẩm bán chạy (sử dụng productVariant)
+      const topSellingAggregation = await Order.aggregate([
+        {
+          $match: {
+            status: { $nin: ['cancelled'] },
+            createdAt: { $gte: thirtyDaysAgo },
+            items: { $exists: true, $ne: [] }
+          }
+        },
+        { $unwind: '$items' },
+        {
+          $match: {
+            'items.productVariant': { $exists: true, $ne: null }
+          }
+        },
+        {
+          $group: {
+            _id: '$items.productVariant', // Sử dụng productVariant thay vì product
+            totalQuantity: { $sum: '$items.quantity' },
+            totalRevenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } },
+            orderCount: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { 
+            totalQuantity: -1,  // Ưu tiên số lượng bán
+            totalRevenue: -1     // Rồi đến doanh thu
+          }
+        },
+        { $limit: limit * 2 } // Lấy nhiều hơn để filter
+      ]);
+
+      console.log('📊 Top selling aggregation found:', topSellingAggregation.length, 'product variants');
+
+      if (topSellingAggregation.length === 0) {
+        // Fallback: Lấy products mới nhất nếu không có sales data
+        console.log('⚠️ No sales data, falling back to newest products');
+        return await Product.find({
+          isActive: true,
+          _id: { $nin: excludeIds }
+        })
+        .populate('category', 'name parent')
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean();
+      }
+
+      // Lấy productVariant IDs và populate để lấy product thông tin
+      const productVariantIds = topSellingAggregation
+        .map(item => item._id)
+        .filter(id => id) // Loại bỏ null values
+        .slice(0, limit);
+
+      console.log('🔍 Found productVariant IDs:', productVariantIds.length);
+      console.log('🔍 ProductVariant IDs:', productVariantIds.slice(0, 3)); // Show first 3
+
+      // Populate ProductVariant để lấy product thông tin
+      const ProductVariant = require('../models/ProductVariantSchema');
+      const topVariants = await ProductVariant.find({
+        _id: { $in: productVariantIds },
+        isActive: true
+      })
+      .populate({
+        path: 'product',
+        match: { 
+          isActive: true,
+          _id: { $nin: excludeIds }
+        },
+        populate: {
+          path: 'category',
+          select: 'name parent'
+        }
+      })
+      .lean();
+
+      console.log('🔍 ProductVariants found:', topVariants.length);
+      console.log('🔍 ProductVariants with valid products:', topVariants.filter(v => v.product).length);
+
+      // Lọc và lấy unique products (có thể có nhiều variants của cùng 1 product)
+      const uniqueProducts = [];
+      const seenProductIds = new Set();
+
+      console.log('🔍 Processing variants for unique products...');
+      for (const variant of topVariants) {
+        console.log('🔍 Variant:', variant._id, 'Has product:', !!variant.product);
+        
+        if (variant.product && !seenProductIds.has(variant.product._id.toString())) {
+          seenProductIds.add(variant.product._id.toString());
+          
+          // Thêm sales data từ aggregation
+          const salesData = topSellingAggregation.find(item => 
+            item._id && item._id.toString() === variant._id.toString()
+          );
+          
+          const productWithSales = {
+            ...variant.product,
+            totalSold: salesData?.totalQuantity || 0,
+            totalRevenue: salesData?.totalRevenue || 0,
+            orderCount: salesData?.orderCount || 0
+          };
+          
+          uniqueProducts.push(productWithSales);
+          console.log('✅ Added unique product:', variant.product.name);
+          
+          if (uniqueProducts.length >= limit) break;
+        } else if (!variant.product) {
+          console.log('⚠️ Variant has no product:', variant._id);
+        } else {
+          console.log('⚠️ Product already seen:', variant.product._id);
+        }
+      }
+
+      console.log('✅ Top selling products fetched:', uniqueProducts.length);
+      return uniqueProducts;
+
+    } catch (error) {
+      console.error('❌ Error getting top selling products:', error);
+      
+      // Final fallback: newest products
+      return await Product.find({
+        isActive: true,
+        _id: { $nin: excludeIds }
+      })
+      .populate('category', 'name parent')
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean();
+    }
+  }
+
+  /**
+   * Lấy sản phẩm được cá nhân hóa dựa trên hành vi user
+   */
+  async getPersonalizedProducts(userId, options = {}) {
+    try {
+      const { limit = 12, excludeIds = [], categoryFilters = [] } = options;
+      
+      console.log('🎯 PersonalizationService: Getting personalized products for user:', userId);
+      console.log('🔧 Options:', { limit, excludeIds: excludeIds.length, categoryFilters: categoryFilters.length });
+
+      // 1. Lấy personalized categories trước
+      const personalizedCategoriesResponse = await this.getPersonalizedCategories(userId, {
+        limit: 20,
+        includeSubcategories: true
+      });
+
+      const personalizedCategories = personalizedCategoriesResponse.categories;
+      const userBehaviorSummary = personalizedCategoriesResponse.userBehaviorSummary;
+
+      console.log('📂 Got personalized categories:', personalizedCategories.length);
+      console.log('🎚️ Personalization level:', userBehaviorSummary.personalizationLevel);
+
+      // SPECIAL CASE: For guest users or users with NO personalization data, use top selling products
+      if (!userId || userBehaviorSummary.personalizationLevel === 'new') {
+        console.log('🔥 User has no personalization data - using top selling products');
+        
+        const topSellingProducts = await this.getTopSellingProducts(limit, excludeIds);
+        
+        return {
+          products: topSellingProducts,
+          personalizationLevel: userBehaviorSummary.personalizationLevel || 'new',
+          basedOn: {
+            categories: [],
+            recentOrders: false,
+            wishlist: false,
+            cart: false,
+            topSelling: true // Indicator that we used top selling
+          },
+          userBehaviorSummary: {
+            totalOrders: userBehaviorSummary.totalOrders || 0,
+            totalOrderValue: userBehaviorSummary.totalOrderValue || 0,
+            wishlistItems: userBehaviorSummary.wishlistItems || 0,
+            cartItems: userBehaviorSummary.cartItems || 0
+          }
+        };
+      }
+
+      // 2. Extract category IDs với priority scoring (for medium/high personalization users)
+      const categoryScores = {};
+      
+      // Priority categories from personalization
+      personalizedCategories.forEach(category => {
+        const score = category.personalization?.score || 0;
+        categoryScores[category._id.toString()] = score;
+        
+        // Include child categories with slightly lower score
+        if (category.children && category.children.length > 0) {
+          category.children.forEach(child => {
+            categoryScores[child._id.toString()] = score * 0.8;
+          });
+        }
+      });
+
+      // Sort categories by score
+      const prioritizedCategoryIds = Object.entries(categoryScores)
+        .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
+        .slice(0, 10) // Top 10 categories
+        .map(([categoryId]) => categoryId);
+
+      console.log('🏷️ Priority categories for products:', prioritizedCategoryIds.length);
+
+      // 3. Build query for products
+      const productQuery = {
+        isActive: true
+      };
+
+      // Exclude specified products
+      if (excludeIds.length > 0) {
+        productQuery._id = { $nin: excludeIds };
+      }
+
+      // Category filtering
+      let categoryFilter = categoryFilters.length > 0 ? categoryFilters : prioritizedCategoryIds;
+      
+      if (categoryFilter.length > 0) {
+        productQuery.category = { $in: categoryFilter.slice(0, 5) }; // Use top 5 categories
+      }
+
+      console.log('🔍 Product query:', {
+        categoryCount: categoryFilter.length,
+        excludeCount: excludeIds.length
+      });
+
+      // 4. Fetch products với populate
+      let products = await Product.find(productQuery)
+        .populate('category', 'name parent')
+        .limit(limit)
+        .sort({ createdAt: -1 }) // Sort by newest first
+        .lean();
+
+      console.log('📦 Found products from personalized categories:', products.length);
+
+      // 5. If not enough products, fill with top selling products
+      if (products.length < limit) {
+        const remainingLimit = limit - products.length;
+        const existingIds = products.map(p => p._id.toString());
+        
+        console.log('📈 Need more products, fetching top selling fallback:', remainingLimit);
+        
+        const fallbackProducts = await this.getTopSellingProducts(remainingLimit * 2, [...existingIds, ...excludeIds]);
+        const limitedFallback = fallbackProducts.slice(0, remainingLimit);
+
+        products = [...products, ...limitedFallback];
+        console.log('✅ Total products after top selling fallback:', products.length);
+      }
+
+      // 6. Determine what the personalization is based on
+      const basedOn = {
+        categories: prioritizedCategoryIds.slice(0, 3),
+        recentOrders: userBehaviorSummary.totalOrders > 0,
+        wishlist: userBehaviorSummary.wishlistItems > 0,
+        cart: userBehaviorSummary.cartItems > 0
+      };
+
+      // 7. Format response
+      const response = {
+        products: products.slice(0, limit),
+        personalizationLevel: userBehaviorSummary.personalizationLevel,
+        basedOn,
+        userBehaviorSummary: {
+          totalOrders: userBehaviorSummary.totalOrders,
+          totalOrderValue: userBehaviorSummary.totalOrderValue,
+          wishlistItems: userBehaviorSummary.wishlistItems,
+          cartItems: userBehaviorSummary.cartItems
+        }
+      };
+
+      console.log('✅ PersonalizationService: Products response ready:', {
+        productsCount: response.products.length,
+        personalizationLevel: response.personalizationLevel,
+        basedOnCategories: response.basedOn.categories.length
+      });
+
+      return response;
+
+    } catch (error) {
+      console.error('❌ PersonalizationService getPersonalizedProducts Error:', error);
+      
+      // Fallback: Return regular products
+      try {
+        console.log('🔄 Fallback: Getting regular products');
+        
+        const fallbackQuery = {
+          isActive: true
+        };
+        
+        if (excludeIds.length > 0) {
+          fallbackQuery._id = { $nin: excludeIds };
+        }
+        
+        const fallbackProducts = await Product.find(fallbackQuery)
+          .populate('category', 'name parent')
+          .limit(limit)
+          .sort({ createdAt: -1 })
+          .lean();
+
+        return {
+          products: fallbackProducts,
+          personalizationLevel: 'error',
+          basedOn: {
+            categories: [],
+            recentOrders: false,
+            wishlist: false,
+            cart: false
+          },
+          userBehaviorSummary: {
+            totalOrders: 0,
+            totalOrderValue: 0,
+            wishlistItems: 0,
+            cartItems: 0
+          }
+        };
+      } catch (fallbackError) {
+        console.error('❌ PersonalizationService: Fallback also failed:', fallbackError);
+        throw new Error('Failed to get personalized products');
+      }
+    }
   }
 
   /**

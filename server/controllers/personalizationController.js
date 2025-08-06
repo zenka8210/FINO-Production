@@ -84,6 +84,42 @@ class PersonalizationController extends BaseController {
   };
 
   /**
+   * GET /api/personalization/products
+   * Lấy sản phẩm được cá nhân hóa dựa trên hành vi user
+   */
+  getPersonalizedProducts = async (req, res, next) => {
+    try {
+      const userId = req.user?._id || null; // Support cả guest user
+      const { 
+        limit = 12, 
+        excludeIds = '',
+        categoryFilters = ''
+      } = req.query;
+      
+      console.log('🎯 PersonalizationController: Getting personalized products for user:', userId);
+      
+      const options = {
+        limit: parseInt(limit),
+        excludeIds: excludeIds ? excludeIds.split(',').filter(id => id.trim()) : [],
+        categoryFilters: categoryFilters ? categoryFilters.split(',').filter(id => id.trim()) : []
+      };
+
+      const result = await this.service.getPersonalizedProducts(userId, options);
+      
+      console.log('✅ PersonalizationController: Personalized products generated:', {
+        productsCount: result.products.length,
+        personalizationLevel: result.personalizationLevel,
+        basedOnCategories: result.basedOn.categories.length
+      });
+
+      ResponseHandler.success(res, 'Lấy sản phẩm cá nhân hóa thành công', result);
+    } catch (error) {
+      console.error('❌ PersonalizationController getPersonalizedProducts Error:', error);
+      next(error);
+    }
+  };
+
+  /**
    * Utility: Extract categories from wishlist
    */
   extractCategoriesFromWishlist(wishlist) {

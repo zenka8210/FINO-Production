@@ -43,6 +43,16 @@ const optionalAuth = (req, res, next) => {
 router.get('/categories', optionalAuth, personalizationController.getPersonalizedCategories);
 
 /**
+ * @route GET /api/personalization/products
+ * @description Lấy sản phẩm được cá nhân hóa dựa trên hành vi user
+ * @access Public (supports both guest and authenticated users)
+ * @query {number} limit - Số lượng sản phẩm tối đa (default: 12)
+ * @query {string} excludeIds - Danh sách ID sản phẩm cần loại trừ (comma-separated)
+ * @query {string} categoryFilters - Danh sách ID danh mục để lọc (comma-separated)
+ */
+router.get('/products', optionalAuth, personalizationController.getPersonalizedProducts);
+
+/**
  * @route GET /api/personalization/user-behavior
  * @description Lấy thông tin phân tích hành vi user (dành cho debugging)
  * @access Private (authenticated users only)

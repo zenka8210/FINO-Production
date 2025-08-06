@@ -463,15 +463,30 @@ class CartService extends BaseService {
 
   // Clear entire cart
   async clearUserCart(userId) {
-    const cart = await Cart.findOrCreateCart(userId);
-    if (!cart) {
-      throw new AppError('Cart not found', ERROR_CODES.NOT_FOUND);
-    }
+    try {
+      const cart = await Cart.findOrCreateCart(userId);
+      if (!cart) {
+        throw new AppError('Cart not found', ERROR_CODES.NOT_FOUND);
+      }
 
-    await cart.clearCart();
-    
-    // Return empty cart (no need to populate empty items)
-    return cart;
+      const clearedCart = await cart.clearCart();
+      
+      // Return empty cart (no need to populate empty items)
+      return clearedCart;
+    } catch (error) {
+      // Handle version error with retry
+      if (error.name === 'VersionError' || error.code === 11000 || error.message.includes('version')) {
+        console.log('🔄 Retrying clearCart due to version conflict...');
+        try {
+          const cart = await Cart.findOrCreateCart(userId);
+          const clearedCart = await cart.clearCart();
+          return clearedCart;
+        } catch (retryError) {
+          throw retryError;
+        }
+      }
+      throw error;
+    }
   }
 
   // Sync client cart with server cart

@@ -6,6 +6,7 @@ import ProductList from "./components/ProductList";
 import BannerSlider from "./components/BannerSlider";
 import CategorySidebar from "./components/CategorySidebar";
 import PersonalizedCategorySidebar from "./components/PersonalizedCategorySidebar";
+import PersonalizedProductsSection from "./components/PersonalizedProductsSection";
 import FlashSale from "./components/FlashSale";
 import MiddleBanner from "./components/MiddleBanner";
 import News from "./components/News";
@@ -190,6 +191,13 @@ export default function Home() {
 
       {/* Main content */}
       <div className="container">
+        {/* Personalized Products Section - "Có thể bạn thích" */}
+        <PersonalizedProductsSection 
+          limit={6}
+          excludeIds={[...featuredProducts.map(p => p._id), ...newProducts.map(p => p._id)]}
+          showPersonalizationInfo={false}
+        />
+
         {/* Flash Sale Section - Real-time data sync */}
                 {/* Flash Sale Section */}
         <FlashSale /> {/* Removed aggressive refresh to prevent infinite loops */}

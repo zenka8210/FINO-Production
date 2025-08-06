@@ -96,6 +96,40 @@ export class PersonalizationService {
   }
 
   /**
+   * Lấy sản phẩm được cá nhân hóa dựa trên hành vi user
+   */
+  async getPersonalizedProducts(options?: {
+    limit?: number;
+    excludeIds?: string[];
+    categoryFilters?: string[];
+  }): Promise<any> {
+    try {
+      const params = new URLSearchParams();
+      
+      if (options?.limit) {
+        params.append('limit', options.limit.toString());
+      }
+      
+      if (options?.excludeIds && options.excludeIds.length > 0) {
+        params.append('excludeIds', options.excludeIds.join(','));
+      }
+      
+      if (options?.categoryFilters && options.categoryFilters.length > 0) {
+        params.append('categoryFilters', options.categoryFilters.join(','));
+      }
+
+      const queryString = params.toString();
+      const url = `/api/personalization/products${queryString ? `?${queryString}` : ''}`;
+      
+      const response = await apiClient.get(url);
+      return response.data!;
+    } catch (error: any) {
+      console.error('PersonalizationService.getPersonalizedProducts Error:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch personalized products');
+    }
+  }
+
+  /**
    * Utility: Get badge styling based on type
    */
   getBadgeStyle(badgeType: PersonalizedCategory['badge']['type']): {
