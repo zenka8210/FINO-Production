@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { FaStar, FaHeart, FaRegHeart, FaShoppingCart, FaCheck, FaPlus, FaMinus, FaShare, FaTruck, FaShieldAlt, FaUndoAlt, FaPhoneAlt } from 'react-icons/fa';
+import { FaStar, FaHeart, FaRegHeart, FaShoppingCart, FaCheck, FaPlus, FaMinus, FaShare, FaTruck, FaShieldAlt, FaUndoAlt, FaPhoneAlt, FaShoppingBag } from 'react-icons/fa';
 
 // Import contexts and hooks
 import { useAuth, useNotification } from '@/contexts';
@@ -17,6 +17,7 @@ import { getProductPriceInfo } from '@/lib/productUtils';
 import Button from '@/app/components/ui/Button';
 import LoadingSpinner from '@/app/components/ui/LoadingSpinner';
 import Modal from '@/app/components/ui/Modal';
+import { PageHeader } from '@/app/components/ui';
 
 // Import components
 import ReviewSection from '../../components/ReviewSection';
@@ -50,11 +51,51 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
+
+  // Dynamic image logic: Combine variant images with product images for better UX
+  const currentImages = useMemo(() => {
+    const variantImages = selectedVariant?.images || [];
+    const productImages = product?.images || [];
+    
+    // If variant has images, show variant images first, then product images as additional options
+    if (variantImages.length > 0) {
+      console.log('🖼️ Using variant images + product images:', variantImages.length, '+', productImages.length);
+      // Combine but avoid duplicates
+      const combinedImages = [...variantImages];
+      productImages.forEach(img => {
+        if (!combinedImages.includes(img)) {
+          combinedImages.push(img);
+        }
+      });
+      return combinedImages;
+    }
+    
+    // If no variant images, use product images
+    if (productImages.length > 0) {
+      console.log('🖼️ Using product images only:', productImages.length);
+      return productImages;
+    }
+    
+    // Default placeholder images
+    console.log('🖼️ Using placeholder images');
+    return [
+      'https://picsum.photos/seed/product54_1/600/800',
+      'https://picsum.photos/seed/product54_2/600/800'
+    ];
+  }, [selectedVariant, product]);
 
   // Use product data as-is from database without any dynamic sale logic
   const productWithSaleLogic = useMemo(() => {
     return product;
   }, [product]);
+
+  // Reset image index when images change to prevent out of bounds
+  useEffect(() => {
+    if (selectedImageIndex >= currentImages.length) {
+      setSelectedImageIndex(0);
+    }
+  }, [currentImages, selectedImageIndex]);
 
   // Set default variant when product loads
   useEffect(() => {
@@ -70,17 +111,71 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
   const handleVariantChange = useCallback((colorId: string, sizeId: string) => {
     if (!product?.variants) return;
     
+    console.log('🎨 Variant change:', { colorId, sizeId });
+    
     const variant = product.variants.find((v: any) => 
       v.color?._id === colorId && v.size?._id === sizeId
     ) as any;
     
     if (variant) {
+      console.log('✅ Found variant with images:', variant.images?.length || 0);
+      
+      // Start image loading transition
+      setImageLoading(true);
+      
+      // Update variant and colors
       setSelectedVariant(variant);
       setSelectedColor(colorId);
       setSelectedSize(sizeId);
       setSelectedImageIndex(0); // Reset to first image of new variant
+      
+      // End loading after a brief delay for smooth transition
+      setTimeout(() => {
+        setImageLoading(false);
+      }, 150);
+    } else {
+      console.log('❌ No variant found for:', { colorId, sizeId });
     }
   }, [product]);
+
+  // Handle color selection (separate from size)
+  const handleColorChange = useCallback((colorId: string) => {
+    if (!product?.variants) return;
+    
+    console.log('🎨 Color change to:', colorId);
+    
+    // Get available sizes for this color
+    const availableSizesForNewColor = product.variants
+      .filter((v: any) => v.color?._id === colorId)
+      .map((v: any) => v.size);
+    
+    if (availableSizesForNewColor.length === 0) {
+      console.log('❌ No sizes available for color:', colorId);
+      return;
+    }
+    
+    // Try to keep current size if available
+    let targetSizeId = selectedSize;
+    const currentSizeAvailable = availableSizesForNewColor.some((s: any) => s._id === selectedSize);
+    
+    // If current size not available, pick first available size
+    if (!currentSizeAvailable) {
+      targetSizeId = availableSizesForNewColor[0]._id;
+      console.log('📏 Size changed to first available:', availableSizesForNewColor[0].name);
+    }
+    
+    // Apply the color + size combination
+    handleVariantChange(colorId, targetSizeId);
+  }, [product, selectedSize, handleVariantChange]);
+
+  // Handle smooth thumbnail selection
+  const handleThumbnailClick = useCallback((index: number) => {
+    setImageLoading(true);
+    setSelectedImageIndex(index);
+    setTimeout(() => {
+      setImageLoading(false);
+    }, 100);
+  }, []);
 
   // Handle add to cart
   const handleAddToCart = async () => {
@@ -170,9 +265,11 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
     : [];
 
   // Debug logging
+  console.log('🔍 NEW: Product:', product?.name);
   console.log('🔍 NEW: Product variants:', product?.variants);
   console.log('🎨 NEW: Available colors:', availableColors);
   console.log('📏 NEW: Available sizes:', availableSizes);
+  console.log('🎯 NEW: Selected color/size:', selectedColor, selectedSize);
 
   // Get sizes available for selected color
   const availableSizesForColor = product?.variants
@@ -268,36 +365,37 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
   const totalPrice = currentPrice * quantity;
   const originalTotalPrice = originalPrice * quantity;
   
-  // HARDCODE FIX: Always use product.images first, then selectedVariant?.images as fallback
-  const currentImages = (product?.images && product.images.length > 0) 
-    ? product.images 
-    : selectedVariant?.images || [
-      'https://picsum.photos/seed/product54_1/600/800',
-      'https://picsum.photos/seed/product54_2/600/800'
-    ];
   const inWishlist = isInWishlist(product?._id || productId);
 
   return (
-    <div className={styles.productDetail}>
-      {/* Breadcrumb - Simplified for 1 view = 1 action */}
-      <div className={styles.breadcrumb}>
-        <span onClick={() => router.push('/')}>Trang chủ</span>
-        <span>/</span>
-        <span className={styles.current}>{product.name}</span>
-      </div>
+    <div className="container">
+      <div className={styles.pageContainer}>
+        {/* Page Header with Breadcrumb */}
+        <PageHeader
+          title={product.name.length > 50 ? `${product.name.substring(0, 50)}...` : product.name}
+          subtitle={`Chi tiết sản phẩm • ${product.category?.name || 'Sản phẩm'}`}
+          icon={FaShoppingBag}
+          breadcrumbs={[
+            { label: 'Trang chủ', href: '/' },
+            { label: 'Sản phẩm', href: '/products' },
+            { label: product.name, href: `/products/${productId}` }
+          ]}
+        />
 
-      <div className={styles.container}>
-        <div className={styles.productMain}>
+        {/* Main Content */}
+        <div className={styles.mainContent}>
+          <div className={styles.container}>
+            <div className={styles.productMain}>
           {/* Image Gallery */}
           <div className={styles.imageSection}>
             <div className={styles.mainImage}>
-              {currentImages.length > 0 ? (
+              {currentImages && currentImages.length > 0 ? (
                 <Image
-                  src={currentImages[selectedImageIndex]}
+                  src={currentImages[selectedImageIndex] || currentImages[0]}
                   alt={product.name}
                   width={600}
                   height={600}
-                  className={styles.productImage}
+                  className={`${styles.productImage} ${imageLoading ? '' : styles.loaded}`}
                 />
               ) : (
                 <div className={styles.noImage}>
@@ -316,7 +414,8 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
               )}
             </div>
             
-            {currentImages.length > 1 && (
+            {/* Always show thumbnails for consistent UX, hide only for placeholder images */}
+            {currentImages && currentImages.length > 0 && !currentImages[0].includes('picsum.photos') && (
               <div className={styles.thumbnails}>
                 {currentImages.map((image: string, index: number) => (
                   <Image
@@ -326,7 +425,7 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
                     width={80}
                     height={80}
                     className={`${styles.thumbnail} ${selectedImageIndex === index ? styles.active : ''}`}
-                    onClick={() => setSelectedImageIndex(index)}
+                    onClick={() => handleThumbnailClick(index)}
                   />
                 ))}
               </div>
@@ -407,7 +506,7 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
                     <button
                       key={color._id}
                       className={`${styles.colorOption} ${selectedColor === color._id ? styles.selected : ''}`}
-                      onClick={() => handleVariantChange(color._id, selectedSize)}
+                      onClick={() => handleColorChange(color._id)}
                     >
                       <span>{color.name}</span>
                       {selectedColor === color._id && <FaCheck className={styles.checkIcon} />}
@@ -436,15 +535,49 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
                     Hướng dẫn chọn size
                   </button>
                 </div>
+                
                 <div className={styles.sizeOptions}>
                   {availableSizes.map((size: any) => {
                     const isAvailable = availableSizesForColor.some((s: any) => s._id === size._id);
+                    
+                    // Determine size length category for styling
+                    const getSizeLengthCategory = (sizeName: string) => {
+                      // Handle common size names intelligently
+                      if (sizeName.length > 8 || 
+                          ['FREESIZE', 'ONESIZE', 'FREE SIZE', 'ONE SIZE'].includes(sizeName.toUpperCase())) {
+                        return 'extra-long'; // FREESIZE, ONESIZE, etc.
+                      }
+                      if (sizeName.length > 4 || 
+                          ['SMALL', 'MEDIUM', 'LARGE', 'XLARGE'].includes(sizeName.toUpperCase())) {
+                        return 'long'; // Medium, Large, Small, etc.
+                      }
+                      return 'normal'; // S, M, L, XL, XXL, etc.
+                    };
+                    
+                    const sizeLengthCategory = getSizeLengthCategory(size.name);
+                    
                     return (
                       <button
                         key={size._id}
-                        className={`${styles.sizeOption} ${selectedSize === size._id ? styles.selected : ''} ${!isAvailable ? styles.disabled : ''}`}
-                        onClick={() => isAvailable && handleVariantChange(selectedColor, size._id)}
+                        className={`
+                          ${styles.sizeOption} 
+                          ${selectedSize === size._id ? styles.selected : ''} 
+                          ${!isAvailable ? styles.unavailable : styles.available}
+                        `}
+                        onClick={() => {
+                          if (isAvailable && selectedColor) {
+                            handleVariantChange(selectedColor, size._id);
+                          } else if (!selectedColor) {
+                            showError('Vui lòng chọn màu sắc trước');
+                          }
+                        }}
                         disabled={!isAvailable}
+                        data-size-length={sizeLengthCategory}
+                        title={
+                          !isAvailable ? 'Hết hàng cho màu này' : 
+                          !selectedColor ? 'Chọn màu sắc trước' :
+                          size.name
+                        }
                       >
                         {size.name}
                         {selectedSize === size._id && <FaCheck className={styles.checkIcon} />}
@@ -596,81 +729,119 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
         title="Hướng dẫn chọn size"
       >
         <div className={styles.sizeGuideContent}>
-          {/* Check product category to show appropriate size guide */}
-          {product?.category?.name?.toLowerCase().includes('giày') || 
-           product?.category?.name?.toLowerCase().includes('dép') || 
-           product?.category?.name?.toLowerCase().includes('sandal') || 
-           product?.category?.name?.toLowerCase().includes('boot') ? (
-            // Footwear size guide
-            <>
-              <h4>Bảng size giày dép chuẩn</h4>
-              <table className={styles.sizeTable}>
-                <thead>
-                  <tr>
-                    <th>Size VN</th>
-                    <th>Size US</th>
-                    <th>Size EU</th>
-                    <th>Chiều dài chân (cm)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr><td>35</td><td>5</td><td>35</td><td>22.5</td></tr>
-                  <tr><td>36</td><td>5.5</td><td>36</td><td>23.0</td></tr>
-                  <tr><td>37</td><td>6</td><td>37</td><td>23.5</td></tr>
-                  <tr><td>38</td><td>6.5</td><td>38</td><td>24.0</td></tr>
-                  <tr><td>39</td><td>7</td><td>39</td><td>24.5</td></tr>
-                  <tr><td>40</td><td>7.5</td><td>40</td><td>25.0</td></tr>
-                  <tr><td>41</td><td>8</td><td>41</td><td>25.5</td></tr>
-                  <tr><td>42</td><td>8.5</td><td>42</td><td>26.0</td></tr>
-                  <tr><td>43</td><td>9</td><td>43</td><td>26.5</td></tr>
-                  <tr><td>44</td><td>9.5</td><td>44</td><td>27.0</td></tr>
-                  <tr><td>45</td><td>10</td><td>45</td><td>27.5</td></tr>
-                </tbody>
-              </table>
-              <div className={styles.sizeGuideNotes}>
-                <h5>💡 Cách đo chân chuẩn xác:</h5>
-                <ul>
-                  <li>Đo chân vào buổi tối khi chân to nhất</li>
-                  <li>Đặt chân lên giấy, đánh dấu đầu ngón chân cái và gót chân</li>
-                  <li>Đo khoảng cách giữa 2 điểm đánh dấu</li>
-                  <li>Chọn size lớn hơn 0.5cm so với chiều dài chân</li>
-                  <li>Nếu chân bè rộng, nên chọn size lớn hơn 1 size</li>
-                </ul>
+          {/* Determine appropriate size guide based on product category */}
+          {(() => {
+            const categoryName = product?.category?.name?.toLowerCase() || '';
+            
+            // Footwear categories
+            if (categoryName.includes('giày') || 
+                categoryName.includes('dép') || 
+                categoryName.includes('sandal') || 
+                categoryName.includes('boot') ||
+                categoryName.includes('sneaker') ||
+                categoryName.includes('shoe')) {
+              return (
+                // Footwear size guide
+                <>
+                  <h4>Bảng size giày dép chuẩn</h4>
+                  <table className={styles.sizeTable}>
+                    <thead>
+                      <tr>
+                        <th>Size VN</th>
+                        <th>Size US</th>
+                        <th>Size EU</th>
+                        <th>Chiều dài chân (cm)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>35</td><td>5</td><td>35</td><td>22.5</td></tr>
+                      <tr><td>36</td><td>5.5</td><td>36</td><td>23.0</td></tr>
+                      <tr><td>37</td><td>6</td><td>37</td><td>23.5</td></tr>
+                      <tr><td>38</td><td>6.5</td><td>38</td><td>24.0</td></tr>
+                      <tr><td>39</td><td>7</td><td>39</td><td>24.5</td></tr>
+                      <tr><td>40</td><td>7.5</td><td>40</td><td>25.0</td></tr>
+                      <tr><td>41</td><td>8</td><td>41</td><td>25.5</td></tr>
+                      <tr><td>42</td><td>8.5</td><td>42</td><td>26.0</td></tr>
+                      <tr><td>43</td><td>9</td><td>43</td><td>26.5</td></tr>
+                      <tr><td>44</td><td>9.5</td><td>44</td><td>27.0</td></tr>
+                      <tr><td>45</td><td>10</td><td>45</td><td>27.5</td></tr>
+                    </tbody>
+                  </table>
+                  <div className={styles.sizeGuideNotes}>
+                    <h5>💡 Cách đo chân chuẩn xác:</h5>
+                    <ul>
+                      <li>Đo chân vào buổi tối khi chân to nhất</li>
+                      <li>Đặt chân lên giấy, đánh dấu đầu ngón chân cái và gót chân</li>
+                      <li>Đo khoảng cách giữa 2 điểm đánh dấu</li>
+                      <li>Chọn size lớn hơn 0.5cm so với chiều dài chân</li>
+                      <li>Nếu chân bè rộng, nên chọn size lớn hơn 1 size</li>
+                    </ul>
+                  </div>
+                </>
+              );
+            }
+            
+            // Clothing categories  
+            if (categoryName.includes('áo') || 
+                categoryName.includes('quần') || 
+                categoryName.includes('váy') ||
+                categoryName.includes('đầm') ||
+                categoryName.includes('jacket') ||
+                categoryName.includes('shirt') ||
+                categoryName.includes('pant') ||
+                categoryName.includes('dress')) {
+              return (
+                // Clothing size guide
+                <>
+                  <h4>Bảng size quần áo chuẩn</h4>
+                  <table className={styles.sizeTable}>
+                    <thead>
+                      <tr>
+                        <th>Size</th>
+                        <th>Ngực (cm)</th>
+                        <th>Eo (cm)</th>
+                        <th>Mông (cm)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>S</td><td>84-88</td><td>64-68</td><td>88-92</td></tr>
+                      <tr><td>M</td><td>88-92</td><td>68-72</td><td>92-96</td></tr>
+                      <tr><td>L</td><td>92-96</td><td>72-76</td><td>96-100</td></tr>
+                      <tr><td>XL</td><td>96-100</td><td>76-80</td><td>100-104</td></tr>
+                      <tr><td>XXL</td><td>100-104</td><td>80-84</td><td>104-108</td></tr>
+                    </tbody>
+                  </table>
+                  <div className={styles.sizeGuideNotes}>
+                    <h5>💡 Cách đo cơ thể chuẩn xác:</h5>
+                    <ul>
+                      <li><strong>Ngực:</strong> Đo vòng quanh phần rộng nhất của ngực</li>
+                      <li><strong>Eo:</strong> Đo vòng quanh phần nhỏ nhất của eo</li>
+                      <li><strong>Mông:</strong> Đo vòng quanh phần rộng nhất của mông</li>
+                      <li>Đo khi mặc nội y mỏng, giữ thước đo ngang và vừa khít</li>
+                      <li>Nếu số đo nằm giữa 2 size, chọn size lớn hơn</li>
+                    </ul>
+                  </div>
+                </>
+              );
+            }
+            
+            // Accessories or items without specific size guide
+            return (
+              <div className={styles.noSizeGuide}>
+                <h4>📏 Thông tin kích thước</h4>
+                <p>Sản phẩm này thuộc danh mục: <strong>{product?.category?.name || 'Không xác định'}</strong></p>
+                <div className={styles.sizeGuideNotes}>
+                  <h5>💡 Lưu ý khi chọn size:</h5>
+                  <ul>
+                    <li>Kiểm tra kỹ thông tin kích thước trong mô tả sản phẩm</li>
+                    <li>Tham khảo đánh giá của khách hàng đã mua</li>
+                    <li>Liên hệ shop để được tư vấn chi tiết</li>
+                    <li>Đối với phụ kiện: Kiểm tra kích thước phù hợp với nhu cầu sử dụng</li>
+                  </ul>
+                </div>
               </div>
-            </>
-          ) : (
-            // Clothing size guide (original)
-            <>
-              <h4>Bảng size quần áo chuẩn</h4>
-              <table className={styles.sizeTable}>
-                <thead>
-                  <tr>
-                    <th>Size</th>
-                    <th>Ngực (cm)</th>
-                    <th>Eo (cm)</th>
-                    <th>Mông (cm)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr><td>S</td><td>84-88</td><td>64-68</td><td>88-92</td></tr>
-                  <tr><td>M</td><td>88-92</td><td>68-72</td><td>92-96</td></tr>
-                  <tr><td>L</td><td>92-96</td><td>72-76</td><td>96-100</td></tr>
-                  <tr><td>XL</td><td>96-100</td><td>76-80</td><td>100-104</td></tr>
-                  <tr><td>XXL</td><td>100-104</td><td>80-84</td><td>104-108</td></tr>
-                </tbody>
-              </table>
-              <div className={styles.sizeGuideNotes}>
-                <h5>💡 Cách đo cơ thể chuẩn xác:</h5>
-                <ul>
-                  <li><strong>Ngực:</strong> Đo vòng quanh phần rộng nhất của ngực</li>
-                  <li><strong>Eo:</strong> Đo vòng quanh phần nhỏ nhất của eo</li>
-                  <li><strong>Mông:</strong> Đo vòng quanh phần rộng nhất của mông</li>
-                  <li>Đo khi mặc nội y mỏng, giữ thước đo ngang và vừa khít</li>
-                  <li>Nếu số đo nằm giữa 2 size, chọn size lớn hơn</li>
-                </ul>
-              </div>
-            </>
-          )}
+            );
+          })()}
         </div>
       </Modal>
 
@@ -692,6 +863,9 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
           </Button>
         </div>
       </Modal>
+
+        </div>
+      </div>
 
       {/* Review Section */}
       <ReviewSection productId={productId} />

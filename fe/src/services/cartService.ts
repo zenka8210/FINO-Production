@@ -144,6 +144,40 @@ export class CartService {
   }
 
   /**
+   * Change variant for cart item
+   */
+  async changeCartItemVariant(oldProductVariantId: string, newProductVariantId: string, quantity: number): Promise<CartWithRefs> {
+    try {
+      console.log('🔄 CartService.changeCartItemVariant called with:', {
+        oldProductVariantId,
+        newProductVariantId,
+        quantity
+      });
+      
+      const requestBody = { 
+        newProductVariantId,
+        quantity 
+      };
+      
+      console.log('📤 Request body:', requestBody);
+      console.log('📤 Request URL:', `/api/cart/items/${oldProductVariantId}/variant`);
+      
+      const response = await apiClient.put<CartWithRefs>(`/api/cart/items/${oldProductVariantId}/variant`, requestBody);
+      
+      console.log('✅ CartService.changeCartItemVariant success:', response.data);
+      return response.data!;
+    } catch (error: any) {
+      console.error('CartService: Change variant request failed', {
+        status: error.response?.status,
+        message: error.response?.data?.message || error.message,
+        data: error.response?.data,
+        requestData: { oldProductVariantId, newProductVariantId, quantity }
+      });
+      throw new Error(error.response?.data?.message || 'Failed to change cart item variant');
+    }
+  }
+
+  /**
    * Remove item from cart
    */
   async removeFromCart(productVariantId: string): Promise<CartWithRefs> {

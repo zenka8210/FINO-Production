@@ -20,7 +20,7 @@ class WishListService extends BaseService {
             let wishlist = await WishList.findOne({ user: userId }).populate([
                 {
                     path: 'items.product',
-                    select: 'name price images isActive category',
+                    select: 'name price salePrice saleStartDate saleEndDate images isActive category description',
                     populate: {
                         path: 'category',
                         select: 'name _id parent'
@@ -38,7 +38,7 @@ class WishListService extends BaseService {
                 wishlist = await WishList.findById(wishlist._id).populate([
                     {
                         path: 'items.product',
-                        select: 'name price images isActive category',
+                        select: 'name price salePrice saleStartDate saleEndDate images isActive category description',
                         populate: {
                             path: 'category',
                             select: 'name _id parent'
@@ -311,7 +311,7 @@ class WishListService extends BaseService {
                 })
                 .populate({
                     path: 'items.product',
-                    select: 'name price images category',
+                    select: 'name price salePrice saleStartDate saleEndDate images category description',
                     populate: {
                         path: 'category',
                         select: 'name _id parent'
@@ -353,7 +353,7 @@ class WishListService extends BaseService {
                 })
                 .populate({
                     path: 'items.product',
-                    select: 'name price images isActive category',
+                    select: 'name price salePrice saleStartDate saleEndDate images isActive category description',
                     populate: {
                         path: 'category',
                         select: 'name _id parent'
@@ -565,6 +565,65 @@ class WishListService extends BaseService {
     }
 
     // ============= SESSION HELPERS =============
+
+    /**
+     * Populate session wishlist with product details
+     */
+    async populateSessionWishList(sessionWishList = []) {
+        if (!sessionWishList || sessionWishList.length === 0) {
+            return [];
+        }
+
+        try {
+            const populatedItems = await Promise.all(
+                sessionWishList.map(async (item) => {
+                    try {
+                        // Populate product
+                        const product = await Product.findById(item.product)
+                            .select('name price salePrice saleStartDate saleEndDate images isActive category description')
+                            .populate({
+                                path: 'category',
+                                select: 'name _id parent'
+                            })
+                            .lean();
+
+                        if (!product) {
+                            console.warn(`Product not found: ${item.product}`);
+                            return null;
+                        }
+
+                        // Populate variant if exists
+                        let variant = null;
+                        if (item.variant) {
+                            variant = await ProductVariant.findById(item.variant)
+                                .select('price stock color size images isActive')
+                                .populate([
+                                    { path: 'color', select: 'name isActive' },
+                                    { path: 'size', select: 'name' }
+                                ])
+                                .lean();
+                        }
+
+                        return {
+                            _id: item._id || `session-${item.product}-${item.variant || 'no-variant'}`,
+                            product: product,
+                            variant: variant,
+                            addedAt: item.addedAt || new Date()
+                        };
+                    } catch (error) {
+                        console.error(`Error populating wishlist item: ${item.product}`, error);
+                        return null;
+                    }
+                })
+            );
+
+            // Filter out null items (products that couldn't be populated)
+            return populatedItems.filter(item => item !== null);
+        } catch (error) {
+            console.error('Error populating session wishlist:', error);
+            return [];
+        }
+    }
 
     /**
      * Thêm item vào session wishlist

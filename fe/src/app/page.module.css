@@ -84,11 +84,11 @@
 /* Sale Section Specific Styles */
 .sectionHeader {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 1.5rem;
 }
 
 .sectionHeader .sectionTitle {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   display: flex;
   align-items: center;
   justify-content: center;

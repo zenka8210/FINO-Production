@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, useWishlist, useApiNotification, useCart } from '@/hooks';
+import { useAuth, useWishlist, useApiNotification, useCart, useProductStats } from '@/hooks';
 import { Button, PageHeader, LoadingSpinner, Pagination } from '@/app/components/ui';
 import FilterSidebar from '@/app/components/FilterSidebar';
 import ProductItem from '@/app/components/ProductItem';
@@ -42,6 +42,10 @@ export default function WishlistPage() {
   
   const variantCache = VariantCacheService.getInstance();
 
+  // Get product stats for rating badges
+  const productIds = wishlistItems.map(item => item.product._id);
+  const { stats: productStats, loading: statsLoading } = useProductStats(productIds);
+
   // States for FilterSidebar
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(12);
@@ -59,20 +63,12 @@ export default function WishlistPage() {
     { value: 'name', label: 'Tên A-Z' }
   ];
 
-  // Redirect if not authenticated
+  // Don't redirect guest users - let them view wishlist
+  // Only require login when they try to add to cart
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login?redirect=/wishlist');
-      return;
-    }
-  }, [user, router, authLoading]);
-
-  // Load wishlist on mount
-  useEffect(() => {
-    if (user) {
-      loadWishlist();
-    }
-  }, [user, loadWishlist]);
+    // Always load wishlist regardless of auth status (for guest users too)
+    loadWishlist();
+  }, [loadWishlist]);
 
   // Filter and sort wishlist items
   const filteredAndSortedItems = wishlistItems
@@ -201,6 +197,13 @@ export default function WishlistPage() {
   // Handle add all to cart - ULTRA OPTIMIZED version with parallel processing
   const handleAddAllToCart = async () => {
     if (!hasWishlistItems) return;
+    
+    // Check if user is logged in - require login for cart operations
+    if (!user) {
+      showError('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng');
+      router.push('/login?redirect=/wishlist');
+      return;
+    }
     
     try {
       console.log('🚀 Starting optimized batch add to cart...');
@@ -467,15 +470,23 @@ export default function WishlistPage() {
 
                   {/* Wishlist Items Grid */}
                   <div className={styles.wishlistItems}>
-                    {paginatedItems.map((item, index) => (
-                      <div key={`${item._id || item.product._id}-${index}`} className={styles.productWrapper}>
-                        <ProductItem 
-                          product={item.product as any}
-                          layout="grid"
-                          showQuickActions={true}
-                        />
-                      </div>
-                    ))}
+                    {paginatedItems.map((item, index) => {
+                      // Get real stats for this product
+                      const productStatsData = productStats[item.product._id];
+                      
+                      return (
+                        <div key={`${item._id || item.product._id}-${index}`} className={styles.productWrapper}>
+                          <ProductItem 
+                            product={item.product as any}
+                            layout="grid"
+                            showQuickActions={true}
+                            averageRating={productStatsData?.averageRating || 0}
+                            reviewCount={productStatsData?.reviewCount || 0}
+                            showRatingBadge={true}
+                          />
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* Pagination */}

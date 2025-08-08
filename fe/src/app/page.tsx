@@ -205,9 +205,7 @@ export default function Home() {
         {/* Featured Products */}
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>⭐ Sản Phẩm Nổi Bật</h2>
-            <p className={styles.sectionSubtitle}>Được yêu thích và lựa chọn nhiều nhất</p>
-          </div>
+            <h2 className={styles.sectionTitle}>Sản Phẩm Nổi Bật</h2>          </div>
           
           {/* Featured Products Filter */}
           <FeaturedProductsFilter
@@ -245,7 +243,7 @@ export default function Home() {
         {/* New Products */}
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>🆕 Sản Phẩm Mới</h2>
+            <h2 className={styles.sectionTitle}>Sản Phẩm Mới</h2>
             <p className={styles.sectionSubtitle}>Bộ sưu tập thời trang mới nhất</p>
           </div>
           <div className={styles.productGrid}>

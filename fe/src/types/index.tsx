@@ -450,6 +450,7 @@ export interface CartContextType {
   addMultipleToCart: (items: Array<{ productVariantId: string; quantity: number }>) => Promise<{ successCount: number; errorCount: number }>;
   updateCartItem: (productVariantId: string, quantity: number) => Promise<void>;
   removeFromCart: (productVariantId: string) => Promise<void>;
+  changeVariant: (oldProductVariantId: string, newProductVariantId: string, quantity: number) => Promise<void>;
   clearCart: (customMessage?: string) => Promise<void>;
   loadCart: () => Promise<void>;
   getCartTotal: () => number;
@@ -585,7 +586,7 @@ export interface WishlistContextType {
   removeFromWishlist: (productId: string) => Promise<void>;
   clearWishlist: () => Promise<void>;
   toggleWishlist: (productId: string) => Promise<void>;
-  syncWishlistFromSession: (sessionWishlist: string[]) => Promise<void>;
+  syncWishlistFromSession: () => Promise<void>;
   isInWishlist: (productId: string) => boolean;
   getWishlistItemsCount: () => number;
   hasItems: () => boolean;

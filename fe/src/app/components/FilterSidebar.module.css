@@ -8,9 +8,7 @@
     0 1px 4px rgba(0, 0, 0, 0.03);
   border: 1px solid rgba(226, 232, 240, 0.8);
   height: fit-content;
-  min-width: 280px;
-  max-width: 320px;
-  width: 100%;
+  width: 100%; /* Use full width of parent column */
   box-sizing: border-box;
   backdrop-filter: blur(10px);
   transition: box-shadow 0.2s ease;

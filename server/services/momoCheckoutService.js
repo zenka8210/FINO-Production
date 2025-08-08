@@ -60,12 +60,15 @@ class MoMoCheckoutService {
         status: order.status
       });
 
-      // Create MoMo payment URL
+      // Create MoMo payment URL with unique requestId
+      const uniqueRequestId = `${order.orderCode}_${Date.now()}`; // Add timestamp to ensure uniqueness
+      
       const orderInfo = {
         orderId: order.orderCode,  // Use orderCode as orderId for MoMo
         amount: order.finalTotal,  // Use finalTotal (includes shipping, discounts)
         orderDescription: `Thanh toán đơn hàng ${order.orderCode} - FINO Store`,
-        clientIp: clientIp
+        clientIp: clientIp,
+        requestId: uniqueRequestId // Add unique requestId to avoid conflicts
       };
 
       console.log('📤 Creating MoMo payment URL with info:', orderInfo);
@@ -93,7 +96,7 @@ class MoMoCheckoutService {
         payment: {
           paymentUrl: momoPaymentUrl, // Use the payment URL string directly
           momoOrderId: order.orderCode, // Use orderCode as momoOrderId
-          requestId: order.orderCode, // Use orderCode as requestId
+          requestId: uniqueRequestId, // Use unique requestId
           amount: order.finalTotal,
           paymentMethod: 'momo'
         }

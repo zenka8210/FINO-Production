@@ -24,12 +24,14 @@ class WishListController extends BaseController {
                 const wishlist = await this.service.getUserWishList(req.user._id);
                 ResponseHandler.success(res, 'Lấy danh sách yêu thích thành công', wishlist);
             } else {
-                // User chưa đăng nhập - lấy từ session
+                // User chưa đăng nhập - lấy từ session và populate data
                 const sessionWishList = req.session.wishList || [];
+                const populatedItems = await this.service.populateSessionWishList(sessionWishList);
+                
                 ResponseHandler.success(res, 'Lấy danh sách yêu thích từ session thành công', {
                     _id: null,
                     user: null,
-                    items: sessionWishList
+                    items: populatedItems
                 });
             }
         } catch (error) {
