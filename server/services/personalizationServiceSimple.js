@@ -633,7 +633,12 @@ class PersonalizationService extends BaseService {
       }
       
       console.log('✅ Final products count:', uniqueProducts.length);
-      return uniqueProducts;
+      
+      // ✅ ADD SALE PROCESSING - Apply sale info to products before returning
+      console.log('💰 Processing sale information for top selling products...');
+      const productsWithSales = await this.addSaleInfoToProducts(uniqueProducts);
+      
+      return productsWithSales;
 
     } catch (error) {
       console.error('❌ Error getting top selling products:', error);
@@ -774,9 +779,13 @@ class PersonalizationService extends BaseService {
         cart: userBehaviorSummary.cartItems > 0
       };
 
+      // ✅ ADD SALE PROCESSING - Apply sale info to products before returning
+      console.log('💰 Processing sale information for personalized products...');
+      const productsWithSales = await this.addSaleInfoToProducts(products.slice(0, limit));
+
       // 7. Format response
       const response = {
-        products: products.slice(0, limit),
+        products: productsWithSales,
         personalizationLevel: userBehaviorSummary.personalizationLevel,
         basedOn,
         userBehaviorSummary: {
@@ -853,6 +862,64 @@ class PersonalizationService extends BaseService {
         personalizationLevel: 'error'
       }
     };
+  }
+
+  /**
+   * Add sale information to products
+   * Consistent with productService logic
+   */
+  async addSaleInfoToProducts(products) {
+    try {
+      console.log('💰 Adding sale information to', products.length, 'products');
+      
+      const productsWithSaleInfo = products.map(product => {
+        const productObj = product.toObject ? product.toObject() : { ...product };
+        
+        // Check if product has sale price and valid sale logic
+        const hasValidSale = productObj.salePrice && 
+                           productObj.salePrice > 0 && 
+                           productObj.salePrice < productObj.price;
+        
+        let isOnSale = false;
+        let discountPercent = 0;
+        
+        if (hasValidSale) {
+          // Check date range if specified
+          if (productObj.saleStartDate || productObj.saleEndDate) {
+            const now = new Date();
+            const saleStart = productObj.saleStartDate ? new Date(productObj.saleStartDate) : null;
+            const saleEnd = productObj.saleEndDate ? new Date(productObj.saleEndDate) : null;
+            
+            isOnSale = (!saleStart || now >= saleStart) && (!saleEnd || now <= saleEnd);
+          } else {
+            // No date restrictions, assume on sale
+            isOnSale = true;
+          }
+          
+          if (isOnSale) {
+            discountPercent = Math.round((1 - productObj.salePrice / productObj.price) * 100);
+          }
+        }
+        
+        // Add sale information to product
+        return {
+          ...productObj,
+          isOnSale,
+          discountPercent,
+          currentPrice: isOnSale ? productObj.salePrice : productObj.price
+        };
+      });
+      
+      console.log('✅ Sale processing complete:', {
+        total: productsWithSaleInfo.length,
+        onSale: productsWithSaleInfo.filter(p => p.isOnSale).length
+      });
+      
+      return productsWithSaleInfo;
+    } catch (error) {
+      console.error('❌ Error adding sale info to products:', error);
+      return products; // Return original if error
+    }
   }
 }
 

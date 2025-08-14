@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/contexts';
+import { useAuth, useCart } from '@/contexts';
 import { useApiNotification, useOrders } from '@/hooks';
 import { Button, PageHeader, LoadingSpinner, OrderDetailButton, OrderReviewModal } from '@/app/components/ui';
 import AddAddressModal from '@/app/components/AddAddressModal';
@@ -43,6 +43,7 @@ function ProfilePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, logout, isLoading: authLoading } = useAuth();
+  const { loadCart } = useCart();
   const { showSuccess, showError, handleApiResponse } = useApiNotification();
   const { cancelOrder } = useOrders();
 
@@ -502,6 +503,9 @@ function ProfilePageContent() {
       } else {
         showSuccess(`Đã thêm ${result.successCount} sản phẩm vào giỏ hàng`);
       }
+      
+      // Refresh cart context to ensure data is up to date
+      await loadCart();
       
       // Redirect to cart page
       router.push('/cart');

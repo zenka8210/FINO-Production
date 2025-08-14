@@ -208,6 +208,16 @@ class PaymentController extends BaseController {
   // POST /api/payment/momo/checkout - Create MoMo session and payment URL
   createMoMoCheckout = async (req, res, next) => {
     try {
+      console.log('🛒 Creating MoMo checkout session...');
+      console.log('🔍 req.user:', req.user);
+      console.log('🔍 req.headers.authorization:', req.headers.authorization);
+      
+      if (!req.user) {
+        console.error('❌ No user found in request - authentication failed');
+        throw new AppError('Người dùng chưa đăng nhập', ERROR_CODES.UNAUTHORIZED);
+      }
+
+      console.log('✅ User found:', req.user._id);
       console.log('🛒 Creating MoMo checkout session for user:', req.user._id);
 
       const checkoutData = req.body;

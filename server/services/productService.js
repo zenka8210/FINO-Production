@@ -427,6 +427,12 @@ class ProductService extends BaseService {
                 throw new AppError(MESSAGES.PRODUCT_NOT_FOUND, ERROR_CODES.PRODUCT.NOT_FOUND, 404);
             }
 
+            // Convert to plain object for modification
+            let productObj = product.toObject();
+
+            // Add sale information to product
+            productObj = this.addSaleInfoToProduct(productObj);
+
             // Add review statistics if requested
             if (includeReviewStats === 'true' || includeReviewStats === true) {
                 const reviewService = new ReviewService();
@@ -434,24 +440,19 @@ class ProductService extends BaseService {
                     const reviewStats = await reviewService.getProductRatingStats(productId);
                     
                     // Add stats to the product object
-                    const productObj = product.toObject();
                     productObj.averageRating = reviewStats.averageRating || 0;
                     productObj.reviewCount = reviewStats.totalReviews || 0;
                     productObj.ratingDistribution = reviewStats.ratingDistribution || { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
-                    
-                    return productObj;
                 } catch (reviewError) {
                     console.warn(`Failed to get review stats for product ${productId}:`, reviewError.message);
                     // Return product without stats if review fetching fails
-                    const productObj = product.toObject();
                     productObj.averageRating = 0;
                     productObj.reviewCount = 0;
                     productObj.ratingDistribution = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
-                    return productObj;
                 }
             }
 
-            return product;
+            return productObj;
         } catch (error) {
             if (error instanceof AppError) throw error;
             throw new AppError(MESSAGES.PRODUCT_UPDATE_FAILED || "Lấy chi tiết sản phẩm thất bại", ERROR_CODES.PRODUCT.FETCH_SINGLE_FAILED || 'PRODUCT_FETCH_SINGLE_FAILED', 500);
@@ -832,17 +833,22 @@ class ProductService extends BaseService {
             .populate('category')
             .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 });
         
-        // Filter products that can be displayed
+        // Filter products that can be displayed and add sale info
         let displayableProducts = [];
         
         for (const product of allProducts) {
             const validation = await this.validateProductForDisplay(product._id);
             if (validation.canDisplay) {
                 const stockInfo = await this.checkProductAvailability(product._id);
-                displayableProducts.push({
+                const productObj = {
                     ...product.toObject(),
                     stockInfo: stockInfo
-                });
+                };
+                
+                // Add sale information processing (like in getProducts)
+                this.addSaleInfoToProduct(productObj);
+                
+                displayableProducts.push(productObj);
             }
         }
         
@@ -867,6 +873,45 @@ class ProductService extends BaseService {
                 hasPrevPage: parseInt(page) > 1
             }
         };
+    }
+    
+    /**
+     * Add sale information to a product object
+     * @param {Object} product - Product object to enhance with sale info
+     */
+    addSaleInfoToProduct(product) {
+        const now = new Date();
+        
+        // Check if product has explicit salePrice in database
+        const hasSalePrice = product.salePrice && 
+                           product.salePrice > 0 && 
+                           product.salePrice < product.price;
+        
+        if (hasSalePrice) {
+            // If has date range, check it; otherwise assume active
+            let isOnSale = true;
+            
+            if (product.saleStartDate && product.saleEndDate) {
+                isOnSale = now >= new Date(product.saleStartDate) && now <= new Date(product.saleEndDate);
+            }
+            
+            if (isOnSale) {
+                // Add sale information
+                product.isOnSale = true;
+                product.discountPercent = Math.round((1 - product.salePrice / product.price) * 100);
+                
+                console.log(`✅ Sale product processed: ${product.name} - ${product.discountPercent}% off`);
+            } else {
+                product.isOnSale = false;
+                product.discountPercent = 0;
+                console.log(`⏰ Sale expired for: ${product.name}`);
+            }
+        } else {
+            product.isOnSale = false;
+            product.discountPercent = 0;
+        }
+        
+        return product;
     }
     
     /**

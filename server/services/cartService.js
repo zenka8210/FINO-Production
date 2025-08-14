@@ -596,13 +596,46 @@ class CartService extends BaseService {
   // Validate cart (check stock, prices, etc.)
   async validateUserCart(userId) {
     const cart = await this.getUserCart(userId);
+    
+    // Clean up items with null productVariant first
+    const validItems = [];
+    const invalidItems = [];
+    
+    for (const item of cart.items) {
+      if (!item.productVariant || !item.productVariant._id) {
+        console.warn('🧹 Removing corrupted cart item:', {
+          itemIndex: cart.items.indexOf(item),
+          productVariant: item.productVariant ? 'INVALID' : 'NULL',
+          price: item.price,
+          quantity: item.quantity
+        });
+        invalidItems.push(item);
+      } else {
+        validItems.push(item);
+      }
+    }
+    
+    // If we found corrupted items, clean them from database
+    if (invalidItems.length > 0) {
+      console.log(`🧹 Cleaning ${invalidItems.length} corrupted items from cart`);
+      cart.items = validItems;
+      await cart.save();
+    }
+    
     const validation = {
       isValid: true,
       issues: [],
       updatedItems: []
     };
 
-    for (const item of cart.items) {
+    for (const item of validItems) {
+      console.log('🔍 Validating cart item:', {
+        itemIndex: validItems.indexOf(item),
+        productVariant: 'EXISTS',
+        productVariantId: item.productVariant._id,
+        quantity: item.quantity
+      });
+      
       const variant = await ProductVariant.findById(item.productVariant._id);
       
       if (!variant) {
