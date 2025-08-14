@@ -25,6 +25,7 @@ const corsOptions = {
     
     // Production URLs
     process.env.FRONTEND_URL, // Vercel frontend URL từ .env
+    'https://fino-production-git-main-huy-nguyens-projects-ae498ba3.vercel.app', // Vercel domain cụ thể
     'https://*.vercel.app',   // Vercel preview deployments
     
     // Third-party services
