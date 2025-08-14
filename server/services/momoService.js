@@ -15,11 +15,11 @@ const { ERROR_CODES } = require('../config/constants');
  */
 class MoMoService {
   constructor() {
-    // MoMo configuration for sandbox
-    this.partnerCode = 'MOMO';
-    this.accessKey = 'F8BBA842ECF85';
-    this.secretKey = 'K951B6PE1waDMi640xX08PD3vg6EkVlz';
-    this.endpoint = 'https://test-payment.momo.vn/v2/gateway/api/create';
+    // MoMo configuration - Use environment variables with fallbacks
+    this.partnerCode = process.env.MOMO_PARTNER_CODE || 'MOMO';
+    this.accessKey = process.env.MOMO_ACCESS_KEY || 'F8BBA842ECF85';
+    this.secretKey = process.env.MOMO_SECRET_KEY || 'K951B6PE1waDMi640xX08PD3vg6EkVlz';
+    this.endpoint = process.env.MOMO_ENDPOINT || 'https://test-payment.momo.vn/v2/gateway/api/create';
     
     // Store callback URLs - FIX: Point return URL to backend for proper signature verification
     this.redirectUrl = `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/payment/momo/callback`;
@@ -29,7 +29,7 @@ class MoMoService {
       partnerCode: this.partnerCode,
       redirectUrl: this.redirectUrl,
       ipnUrl: this.ipnUrl,
-      environment: 'sandbox'
+      environment: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'
     });
   }
 
