@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useProducts, useProductStats } from '@/hooks';
 import { ProductWithCategory, Category } from '@/types';
@@ -12,7 +12,7 @@ import FilterSidebar from '../components/FilterSidebar';
 import { FaFire } from 'react-icons/fa';
 import styles from './sale.module.css';
 
-export default function SaleProductsPage() {
+function SaleProductsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { getProducts, loading, error } = useProducts();
@@ -101,7 +101,7 @@ export default function SaleProductsPage() {
         console.log('📦 Sale Page: Response structure - success:', response?.success);
         console.log('📦 Sale Page: Response structure - data:', response?.data);
         console.log('📦 Sale Page: Response data type:', typeof response?.data);
-        console.log('📦 Sale Page: Is data.data array?:', Array.isArray(response?.data?.data));
+        console.log('📦 Sale Page: Is data.data array?:', Array.isArray((response?.data as any)?.data));
         
         // Handle response data same as FlashSale.tsx
         const productsArray = Array.isArray(response.data) ? response.data : 
@@ -423,5 +423,13 @@ export default function SaleProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SaleProductsPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <SaleProductsPageContent />
+    </Suspense>
   );
 }

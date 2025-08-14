@@ -164,7 +164,7 @@ export class AuthService {
       
       return { 
         success: response?.success || false, 
-        valid: response?.data?.valid || false 
+        valid: (response?.data as any)?.valid || false 
       };
     } catch (error: any) {
       console.error('AuthService verifyResetToken error:', error);

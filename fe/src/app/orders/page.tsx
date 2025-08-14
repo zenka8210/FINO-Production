@@ -235,7 +235,7 @@ export default function OrdersPage() {
       showError('Đơn hàng đã được hủy thành công'); // Using showError as success notification
       
       // Refresh orders list
-      fetchOrders();
+      loadOrders();
       
     } catch (error: any) {
       console.error('Error cancelling order:', error);

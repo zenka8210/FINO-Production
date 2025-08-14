@@ -972,9 +972,6 @@ export default function AdminPage() {
             icon: '↗'
           }}
           note="*Tính từ tổng các đơn hàng đã thanh toán"
-          onRefresh={refreshRevenueData}
-          refreshLabel="Làm mới dữ liệu doanh thu"
-          loading={loading}
         />
 
         <StatCard
@@ -988,9 +985,6 @@ export default function AdminPage() {
             icon: dailyRevenue.changePercent >= 0 ? '↗' : '↘'
           }}
           note={`*${dailyRevenue.todayOrders} đơn hàng hôm nay`}
-          onRefresh={loadDailyRevenue}
-          refreshLabel="Làm mới doanh thu ngày"
-          loading={isLoadingDailyRevenue}
         />
 
         <StatCard

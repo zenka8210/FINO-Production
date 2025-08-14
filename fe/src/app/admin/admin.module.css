@@ -1,31 +1,10 @@
 /* ===================== ADMIN DASHBOARD CSS - BẢN TỐI ƯU CHO BÁO CÁO ===================== */
 
-:root {
-  --primary: #6c47ff;
-  --secondary: #f3f4f6;
-  --accent: #ffb300;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #dc2626;
-  --bg: #f8f9fb;
-  --card: #fff;
-  --border: #e5e7eb;
-  --text: #22223b;
-  --muted: #9ca3af;
-  --shadow: 0 2px 8px rgba(108, 71, 255, 0.08);
-  --shadow-lg: 0 10px 24px rgba(108, 71, 255, 0.12);
-  --font-heading: 'Poppins', sans-serif;
-  --font-body: 'Inter', sans-serif;
-  
-  /* Stats Grid Colors */
-  --revenue-primary: #10b981;
-  --revenue-secondary: #059669;
-  --orders-primary: #3b82f6;
-  --orders-secondary: #1d4ed8;
-  --users-primary: #8b5cf6;
-  --users-secondary: #7c3aed;
-  --low-stock-primary: #dc2626;
-  --low-stock-secondary: #b91c1c;
+/* Admin Container */
+.adminContainer {
+  min-height: 100vh;
+  background: var(--admin-bg);
+  font-family: var(--font-body);
 }
 
 /* ===================== STATS GRID COMPONENTS ===================== */
@@ -46,7 +25,7 @@
   border-radius: 1.5rem;
   padding: 2rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06), 0 4px 10px rgba(0, 0, 0, 0.03);
-  backdrop-filter: blur(20px);
+  /* backdrop-filter: blur(20px); */
   transition: all 0.3s ease;
   position: relative;
   overflow: visible;
@@ -241,7 +220,7 @@
   }
 }
 
-body {
+.adminBody {
   font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
@@ -650,7 +629,7 @@ body {
   padding: 2.5rem;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04);
   margin-bottom: 2rem;
-  backdrop-filter: blur(20px);
+  /* backdrop-filter: blur(20px); */
 }
 
 .chartHeader {
@@ -1153,7 +1132,7 @@ body {
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
+  /* backdrop-filter: blur(10px); */
 }
 
 .orderActionButton:hover {

@@ -79,11 +79,11 @@ export function useProducts() {
     }
   }, []);
 
-  const getProductsByCategory = useCallback(async (categoryId: string, filters?: ProductFilters): Promise<PaginatedResponse<ProductWithCategory>> => {
+  const getProductsByCategory = useCallback(async (categoryId: string, includeVariants: boolean = true): Promise<PaginatedResponse<ProductWithCategory>> => {
     try {
       setLoading(true);
       setError(null);
-      const response = await productService.getProductsByCategory(categoryId, filters);
+      const response = await productService.getProductsByCategory(categoryId, includeVariants);
       return response;
     } catch (err: any) {
       setError(err.message);

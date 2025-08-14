@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useProducts, useProductStats } from '@/hooks';
 import { ProductWithCategory, Category } from '@/types';
@@ -12,7 +12,7 @@ import FilterSidebar from '../components/FilterSidebar';
 import { FaStar } from 'react-icons/fa';
 import styles from './new.module.css';
 
-export default function NewProductsPage() {
+function NewProductsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { getProducts, loading, error } = useProducts();
@@ -479,5 +479,13 @@ export default function NewProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function NewProductsPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <NewProductsPageContent />
+    </Suspense>
   );
 }

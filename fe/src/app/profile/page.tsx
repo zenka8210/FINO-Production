@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts';
 import { useApiNotification, useOrders } from '@/hooks';
@@ -39,7 +39,7 @@ interface AddressFormData {
   isDefault: boolean;
 }
 
-export default function ProfilePage() {
+function ProfilePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, logout, isLoading: authLoading } = useAuth();
@@ -1600,5 +1600,13 @@ export default function ProfilePage() {
         address={selectedAddressForEdit}
       />
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <ProfilePageContent />
+    </Suspense>
   );
 }
