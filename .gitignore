@@ -39,8 +39,8 @@ Thumbs.db
 .vscode/extensions/
 .history/
 
-# Temporary files
-*_new.*
+# Temporary files (exclude _new CSS modules)
+# *_new.*
 *_old.*
 *.tmp
 *.temp
