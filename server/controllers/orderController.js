@@ -251,26 +251,13 @@ class OrderController extends BaseController {
       if (!status) {
         throw new AppError(orderMessages.ORDER_STATUS_REQUIRED, ERROR_CODES.BAD_REQUEST);
       }
-      
-      // Auto-update payment status logic
-      let updateData = { status };
-      
-      // If order status is set to 'delivered', automatically set paymentStatus to 'paid'
-      if (status === 'delivered') {
-        updateData.paymentStatus = 'paid';
-        console.log('🔄 [AUTO-UPDATE] Order delivered -> Setting paymentStatus to paid');
-      }
-      
-      // Update order with both status and potentially paymentStatus
-      const updatedOrder = await Order.findByIdAndUpdate(
-        req.params.id,
-        updateData,
-        { new: true }
-      ).populate(['user', 'address', 'voucher', 'paymentMethod']);
-      
-      if (!updatedOrder) {
-        throw new AppError('Order not found', ERROR_CODES.NOT_FOUND);
-      }
+
+      // Use service layer to handle business logic and validation
+      const updatedOrder = await this.service.updateOrderStatus(
+        req.params.id, 
+        status, 
+        req.user?.id // admin ID for audit trail
+      );
       
       ResponseHandler.success(res, orderMessages.ORDER_STATUS_UPDATED_SUCCESSFULLY, updatedOrder);
     } catch (error) {

@@ -1020,29 +1020,37 @@ body {
 .paymentStatus {
   padding: 0.6rem 1rem;
   border-radius: 0.75rem;
-  color: white;
   font-size: 0.85rem;
   font-weight: 600;
   text-align: center;
   min-width: 120px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s;
+  border: 2px solid transparent;
 }
 
 .paymentStatus.pending {
-  background-color: #f59e0b;
+  background: rgba(251, 191, 36, 0.1);
+  color: #d97706;
+  border-color: rgba(251, 191, 36, 0.3);
 }
 
 .paymentStatus.paid {
-  background-color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
 .paymentStatus.failed {
-  background-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 .paymentStatus.cancelled {
-  background-color: #6b7280;
+  background: rgba(107, 114, 128, 0.1);
+  color: #4b5563;
+  border-color: rgba(107, 114, 128, 0.3);
 }
 
 .paymentStatusSelect {
@@ -1312,25 +1320,25 @@ body {
 
 .paymentStatus.pending {
   background: rgba(251, 191, 36, 0.1);
-  color: #d97706;
+  color: #d97706 !important;
   border-color: rgba(251, 191, 36, 0.3);
 }
 
 .paymentStatus.paid {
-  background: rgba(16, 185, 129, 1);
-  color: white;
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669 !important;
   border-color: rgba(16, 185, 129, 0.3);
 }
 
 .paymentStatus.failed {
   background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
+  color: #dc2626 !important;
   border-color: rgba(239, 68, 68, 0.3);
 }
 
 .paymentStatus.cancelled {
   background: rgba(107, 114, 128, 0.1);
-  color: #4b5563;
+  color: #4b5563 !important;
   border-color: rgba(107, 114, 128, 0.3);
 }
 

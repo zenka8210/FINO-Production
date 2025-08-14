@@ -15,18 +15,24 @@ const dbUri = process.env.DB_URI;
 // CORS Configuration
 const corsOptions = {
   origin: [
+    // Development URLs
     'http://localhost:3000',  // Next.js default port
     'http://localhost:3001',  // Alternate Next.js port
     'http://localhost:3002',  // Frontend current port
     'http://127.0.0.1:3000',
     'http://127.0.0.1:3001',
     'http://127.0.0.1:3002',
+    
+    // Production URLs
+    process.env.FRONTEND_URL, // Vercel frontend URL từ .env
+    'https://*.vercel.app',   // Vercel preview deployments
+    
+    // Third-party services
     'https://accounts.google.com', // Google OAuth
     'https://www.googleapis.com', // Google APIs
     'https://sandbox.vnpayment.vn', // VNPay Sandbox
     'https://vnpay.vn', // VNPay Production
-    process.env.FRONTEND_URL, // Frontend URL từ .env
-    // Thêm domain production nếu có
+    'https://payment.momo.vn', // MoMo Payment
   ].filter(Boolean), // Loại bỏ undefined values
   credentials: true, // Cho phép gửi cookies và headers xác thực
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -99,7 +105,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/vouchers', voucherRoutes);
 app.use('/api/addresses', addressRoutes);
-app.use('/api/posts', postRoutes); // Enabled post routes
+app.use('/api/posts', postRoutes); 
 app.use('/api/banners', bannerRoutes);
 app.use('/api/payment-methods', paymentMethodRoutes);
 app.use('/api/colors', colorRoutes);
@@ -108,9 +114,9 @@ app.use('/api/wishlist', wishListRoutes);
 app.use('/api/statistics', statisticsRoutes);
 app.use('/api/product-variants', productVariantRoutes);
 app.use('/api/cart', cartRoutes);
-app.use('/api/payment', paymentRoutes); // VNPay payment routes
-app.use('/api/home', homePageRoutes); // Homepage aggregated data routes - Re-enabled with simple service
-app.use('/api/personalization', personalizationRoutes); // Personalization routes for category sidebar
+app.use('/api/payment', paymentRoutes); // VNPay, Momo payment routes
+app.use('/api/home', homePageRoutes); // Homepagea routes
+app.use('/api/personalization', personalizationRoutes); 
 
 app.get('/', (req, res) => {
   res.send('Welcome to E-commerce API System!');

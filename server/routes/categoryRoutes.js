@@ -97,10 +97,17 @@ router.put('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), cate
 
 /**
  * @route   DELETE /api/categories/:id
- * @desc    Xóa danh mục bằng ID
+ * @desc    Vô hiệu hóa danh mục bằng ID (soft delete)
  * @access  Private (Admin)
  */
 router.delete('/:id', authMiddleware, adminMiddleware, validateObjectId('id'), categoryController.deleteCategory);
+
+/**
+ * @route   DELETE /api/categories/:id/permanent
+ * @desc    Xóa vĩnh viễn danh mục khỏi database (hard delete)
+ * @access  Private (Admin)
+ */
+router.delete('/:id/permanent', authMiddleware, adminMiddleware, validateObjectId('id'), categoryController.permanentDeleteCategory);
 
 // ============= BUSINESS LOGIC ROUTES (Admin) =============
 

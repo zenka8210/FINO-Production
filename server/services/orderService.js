@@ -228,14 +228,14 @@ class OrderService extends BaseService {
       throw new AppError('Trạng thái đơn hàng không hợp lệ', ERROR_CODES.BAD_REQUEST);
     }
 
-    // Business rule: Can't change status of already delivered orders
-    if (order.status === 'delivered' && newStatus !== 'delivered') {
-      throw new AppError('Không thể thay đổi trạng thái đơn hàng đã giao', ERROR_CODES.BAD_REQUEST);
-    }
-
-    // Business rule: Can't change status of cancelled orders
+    // Business rule: Can't change status of cancelled orders (only restriction)
     if (order.status === 'cancelled' && newStatus !== 'cancelled') {
       throw new AppError('Không thể thay đổi trạng thái đơn hàng đã hủy', ERROR_CODES.BAD_REQUEST);
+    }
+
+    // Business rule: Can only cancel orders that are in pending or processing status
+    if (newStatus === 'cancelled' && !['pending', 'processing'].includes(order.status)) {
+      throw new AppError('Chỉ có thể hủy đơn hàng ở trạng thái chờ xử lý hoặc đang xử lý', ERROR_CODES.BAD_REQUEST);
     }
 
     // VOUCHER LOGIC: Handle usedCount based on status changes

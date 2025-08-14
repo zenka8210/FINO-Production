@@ -39,6 +39,23 @@ export default function AdminOrdersPage() {
   const [showPageInput, setShowPageInput] = useState(false);
   const [pageInputValue, setPageInputValue] = useState('');
 
+  // Business logic for status transitions  
+  const getValidStatusTransitions = (currentStatus: string): string[] => {
+    // If order is cancelled, no status changes allowed
+    if (currentStatus === 'cancelled') {
+      return ['cancelled'];
+    }
+    
+    // Admin can change to any status (including back to previous statuses for correction)
+    // Only restriction is: cannot change FROM cancelled
+    return ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+  };
+
+  // Check if cancellation is allowed
+  const canCancelOrder = (currentStatus: string): boolean => {
+    return ['pending', 'processing'].includes(currentStatus);
+  };
+
   // Check auth token on client side
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -445,11 +462,25 @@ export default function AdminOrdersPage() {
               '--tw-ring-color': 'var(--color-primary, #1E40AF)'
             } as React.CSSProperties}
           >
-            <option value="pending">Chờ xử lý</option>
-            <option value="processing">Đang xử lý</option>
-            <option value="shipped">Đã gửi hàng</option>
-            <option value="delivered">Đã giao</option>
-            <option value="cancelled">Đã hủy</option>
+            {/* Show current status first */}
+            <option value={order.status}>
+              {order.status === 'pending' && 'Chờ xử lý'}
+              {order.status === 'processing' && 'Đang xử lý'}
+              {order.status === 'shipped' && 'Đã gửi hàng'}
+              {order.status === 'delivered' && 'Đã giao'}
+              {order.status === 'cancelled' && 'Đã hủy'}
+            </option>
+            
+            {/* Show only valid transitions */}
+            {getValidStatusTransitions(order.status).filter(status => status !== order.status).map(status => (
+              <option key={status} value={status}>
+                {status === 'pending' && 'Chờ xử lý'}
+                {status === 'processing' && 'Đang xử lý'}
+                {status === 'shipped' && 'Đã gửi hàng'}
+                {status === 'delivered' && 'Đã giao'}
+                {status === 'cancelled' && 'Đã hủy'}
+              </option>
+            ))}
           </select>
           <button
             onClick={() => handleViewDetails(order)}
@@ -472,6 +503,28 @@ export default function AdminOrdersPage() {
       console.log('[DEBUG] 🔄 Starting order status update...');
       console.log('[DEBUG] 📋 Update details:', { orderId, newStatus });
       setUpdateMessage(''); // Clear previous message
+      
+      // Find the order to check current status
+      const order = orders.find(o => o._id === orderId);
+      if (!order) {
+        throw new Error('Không tìm thấy đơn hàng');
+      }
+      
+      // Frontend validation: Check if transition is allowed
+      const validTransitions = getValidStatusTransitions(order.status);
+      if (!validTransitions.includes(newStatus)) {
+        let errorMessage = '';
+        if (newStatus === 'cancelled' && !canCancelOrder(order.status)) {
+          errorMessage = 'Chỉ có thể hủy đơn hàng ở trạng thái chờ xử lý hoặc đang xử lý';
+        } else if (order.status === 'cancelled') {
+          errorMessage = 'Không thể thay đổi trạng thái đơn hàng đã hủy';
+        } else {
+          errorMessage = `Không thể chuyển trạng thái từ '${order.status}' sang '${newStatus}'`;
+        }
+        setUpdateMessage(`❌ ${errorMessage}`);
+        setTimeout(() => setUpdateMessage(''), 5000);
+        return;
+      }
       
       // Check authentication status first
       const token = localStorage.getItem('authToken');
@@ -921,9 +974,21 @@ export default function AdminOrdersPage() {
       )}
       {updateMessage && (
         <div className={styles.orderCard} style={{ 
-          background: updateMessage.includes('✅') ? '#f0f9ff' : '#fff7ed', 
-          borderColor: updateMessage.includes('✅') ? '#60a5fa' : '#fb923c', 
-          color: updateMessage.includes('✅') ? '#1e40af' : '#ea580c', 
+          background: updateMessage.includes('✅') 
+            ? '#f0f9ff' 
+            : updateMessage.includes('❌') 
+              ? '#fef2f2' 
+              : '#fff7ed', 
+          borderColor: updateMessage.includes('✅') 
+            ? '#60a5fa' 
+            : updateMessage.includes('❌') 
+              ? '#f87171' 
+              : '#fb923c', 
+          color: updateMessage.includes('✅') 
+            ? '#1e40af' 
+            : updateMessage.includes('❌') 
+              ? '#dc2626' 
+              : '#ea580c', 
           marginBottom: '0.25rem',
           fontWeight: 600
         }}>
@@ -1085,11 +1150,25 @@ export default function AdminOrdersPage() {
                     className={styles.orderStatusSelect}
                     title="Trạng thái đơn hàng"
                   >
-                    <option value="pending">Chờ xử lý</option>
-                    <option value="processing">Đang xử lý</option>
-                    <option value="shipped">Đã gửi hàng</option>
-                    <option value="delivered">Đã giao</option>
-                    <option value="cancelled">Đã hủy</option>
+                    {/* Show current status first */}
+                    <option value={order.status}>
+                      {order.status === 'pending' && 'Chờ xử lý'}
+                      {order.status === 'processing' && 'Đang xử lý'}
+                      {order.status === 'shipped' && 'Đã gửi hàng'}
+                      {order.status === 'delivered' && 'Đã giao'}
+                      {order.status === 'cancelled' && 'Đã hủy'}
+                    </option>
+                    
+                    {/* Show only valid transitions */}
+                    {getValidStatusTransitions(order.status).filter(status => status !== order.status).map(status => (
+                      <option key={status} value={status}>
+                        {status === 'pending' && 'Chờ xử lý'}
+                        {status === 'processing' && 'Đang xử lý'}
+                        {status === 'shipped' && 'Đã gửi hàng'}
+                        {status === 'delivered' && 'Đã giao'}
+                        {status === 'cancelled' && 'Đã hủy'}
+                      </option>
+                    ))}
                   </select>
                   <select
                     value={order.paymentStatus || 'pending'}

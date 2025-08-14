@@ -67,6 +67,21 @@ export const useAdminCategories = () => {
     }
   };
 
+  const permanentlyDeleteCategory = async (id: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await categoryService.permanentlyDeleteCategory(id);
+      return response;
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || 'Có lỗi xảy ra';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getCategoryStatistics = async () => {
     try {
       setLoading(true);
@@ -92,6 +107,7 @@ export const useAdminCategories = () => {
     createCategory,
     updateCategory,
     deleteCategory,
+    permanentlyDeleteCategory,
     getCategoryStatistics,
   };
 };

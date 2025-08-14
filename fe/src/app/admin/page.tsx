@@ -515,17 +515,6 @@ export default function AdminPage() {
     }
   };
 
-  // Function to get payment status color
-  const getPaymentStatusColor = (paymentStatus: string) => {
-    switch (paymentStatus.toLowerCase()) {
-      case 'pending': return '#f59e0b';
-      case 'paid': return '#10b981';
-      case 'failed': return '#ef4444';
-      case 'cancelled': return '#6b7280';
-      default: return '#64748b';
-    }
-  };
-
   // Function to get payment status label
   const getPaymentStatusLabel = (paymentStatus: string) => {
     switch (paymentStatus.toLowerCase()) {
@@ -535,6 +524,23 @@ export default function AdminPage() {
       case 'cancelled': return 'Đã hủy';
       default: return paymentStatus;
     }
+  };
+
+  // Business logic helper: Get valid status options based on current status
+  const getValidStatusOptions = (currentStatus: string) => {
+    // If order is cancelled, no status changes allowed
+    if (currentStatus === 'cancelled') {
+      return ['cancelled'];
+    }
+    
+    // Admin can change to any status (including back to previous statuses for correction)
+    // Only restriction is: cannot change FROM cancelled
+    return ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+  };
+
+  // Business logic helper: Check if status can be changed to cancelled
+  const canCancelOrder = (currentStatus: string) => {
+    return ['pending', 'processing'].includes(currentStatus);
   };
 
   // Function to handle chart period change
@@ -585,6 +591,25 @@ export default function AdminPage() {
 
   // Function to update order status
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    // Find the current order to check its current status
+    const currentOrder = [...recentOrders, ...allOrders].find(order => order._id === orderId);
+    if (!currentOrder) {
+      alert('Không tìm thấy đơn hàng!');
+      return;
+    }
+
+    // Business logic validation
+    if (newStatus === 'cancelled' && !canCancelOrder(currentOrder.status)) {
+      alert('⚠️ Không thể hủy đơn hàng đã gửi hàng hoặc đã giao hàng!\n\nChỉ có thể hủy đơn hàng ở trạng thái "Chờ xử lý" hoặc "Đang xử lý".');
+      return;
+    }
+
+    // Check if trying to change FROM cancelled status (not allowed)
+    if (currentOrder.status === 'cancelled' && newStatus !== 'cancelled') {
+      alert('⚠️ Không thể thay đổi trạng thái đơn hàng đã hủy!\n\nĐơn hàng đã hủy không thể chuyển sang trạng thái khác.');
+      return;
+    }
+
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
     const headers = {
@@ -622,13 +647,21 @@ export default function AdminPage() {
         );
         
         console.log('Order status updated successfully');
-        alert('Cập nhật trạng thái đơn hàng thành công!');
+        alert('✅ Cập nhật trạng thái đơn hàng thành công!');
       } else {
         throw new Error(result.message || 'Failed to update order status');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update order status:', error);
-      alert('Lỗi khi cập nhật trạng thái đơn hàng. Vui lòng thử lại!');
+      
+      // Enhanced error handling
+      if (error.message?.includes('Chỉ có thể hủy đơn hàng')) {
+        alert('⚠️ ' + error.message);
+      } else if (error.message?.includes('Không thể chuyển trạng thái')) {
+        alert('⚠️ ' + error.message);
+      } else {
+        alert('❌ Lỗi khi cập nhật trạng thái đơn hàng. Vui lòng thử lại!');
+      }
     }
   };
 
@@ -1882,7 +1915,7 @@ export default function AdminPage() {
                       
                       {/* Order Total */}
                       <div className={styles.orderAmount}>
-                        💰 {(order.finalTotal || order.total).toLocaleString('vi-VN')}₫
+                        {(order.finalTotal || order.total).toLocaleString('vi-VN')}₫
                       </div>
                       
                       {/* Current Status */}
@@ -1891,8 +1924,7 @@ export default function AdminPage() {
                       </div>
                       
                       {/* Payment Status */}
-                      <div className={`${styles.paymentStatus} ${styles[(order.paymentStatus || 'pending')] || ''}`} 
-                           style={{ backgroundColor: getPaymentStatusColor(order.paymentStatus || 'pending') }}>
+                      <div className={`${styles.paymentStatus} ${styles[(order.paymentStatus || 'pending')] || ''}`}>
                         {getPaymentStatusLabel(order.paymentStatus || 'pending')}
                       </div>
                       
@@ -1921,11 +1953,20 @@ export default function AdminPage() {
                           }
                         }}
                       >
-                        <option value="pending">🕐 Chờ xử lý</option>
-                        <option value="processing">⚙️ Đang xử lý</option>
-                        <option value="shipped">🚚 Đã gửi hàng</option>
-                        <option value="delivered">📦 Đã giao hàng</option>
-                        <option value="cancelled">❌ Đã hủy</option>
+                        {getValidStatusOptions(order.status).map((status: string) => {
+                          const statusLabels: { [key: string]: string } = {
+                            'pending': '🕐 Chờ xử lý',
+                            'processing': '⚙️ Đang xử lý',
+                            'shipped': '🚚 Đã gửi hàng',
+                            'delivered': '📦 Đã giao hàng',
+                            'cancelled': '❌ Đã hủy'
+                          };
+                          return (
+                            <option key={status} value={status}>
+                              {statusLabels[status] || status}
+                            </option>
+                          );
+                        })}
                       </select>
                       
                       {/* Payment Status Selector */}

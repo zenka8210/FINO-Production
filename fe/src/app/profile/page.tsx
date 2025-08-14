@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts';
 import { useApiNotification, useOrders } from '@/hooks';
 import { Button, PageHeader, LoadingSpinner, OrderDetailButton, OrderReviewModal } from '@/app/components/ui';
+import AddAddressModal from '@/app/components/AddAddressModal';
+import EditAddressModal from '@/app/components/EditAddressModal';
 import { userService } from '@/services/userService';
 import { orderService } from '@/services/orderService';
 import { reviewService } from '@/services/reviewService';
@@ -81,6 +83,8 @@ export default function ProfilePage() {
   // Modal states
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedOrderForReview, setSelectedOrderForReview] = useState<OrderWithRefs | null>(null);
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [selectedAddressForEdit, setSelectedAddressForEdit] = useState<Address | null>(null);
   
   // Review states
   const [reviewedOrders, setReviewedOrders] = useState<Set<string>>(new Set());
@@ -113,7 +117,7 @@ export default function ProfilePage() {
     // Fetch orders based on section
     if (user) {
       if (section === 'orders') {
-        fetchOrders(50); // Get more orders for orders section
+        fetchOrders(10); // Get 10 most recent orders for orders section
       } else {
         fetchOrders(3); // Get only 3 for overview
       }
@@ -154,12 +158,12 @@ export default function ProfilePage() {
     }
   };
 
-  // Fetch user orders (3 most recent for overview, all for orders section)
+  // Fetch user orders (3 most recent for overview, 10 most recent for orders section)
   const fetchOrders = async (limitOrders = 3) => {
     try {
       setOrdersLoading(true);
       
-      // Get orders - limit for overview, no limit for orders section
+      // Get orders - limited for both overview and orders section
       const queryParams = { page: 1, limit: limitOrders };
       const response = await orderService.getUserOrders(queryParams);
       
@@ -314,6 +318,27 @@ export default function ProfilePage() {
     } catch (error: any) {
       showError('Đặt địa chỉ mặc định thất bại', error);
     }
+  };
+
+  // Handle edit address button click
+  const handleEditAddressClick = (address: Address) => {
+    setSelectedAddressForEdit(address);
+    setIsEditingAddress(true);
+  };
+
+  // Handle edit address success
+  const handleEditAddressSuccess = (updatedAddress: Address) => {
+    setAddresses(prev => prev.map(addr => 
+      addr._id === updatedAddress._id ? updatedAddress : addr
+    ));
+    setIsEditingAddress(false);
+    setSelectedAddressForEdit(null);
+  };
+
+  // Handle close edit address modal
+  const handleCloseEditAddress = () => {
+    setIsEditingAddress(false);
+    setSelectedAddressForEdit(null);
   };
 
   // Handle add new address
@@ -1256,7 +1281,7 @@ export default function ProfilePage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => router.push(`/profile/addresses/${address._id}/edit`)}
+                              onClick={() => handleEditAddressClick(address)}
                               title="Chỉnh sửa địa chỉ"
                             >
                               <FaEdit />
@@ -1291,11 +1316,24 @@ export default function ProfilePage() {
           {activeSection === 'orders' && (
             <div className={styles.section}>
               <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>
-                  <FaShoppingBag className={styles.sectionIcon} />
-                  Lịch sử đơn hàng
-                </h2>
-                <p className={styles.sectionSubtitle}>Theo dõi tất cả đơn hàng của bạn</p>
+                <div className={styles.sectionHeaderContent}>
+                  <h2 className={styles.sectionTitle}>
+                    <FaShoppingBag className={styles.sectionIcon} />
+                    Lịch sử đơn hàng
+                  </h2>
+                  <p className={styles.sectionSubtitle}>
+                    Hiển thị {orders.length > 0 ? Math.min(orders.length, 10) : 0} đơn hàng gần nhất
+                  </p>
+                </div>
+                <div className={styles.sectionActions}>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push('/orders')}
+                  >
+                    Xem tất cả đơn hàng
+                  </Button>
+                </div>
               </div>
 
               <div className={styles.ordersContainer}>
@@ -1543,6 +1581,24 @@ export default function ProfilePage() {
           onSuccess={handleReviewSuccess}
         />
       )}
+
+      {/* Add Address Modal */}
+      <AddAddressModal
+        isOpen={isAddingAddress}
+        onClose={() => setIsAddingAddress(false)}
+        onAddSuccess={(newAddress) => {
+          setAddresses(prev => [...prev, newAddress]);
+          setIsAddingAddress(false);
+        }}
+      />
+
+      {/* Edit Address Modal */}
+      <EditAddressModal
+        isOpen={isEditingAddress}
+        onClose={handleCloseEditAddress}
+        onEditSuccess={handleEditAddressSuccess}
+        address={selectedAddressForEdit}
+      />
     </div>
   );
 }

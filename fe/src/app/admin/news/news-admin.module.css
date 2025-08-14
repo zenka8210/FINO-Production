@@ -406,6 +406,16 @@
   transform: scale(1.05);
 }
 
+.toggleButton {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.toggleButton:hover {
+  background: #e9d5ff;
+  transform: scale(1.05);
+}
+
 /* ===================== MODERN MODAL DESIGN ===================== */
 .modalOverlay {
   position: fixed;

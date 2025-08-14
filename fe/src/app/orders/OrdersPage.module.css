@@ -51,7 +51,15 @@
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   font-size: 0.875rem;
+  background: white;
+  color: #1f2937;
   transition: border-color 0.2s;
+}
+
+/* Đảm bảo option trong select cũng có chữ đen */
+.filterSelect option {
+  background: white;
+  color: #1f2937;
 }
 
 .filterSelect:focus {
@@ -397,5 +405,58 @@
 
   .totalAmount {
     font-size: 1.125rem;
+  }
+}
+
+/* New order card layout styles (from profile page) */
+.orderFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+.orderTotal {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e40af;
+}
+
+.reorderButton {
+  background: var(--color-primary, #1E40AF) !important;
+  border: 1px solid var(--color-primary, #1E40AF) !important;
+  color: white !important;
+}
+
+.reorderButton:hover {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+}
+
+.orderActions .reorderButton {
+  margin-left: auto;
+  order: 999;
+}
+
+/* Updated mobile responsiveness for new layout */
+@media (max-width: 768px) {
+  .orderFooter {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .orderActions {
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  
+  .orderActions .reorderButton {
+    margin-left: 0;
+    order: 1;
+    width: 100%;
   }
 }

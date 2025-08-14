@@ -41,6 +41,7 @@ export default function AdminCategoriesPage() {
     createCategory,
     updateCategory,
     deleteCategory,
+    permanentlyDeleteCategory,
     getCategoryStatistics,
   } = useAdminCategories();
   
@@ -244,15 +245,25 @@ export default function AdminCategoriesPage() {
   };
 
   const handleDeleteCategory = async (categoryId: string) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa danh mục này?')) return;
+    const categoryToDelete = categories.find(cat => cat._id === categoryId);
+    const categoryName = categoryToDelete?.name || 'danh mục này';
+    
+    if (!confirm(`Bạn có chắc chắn muốn vô hiệu hóa danh mục "${categoryName}"?\n\nLưu ý: Danh mục sẽ bị ẩn khỏi hệ thống nhưng không bị xóa vĩnh viễn để bảo toàn dữ liệu.`)) return;
     
     try {
       await deleteCategory(categoryId);
-      showSuccess('Xóa danh mục thành công');
+      showSuccess(`Đã vô hiệu hóa danh mục "${categoryName}" thành công. Danh mục sẽ không còn hiển thị trên hệ thống.`);
       fetchCategories();
       fetchCategoryStats();
     } catch (error: any) {
-      showError('Không thể xóa danh mục', error);
+      // Parse error message to provide more specific feedback
+      if (error.message.includes('danh mục con')) {
+        showError('Không thể vô hiệu hóa danh mục vì còn danh mục con đang hoạt động. Vui lòng vô hiệu hóa các danh mục con trước.', error);
+      } else if (error.message.includes('sản phẩm')) {
+        showError('Không thể vô hiệu hóa danh mục vì còn sản phẩm đang sử dụng. Vui lòng chuyển sản phẩm sang danh mục khác hoặc xóa sản phẩm trước.', error);
+      } else {
+        showError('Không thể vô hiệu hóa danh mục', error);
+      }
     }
   };
 
@@ -266,6 +277,41 @@ export default function AdminCategoriesPage() {
       fetchCategoryStats();
     } catch (error: any) {
       showError('Không thể ẩn danh mục', error);
+    }
+  };
+
+  const handleReactivateCategory = async (categoryId: string) => {
+    const categoryToReactivate = categories.find(cat => cat._id === categoryId);
+    const categoryName = categoryToReactivate?.name || 'danh mục này';
+    
+    if (!confirm(`Bạn có chắc chắn muốn kích hoạt lại danh mục "${categoryName}"?`)) return;
+    
+    try {
+      await updateCategory(categoryId, { isActive: true });
+      showSuccess(`Đã kích hoạt lại danh mục "${categoryName}" thành công`);
+      fetchCategories();
+      fetchCategoryStats();
+    } catch (error: any) {
+      showError('Không thể kích hoạt lại danh mục', error);
+    }
+  };
+
+  const handlePermanentDeleteCategory = async (categoryId: string) => {
+    const categoryToDelete = categories.find(cat => cat._id === categoryId);
+    const categoryName = categoryToDelete?.name || 'danh mục này';
+    
+    if (!confirm(`⚠️ CẢNH BÁO: Bạn có chắc chắn muốn XÓA VĨNH VIỄN danh mục "${categoryName}" khỏi database?\n\nHành động này KHÔNG THỂ HOÀN TÁC và có thể ảnh hưởng đến:\n- Dữ liệu đơn hàng cũ\n- Tham chiếu trong hệ thống\n- Báo cáo thống kê\n\nChỉ xóa khi bạn hoàn toàn chắc chắn!`)) return;
+    
+    // Double confirmation
+    if (!confirm(`Xác nhận lần cuối: XÓA VĨNH VIỄN danh mục "${categoryName}"?`)) return;
+    
+    try {
+      await permanentlyDeleteCategory(categoryId);
+      showSuccess(`Đã xóa vĩnh viễn danh mục "${categoryName}" khỏi database`);
+      fetchCategories();
+      fetchCategoryStats();
+    } catch (error: any) {
+      showError('Không thể xóa vĩnh viễn danh mục', error);
     }
   };
 
@@ -532,10 +578,27 @@ export default function AdminCategoriesPage() {
                         >
                           ✏️
                         </button>
+                        {category.isActive ? (
+                          <button
+                            onClick={() => handleDeleteCategory(category._id)}
+                            className={styles.deleteButton}
+                            title="Vô hiệu hóa danh mục (ẩn khỏi hệ thống)"
+                          >
+                            ❌
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleReactivateCategory(category._id)}
+                            className={styles.activateButton}
+                            title="Kích hoạt lại danh mục"
+                          >
+                            ✅
+                          </button>
+                        )}
                         <button
-                          onClick={() => handleDeleteCategory(category._id)}
-                          className={styles.deleteButton}
-                          title="Xóa"
+                          onClick={() => handlePermanentDeleteCategory(category._id)}
+                          className={styles.permanentDeleteButton}
+                          title="Xóa vĩnh viễn khỏi database (NGUY HIỂM)"
                         >
                           🗑️
                         </button>
