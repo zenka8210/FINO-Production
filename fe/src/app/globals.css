@@ -12,6 +12,31 @@
   --color-error: #DC2626;
   --color-success: #10B981;
   
+  /* Admin Dashboard Colors */
+  --admin-primary: #6c47ff;
+  --admin-secondary: #f3f4f6;
+  --admin-accent: #ffb300;
+  --admin-success: #10b981;
+  --admin-warning: #f59e0b;
+  --admin-error: #dc2626;
+  --admin-bg: #f8f9fb;
+  --admin-card: #fff;
+  --admin-border: #e5e7eb;
+  --admin-text: #22223b;
+  --admin-muted: #9ca3af;
+  --admin-shadow: 0 2px 8px rgba(108, 71, 255, 0.08);
+  --admin-shadow-lg: 0 10px 24px rgba(108, 71, 255, 0.12);
+  
+  /* Stats Grid Colors */
+  --revenue-primary: #10b981;
+  --revenue-secondary: #059669;
+  --orders-primary: #3b82f6;
+  --orders-secondary: #1d4ed8;
+  --users-primary: #8b5cf6;
+  --users-secondary: #7c3aed;
+  --low-stock-primary: #dc2626;
+  --low-stock-secondary: #b91c1c;
+  
   /* Button Colors */
   --btn-primary-bg: var(--color-primary);
   --btn-primary-hover: #1D4ED8;

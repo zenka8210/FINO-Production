@@ -23,7 +23,9 @@ export const usePosts = () => {
       const response: PaginatedResponse<PostWithAuthor> = await postService.getPublishedPosts(page, limit);
       
       setPosts(response.data);
-      setPagination(response.pagination);
+      if (response.pagination) {
+        setPagination(response.pagination);
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to fetch posts');
     } finally {

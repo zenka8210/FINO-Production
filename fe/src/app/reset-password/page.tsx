@@ -106,9 +106,10 @@ function ResetPasswordForm() {
       hasLowerCase: /[a-z]/.test(password),
       hasNumber: /\d/.test(password),
       hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+      isValid: false,
     };
     
-    strength.isValid = Object.values(strength).every(Boolean);
+    strength.isValid = Object.values(strength).slice(0, -1).every(Boolean);
     setPasswordStrength(strength);
     return strength.isValid;
   };

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ProductWithCategory, ProductFilters, PaginatedResponse } from '@/types';
 import { useProducts, useProductStats } from '@/hooks';
@@ -21,7 +21,7 @@ const SORT_OPTIONS = [
   { value: 'on-sale', label: 'Đang giảm giá', sort: 'createdAt' as const, order: 'desc' as const }, // Special filter for sale items
 ] as const;
 
-export default function ProductsPage() {
+function ProductsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { getProducts, loading, error } = useProducts();
@@ -419,5 +419,13 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ProductsPageContent />
+    </Suspense>
   );
 }

@@ -5,8 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { SearchBar } from '@/app/components/ui';
-import { useAuth } from '@/contexts';
-import { useCart, useWishlist } from '@/hooks';
+import { useAuth } from '../../contexts';
+import { useCart, useWishlist } from '../../hooks';
 import styles from './Header_new.module.css';
 
 export default function Header() {

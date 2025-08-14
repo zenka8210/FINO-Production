@@ -31,19 +31,19 @@ export const useReviews = () => {
         if (Array.isArray(response.data)) {
           // Direct array format
           reviewsData = response.data;
-        } else if (response.data.data && Array.isArray(response.data.data)) {
+        } else if ((response.data as any).data && Array.isArray((response.data as any).data)) {
           // Nested format: response.data.data (array) and response.data.pagination
-          reviewsData = response.data.data;
-          paginationData = response.data.pagination || paginationData;
-        } else if (response.data.documents && Array.isArray(response.data.documents)) {
+          reviewsData = (response.data as any).data;
+          paginationData = (response.data as any).pagination || paginationData;
+        } else if ((response.data as any).documents && Array.isArray((response.data as any).documents)) {
           // BaseService format: response.data.documents (array) and response.data.pagination  
-          reviewsData = response.data.documents;
-          paginationData = response.data.pagination || paginationData;
+          reviewsData = (response.data as any).documents;
+          paginationData = (response.data as any).pagination || paginationData;
         }
       }
       
       // Validate and filter reviews with valid dates
-      const validReviews = reviewsData.filter(review => {
+      const validReviews = reviewsData.filter((review: any) => {
         const createdAt = new Date(review.createdAt);
         const now = new Date();
         

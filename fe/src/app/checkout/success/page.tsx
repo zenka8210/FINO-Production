@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, useCart } from '@/hooks';
 import { Button, PageHeader, LoadingSpinner } from '@/app/components/ui';
@@ -12,7 +12,7 @@ import { orderService } from '@/services/orderService';
 import { OrderWithRefs } from '@/types';
 import styles from './CheckoutSuccessPage.module.css';
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading: authLoading } = useAuth();
@@ -187,7 +187,7 @@ export default function CheckoutSuccessPage() {
                   ? 'Thanh toán khi nhận hàng' 
                   : orderDetails.paymentMethod?.method === 'VNPay'
                     ? 'VNPay (Thanh toán online)'
-                    : orderDetails.paymentMethod?.method === 'MoMo'
+                    : orderDetails.paymentMethod?.method === 'Momo'
                       ? 'MoMo (Thanh toán online)'
                       : orderDetails.paymentMethod?.method}
               </strong></span>
@@ -342,5 +342,13 @@ export default function CheckoutSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 }

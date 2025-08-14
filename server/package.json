@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "build": "echo 'No build step required for Node.js backend'",
     "start": "node app.js",
     "dev": "nodemon app.js",
     "seed": "node seedDatabase.js",

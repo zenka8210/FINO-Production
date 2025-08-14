@@ -1,15 +1,16 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { vnpayService } from '@/services/vnpayService';
 import { useCart } from '@/hooks';
 import styles from './VNPayProcessing.module.css';
+import { LoadingSpinner } from '@/app/components/ui';
 
 // Global flag to prevent duplicate cart clearing across component re-renders
 let cartClearInProgress = false;
 
-export default function VNPayProcessingPage() {
+function VNPayProcessingPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { clearCart } = useCart();
@@ -225,5 +226,13 @@ export default function VNPayProcessingPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VNPayProcessingPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <VNPayProcessingPageContent />
+    </Suspense>
   );
 }

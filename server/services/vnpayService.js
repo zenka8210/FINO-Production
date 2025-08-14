@@ -13,25 +13,25 @@ const { ERROR_CODES } = require('../config/constants');
  */
 class VNPayService {
   constructor() {
-    // VNPay configuration theo demo code từ ảnh
+    // VNPay configuration - Use environment variables with fallbacks
     this.vnpay = new VNPay({
-      tmnCode: 'G7KZK936',
-      secureSecret: 'VBBL670O4MVQ7KLK1KD9R62IA19BFT67',
-      vnpayHost: 'https://sandbox.vnpayment.vn',
-      testMode: true, // sử dụng sandbox
+      tmnCode: process.env.VNPAY_TMN_CODE || 'G7KZK936',
+      secureSecret: process.env.VNPAY_SECRET_KEY || 'VBBL670O4MVQ7KLK1KD9R62IA19BFT67',
+      vnpayHost: process.env.VNPAY_URL || 'https://sandbox.vnpayment.vn',
+      testMode: process.env.NODE_ENV !== 'production', // sử dụng sandbox cho development
       hashAlgorithm: 'SHA512', // thuật toán hash
       loggerFn: ignoreLogger, // tắt log nếu cần
     });
     
     // Store callback URLs - FIX: Point return URL to backend for proper signature verification
-    this.returnUrl = `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/payment/vnpay/callback`;
+    this.returnUrl = process.env.VNPAY_RETURN_URL || `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/payment/vnpay/callback`;
     this.ipnUrl = `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/payment/vnpay/ipn`;
 
-    console.log('🔧 VNPay Service initialized theo demo code:', {
-      tmnCode: 'G7KZK936',
+    console.log('🔧 VNPay Service initialized:', {
+      tmnCode: process.env.VNPAY_TMN_CODE || 'G7KZK936',
       returnUrl: this.returnUrl,
       ipnUrl: this.ipnUrl,
-      environment: 'sandbox'
+      environment: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'
     });
   }
 

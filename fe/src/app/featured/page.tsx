@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useProducts, useProductStats } from '@/hooks';
 import { productService, categoryService } from '@/services';
@@ -12,7 +12,7 @@ import FilterSidebar from '../components/FilterSidebar';
 import { FaStar } from 'react-icons/fa';
 import styles from './featured.module.css';
 
-export default function FeaturedProductsPage() {
+function FeaturedProductsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { getProducts, loading, error } = useProducts();
@@ -431,5 +431,13 @@ export default function FeaturedProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function FeaturedProductsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <FeaturedProductsContent />
+    </Suspense>
   );
 }

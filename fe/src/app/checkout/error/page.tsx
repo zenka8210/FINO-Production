@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/app/components/ui';
 import { FaExclamationTriangle, FaHome, FaShoppingCart } from 'react-icons/fa';
 import styles from './CheckoutErrorPage.module.css';
 
-export default function CheckoutErrorPage() {
+function CheckoutErrorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -81,5 +81,13 @@ export default function CheckoutErrorPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutErrorPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CheckoutErrorContent />
+    </Suspense>
   );
 }
