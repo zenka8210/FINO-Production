@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { FaStar, FaRegStar } from 'react-icons/fa';
 import { ProductWithCategory, ProductVariantWithRefs } from '@/types';
-import { useCart, useWishlist, useApiNotification, useQuickActions } from '@/hooks';
+import { useCart, useWishlist, useApiNotification } from '@/hooks';
 import { formatCurrency } from '@/lib/utils';
 import { getProductPriceInfo } from '@/lib/productUtils';
 import { selectBestVariant, hasAvailableVariants } from '@/lib/variantUtils';
@@ -17,6 +17,7 @@ interface ProductItemProps {
   showQuickActions?: boolean;
   showDescription?: boolean;
   className?: string;
+  variant?: 'default' | 'related'; // Add variant prop
   // Rating data props
   averageRating?: number;
   reviewCount?: number;
@@ -30,10 +31,17 @@ export default function ProductItem({
   showQuickActions = true,
   showDescription = false,
   className = '',
+  variant = 'default', // Add variant with default value
   averageRating,
   reviewCount,
   showRatingBadge = false
 }: ProductItemProps) {
+  // Add defensive check for product
+  if (!product || !product._id || !product.name) {
+    console.warn('ProductItem: Invalid product data', product);
+    return null;
+  }
+
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { showError } = useApiNotification();
@@ -88,7 +96,7 @@ export default function ProductItem({
     
     try {
       // Step 1: Fast variant resolution (optimistic approach)
-      if (product.variants && product.variants.length > 0) {
+      if (product?.variants && Array.isArray(product.variants) && product.variants.length > 0) {
         console.log('📦 Using pre-loaded variants');
         
         if (!hasAvailableVariants(product.variants)) {
@@ -162,16 +170,18 @@ export default function ProductItem({
     }
   };
 
-  // Get main image from product
-  const mainImage = product.images && product.images.length > 0 ? product.images[0] : null;
+  // Get main image from product with defensive checking
+  const mainImage = product?.images && Array.isArray(product.images) && product.images.length > 0 
+    ? product.images[0] 
+    : null;
 
-  const containerClass = `${styles.productItem} ${styles[layout]} ${className}`;
+  const containerClass = `${styles.productItem} ${styles[layout]} ${variant === 'related' ? styles.relatedVariant : ''} ${className}`;
 
   return (
     <article className={containerClass}>
       <Link href={`/products/${product._id}`} className={styles.productLink}>
         {/* Image Section */}
-        <div className={styles.imageWrapper}>
+        <div className={`${styles.imageWrapper} ${!isOnSale ? styles.noSaleBadge : ''}`}>
           {mainImage ? (
             <img
               src={mainImage}
@@ -279,9 +289,9 @@ export default function ProductItem({
             {/* Product Name with tooltip for long names */}
             <h3 
               className={styles.productName}
-              title={layout === 'grid' && product.name.length > 50 ? product.name : undefined}
+              title={layout === 'grid' && product.name && product.name.length > 50 ? product.name : undefined}
             >
-              {product.name}
+              {product.name || 'Tên sản phẩm không có'}
             </h3>
 
             {/* Rating display */}

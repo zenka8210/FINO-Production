@@ -15,7 +15,10 @@ class HomePageService {
       const [categories, banners, products, posts] = await Promise.all([
         Category.find({ isActive: true }).limit(10).lean(),
         Banner.find({ isActive: true }).limit(5).lean(),
-        Product.find({ isActive: true }).limit(30).lean(),
+        Product.find({ isActive: true })
+          .populate('category', 'name isActive') // ADD: Populate category for consistency
+          .limit(30)
+          .lean(),
         Post.find({ isActive: true }).limit(6).lean()
       ]);
 
@@ -385,11 +388,18 @@ class HomePageService {
     try {
       console.log(`🆕 HomePageService: Fetching ${limit} newest products...`);
       const products = await Product.find({ isActive: true })
+        .populate('category', 'name isActive') // ADD: Populate category like featured products
         .sort({ createdAt: -1 })
         .limit(parseInt(limit))
         .lean();
       
       console.log(`✅ HomePageService: Found ${products.length} new products`);
+      console.log('📋 Sample new product categories:', products.slice(0, 2).map(p => ({
+        productName: p.name,
+        categoryId: p.category?._id,
+        categoryName: p.category?.name || 'No category'
+      })));
+      
       return products || [];
     } catch (error) {
       console.error('❌ HomePageService: Error fetching new products:', error);
@@ -405,7 +415,12 @@ class HomePageService {
       const products = await Product.find({ 
         isActive: true,
         salePrice: { $exists: true, $gt: 0 }
-      }).limit(8).lean();
+      })
+      .populate('category', 'name isActive') // ADD: Populate category like featured products
+      .limit(8)
+      .lean();
+      
+      console.log(`✅ HomePageService: Found ${products.length} sale products with populated categories`);
       return products || [];
     } catch (error) {
       console.error('❌ HomePageService: Error fetching sale products:', error);

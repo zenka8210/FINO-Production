@@ -23,6 +23,7 @@ export function useCart() {
     addMultipleToCart: context.addMultipleToCart,
     updateCartItem: context.updateCartItem,
     removeFromCart: context.removeFromCart,
+    changeVariant: context.changeVariant,
     clearCart: context.clearCart,
     loadCart: context.loadCart,
     clearError: context.clearError,

@@ -1,11 +1,42 @@
 /**
  * Validate email format - SYNCED WITH BACKEND
- * Backend UserSchema regex: /^\S+@\S+\.\S+$/
+ * Backend UserSchema regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
  */
 export function isValidEmail(email: string): boolean {
-  const emailRegex = /^\S+@\S+\.\S+$/; // Exact match with backend
-  return emailRegex.test(email);
+  // RFC 5322 compliant email regex - prevents common typos like "gmal.com"
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  
+  // Additional validation for common domain typos
+  const commonDomainTypos = [
+    'gmai.com', 'gmal.com', 'gmial.com', 'gnail.com', 'gamil.com',
+    'yahho.com', 'yaho.com', 'hotmai.com', 'hotmial.com', 'hotmil.com',
+    'outlok.com', 'outloo.com'
+  ];
+  
+  if (!emailRegex.test(email)) {
+    return false;
+  }
+  
+  // Extract domain from email
+  const domain = email.split('@')[1]?.toLowerCase();
+  if (commonDomainTypos.includes(domain)) {
+    return false;
+  }
+  
+  return true;
 }
+
+/**
+ * Email Validation Improvements Summary:
+ * - Uses RFC 5322 compliant regex for proper email format
+ * - Prevents common domain typos that could mislead users:
+ *   * Gmail typos: gmai.com, gmal.com, gmial.com, gnail.com, gamil.com
+ *   * Yahoo typos: yahho.com, yaho.com  
+ *   * Hotmail typos: hotmai.com, hotmial.com, hotmil.com
+ *   * Outlook typos: outlok.com, outloo.com
+ * - Synchronized validation between frontend and backend
+ * - Improves user experience by catching obvious typos early
+ */
 
 /**
  * Validate phone number (Vietnamese format) - SYNCED WITH BACKEND

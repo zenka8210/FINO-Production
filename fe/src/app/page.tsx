@@ -5,6 +5,8 @@ import styles from "./page.module.css";
 import ProductList from "./components/ProductList";
 import BannerSlider from "./components/BannerSlider";
 import CategorySidebar from "./components/CategorySidebar";
+import PersonalizedCategorySidebar from "./components/PersonalizedCategorySidebar";
+import PersonalizedProductsSection from "./components/PersonalizedProductsSection";
 import FlashSale from "./components/FlashSale";
 import MiddleBanner from "./components/MiddleBanner";
 import News from "./components/News";
@@ -16,8 +18,10 @@ import { productService } from "@/services";
 import { homePageService } from "@/services/homePageService"; // ADD: Optimized home service
 import { useEffect, useState, useCallback } from "react";
 import { ProductWithCategory } from "@/types";
+import { useAuth } from "@/contexts";
 
 export default function Home() {
+  const { user } = useAuth();
   const { getProducts, loading, error } = useProducts();
   const [products, setProducts] = useState<ProductWithCategory[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<ProductWithCategory[]>([]);
@@ -173,7 +177,12 @@ export default function Home() {
       {/* Hero Section - Sidebar và Banner nằm cùng hàng */}
       <div className="container">
         <div className={styles.heroSection}>
-          <CategorySidebar />
+          {/* Use PersonalizedCategorySidebar for enhanced UX */}
+          <PersonalizedCategorySidebar 
+            maxCategories={10}
+            showAllCategoriesLink={true}
+            showPersonalizationInfo={false}
+          />
           <div className={styles.bannerContainer}>
             <BannerSlider />
           </div>
@@ -182,6 +191,13 @@ export default function Home() {
 
       {/* Main content */}
       <div className="container">
+        {/* Personalized Products Section - "Có thể bạn thích" */}
+        <PersonalizedProductsSection 
+          limit={6}
+          excludeIds={[...featuredProducts.map(p => p._id), ...newProducts.map(p => p._id)]}
+          showPersonalizationInfo={false}
+        />
+
         {/* Flash Sale Section - Real-time data sync */}
                 {/* Flash Sale Section */}
         <FlashSale /> {/* Removed aggressive refresh to prevent infinite loops */}
@@ -189,9 +205,7 @@ export default function Home() {
         {/* Featured Products */}
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>⭐ Sản Phẩm Nổi Bật</h2>
-            <p className={styles.sectionSubtitle}>Được yêu thích và lựa chọn nhiều nhất</p>
-          </div>
+            <h2 className={styles.sectionTitle}>Sản Phẩm Nổi Bật</h2>          </div>
           
           {/* Featured Products Filter */}
           <FeaturedProductsFilter
@@ -229,7 +243,7 @@ export default function Home() {
         {/* New Products */}
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>🆕 Sản Phẩm Mới</h2>
+            <h2 className={styles.sectionTitle}>Sản Phẩm Mới</h2>
             <p className={styles.sectionSubtitle}>Bộ sưu tập thời trang mới nhất</p>
           </div>
           <div className={styles.productGrid}>

@@ -294,7 +294,12 @@ CartSchema.methods.removeItem = function(productVariantId) {
 // Instance method to clear cart
 CartSchema.methods.clearCart = function() {
   this.items = [];
-  return this.save();
+  // Use findOneAndUpdate to avoid version conflicts
+  return this.constructor.findOneAndUpdate(
+    { _id: this._id },
+    { $set: { items: [], total: 0 } },
+    { new: true }
+  );
 };
 
 module.exports = mongoose.model('Cart', CartSchema);

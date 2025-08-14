@@ -91,11 +91,11 @@ export default function AdminProductsPage() {
       clearError();
       const filters = {
         page: currentPage,
-        limit: 20, // Hiển thị 20 sản phẩm mỗi trang
+        limit: 1000, // Load tất cả sản phẩm cho admin (có pagination nếu cần)
         search: debouncedSearchTerm || undefined,
         category: filterCategory !== 'all' ? filterCategory : undefined,
-        // PERFORMANCE: Need variants for stock info but skip expensive review stats
-        includeVariants: false, // Use efficient aggregation instead
+        // REQUIRED: Need variants for accurate stock filtering by variant
+        includeVariants: true, // Required for variant-level stock filtering
         includeReviewStats: false, // Admin products list doesn't need reviews
         includeOutOfStock: true // Admin needs to see all products
       };
@@ -189,14 +189,54 @@ export default function AdminProductsPage() {
       product.category._id === filterCategory || 
       product.category.name === filterCategory;
     
-    // Use stockInfo from backend instead of variants (since includeVariants: false)
-    const stockInfo = (product as any).stockInfo;
-    const totalStock = stockInfo?.totalStock ?? 0;
+    // NEW: Check stock by individual variants instead of total stock
+    const variants = (product as any).variants || [];
     
-    const matchesStock = filterStock === 'all' || 
-      (filterStock === 'in-stock' && totalStock > 5) ||
-      (filterStock === 'low-stock' && totalStock <= 5 && totalStock > 0) ||
-      (filterStock === 'out-of-stock' && totalStock === 0);
+    let matchesStock = false;
+    
+    if (filterStock === 'all') {
+      matchesStock = true;
+    } else {
+      // Check if ANY variant matches the stock filter criteria
+      matchesStock = variants.some((variant: any) => {
+        const variantStock = variant.stock || 0;
+        
+        switch (filterStock) {
+          case 'high-stock':
+            return variantStock > 50;
+          case 'in-stock':
+            return variantStock > 5 && variantStock <= 50;
+          case 'low-stock':
+            return variantStock <= 5 && variantStock > 0;
+          case 'out-of-stock':
+            return variantStock === 0;
+          default:
+            return false;
+        }
+      });
+      
+      // If no variants exist, fall back to stockInfo total
+      if (variants.length === 0) {
+        const stockInfo = (product as any).stockInfo;
+        const totalStock = stockInfo?.totalStock ?? 0;
+        
+        switch (filterStock) {
+          case 'high-stock':
+            matchesStock = totalStock > 50;
+            break;
+          case 'in-stock':
+            matchesStock = totalStock > 5 && totalStock <= 50;
+            break;
+          case 'low-stock':
+            matchesStock = totalStock <= 5 && totalStock > 0;
+            break;
+          case 'out-of-stock':
+            matchesStock = totalStock === 0;
+            break;
+        }
+      }
+    }
+    
     const matchesSearch = searchTerm === '' ||
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -553,32 +593,6 @@ export default function AdminProductsPage() {
               🔄 Reload
             </button>
             <button
-              onClick={async () => {
-                console.log('📥 Loading all products (optimized)...');
-                try {
-                  // Load all products WITHOUT variants and review stats for performance
-                  const response = await getProducts({ 
-                    limit: 1000, 
-                    includeVariants: false, 
-                    includeReviewStats: false,
-                    includeOutOfStock: true // Admin needs all products
-                  });
-                  console.log('🔥 All products loaded:', response.data?.length, 'items');
-                  setProducts(response.data || []);
-                  setTotalPages(response.totalPages || 1);
-                  showSuccess(`Đã tải ${response.data?.length || 0} sản phẩm`);
-                } catch (err) {
-                  console.error('❌ Error loading all:', err);
-                  showError('Không thể tải tất cả sản phẩm');
-                }
-              }}
-              className={styles.secondaryButton}
-              style={{ marginRight: '12px', fontSize: '12px' }}
-              disabled={loading}
-            >
-              {loading ? '⏳' : '📥'} Load All
-            </button>
-            <button
               onClick={handleCreate}
               className={styles.primaryButton}
             >
@@ -636,7 +650,8 @@ export default function AdminProductsPage() {
               className={styles.filterSelect}
             >
               <option value="all">Tất cả tồn kho</option>
-              <option value="in-stock">Còn hàng (&gt;5)</option>
+              <option value="high-stock">Còn nhiều (&gt;50)</option>
+              <option value="in-stock">Còn hàng (6-50)</option>
               <option value="low-stock">Sắp hết hàng (1-5)</option>
               <option value="out-of-stock">Hết hàng (0)</option>
             </select>

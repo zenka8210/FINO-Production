@@ -23,6 +23,7 @@ export { useProductDebug } from './useProduct';
 export { useProducts, useProductAdmin } from './useProducts';
 export { useProductStats } from './useProductStats';
 export { useRelatedProducts } from './useRelatedProducts';
+export { usePersonalizedProducts } from './usePersonalizedProducts';
 export { useOrders } from './useOrders';
 export { useCategories } from './useCategories';
 export { useAddresses } from './useAddresses';

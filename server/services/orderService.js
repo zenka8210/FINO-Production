@@ -122,7 +122,18 @@ class OrderService extends BaseService {
         console.log('❌ Cannot send email - missing user or address info');
       }
 
-      // 11. Return order with voucher details if applied
+      // 11. Increment voucher usage count if voucher was applied
+      if (voucherId) {
+        try {
+          await this.voucherService.incrementVoucherUsedCount(voucherId);
+          console.log(`📈 Voucher ${orderData.voucherCode}: usedCount incremented (order created)`);
+        } catch (voucherError) {
+          console.error('❌ Failed to increment voucher usage count:', voucherError.message);
+          // Don't throw error - order creation should still succeed
+        }
+      }
+
+      // 12. Return order with voucher details if applied
       const result = {
         ...newOrder.toObject(),
         voucherDetails: voucherResult ? {
@@ -217,29 +228,26 @@ class OrderService extends BaseService {
       throw new AppError('Trạng thái đơn hàng không hợp lệ', ERROR_CODES.BAD_REQUEST);
     }
 
-    // Business rule: Can't change status of already delivered orders
-    if (order.status === 'delivered' && newStatus !== 'delivered') {
-      throw new AppError('Không thể thay đổi trạng thái đơn hàng đã giao', ERROR_CODES.BAD_REQUEST);
-    }
-
-    // Business rule: Can't change status of cancelled orders
+    // Business rule: Can't change status of cancelled orders (only restriction)
     if (order.status === 'cancelled' && newStatus !== 'cancelled') {
       throw new AppError('Không thể thay đổi trạng thái đơn hàng đã hủy', ERROR_CODES.BAD_REQUEST);
+    }
+
+    // Business rule: Can only cancel orders that are in pending or processing status
+    if (newStatus === 'cancelled' && !['pending', 'processing'].includes(order.status)) {
+      throw new AppError('Chỉ có thể hủy đơn hàng ở trạng thái chờ xử lý hoặc đang xử lý', ERROR_CODES.BAD_REQUEST);
     }
 
     // VOUCHER LOGIC: Handle usedCount based on status changes
     if (order.voucher) {
       try {
-        // Increment usedCount when order is confirmed (pending -> processing)
-        if (oldStatus === 'pending' && newStatus === 'processing') {
-          await this.voucherService.incrementVoucherUsedCount(order.voucher._id);
-          console.log(`📈 Voucher ${order.voucher.code}: usedCount incremented (order confirmed)`);
-        }
+        // REMOVED: No longer increment when pending -> processing since it's already incremented at order creation
+        // OLD: if (oldStatus === 'pending' && newStatus === 'processing') { ... }
         
-        // Decrement usedCount when order is cancelled
-        if ((oldStatus === 'processing' || oldStatus === 'shipped') && newStatus === 'cancelled') {
+        // Only decrement usedCount when order is cancelled from any status (except already cancelled)
+        if (oldStatus !== 'cancelled' && newStatus === 'cancelled') {
           await this.voucherService.decrementVoucherUsedCount(order.voucher._id);
-          console.log(`📉 Voucher ${order.voucher.code}: usedCount decremented (order cancelled)`);
+          console.log(`📉 Voucher ${order.voucher.code}: usedCount decremented (order cancelled from ${oldStatus})`);
         }
       } catch (voucherError) {
         console.error('❌ Voucher usedCount update error:', voucherError.message);

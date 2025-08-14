@@ -610,7 +610,9 @@
 }
 
 .editButton,
-.deleteButton {
+.deleteButton,
+.activateButton,
+.permanentDeleteButton {
   width: 36px;
   height: 36px;
   border: none;
@@ -639,6 +641,26 @@
 }
 
 .deleteButton:hover {
+  background: #fee2e2;
+  transform: scale(1.05);
+}
+
+.activateButton {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.activateButton:hover {
+  background: #dcfce7;
+  transform: scale(1.05);
+}
+
+.permanentDeleteButton {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.permanentDeleteButton:hover {
   background: #fee2e2;
   transform: scale(1.05);
 }

@@ -337,74 +337,84 @@ export default function ProductsPage() {
         />
 
         <div className={styles.contentWrapper}>
-          {/* Filters Sidebar */}
-          <FilterSidebar
-            searchTerm={searchTerm}
-            onSearchChange={handleSearchChange}
-            sortBy={sortBy}
-            sortOptions={SORT_OPTIONS.map(opt => ({
-              value: opt.value,
-              label: opt.label
-            }))}
-            onSortChange={handleSortChange}
-            selectedCategory={selectedCategory}
-            onCategoryChange={handleCategoryChange}
-            priceRange={priceRange}
-            onPriceRangeChange={handlePriceRangeChange}
-            onClearFilters={clearFilters}
-          />
+          <div className="row">
+            {/* Filters Sidebar - 3 columns */}
+            <div className="col-3">
+              <div className={styles.sidebarColumn}>
+                <FilterSidebar
+                  searchTerm={searchTerm}
+                  onSearchChange={handleSearchChange}
+                  sortBy={sortBy}
+                  sortOptions={SORT_OPTIONS.map(opt => ({
+                    value: opt.value,
+                    label: opt.label
+                  }))}
+                  onSortChange={handleSortChange}
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={handleCategoryChange}
+                  priceRange={priceRange}
+                  onPriceRangeChange={handlePriceRangeChange}
+                  onClearFilters={clearFilters}
+                />
+              </div>
+            </div>
 
-          {/* Products Container */}
-          <div className={styles.productsContainer}>
-            {currentPageProducts.length > 0 ? (
-              <div className={styles.productsGrid}>
-                {currentPageProducts.map((product: ProductWithCategory) => {
-                  // Get real stats for this product
-                  const productStatsData = productStats[product._id];
-                  
-                  return (
-                    <div key={product._id} className={styles.productWrapper}>
-                      <ProductItem 
-                        product={product} 
-                        layout="grid"
-                        averageRating={productStatsData?.averageRating || 0}
-                        reviewCount={productStatsData?.reviewCount || 0}
-                        showRatingBadge={true}
-                      />
+            {/* Products Container - 9 columns */}
+            <div className="col-9">
+              <div className={styles.productsColumn}>
+                <div className={styles.productsContainer}>
+                  {currentPageProducts.length > 0 ? (
+                    <div className={styles.productsGrid}>
+                      {currentPageProducts.map((product: ProductWithCategory) => {
+                        // Get real stats for this product
+                        const productStatsData = productStats[product._id];
+                        
+                        return (
+                          <div key={product._id} className={styles.productWrapper}>
+                            <ProductItem 
+                              product={product} 
+                              layout="grid"
+                              averageRating={productStatsData?.averageRating || 0}
+                              reviewCount={productStatsData?.reviewCount || 0}
+                              showRatingBadge={true}
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className={styles.noResults}>
-                <div className={styles.noResultsIcon}>📦</div>
-                <h3>Không tìm thấy sản phẩm nào</h3>
-                <p>Hãy thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm</p>
-                <Button 
-                  onClick={clearFilters} 
-                  variant="primary" 
-                  size="md"
-                >
-                  Xem tất cả sản phẩm
-                </Button>
-              </div>
-            )}
+                  ) : (
+                    <div className={styles.noResults}>
+                      <div className={styles.noResultsIcon}>📦</div>
+                      <h3>Không tìm thấy sản phẩm nào</h3>
+                      <p>Hãy thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm</p>
+                      <Button 
+                        onClick={clearFilters} 
+                        variant="primary" 
+                        size="md"
+                      >
+                        Xem tất cả sản phẩm
+                      </Button>
+                    </div>
+                  )}
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <Pagination
-                pagination={{
-                  page: currentPage,
-                  limit: productsPerPage,
-                  totalPages: totalPages,
-                  totalProducts: filteredProducts.length,
-                  hasNextPage: currentPage < totalPages,
-                  hasPrevPage: currentPage > 1
-                }}
-                onPageChange={handlePageChange}
-                className={styles.paginationComponent}
-              />
-            )}
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <Pagination
+                      pagination={{
+                        page: currentPage,
+                        limit: productsPerPage,
+                        totalPages: totalPages,
+                        totalProducts: filteredProducts.length,
+                        hasNextPage: currentPage < totalPages,
+                        hasPrevPage: currentPage > 1
+                      }}
+                      onPageChange={handlePageChange}
+                      className={styles.paginationComponent}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

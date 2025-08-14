@@ -139,10 +139,55 @@ class CategoryService extends BaseService {
                 throw new AppError('Không tìm thấy danh mục', 404);
             }
             
-            return { message: 'Xóa danh mục thành công' };
+            return { 
+                message: 'Vô hiệu hóa danh mục thành công', 
+                categoryName: category.name,
+                action: 'deactivated' 
+            };
         } catch (error) {
             if (error instanceof AppError) throw error;
-            throw new AppError('Lỗi xóa danh mục', 500);
+            throw new AppError('Lỗi vô hiệu hóa danh mục', 500);
+        }
+    }
+
+    async permanentDeleteCategory(categoryId) {
+        try {
+            // Get category info before deletion for response
+            const category = await Category.findById(categoryId);
+            if (!category) {
+                throw new AppError('Không tìm thấy danh mục', 404);
+            }
+
+            // Check for child categories (even inactive ones)
+            const childCategories = await Category.countDocuments({ 
+                parent: categoryId 
+            });
+            
+            if (childCategories > 0) {
+                throw new AppError(`Không thể xóa vĩnh viễn danh mục "${category.name}" vì còn ${childCategories} danh mục con`, 400);
+            }
+
+            // Check for products (even inactive ones)  
+            const Product = require('../models/ProductSchema');
+            const productsCount = await Product.countDocuments({ 
+                category: categoryId 
+            });
+            
+            if (productsCount > 0) {
+                throw new AppError(`Không thể xóa vĩnh viễn danh mục "${category.name}" vì còn ${productsCount} sản phẩm đang sử dụng`, 400);
+            }
+
+            // Permanently delete from database
+            await Category.findByIdAndDelete(categoryId);
+            
+            return { 
+                message: 'Xóa vĩnh viễn danh mục thành công', 
+                categoryName: category.name,
+                action: 'permanently_deleted' 
+            };
+        } catch (error) {
+            if (error instanceof AppError) throw error;
+            throw new AppError('Lỗi xóa vĩnh viễn danh mục', 500);
         }
     }
 

@@ -9,6 +9,7 @@ import {
 } from '@/types';
 import { authService } from '@/services';
 import { userService } from '@/services/userService';
+import { wishlistService } from '@/services/wishlistService';
 
 // Auth State
 interface AuthState {
@@ -125,6 +126,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       if (response && response.user) {
         dispatch({ type: 'AUTH_SUCCESS', payload: response.user });
+        
+        // Sync session wishlist to user account after successful login
+        try {
+          // Backend automatically reads session wishlist, no params needed
+          await wishlistService.syncWishlistFromSession();
+          console.log('AuthContext: Session wishlist synced successfully');
+        } catch (syncError) {
+          console.warn('AuthContext: Failed to sync session wishlist:', syncError);
+          // Don't throw - login was successful, sync is optional
+        }
       } else {
         throw new Error('Login response invalid');
       }
@@ -142,6 +153,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       if (response && response.user) {
         dispatch({ type: 'AUTH_SUCCESS', payload: response.user });
+        
+        // Sync session wishlist to user account after successful registration
+        try {
+          // Backend automatically reads session wishlist, no params needed
+          await wishlistService.syncWishlistFromSession();
+          console.log('AuthContext: Session wishlist synced successfully after registration');
+        } catch (syncError) {
+          console.warn('AuthContext: Failed to sync session wishlist:', syncError);
+          // Don't throw - registration was successful, sync is optional
+        }
       } else {
         throw new Error('Registration response invalid');
       }

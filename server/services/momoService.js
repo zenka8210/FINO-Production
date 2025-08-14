@@ -44,7 +44,7 @@ class MoMoService {
    */
   async createPaymentUrl(orderInfo) {
     try {
-      const { orderId, amount, orderDescription, clientIp } = orderInfo;
+      const { orderId, amount, orderDescription, clientIp, requestId } = orderInfo;
 
       // Validate input
       if (!orderId || !amount || !orderDescription) {
@@ -55,9 +55,11 @@ class MoMoService {
         throw new AppError('Amount must be greater than 0', ERROR_CODES.BAD_REQUEST);
       }
 
-      // Generate unique request ID and use actual order ID for MoMo
-      const requestId = orderId + '_' + new Date().getTime(); // Make requestId unique
+      // Use provided requestId or generate unique one
+      const uniqueRequestId = requestId || (orderId + '_' + Date.now());
       const momoOrderId = orderId; // Use actual order code from our system
+      
+      console.log('🔄 MoMo payment with unique requestId:', uniqueRequestId);
       
       // Prepare payment parameters according to MoMo documentation
       const requestType = "payWithMethod";
@@ -67,7 +69,7 @@ class MoMoService {
       const lang = 'vi';
 
       // Create raw signature string according to MoMo specification
-      const rawSignature = `accessKey=${this.accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${this.ipnUrl}&orderId=${momoOrderId}&orderInfo=${orderDescription}&partnerCode=${this.partnerCode}&redirectUrl=${this.redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
+      const rawSignature = `accessKey=${this.accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${this.ipnUrl}&orderId=${momoOrderId}&orderInfo=${orderDescription}&partnerCode=${this.partnerCode}&redirectUrl=${this.redirectUrl}&requestId=${uniqueRequestId}&requestType=${requestType}`;
 
       console.log('🔐 MoMo raw signature:', rawSignature);
 
@@ -84,7 +86,7 @@ class MoMoService {
         partnerCode: this.partnerCode,
         partnerName: "FINO Store",
         storeId: "FINO_STORE",
-        requestId: requestId,
+        requestId: uniqueRequestId, // Use the unique requestId
         amount: amount.toString(),
         orderId: momoOrderId,
         orderInfo: orderDescription,

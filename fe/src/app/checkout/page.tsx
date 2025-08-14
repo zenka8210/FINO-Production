@@ -676,13 +676,9 @@ export default function CheckoutPage() {
                               </strong>
                               <p>
                                 {method.method === 'COD' ? 'Thanh toán bằng tiền mặt khi nhận hàng' :
-                                 method.method === 'VNPay' ? 'Thanh toán trực tuyến qua VNPay' :
-                                 'Phương thức thanh toán'}
+                                 method.method === 'VNPay' ? 'Thanh toán trực tuyến qua VNPay':
+                                 method.method === 'Momo' ? 'Thanh toán trực tuyến qua Momo' : 'Các phương thức khác'}
                               </p>
-                            </div>
-                            <div className={styles.paymentIcon}>
-                              {method.method === 'COD' ? '💵' : 
-                               method.method === 'VNPay' ? '💳' : '💰'}
                             </div>
                           </div>
                         ))

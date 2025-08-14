@@ -185,7 +185,14 @@ class ProductService extends BaseService {
             console.log('📋 Sample database query to verify fields...');
             
             let query = Product.find(filter)
-                .populate('category', 'name') // PERFORMANCE: Only load category name
+                .populate({
+                    path: 'category',
+                    select: 'name parent',
+                    populate: {
+                        path: 'parent',
+                        select: 'name'
+                    }
+                }) // Include parent category for better related products logic
                 .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
                 .skip(skip)
                 .limit(parseInt(adjustedLimit));
@@ -396,7 +403,14 @@ class ProductService extends BaseService {
 
     async getProductById(productId, includeVariants = false, includeReviewStats = false) {
         try {
-            let query = Product.findById(productId).populate('category');
+            let query = Product.findById(productId).populate({
+                path: 'category',
+                select: 'name parent description isActive',
+                populate: {
+                    path: 'parent',
+                    select: 'name'
+                }
+            });
             if (includeVariants === 'true' || includeVariants === true) {
                 // Populate variants with color and size information
                 query = query.populate({

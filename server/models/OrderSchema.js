@@ -50,21 +50,30 @@ OrderSchema.statics.generateOrderCode = async function() {
   const month = String(today.getMonth() + 1).padStart(2, '0');
   const day = String(today.getDate()).padStart(2, '0');
   
-  // Format: FINO + YYYYMMDD + 5 digit counter (FINO = Đơn Hàng)
+  // Format: FINO + YYYYMMDD + counter (5 digits)
   const prefix = `FINO${year}${month}${day}`;
   
-  // Find last order in day
+  // Find last order of today to get counter
+  const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+  
   const lastOrder = await this.findOne({
-    orderCode: { $regex: `^${prefix}` }
-  }).sort({ orderCode: -1 });
+    createdAt: { $gte: startOfDay, $lt: endOfDay }
+  }).sort({ createdAt: -1 });
   
   let counter = 1;
-  if (lastOrder) {
-    const lastCounter = parseInt(lastOrder.orderCode.slice(-5));
-    counter = lastCounter + 1;
+  if (lastOrder && lastOrder.orderCode && lastOrder.orderCode.startsWith(prefix)) {
+    // Extract counter from last order code 
+    const lastCounterMatch = lastOrder.orderCode.match(/(\d{5})$/);
+    if (lastCounterMatch) {
+      counter = parseInt(lastCounterMatch[1]) + 1;
+    }
   }
   
-  return `${prefix}${counter.toString().padStart(5, '0')}`;
+  // Counter với 5 chữ số: 00001, 00002, etc.
+  const counterStr = counter.toString().padStart(5, '0');
+  
+  return `${prefix}${counterStr}`;
 };
 
 // Static method to create order from cart

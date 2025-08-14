@@ -16,8 +16,10 @@ export { voucherService, VoucherService } from './voucherService';
 export { postService, PostService } from './postService';
 export { bannerService, BannerService } from './bannerService';
 export { statisticsService, StatisticsService } from './statisticsService';
+export { personalizationService, PersonalizationService } from './personalizationService';
 export { vnpayService } from './vnpayService';
 export { momoService } from './momoService';
 
 // Re-export types
 export type { StatisticsData } from './statisticsService';
+export type { PersonalizedCategory, UserBehaviorSummary, PersonalizationResponse } from './personalizationService';

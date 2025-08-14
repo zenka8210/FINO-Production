@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="240" viewBox="0 0 600 240" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1E40AF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1E293B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#475569;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#1E40AF" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="600" height="240" fill="#FEFEFE"/>
+  
+  <!-- Background Decorative Elements -->
+  <circle cx="80" cy="120" r="70" fill="url(#logoGradient)" opacity="0.05"/>
+  <circle cx="80" cy="120" r="50" fill="url(#logoGradient)" opacity="0.08"/>
+  
+  <!-- Main Logo Icon -->
+  <g transform="translate(30, 50)" filter="url(#shadow)">
+    <!-- Fashion Icon - Modern Dress/Hanger -->
+    <path d="M50 20 L70 20 L70 30 L90 40 L90 140 L30 140 L30 40 L50 30 Z" 
+          fill="url(#logoGradient)" stroke="none"/>
+    <circle cx="60" cy="16" r="6" fill="url(#logoGradient)"/>
+    
+    <!-- Decorative Fashion Elements -->
+    <path d="M40 50 L50 60 L40 70" stroke="url(#logoGradient)" stroke-width="3" fill="none"/>
+    <path d="M80 50 L70 60 L80 70" stroke="url(#logoGradient)" stroke-width="3" fill="none"/>
+    
+    <!-- Fashion Details -->
+    <rect x="45" y="80" width="30" height="3" fill="url(#logoGradient)" opacity="0.7"/>
+    <rect x="50" y="90" width="20" height="2" fill="url(#logoGradient)" opacity="0.5"/>
+    <rect x="45" y="100" width="30" height="2" fill="url(#logoGradient)" opacity="0.6"/>
+    
+    <!-- Bottom Detail -->
+    <rect x="40" y="130" width="40" height="4" fill="url(#logoGradient)" opacity="0.7"/>
+  </g>
+  
+  <!-- Company Name -->
+  <text x="170" y="100" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" 
+        font-size="64" font-weight="700" fill="url(#textGradient)" filter="url(#shadow)">FINO</text>
+  
+  <!-- Tagline -->
+  <text x="170" y="130" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" 
+        font-size="28" font-weight="400" fill="#64748B">Fashion Store</text>
+        
+  <!-- Professional Subtitle for Report -->
+  <text x="170" y="155" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" 
+        font-size="18" font-weight="300" fill="#94A3B8">E-Commerce Platform Solution</text>
+        
+  <!-- Additional Report Info -->
+  <text x="170" y="180" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" 
+        font-size="14" font-weight="300" fill="#CBD5E1">Modern Web Application • Next.js & Node.js</text>
+        
+  <!-- Decorative Line -->
+  <rect x="170" y="190" width="300" height="2" fill="url(#logoGradient)" opacity="0.3"/>
+</svg>

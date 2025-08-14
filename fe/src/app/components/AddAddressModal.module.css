@@ -1,0 +1,274 @@
+/* Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+/* Modal Content */
+.modalContent {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: modalSlideIn 0.3s ease-out;
+  color: #000000; /* Ensure all text is black */
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Modal Header */
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.modalTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.titleIcon {
+  color: #1e40af;
+  font-size: 1.5rem;
+}
+
+.modalTitle h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #000000; /* Explicitly black text */
+}
+
+.closeButton {
+  color: #666;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+/* Form Styles */
+.addressForm {
+  padding: 24px;
+}
+
+.formSection {
+  margin-bottom: 24px;
+}
+
+.formSection:last-child {
+  margin-bottom: 0;
+}
+
+.formSectionTitle {
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #000000; /* Explicitly black text */
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formGroup:nth-child(odd):last-child {
+  grid-column: 1 / -1;
+}
+
+.label {
+  font-weight: 500;
+  color: #000000; /* Explicitly black text */
+  font-size: 0.9rem;
+}
+
+.required {
+  color: #dc2626;
+}
+
+.input {
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  background: #ffffff; /* Explicitly white background */
+  color: #000000; /* Explicitly black text */
+}
+
+.input:focus {
+  outline: none;
+  border-color: #1e40af;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+  background: #ffffff; /* Maintain white background on focus */
+  color: #000000; /* Maintain black text on focus */
+}
+
+.input::placeholder {
+  color: #9ca3af;
+}
+
+.input:disabled {
+  background: #f9fafb;
+  color: #6b7280;
+  border-color: #d1d5db;
+  cursor: not-allowed;
+}
+
+/* Checkbox Group */
+.checkboxGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.checkboxLabel:hover {
+  border-color: #1e40af;
+  background: #ffffff; /* Ensure white background on hover */
+  color: #000000; /* Ensure black text on hover */
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #1e40af;
+  cursor: pointer;
+}
+
+.checkboxText {
+  font-weight: 500;
+  color: #000000; /* Explicitly black text */
+}
+
+.helpText {
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin-left: 30px;
+}
+
+/* Form Actions */
+.formActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.submitButton {
+  min-width: 140px;
+}
+
+.buttonIcon {
+  margin-right: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modalContent {
+    width: 95%;
+    margin: 20px;
+    max-height: calc(100vh - 40px);
+  }
+  
+  .modalHeader {
+    padding: 20px 20px 12px 20px;
+  }
+  
+  .modalTitle h3 {
+    font-size: 1.3rem;
+  }
+  
+  .addressForm {
+    padding: 20px;
+  }
+  
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .formActions {
+    flex-direction: column-reverse;
+  }
+  
+  .formActions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalContent {
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    margin: 0;
+  }
+  
+  .modalHeader {
+    padding: 16px;
+  }
+  
+  .addressForm {
+    padding: 16px;
+  }
+  
+  .titleIcon {
+    font-size: 1.3rem;
+  }
+  
+  .modalTitle h3 {
+    font-size: 1.2rem;
+  }
+}
