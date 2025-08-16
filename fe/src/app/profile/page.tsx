@@ -37,6 +37,7 @@ interface AddressFormData {
   district: string;
   city: string;
   isDefault: boolean;
+  deliveryPerson?: string; // Người giao hàng
 }
 
 function ProfilePageContent() {
@@ -71,7 +72,8 @@ function ProfilePageContent() {
     ward: '',
     district: '',
     city: '',
-    isDefault: false
+    isDefault: false,
+    deliveryPerson: ''
   });
   
   // Data states
@@ -1108,6 +1110,21 @@ function ProfilePageContent() {
                               required
                             />
                           </div>
+
+                          <div className={styles.formGroup}>
+                            <label htmlFor="deliveryPerson" className={styles.label}>
+                              Người giao hàng (tùy chọn)
+                            </label>
+                            <input
+                              type="text"
+                              id="deliveryPerson"
+                              name="deliveryPerson"
+                              value={addressForm.deliveryPerson || ''}
+                              onChange={handleAddressInputChange}
+                              className={styles.input}
+                              placeholder="Tên người giao hàng (ví dụ: Anh Thành Danh)"
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -1300,6 +1317,12 @@ function ProfilePageContent() {
 
                         <div className={styles.addressInfo}>
                           <p className={styles.addressPhone}>{address.phone}</p>
+                          {(address as any).deliveryPerson && (
+                            <p className={styles.deliveryPerson}>
+                              <FaTruck className={styles.deliveryIcon} />
+                              Người giao: {(address as any).deliveryPerson}
+                            </p>
+                          )}
                           <p className={styles.addressLine}>
                             {address.addressLine}, {address.ward}, {address.district}, {address.city}
                           </p>
