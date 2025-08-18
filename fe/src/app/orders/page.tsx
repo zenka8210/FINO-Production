@@ -176,15 +176,84 @@ export default function OrdersPage() {
     );
   };
 
-  // Format date
+  // Format date (updated to match profile page format)
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('vi-VN', {
       year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+      month: 'long',
+      day: 'numeric'
     });
+  };
+
+  // Get order status badge class (from profile page)
+  const getOrderStatusClass = (status: string) => {
+    const statusClasses: Record<string, string> = {
+      'pending': styles.statusPending,
+      'processing': styles.statusProcessing,
+      'shipped': styles.statusShipped,
+      'delivered': styles.statusDelivered,
+      'cancelled': styles.statusCancelled
+    };
+    return statusClasses[status] || styles.statusDefault;
+  };
+
+  // Get Vietnamese order status text (from profile page)
+  const getOrderStatusText = (status: string) => {
+    const statusTexts: Record<string, string> = {
+      'pending': 'Chờ xác nhận',
+      'processing': 'Đang xử lý',
+      'shipped': 'Đã gửi hàng',
+      'delivered': 'Đã giao',
+      'cancelled': 'Đã hủy'
+    };
+    return statusTexts[status] || status;
+  };
+
+  // Handle cancel order (from profile page)
+  const handleCancelOrder = async (orderId: string) => {
+    try {
+      setIsLoading(true);
+      console.log('Cancel order:', orderId);
+      
+      // Call the cancel order API using the hook
+      // We need to implement this or use existing order cancel functionality
+      // For now, we'll use a basic fetch call
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/orders/${orderId}/cancel`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to cancel order');
+      }
+      
+      // Show success message
+      showError('Đơn hàng đã được hủy thành công'); // Using showError as success notification
+      
+      // Refresh orders list
+      loadOrders();
+      
+    } catch (error: any) {
+      console.error('Error cancelling order:', error);
+      showError('Không thể hủy đơn hàng', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle reorder functionality (from profile page)
+  const handleReorder = async (order: OrderWithRefs) => {
+    try {
+      // This would add all items from the order back to cart
+      // We'll implement a basic version
+      showError('Tính năng mua lại đang được phát triển'); // Temporary message
+    } catch (error: any) {
+      showError('Không thể thực hiện mua lại', error);
+    }
   };
 
   // Loading state
@@ -305,73 +374,66 @@ export default function OrdersPage() {
                     <div key={order._id} className={styles.orderCard}>
                       <div className={styles.orderHeader}>
                         <div className={styles.orderInfo}>
-                          <h4 className={styles.orderCode}>#{order.orderCode}</h4>
-                          <div className={styles.orderMeta}>
-                            <span className={styles.orderDate}>
-                              <FaClock className={styles.metaIcon} />
-                              {formatDate(order.createdAt)}
-                            </span>
-                            {getStatusDisplay(order.status)}
-                          </div>
+                          <h4>Đơn hàng #{order.orderCode}</h4>
+                          <p className={styles.orderDate}>{formatDate(order.createdAt)}</p>
                         </div>
-                        <div className={styles.orderTotal}>
-                          <span className={styles.totalLabel}>Tổng tiền:</span>
-                          <span className={styles.totalAmount}>{formatCurrency(order.finalTotal || 0)}</span>
+                        <div className={`${styles.orderStatus} ${getOrderStatusClass(order.status)}`}>
+                          {getOrderStatusText(order.status)}
                         </div>
                       </div>
-                      
+
                       <div className={styles.orderItems}>
-                        {order.items?.slice(0, 2).map((item: any, index: number) => (
+                        {order.items.slice(0, 3).map((item, index) => (
                           <div key={index} className={styles.orderItem}>
-                            <div className={styles.itemInfo}>
-                              <span className={styles.itemName}>
-                                {item.productVariant?.product?.name || item.productName}
-                              </span>
-                              <span className={styles.itemDetails}>
-                                Số lượng: {item.quantity} • {formatCurrency(item.price)}
-                              </span>
-                              {item.productVariant?.color?.name || item.productVariant?.size?.name ? (
-                                <div className={styles.itemVariant}>
-                                  {item.productVariant?.color?.name && `Màu: ${item.productVariant.color.name}`}
-                                  {item.productVariant?.color?.name && item.productVariant?.size?.name && ' • '}
-                                  {item.productVariant?.size?.name && `Size: ${item.productVariant.size.name}`}
-                                </div>
-                              ) : null}
-                            </div>
+                            <span>{item.productVariant?.product?.name || 'Sản phẩm'}</span>
+                            <span>x{item.quantity}</span>
                           </div>
                         ))}
-                        {(order.items?.length || 0) > 2 && (
-                          <div className={styles.moreItems}>
-                            +{(order.items?.length || 0) - 2} sản phẩm khác
-                          </div>
+                        {order.items.length > 3 && (
+                          <p className={styles.moreItems}>+{order.items.length - 3} sản phẩm khác</p>
                         )}
                       </div>
 
-                      <div className={styles.orderActions}>
-                        <OrderDetailButton 
-                          orderId={order._id}
-                          variant="outline"
-                          size="sm"
-                        >
-                          <FaEye className={styles.buttonIcon} />
-                          Xem chi tiết
-                        </OrderDetailButton>
-                        {order.status === 'pending' && (
-                          <Button
+                      <div className={styles.orderFooter}>
+                        <div className={styles.orderTotal}>
+                          <strong>{order.finalTotal?.toLocaleString('vi-VN')}đ</strong>
+                        </div>
+                        <div className={styles.orderActions}>
+                          <OrderDetailButton 
+                            orderId={order._id}
                             variant="outline"
                             size="sm"
-                            className={styles.cancelButton}
-                            onClick={() => {
-                              if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
-                                // Handle cancel order
-                                console.log('Cancel order:', order._id);
-                              }
-                            }}
                           >
-                            <FaTimesCircle className={styles.buttonIcon} />
-                            Hủy đơn
+                            Chi tiết
+                          </OrderDetailButton>
+                          
+                          {order.status === 'pending' && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className={styles.cancelButton}
+                              onClick={async () => {
+                                if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
+                                  await handleCancelOrder(order._id);
+                                }
+                              }}
+                              disabled={isLoading}
+                            >
+                              {isLoading ? 'Đang hủy...' : 'Hủy đơn'}
+                            </Button>
+                          )}
+                          
+                          {/* Nút Mua lại - LUÔN Ở CUỐI (bên phải ngoài cùng) */}
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            className={styles.reorderButton}
+                            onClick={() => handleReorder(order)}
+                            disabled={isLoading}
+                          >
+                            Mua lại
                           </Button>
-                        )}
+                        </div>
                       </div>
                     </div>
                   ))}

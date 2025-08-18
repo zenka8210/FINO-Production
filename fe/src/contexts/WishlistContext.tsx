@@ -21,7 +21,7 @@ interface WishlistContextType {
   removeFromWishlist: (productId: string) => Promise<void>;
   clearWishlist: () => Promise<void>;
   toggleWishlist: (productId: string) => Promise<void>;
-  syncWishlistFromSession: (sessionWishlist: string[]) => Promise<void>;
+  syncWishlistFromSession: () => Promise<void>;
   isInWishlist: (productId: string) => boolean;
   getWishlistItemsCount: () => number;
   hasItems: () => boolean;
@@ -155,15 +155,11 @@ export function WishlistProvider({ children }: WishlistProviderProps) {
     await loadWishlist();
   }, [loadWishlist]);
 
-  const syncWishlistFromSession = useCallback(async (sessionWishlist: string[]): Promise<void> => {
+  const syncWishlistFromSession = useCallback(async (): Promise<void> => {
     try {
       dispatch({ type: 'LOADING' });
-      // Sync each item from session wishlist
-      for (const productId of sessionWishlist) {
-        if (!isInWishlist(productId)) {
-          await wishlistService.addToWishlist(productId);
-        }
-      }
+      // Use the new service method that doesn't require sessionWishlist array
+      await wishlistService.syncWishlistFromSession();
       // Reload wishlist to get updated state
       await loadWishlist();
       showSuccess('Đã đồng bộ danh sách yêu thích');
@@ -171,7 +167,7 @@ export function WishlistProvider({ children }: WishlistProviderProps) {
       dispatch({ type: 'ERROR', payload: error.message });
       showError('Không thể đồng bộ danh sách yêu thích', error.message);
     }
-  }, [isInWishlist, loadWishlist, showSuccess, showError]);
+  }, [loadWishlist, showSuccess, showError]);
 
   const clearError = useCallback((): void => {
     dispatch({ type: 'CLEAR_ERROR' });

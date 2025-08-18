@@ -12,6 +12,7 @@ export { default as GoogleSignInButton } from './GoogleSignInButton';
 export { default as ErrorPage } from './ErrorPage';
 export { default as ErrorBoundary } from './ErrorBoundary';
 export { default as OrderDetailButton } from './OrderDetailButton';
+export { default as OrderReviewModal } from './OrderReviewModal';
 export { default as SearchableSelect } from './SearchableSelect';
 export { default as ProductStatisticsCards } from './ProductStatisticsCards';
 export { ErrorPageVariants, renderErrorByStatus, renderErrorByType } from './ErrorPageVariants';

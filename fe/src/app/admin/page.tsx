@@ -60,6 +60,30 @@ export default function AdminPage() {
   });
   const [isLoadingDailyRevenue, setIsLoadingDailyRevenue] = useState(false);
   
+  // User growth states
+  const [userGrowth, setUserGrowth] = useState({
+    thisMonth: 0,
+    lastMonth: 0,
+    changePercent: 0
+  });
+  const [isLoadingUserGrowth, setIsLoadingUserGrowth] = useState(false);
+  
+  // Monthly revenue growth states
+  const [monthlyRevenueGrowth, setMonthlyRevenueGrowth] = useState({
+    thisMonth: 0,
+    lastMonth: 0,
+    changePercent: 0
+  });
+  const [isLoadingMonthlyRevenue, setIsLoadingMonthlyRevenue] = useState(false);
+  
+  // Monthly orders growth states
+  const [monthlyOrdersGrowth, setMonthlyOrdersGrowth] = useState({
+    thisMonth: 0,
+    lastMonth: 0,
+    changePercent: 0
+  });
+  const [isLoadingMonthlyOrders, setIsLoadingMonthlyOrders] = useState(false);
+  
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -450,6 +474,9 @@ export default function AdminPage() {
   useEffect(() => {
     loadRevenueData(chartPeriod);
     loadDailyRevenue();
+    loadUserGrowth();
+    loadMonthlyRevenueGrowth();
+    loadMonthlyOrdersGrowth();
   }, []);
 
   // Log để debug
@@ -488,17 +515,6 @@ export default function AdminPage() {
     }
   };
 
-  // Function to get payment status color
-  const getPaymentStatusColor = (paymentStatus: string) => {
-    switch (paymentStatus.toLowerCase()) {
-      case 'pending': return '#f59e0b';
-      case 'paid': return '#10b981';
-      case 'failed': return '#ef4444';
-      case 'cancelled': return '#6b7280';
-      default: return '#64748b';
-    }
-  };
-
   // Function to get payment status label
   const getPaymentStatusLabel = (paymentStatus: string) => {
     switch (paymentStatus.toLowerCase()) {
@@ -508,6 +524,23 @@ export default function AdminPage() {
       case 'cancelled': return 'Đã hủy';
       default: return paymentStatus;
     }
+  };
+
+  // Business logic helper: Get valid status options based on current status
+  const getValidStatusOptions = (currentStatus: string) => {
+    // If order is cancelled, no status changes allowed
+    if (currentStatus === 'cancelled') {
+      return ['cancelled'];
+    }
+    
+    // Admin can change to any status (including back to previous statuses for correction)
+    // Only restriction is: cannot change FROM cancelled
+    return ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+  };
+
+  // Business logic helper: Check if status can be changed to cancelled
+  const canCancelOrder = (currentStatus: string) => {
+    return ['pending', 'processing'].includes(currentStatus);
   };
 
   // Function to handle chart period change
@@ -556,76 +589,27 @@ export default function AdminPage() {
     }
   };
 
-  // Function to refresh all stats
-  const refreshAllStats = async () => {
-    const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
-    };
-
-    setLoading(true);
-    
-    try {
-      console.log('🔄 Refreshing all stats...');
-      
-      // Load individual APIs
-      const [ordersRes, usersRes, productsRes] = await Promise.all([
-        fetch(`${BASE_URL}/api/orders`, { headers }).catch(() => null),
-        fetch(`${BASE_URL}/api/users`, { headers }).catch(() => null),
-        fetch(`${BASE_URL}/api/products`, { headers }).catch(() => null)
-      ]);
-
-      let newStats = { earnings: 0, users: 0, products: 0, orders: 0, lowStock: 0 };
-
-      if (ordersRes) {
-        const ordersData = await ordersRes.json();
-        const orders = ordersData.data || ordersData.orders || ordersData;
-        if (Array.isArray(orders)) {
-          newStats.orders = orders.length;
-          newStats.earnings = orders.reduce((sum: number, order: any) => {
-            const orderTotal = order.finalTotal || order.total || 0;
-            const paymentStatus = (order.paymentStatus || '').toLowerCase();
-            return paymentStatus === 'paid' ? sum + (parseFloat(orderTotal) || 0) : sum;
-          }, 0);
-        }
-      }
-
-      if (usersRes) {
-        const usersData = await usersRes.json();
-        const users = usersData.data || usersData.users || usersData;
-        if (Array.isArray(users)) newStats.users = users.length;
-      }
-
-      if (productsRes) {
-        const productsData = await productsRes.json();
-        const products = productsData.data || productsData.products || productsData;
-        if (Array.isArray(products)) {
-          newStats.products = products.length;
-          // Calculate low stock items
-          newStats.lowStock = products.filter((product: any) => (product.stock || 0) < 5).length;
-        }
-      }
-
-      setStats(newStats);
-      console.log('All stats refreshed:', newStats);
-      
-      // Also refresh daily revenue and orders
-      await loadDailyRevenue();
-      await loadOrdersPage(currentPage);
-      
-      alert('Dữ liệu đã được cập nhật!');
-    } catch (error) {
-      console.error('Failed to refresh stats:', error);
-      alert('Lỗi khi cập nhật dữ liệu. Vui lòng thử lại!');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Function to update order status
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    // Find the current order to check its current status
+    const currentOrder = [...recentOrders, ...allOrders].find(order => order._id === orderId);
+    if (!currentOrder) {
+      alert('Không tìm thấy đơn hàng!');
+      return;
+    }
+
+    // Business logic validation
+    if (newStatus === 'cancelled' && !canCancelOrder(currentOrder.status)) {
+      alert('⚠️ Không thể hủy đơn hàng đã gửi hàng hoặc đã giao hàng!\n\nChỉ có thể hủy đơn hàng ở trạng thái "Chờ xử lý" hoặc "Đang xử lý".');
+      return;
+    }
+
+    // Check if trying to change FROM cancelled status (not allowed)
+    if (currentOrder.status === 'cancelled' && newStatus !== 'cancelled') {
+      alert('⚠️ Không thể thay đổi trạng thái đơn hàng đã hủy!\n\nĐơn hàng đã hủy không thể chuyển sang trạng thái khác.');
+      return;
+    }
+
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
     const headers = {
@@ -663,13 +647,21 @@ export default function AdminPage() {
         );
         
         console.log('Order status updated successfully');
-        alert('Cập nhật trạng thái đơn hàng thành công!');
+        alert('✅ Cập nhật trạng thái đơn hàng thành công!');
       } else {
         throw new Error(result.message || 'Failed to update order status');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update order status:', error);
-      alert('Lỗi khi cập nhật trạng thái đơn hàng. Vui lòng thử lại!');
+      
+      // Enhanced error handling
+      if (error.message?.includes('Chỉ có thể hủy đơn hàng')) {
+        alert('⚠️ ' + error.message);
+      } else if (error.message?.includes('Không thể chuyển trạng thái')) {
+        alert('⚠️ ' + error.message);
+      } else {
+        alert('❌ Lỗi khi cập nhật trạng thái đơn hàng. Vui lòng thử lại!');
+      }
     }
   };
 
@@ -782,12 +774,14 @@ export default function AdminPage() {
 
   // Function to load daily revenue data
   const loadDailyRevenue = async () => {
+    console.log('🔄 loadDailyRevenue called');
     setIsLoadingDailyRevenue(true);
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
     
     try {
-      const response = await fetch(`${BASE_URL}/api/statistics/daily-revenue`, {
+      // Try to get daily revenue from the same API that chart uses
+      const response = await fetch(`${BASE_URL}/api/statistics/revenue-chart?period=week`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -795,34 +789,190 @@ export default function AdminPage() {
       });
       
       if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setDailyRevenue(data.data);
+        const chartData = await response.json();
+        console.log('Revenue chart data for daily calculation:', chartData);
+        
+        if (chartData.success && chartData.data) {
+          const revenueData = Array.isArray(chartData.data) ? chartData.data : 
+            (chartData.data.labels && chartData.data.data) ? 
+              chartData.data.labels.map((label: string, index: number) => ({
+                date: label,
+                revenue: chartData.data.data[index] || 0
+              })) : [];
+          
+          console.log('Processed revenue data:', revenueData);
+          
+          // Find today's data (August 8th)
+          const today = new Date();
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+          
+          // Format dates to match API format (d/M)
+          const todayFormatted = `${today.getDate()}/${today.getMonth() + 1}`; // "8/8"
+          const yesterdayFormatted = `${yesterday.getDate()}/${yesterday.getMonth() + 1}`; // "7/8"
+          
+          console.log('Looking for dates:', { todayFormatted, yesterdayFormatted });
+          
+          // Find today's revenue from chart data
+          const todayData = revenueData.find((item: any) => {
+            console.log('Comparing:', item.date, 'vs', todayFormatted);
+            return item.date === todayFormatted;
+          });
+          
+          const yesterdayData = revenueData.find((item: any) => {
+            return item.date === yesterdayFormatted;
+          });
+          
+          const todayRevenue = todayData ? todayData.revenue : 0;
+          const yesterdayRevenue = yesterdayData ? yesterdayData.revenue : 0;
+          
+          // Improved change calculation logic
+          let changePercent = 0;
+          if (yesterdayRevenue > 0) {
+            changePercent = ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100;
+          } else if (todayRevenue > 0) {
+            // If today has revenue but yesterday doesn't, it's a new revenue situation
+            changePercent = 100; // Show as 100% increase
+          }
+          
+          console.log('Daily revenue from chart API:', {
+            todayData,
+            yesterdayData,
+            todayRevenue,
+            yesterdayRevenue,
+            changePercent,
+            scenario: yesterdayRevenue === 0 && todayRevenue > 0 ? 'New revenue' : 
+                     yesterdayRevenue > 0 ? 'Normal comparison' : 'No revenue both days'
+          });
+          
+          setDailyRevenue({
+            today: todayRevenue,
+            yesterday: yesterdayRevenue,
+            changePercent,
+            todayOrders: 0 // We don't have order count from chart API
+          });
+          
+          return; // Successfully got data from chart API
         }
-      } else {
-        // Fallback calculation from recent orders
-        const today = new Date();
+      }
+      
+      console.log('Chart API failed, using fallback calculation...');
+      
+      // Fetch ALL orders (not just first page) - use large limit to get all
+      const ordersResponse = await fetch(`${BASE_URL}/api/orders?limit=1000&page=1`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (ordersResponse.ok) {
+        const ordersData = await ordersResponse.json();
+        console.log('Orders data for daily revenue:', ordersData);
+        console.log('Total orders found:', ordersData.data?.pagination?.total || 'unknown');
+        console.log('Orders in this response:', ordersData.data?.documents?.length || 'unknown');
+        
+        // Extract orders array from the response structure
+        const orders = ordersData.data?.documents || ordersData.data || ordersData.orders || ordersData;
+        const ordersArray = Array.isArray(orders) ? orders : [];
+        
+        console.log('Sample order structure:', ordersArray[0]);
+        
+        // Log all orders from August 8th to debug
+        const august8Orders = ordersArray.filter(order => {
+          const orderDate = new Date(order.createdAt);
+          return orderDate.getDate() === 8 && orderDate.getMonth() === 7; // August is month 7 (0-indexed)
+        });
+        console.log('Found orders from August 8th:', august8Orders.length, august8Orders);
+        
+        // Use Vietnam timezone (UTC+7) for date calculations
+        const vietnamTime = new Date();
+        vietnamTime.setHours(vietnamTime.getHours() + 7); // Convert to Vietnam time
+        
+        const today = new Date(vietnamTime.getFullYear(), vietnamTime.getMonth(), vietnamTime.getDate());
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
         
-        const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+        const todayStart = today;
+        const yesterdayStart = yesterday;
         const yesterdayEnd = new Date(todayStart.getTime() - 1);
         
-        const todayOrders = recentOrders.filter(order => {
-          const orderDate = new Date(order.createdAt);
-          return orderDate >= todayStart && order.paymentStatus === 'paid';
+        console.log('Date range calculation:', {
+          vietnamTime: vietnamTime.toISOString(),
+          todayStart: todayStart.toISOString(),
+          yesterdayStart: yesterdayStart.toISOString(),
+          yesterdayEnd: yesterdayEnd.toISOString()
         });
         
-        const yesterdayOrders = recentOrders.filter(order => {
+        // Filter all orders for today (not just recent 5)
+        const todayOrders = ordersArray.filter((order: any) => {
+          if (!order.createdAt) return false;
           const orderDate = new Date(order.createdAt);
-          return orderDate >= yesterdayStart && orderDate <= yesterdayEnd && order.paymentStatus === 'paid';
+          const isToday = orderDate >= todayStart;
+          const isPaid = order.status === 'delivered' || order.paymentStatus === 'paid' || order.status === 'paid';
+          console.log('Order filter check:', {
+            orderCode: order.orderCode,
+            orderDate: orderDate.toISOString(),
+            todayStart: todayStart.toISOString(),
+            isToday,
+            status: order.status,
+            paymentStatus: order.paymentStatus,
+            isPaid
+          });
+          return isToday && isPaid;
         });
         
-        const todayRevenue = todayOrders.reduce((sum, order) => sum + (order.finalTotal || order.total || 0), 0);
-        const yesterdayRevenue = yesterdayOrders.reduce((sum, order) => sum + (order.finalTotal || order.total || 0), 0);
+        // Filter all orders for yesterday
+        const yesterdayOrders = ordersArray.filter((order: any) => {
+          if (!order.createdAt) return false;
+          const orderDate = new Date(order.createdAt);
+          const isYesterday = orderDate >= yesterdayStart && orderDate <= yesterdayEnd;
+          const isPaid = order.status === 'delivered' || order.paymentStatus === 'paid' || order.status === 'paid';
+          return isYesterday && isPaid;
+        });
         
-        const changePercent = yesterdayRevenue > 0 ? ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100 : 0;
+        // TEMPORARY: Use all paid orders as "today" for testing since no real today orders
+        const allPaidOrders = ordersArray.filter((order: any) => {
+          return order.paymentStatus === 'paid' || order.status === 'delivered' || order.status === 'paid';
+        });
+        
+        console.log('Orders analysis:', {
+          totalOrders: ordersArray.length,
+          todayOrders: todayOrders.length,
+          yesterdayOrders: yesterdayOrders.length,
+          allPaidOrders: allPaidOrders.length,
+          samplePaidOrder: allPaidOrders[0]
+        });
+        
+        // Calculate revenue using same logic as total revenue
+        const todayRevenue = todayOrders.reduce((sum: number, order: any) => {
+          const finalTotal = order.finalTotal || order.total || order.totalAmount || 0;
+          const parsedTotal = typeof finalTotal === 'string' ? parseFloat(finalTotal) : finalTotal;
+          return sum + (isNaN(parsedTotal) ? 0 : parsedTotal);
+        }, 0);
+        
+        const yesterdayRevenue = yesterdayOrders.reduce((sum: number, order: any) => {
+          const finalTotal = order.finalTotal || order.total || order.totalAmount || 0;
+          const parsedTotal = typeof finalTotal === 'string' ? parseFloat(finalTotal) : finalTotal;
+          return sum + (isNaN(parsedTotal) ? 0 : parsedTotal);
+        }, 0);
+        
+        // Improved change calculation logic for fallback
+        let changePercent = 0;
+        if (yesterdayRevenue > 0) {
+          changePercent = ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100;
+        } else if (todayRevenue > 0) {
+          // If today has revenue but yesterday doesn't, it's a new revenue situation
+          changePercent = 100; // Show as 100% increase
+        }
+        
+        console.log('Daily revenue calculation:', {
+          todayOrders: todayOrders.length,
+          yesterdayOrders: yesterdayOrders.length,
+          todayRevenue,
+          yesterdayRevenue,
+          changePercent
+        });
         
         setDailyRevenue({
           today: todayRevenue,
@@ -830,11 +980,260 @@ export default function AdminPage() {
           changePercent,
           todayOrders: todayOrders.length
         });
+      } else {
+        console.error('Failed to fetch orders for daily revenue calculation');
+        // Set default values if both APIs fail
+        setDailyRevenue({
+          today: 0,
+          yesterday: 0,
+          changePercent: 0,
+          todayOrders: 0
+        });
       }
     } catch (error) {
       console.error('Failed to load daily revenue:', error);
+      // Set default values if both APIs fail
+      setDailyRevenue({
+        today: 0,
+        yesterday: 0,
+        changePercent: 0,
+        todayOrders: 0
+      });
     } finally {
       setIsLoadingDailyRevenue(false);
+    }
+  };
+
+  // Function to load user growth data
+  const loadUserGrowth = async () => {
+    console.log('🔄 loadUserGrowth called');
+    setIsLoadingUserGrowth(true);
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    
+    try {
+      // Get user registration chart data for last 2 months
+      const response = await fetch(`${BASE_URL}/api/statistics/user-registration?months=2`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const chartData = await response.json();
+        console.log('User registration chart data:', chartData);
+        
+        if (chartData.success && chartData.data) {
+          const registrationData = chartData.data.data || [];
+          const labels = chartData.data.labels || [];
+          
+          console.log('Registration data:', { registrationData, labels });
+          
+          // Get current month and last month data
+          const currentMonth = new Date().getMonth() + 1; // 1-12
+          const currentYear = new Date().getFullYear();
+          const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+          const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+          
+          const currentMonthFormat = `${currentMonth}/${currentYear}`;
+          const lastMonthFormat = `${lastMonth}/${lastMonthYear}`;
+          
+          console.log('Looking for months:', { currentMonthFormat, lastMonthFormat });
+          
+          // Find data for current and last month
+          const currentMonthIndex = labels.findIndex((label: string) => label === currentMonthFormat);
+          const lastMonthIndex = labels.findIndex((label: string) => label === lastMonthFormat);
+          
+          const thisMonthUsers = currentMonthIndex !== -1 ? registrationData[currentMonthIndex] || 0 : 0;
+          const lastMonthUsers = lastMonthIndex !== -1 ? registrationData[lastMonthIndex] || 0 : 0;
+          
+          const changePercent = lastMonthUsers > 0 ? ((thisMonthUsers - lastMonthUsers) / lastMonthUsers) * 100 : 0;
+          
+          console.log('User growth calculation:', {
+            currentMonthIndex,
+            lastMonthIndex,
+            thisMonthUsers,
+            lastMonthUsers,
+            changePercent
+          });
+          
+          setUserGrowth({
+            thisMonth: thisMonthUsers,
+            lastMonth: lastMonthUsers,
+            changePercent
+          });
+        }
+      } else {
+        console.error('Failed to fetch user growth data');
+        setUserGrowth({
+          thisMonth: 0,
+          lastMonth: 0,
+          changePercent: 0
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load user growth:', error);
+      setUserGrowth({
+        thisMonth: 0,
+        lastMonth: 0,
+        changePercent: 0
+      });
+    } finally {
+      setIsLoadingUserGrowth(false);
+    }
+  };
+
+  // Function to load monthly revenue growth data
+  const loadMonthlyRevenueGrowth = async () => {
+    console.log('🔄 loadMonthlyRevenueGrowth called');
+    setIsLoadingMonthlyRevenue(true);
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    
+    try {
+      // Get revenue chart data for last 12 months to compare this month vs last month
+      const response = await fetch(`${BASE_URL}/api/statistics/revenue-chart?period=year`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const chartData = await response.json();
+        console.log('Monthly revenue chart data:', chartData);
+        
+        if (chartData.success && chartData.data) {
+          const revenueData = chartData.data.data || [];
+          const labels = chartData.data.labels || [];
+          
+          console.log('Monthly revenue data:', { revenueData, labels });
+          
+          // Get current month (August = month 8)
+          const currentMonth = new Date().getMonth() + 1; // 8
+          const previousMonth = currentMonth === 1 ? 12 : currentMonth - 1; // 7
+          const currentYear = new Date().getFullYear(); // 2025
+          const previousYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+          
+          // Find this month and last month data from labels (format: "M/YYYY")
+          const thisMonthLabel = `${currentMonth}/${currentYear}`; // "8/2025"
+          const lastMonthLabel = `${previousMonth}/${previousYear}`; // "7/2025"
+          
+          console.log('Looking for monthly labels:', { thisMonthLabel, lastMonthLabel });
+          
+          const thisMonthIndex = labels.findIndex((label: string) => label === thisMonthLabel);
+          const lastMonthIndex = labels.findIndex((label: string) => label === lastMonthLabel);
+          
+          const thisMonthRevenue = thisMonthIndex !== -1 ? revenueData[thisMonthIndex] : 0;
+          const lastMonthRevenue = lastMonthIndex !== -1 ? revenueData[lastMonthIndex] : 0;
+          
+          const changePercent = lastMonthRevenue > 0 ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 : 0;
+          
+          console.log('Monthly revenue growth:', {
+            thisMonthRevenue,
+            lastMonthRevenue,
+            changePercent,
+            thisMonthIndex,
+            lastMonthIndex
+          });
+          
+          setMonthlyRevenueGrowth({
+            thisMonth: thisMonthRevenue,
+            lastMonth: lastMonthRevenue,
+            changePercent
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load monthly revenue growth:', error);
+      setMonthlyRevenueGrowth({
+        thisMonth: 0,
+        lastMonth: 0,
+        changePercent: 0
+      });
+    } finally {
+      setIsLoadingMonthlyRevenue(false);
+    }
+  };
+
+  // Function to load monthly orders growth data
+  const loadMonthlyOrdersGrowth = async () => {
+    console.log('🔄 loadMonthlyOrdersGrowth called');
+    setIsLoadingMonthlyOrders(true);
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    
+    try {
+      // Fetch orders for this month and last month
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+      
+      // This month: August 1-31, 2025
+      const thisMonthStart = new Date(currentYear, currentMonth, 1);
+      const thisMonthEnd = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59);
+      
+      // Last month: July 1-31, 2025
+      const lastMonthStart = new Date(currentYear, currentMonth - 1, 1);
+      const lastMonthEnd = new Date(currentYear, currentMonth, 0, 23, 59, 59);
+      
+      console.log('Date ranges for orders:', {
+        thisMonth: { start: thisMonthStart, end: thisMonthEnd },
+        lastMonth: { start: lastMonthStart, end: lastMonthEnd }
+      });
+      
+      // Get all orders to filter by month
+      const response = await fetch(`${BASE_URL}/api/orders?limit=1000&page=1`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const ordersData = await response.json();
+        const orders = ordersData.data?.documents || ordersData.data || ordersData.orders || ordersData;
+        const ordersArray = Array.isArray(orders) ? orders : [];
+        
+        // Filter orders by month
+        const thisMonthOrders = ordersArray.filter((order: any) => {
+          const orderDate = new Date(order.createdAt);
+          return orderDate >= thisMonthStart && orderDate <= thisMonthEnd;
+        });
+        
+        const lastMonthOrders = ordersArray.filter((order: any) => {
+          const orderDate = new Date(order.createdAt);
+          return orderDate >= lastMonthStart && orderDate <= lastMonthEnd;
+        });
+        
+        const thisMonthCount = thisMonthOrders.length;
+        const lastMonthCount = lastMonthOrders.length;
+        const changePercent = lastMonthCount > 0 ? ((thisMonthCount - lastMonthCount) / lastMonthCount) * 100 : 0;
+        
+        console.log('Monthly orders growth:', {
+          thisMonthCount,
+          lastMonthCount,
+          changePercent,
+          thisMonthOrders: thisMonthOrders.slice(0, 3), // Sample
+          lastMonthOrders: lastMonthOrders.slice(0, 3)  // Sample
+        });
+        
+        setMonthlyOrdersGrowth({
+          thisMonth: thisMonthCount,
+          lastMonth: lastMonthCount,
+          changePercent
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load monthly orders growth:', error);
+      setMonthlyOrdersGrowth({
+        thisMonth: 0,
+        lastMonth: 0,
+        changePercent: 0
+      });
+    } finally {
+      setIsLoadingMonthlyOrders(false);
     }
   };
 
@@ -1130,54 +1529,25 @@ export default function AdminPage() {
             fontWeight: '500'
           }}>Chào mừng bạn đến với bảng điều khiển quản trị viên</p>
         </div>
-        <button 
-          onClick={refreshAllStats}
-          disabled={loading}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.875rem 1.75rem',
-            borderRadius: '1rem',
-            border: 'none',
-            background: loading 
-              ? 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)' 
-              : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            color: loading ? '#94a3b8' : 'white',
-            fontSize: '0.875rem',
-            fontWeight: '700',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            transition: 'all 0.3s',
-            boxShadow: loading ? 'none' : '0 8px 25px rgba(102, 126, 234, 0.4)',
-            transform: loading ? 'scale(0.98)' : 'scale(1)',
-            animation: loading ? 'pulse 2s infinite' : 'none'
-          }}
-        >
-          <span style={{ 
-            animation: loading ? 'spin 1s linear infinite' : 'none',
-            display: 'inline-block',
-            fontSize: '1.1rem'
-          }}>🔄</span>
-          {loading ? 'Đang cập nhật...' : 'Làm mới tất cả'}
-        </button>
       </div>
       
       {/* Stats Grid - Clean Component-Based Structure */}
       <section className={styles.statsGrid}>
         <StatCard
           title="Tổng Doanh Thu"
-          value={stats.earnings.toLocaleString('vi-VN')}
+          value={stats.earnings}
           icon="💰"
           variant="revenue"
           change={{
-            type: 'positive',
-            value: '+12% so với tháng trước',
-            icon: '↗'
+            type: monthlyRevenueGrowth.changePercent >= 0 ? 'positive' : 'negative',
+            value: isLoadingMonthlyRevenue 
+              ? 'Đang tải...' 
+              : monthlyRevenueGrowth.changePercent === 0 
+                ? 'Không thay đổi so với tháng trước'
+                : `${monthlyRevenueGrowth.changePercent >= 0 ? '+' : ''}${monthlyRevenueGrowth.changePercent.toFixed(1)}% so với tháng trước`,
+            icon: monthlyRevenueGrowth.changePercent >= 0 ? '↗' : '↘'
           }}
           note="*Tính từ tổng các đơn hàng đã thanh toán"
-          onRefresh={refreshRevenueData}
-          refreshLabel="Làm mới dữ liệu doanh thu"
-          loading={loading}
         />
 
         <StatCard
@@ -1187,13 +1557,16 @@ export default function AdminPage() {
           variant="daily-revenue"
           change={{
             type: dailyRevenue.changePercent >= 0 ? 'positive' : 'negative',
-            value: `${dailyRevenue.changePercent >= 0 ? '+' : ''}${dailyRevenue.changePercent.toFixed(1)}% so với hôm qua`,
+            value: isLoadingDailyRevenue
+              ? 'Đang tải...'
+              : dailyRevenue.yesterday === 0 && dailyRevenue.today > 0
+                ? 'Có doanh thu hôm nay'
+                : dailyRevenue.yesterday === 0 && dailyRevenue.today === 0
+                  ? 'Chưa có doanh thu'
+                  : `${dailyRevenue.changePercent >= 0 ? '+' : ''}${dailyRevenue.changePercent.toFixed(1)}% so với hôm qua`,
             icon: dailyRevenue.changePercent >= 0 ? '↗' : '↘'
           }}
           note={`*${dailyRevenue.todayOrders} đơn hàng hôm nay`}
-          onRefresh={loadDailyRevenue}
-          refreshLabel="Làm mới doanh thu ngày"
-          loading={isLoadingDailyRevenue}
         />
 
         <StatCard
@@ -1202,9 +1575,13 @@ export default function AdminPage() {
           icon="📦"
           variant="orders"
           change={{
-            type: 'positive',
-            value: '+8% so với tháng trước',
-            icon: '↗'
+            type: monthlyOrdersGrowth.changePercent >= 0 ? 'positive' : 'negative',
+            value: isLoadingMonthlyOrders 
+              ? 'Đang tải...' 
+              : monthlyOrdersGrowth.changePercent === 0 
+                ? 'Không thay đổi so với tháng trước'
+                : `${monthlyOrdersGrowth.changePercent >= 0 ? '+' : ''}${monthlyOrdersGrowth.changePercent.toFixed(1)}% so với tháng trước`,
+            icon: monthlyOrdersGrowth.changePercent >= 0 ? '↗' : '↘'
           }}
         />
 
@@ -1214,15 +1591,23 @@ export default function AdminPage() {
           icon="👤"
           variant="users"
           change={{
-            type: 'positive',
-            value: '+15% so với tháng trước',
-            icon: '↗'
+            type: userGrowth.changePercent >= 0 ? 'positive' : 'negative',
+            value: isLoadingUserGrowth 
+              ? 'Đang tải...' 
+              : userGrowth.lastMonth === 0 && userGrowth.thisMonth > 0
+                ? `${userGrowth.thisMonth} người mới tháng này`
+                : userGrowth.lastMonth === 0 && userGrowth.thisMonth === 0
+                  ? 'Chưa có người dùng mới'
+                  : userGrowth.changePercent === 0 
+                    ? 'Không thay đổi so với tháng trước'
+                    : `${userGrowth.changePercent >= 0 ? '+' : ''}${Math.abs(userGrowth.changePercent).toFixed(1)}% so với tháng trước`,
+            icon: userGrowth.changePercent >= 0 ? '↗' : '↘'
           }}
         />
 
         <StatCard
           title="Sản phẩm sắp hết hàng"
-          value={stats.lowStock || 0}
+          value={stats.lowStock}
           icon="⚠️"
           variant="lowStock"
           change={{
@@ -1530,7 +1915,7 @@ export default function AdminPage() {
                       
                       {/* Order Total */}
                       <div className={styles.orderAmount}>
-                        💰 {(order.finalTotal || order.total).toLocaleString('vi-VN')}₫
+                        {(order.finalTotal || order.total).toLocaleString('vi-VN')}₫
                       </div>
                       
                       {/* Current Status */}
@@ -1539,8 +1924,7 @@ export default function AdminPage() {
                       </div>
                       
                       {/* Payment Status */}
-                      <div className={`${styles.paymentStatus} ${styles[(order.paymentStatus || 'pending')] || ''}`} 
-                           style={{ backgroundColor: getPaymentStatusColor(order.paymentStatus || 'pending') }}>
+                      <div className={`${styles.paymentStatus} ${styles[(order.paymentStatus || 'pending')] || ''}`}>
                         {getPaymentStatusLabel(order.paymentStatus || 'pending')}
                       </div>
                       
@@ -1569,11 +1953,20 @@ export default function AdminPage() {
                           }
                         }}
                       >
-                        <option value="pending">🕐 Chờ xử lý</option>
-                        <option value="processing">⚙️ Đang xử lý</option>
-                        <option value="shipped">🚚 Đã gửi hàng</option>
-                        <option value="delivered">📦 Đã giao hàng</option>
-                        <option value="cancelled">❌ Đã hủy</option>
+                        {getValidStatusOptions(order.status).map((status: string) => {
+                          const statusLabels: { [key: string]: string } = {
+                            'pending': '🕐 Chờ xử lý',
+                            'processing': '⚙️ Đang xử lý',
+                            'shipped': '🚚 Đã gửi hàng',
+                            'delivered': '📦 Đã giao hàng',
+                            'cancelled': '❌ Đã hủy'
+                          };
+                          return (
+                            <option key={status} value={status}>
+                              {statusLabels[status] || status}
+                            </option>
+                          );
+                        })}
                       </select>
                       
                       {/* Payment Status Selector */}

@@ -288,6 +288,25 @@
   background: #f3f4f6;
   padding: 4px 8px;
   border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  /* Remove default button styles */
+  border: none;
+  font-family: inherit;
+  outline: none;
+}
+
+.variantItem:hover {
+  background: #e5e7eb;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.variantItem:focus {
+  outline: 2px solid #1e40af;
+  outline-offset: 2px;
 }
 
 .priceInfo {

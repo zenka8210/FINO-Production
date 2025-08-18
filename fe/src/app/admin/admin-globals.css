@@ -29,8 +29,8 @@ body:has(.adminContainer) > *:not(:has(.adminContainer)) {
   display: none !important;
 }
 
-/* Global CSS Variables */
-:root {
+/* Global CSS Variables - Comment out :root for CSS Modules compatibility */
+/* :root {
   --admin-primary: #1E40AF;
   --admin-secondary: #F1F5F9;
   --admin-accent: #F59E0B;
@@ -46,7 +46,7 @@ body:has(.adminContainer) > *:not(:has(.adminContainer)) {
   --admin-shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
   --admin-font-heading: 'Poppins', sans-serif;
   --admin-font-body: 'Inter', sans-serif;
-}
+} */
 
 /* Global box-sizing for admin pages */
 body:has(.adminContainer) * {

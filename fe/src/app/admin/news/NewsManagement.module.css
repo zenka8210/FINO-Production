@@ -1,7 +1,8 @@
 /* NEWS MANAGEMENT CSS - Complete professional styling */
 /* Following UI-UX-DESIGN-PATTERNS.md specifications */
 
-:root {
+/* CSS Variables commented out for CSS Modules compatibility */
+/* :root {
   --primary: #1E40AF;
   --secondary: #F1F5F9;
   --accent: #F59E0B;
@@ -17,7 +18,7 @@
   --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
   --font-heading: 'Poppins', sans-serif;
   --font-body: 'Inter', sans-serif;
-}
+} */
 
 /* ============= MAIN CONTAINER ============= */
 .newsContainer {

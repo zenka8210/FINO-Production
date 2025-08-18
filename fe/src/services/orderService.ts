@@ -194,36 +194,6 @@ export class OrderService {
   }
 
   /**
-   * Get order by orderCode (for VNPay callbacks)
-   * GET /api/orders/code/:orderCode
-   */
-  async getOrderByCode(orderCode: string): Promise<OrderWithRefs> {
-    try {
-      console.log('🔄 OrderService: Fetching order by orderCode:', orderCode);
-      const response = await apiClient.get<any>(`/api/orders/code/${orderCode}`);
-      console.log('📦 OrderService: Raw response:', response);
-      
-      // Check if response has the expected wrapper format
-      if (response.data?.success && response.data?.data) {
-        console.log('🎯 OrderService: Using wrapped format, returning:', response.data.data);
-        return response.data.data;
-      }
-      
-      // Check if response is direct order data (has _id and orderCode)
-      if (response.data?._id && response.data?.orderCode) {
-        console.log('🎯 OrderService: Using direct format, returning:', response.data);
-        return response.data;
-      }
-      
-      console.error('❌ OrderService: Unexpected response format:', response.data);
-      throw new Error('Invalid response format - no recognizable order data');
-    } catch (error: any) {
-      console.error('❌ OrderService: Error fetching order by orderCode:', error);
-      throw new Error(error.response?.data?.message || 'Failed to fetch order details');
-    }
-  }
-
-  /**
    * Cancel order (user can only cancel their own orders)
    * PUT /api/orders/:id/cancel
    */

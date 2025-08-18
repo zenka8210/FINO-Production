@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
@@ -9,6 +9,7 @@ import styles from './AdminHeader.module.css';
 
 export default function AdminHeader() {
   const { user, logout } = useAuth();
+  const [mounted, setMounted] = useState(false);
   const { 
     userMenuOpen, 
     mobileMenuOpen, 
@@ -20,6 +21,11 @@ export default function AdminHeader() {
   const router = useRouter();
   const pathname = usePathname();
   const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -41,7 +47,7 @@ export default function AdminHeader() {
   const handleLogout = () => {
     logout();
     setUserMenuOpen(false);
-    router.push('/auth/login');
+    router.push('/login');
   };
 
   // Admin navigation links
@@ -127,10 +133,12 @@ export default function AdminHeader() {
                 )}
               </>
             ) : (
-              <Link href="/auth/login" className={styles.loginButton}>
-                <i className="fas fa-sign-in-alt"></i>
-                Đăng nhập
-              </Link>
+              mounted && (
+                <Link href="/login" className={styles.loginButton}>
+                  <i className="fas fa-sign-in-alt"></i>
+                  Đăng nhập
+                </Link>
+              )
             )}
           </div>
 

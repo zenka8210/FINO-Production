@@ -380,6 +380,42 @@ export function CartProvider({ children }: CartProviderProps) {
     }
   };
 
+  const changeVariant = async (oldProductVariantId: string, newProductVariantId: string, quantity: number): Promise<void> => {
+    if (!state.cart) {
+      console.log('No cart found, attempting to load cart first...');
+      await loadCart();
+      if (!state.cart) {
+        throw new Error('Cart not found');
+      }
+    }
+
+    try {
+      dispatch({ type: 'CART_LOADING' });
+      
+      console.log('🔄 Calling backend cartService.changeCartItemVariant...');
+      const updatedCart = await cartService.changeCartItemVariant(oldProductVariantId, newProductVariantId, quantity);
+      console.log('✅ Backend changeVariant completed successfully');
+      
+      dispatch({ type: 'CART_SUCCESS', payload: updatedCart });
+      showSuccess('Đã thay đổi phiên bản sản phẩm');
+      
+    } catch (error: any) {
+      console.error('CartContext: changeVariant failed', error);
+      
+      dispatch({ type: 'CART_ERROR', payload: error.message });
+      showError('Không thể thay đổi phiên bản sản phẩm', error.message);
+      
+      // Reload cart on error to ensure consistency
+      try {
+        await loadCart();
+      } catch (loadError) {
+        console.error('Failed to reload cart after changeVariant error:', loadError);
+      }
+      
+      throw error;
+    }
+  };
+
   const clearCart = async (customMessage?: string): Promise<void> => {
     console.log('🔍 clearCart called with message:', customMessage);
     try {
@@ -460,6 +496,7 @@ export function CartProvider({ children }: CartProviderProps) {
     addMultipleToCart,
     updateCartItem,
     removeFromCart,
+    changeVariant,
     clearCart,
     loadCart,
     getCartTotal,

@@ -4,12 +4,14 @@ import { useState, useEffect, useMemo, memo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useCart, useApiNotification } from '@/hooks';
 import { Button, PageHeader, LoadingSpinner, Pagination } from '@/app/components/ui';
-import { FaShoppingCart, FaTrash, FaPlus, FaMinus, FaCreditCard, FaTag, FaGift } from 'react-icons/fa';
+import { FaShoppingCart, FaTrash, FaPlus, FaMinus, FaCreditCard, FaTag, FaGift, FaMapMarkerAlt } from 'react-icons/fa';
 import { formatCurrency } from '@/lib/utils';
 import { addressService, voucherService } from '@/services';
 import { CartWithRefs, Address, Voucher } from '@/types';
 import Image from 'next/image';
 import Link from 'next/link';
+import AddAddressModal from '@/app/components/AddAddressModal';
+import VariantSelectionModal from '@/app/components/VariantSelectionModal';
 import styles from './CartPage.module.css';
 
 // Sort options for cart items
@@ -32,7 +34,8 @@ export default function CartPage() {
     getCartTotal,
     isEmpty,
     hasItems,
-    itemsCount
+    itemsCount,
+    changeVariant
   } = useCart();
   const { showSuccess, showError, handleApiResponse } = useApiNotification();
   
@@ -41,12 +44,15 @@ export default function CartPage() {
   const [sortBy, setSortBy] = useState('price-asc'); // Keep only basic sorting
   const [hasDefaultAddress, setHasDefaultAddress] = useState<boolean | null>(null);
   const [hasReloadedOnce, setHasReloadedOnce] = useState(false);
+  const [showAddAddressModal, setShowAddAddressModal] = useState(false);
   const [voucherSuggestion, setVoucherSuggestion] = useState<{
     voucher: Voucher | null;
     discountAmount: number;
     savings: string;
   } | null>(null);
   const [loadingVoucher, setLoadingVoucher] = useState(false);
+  const [showVariantModal, setShowVariantModal] = useState(false);
+  const [selectedVariantForChange, setSelectedVariantForChange] = useState<any>(null);
   
   const itemsPerPage = 10;
 
@@ -248,6 +254,44 @@ export default function CartPage() {
     }
   }, [removeFromCart]);
 
+  // Handle variant change
+  const handleVariantChange = useCallback((item: CartWithRefs['items'][0]) => {
+    setSelectedVariantForChange(item);
+    setShowVariantModal(true);
+  }, []);
+
+  // Handle variant change confirmation
+  const handleVariantChangeConfirm = useCallback(async (newVariantId: string) => {
+    if (!selectedVariantForChange) return;
+    
+    console.log('🔄 handleVariantChangeConfirm called with:', {
+      newVariantId,
+      selectedVariantForChange: {
+        productVariantId: selectedVariantForChange.productVariant._id,
+        quantity: selectedVariantForChange.quantity,
+        productId: selectedVariantForChange.productVariant.product._id
+      }
+    });
+    
+    try {
+      await changeVariant(
+        selectedVariantForChange.productVariant._id,
+        newVariantId,
+        selectedVariantForChange.quantity
+      );
+      setShowVariantModal(false);
+      setSelectedVariantForChange(null);
+    } catch (error) {
+      console.error('Error changing variant:', error);
+    }
+  }, [selectedVariantForChange, changeVariant]);
+
+  // Close variant modal
+  const handleCloseVariantModal = useCallback(() => {
+    setShowVariantModal(false);
+    setSelectedVariantForChange(null);
+  }, []);
+
   // Handle clear cart - Memoized to prevent unnecessary re-renders
   const handleClearCart = useCallback(async () => {
     if (window.confirm('Bạn có chắc chắn muốn xóa tất cả sản phẩm khỏi giỏ hàng?')) {
@@ -262,9 +306,8 @@ export default function CartPage() {
   // Handle checkout button click
   const handleCheckoutClick = useCallback(() => {
     if (hasDefaultAddress === false) {
-      showError('Vui lòng thiết lập địa chỉ mặc định để có thể thanh toán', 
-        'Bạn có thể thiết lập địa chỉ trong trang hồ sơ cá nhân');
-      router.push('/profile?section=addresses');
+      // Show add address modal instead of redirecting
+      setShowAddAddressModal(true);
       return;
     }
     
@@ -275,6 +318,24 @@ export default function CartPage() {
     
     router.push('/checkout');
   }, [hasDefaultAddress, showError, router]);
+
+  // Handle successful address addition
+  const handleAddAddressSuccess = useCallback((newAddress: Address) => {
+    // Update hasDefaultAddress state if the new address is set as default
+    if (newAddress.isDefault) {
+      setHasDefaultAddress(true);
+    }
+    
+    // Close modal and proceed to checkout if this was a default address
+    setShowAddAddressModal(false);
+    
+    if (newAddress.isDefault) {
+      // Small delay to ensure state is updated
+      setTimeout(() => {
+        router.push('/checkout');
+      }, 100);
+    }
+  }, [router]);
 
   // Loading state
   if (authLoading || cartLoading) {
@@ -366,13 +427,13 @@ export default function CartPage() {
                 <Button
                   onClick={handleCheckoutClick}
                   className={`${styles.checkoutButton} ${voucherSuggestion && hasDefaultAddress !== false ? styles.checkoutButtonWithVoucher : ''}`}
-                  disabled={hasDefaultAddress === false || loadingVoucher}
+                  disabled={loadingVoucher}
                 >
-                  <FaCreditCard />
+                  {hasDefaultAddress === false ? <FaMapMarkerAlt /> : <FaCreditCard />}
                   {loadingVoucher ? 
                     'Đang tải...' :
                     hasDefaultAddress === false ? 
-                      'Thiết lập địa chỉ' : 
+                      'Thêm địa chỉ giao hàng' : 
                       voucherSuggestion ?
                         `Thanh toán (${formatCurrency(subtotal - voucherSuggestion.discountAmount)})` :
                         `Thanh toán (${formatCurrency(subtotal)})`
@@ -423,6 +484,7 @@ export default function CartPage() {
                       item={item}
                       onQuantityChange={handleQuantityChange}
                       onRemove={handleRemoveItem}
+                      onVariantChange={handleVariantChange}
                     />
                   );
                 }).filter(Boolean)}
@@ -455,6 +517,24 @@ export default function CartPage() {
           </div>
         </div>
       </div>
+
+      {/* Add Address Modal */}
+      <AddAddressModal
+        isOpen={showAddAddressModal}
+        onClose={() => setShowAddAddressModal(false)}
+        onAddSuccess={handleAddAddressSuccess}
+      />
+
+      {/* Variant Selection Modal */}
+      {selectedVariantForChange && (
+        <VariantSelectionModal
+          isOpen={showVariantModal}
+          onClose={handleCloseVariantModal}
+          productId={selectedVariantForChange.productVariant.product._id}
+          currentVariant={selectedVariantForChange.productVariant}
+          onVariantChange={handleVariantChangeConfirm}
+        />
+      )}
     </div>
   );
 }
@@ -464,9 +544,10 @@ interface CartItemCardProps {
   item: CartWithRefs['items'][0];
   onQuantityChange: (productVariantId: string, newQuantity: number) => void;
   onRemove: (productVariantId: string) => void;
+  onVariantChange: (item: CartWithRefs['items'][0]) => void;
 }
 
-const CartItemCard = memo(function CartItemCard({ item, onQuantityChange, onRemove }: CartItemCardProps) {
+const CartItemCard = memo(function CartItemCard({ item, onQuantityChange, onRemove, onVariantChange }: CartItemCardProps) {
   const { productVariant, quantity } = item;
   
   // Add null checks for productVariant and its nested properties
@@ -517,13 +598,31 @@ const CartItemCard = memo(function CartItemCard({ item, onQuantityChange, onRemo
           <h4 className={styles.productName}>{product.name}</h4>
         </Link>
         <div className={styles.variantInfo}>
-          {color && <span className={styles.variantItem}>Màu: {color.name}</span>}
-          {size && <span className={styles.variantItem}>Size: {size.name}</span>}
+          {color && (
+            <button 
+              className={styles.variantItem}
+              onClick={() => onVariantChange(item)}
+              type="button"
+              title="Click để thay đổi màu sắc"
+            >
+              Màu: {color.name}
+            </button>
+          )}
+          {size && (
+            <button 
+              className={styles.variantItem}
+              onClick={() => onVariantChange(item)}
+              type="button"
+              title="Click để thay đổi kích thước"
+            >
+              Size: {size.name}
+            </button>
+          )}
         </div>
         <div className={styles.priceInfo}>
           <span className={styles.currentPrice}>{formatCurrency(currentPrice)}</span>
           {isOnSale && (
-            <span className={styles.originalPrice}>{formatCurrency(price)}</span>
+            <span className={styles.originalPrice}>{formatCurrency(product.price)}</span>
           )}
         </div>
       </div>
@@ -572,15 +671,6 @@ const CartItemCard = memo(function CartItemCard({ item, onQuantityChange, onRemo
 
       {/* Action Buttons */}
       <div className={styles.itemActions}>
-        {/* Edit Variants Button */}
-        <Link 
-          href={`/products/${product._id}?variant=${productVariant._id}`}
-          className={styles.editVariantButton}
-          title="Sửa đổi kích thước/màu sắc"
-        >
-          ⚙️
-        </Link>
-        
         {/* Remove Button */}
         <button
           type="button"

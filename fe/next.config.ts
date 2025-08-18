@@ -1,8 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Production optimizations
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['react-icons', 'chart.js'],
+  },
+  
+  // Image optimization
   images: {
-    // Allow images from any domain (for development - consider restricting in production)
-    unoptimized: true,
+    // Disable unoptimized for better performance in production
+    unoptimized: process.env.NODE_ENV === 'development',
+    
     remotePatterns: [
       {
         protocol: 'https',
@@ -42,7 +50,22 @@ const nextConfig = {
         hostname: 'localhost',
       }
     ],
+    // Add image formats for optimization
+    formats: ['image/webp', 'image/avif'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  },
+  
+  // Compression and optimization
+  compress: true,
+  poweredByHeader: false,
+  
+  // Environment-specific settings
+  env: {
+    CUSTOM_KEY: process.env.NODE_ENV,
   },
 };
+
+module.exports = nextConfig;
 
 module.exports = nextConfig;

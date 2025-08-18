@@ -88,8 +88,18 @@ class CategoryController extends BaseController {
     deleteCategory = async (req, res, next) => {
         try {
             const { id } = req.params;
-            await this.service.deleteCategory(id);
-            ResponseHandler.success(res, 'Xóa danh mục thành công');
+            const result = await this.service.deleteCategory(id);
+            ResponseHandler.success(res, 'Vô hiệu hóa danh mục thành công. Danh mục đã bị ẩn khỏi hệ thống.', result);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    permanentDeleteCategory = async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const result = await this.service.permanentDeleteCategory(id);
+            ResponseHandler.success(res, 'Xóa vĩnh viễn danh mục thành công. Danh mục đã bị xóa khỏi database.', result);
         } catch (error) {
             next(error);
         }

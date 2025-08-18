@@ -178,6 +178,23 @@ export default function AdminNewsPage() {
     }
   };
 
+  const handleToggleVisibility = async (postId: string, currentStatus: boolean) => {
+    const newStatus = !currentStatus;
+    const action = newStatus ? 'hiện' : 'ẩn';
+    
+    if (!confirm(`Bạn có chắc chắn muốn ${action} bài viết này?`)) return;
+    
+    try {
+      await updatePost(postId, { isPublished: newStatus });
+      showSuccess(`${action.charAt(0).toUpperCase() + action.slice(1)} bài viết thành công`);
+      loadPostsData();
+      loadStatistics();
+    } catch (err: any) {
+      console.error('Error toggling post visibility:', err);
+      showError(`Không thể ${action} bài viết`);
+    }
+  };
+
   const handleSubmitForm = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -405,6 +422,13 @@ export default function AdminNewsPage() {
                                   title="Chỉnh sửa"
                                 >
                                   ✏️
+                                </button>
+                                <button
+                                  onClick={() => handleToggleVisibility(post._id, post.isPublished)}
+                                  className={`${styles.actionButton} ${styles.toggleButton}`}
+                                  title={post.isPublished ? "Ẩn bài viết" : "Hiện bài viết"}
+                                >
+                                  {post.isPublished ? "👁️‍🗨️" : "👁️"}
                                 </button>
                                 <button
                                   onClick={() => handleDeletePost(post._id)}

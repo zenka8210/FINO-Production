@@ -93,7 +93,7 @@ export default function RelatedProducts({ currentId, category, limit = 12 }: Rel
         {/* Header */}
         <div className={styles.header}>
           <h3 className={styles.title}>
-            Bạn có thể thích
+            Sản phẩm cùng loại
           </h3>
           <p className={styles.subtitle}>
             Khám phá những sản phẩm tương tự dành cho bạn
@@ -130,6 +130,7 @@ export default function RelatedProducts({ currentId, category, limit = 12 }: Rel
                         <ProductItem
                           product={product}
                           layout="grid"
+                          variant="related" // Add related variant
                           showQuickActions={true}
                           showDescription={false}
                           className={styles.relatedProductItem}

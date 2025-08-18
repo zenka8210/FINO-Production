@@ -611,6 +611,28 @@ class PersonalizationService extends BaseService {
       }
 
       console.log('✅ Top selling products fetched:', uniqueProducts.length);
+      
+      // If we don't have enough products from top selling, fill with newest products
+      if (uniqueProducts.length < limit) {
+        console.log(`⚠️ Not enough top selling products (${uniqueProducts.length}/${limit}), filling with newest...`);
+        
+        const existingProductIds = uniqueProducts.map(p => p._id.toString());
+        const allExcludeIds = [...excludeIds.map(id => id.toString()), ...existingProductIds];
+        
+        const newestProducts = await Product.find({
+          isActive: true,
+          _id: { $nin: allExcludeIds }
+        })
+        .populate('category', 'name parent')
+        .sort({ createdAt: -1 })
+        .limit(limit - uniqueProducts.length)
+        .lean();
+        
+        console.log('📦 Added newest products:', newestProducts.length);
+        uniqueProducts.push(...newestProducts);
+      }
+      
+      console.log('✅ Final products count:', uniqueProducts.length);
       return uniqueProducts;
 
     } catch (error) {

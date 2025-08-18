@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 
-export default function VNPayCallbackPage() {
+function VNPayCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -23,5 +23,13 @@ export default function VNPayCallbackPage() {
         <p className="text-gray-600 text-sm">Đang chuyển hướng...</p>
       </div>
     </div>
+  );
+}
+
+export default function VNPayCallbackPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VNPayCallbackContent />
+    </Suspense>
   );
 }

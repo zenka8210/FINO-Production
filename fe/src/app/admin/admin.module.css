@@ -1,31 +1,10 @@
 /* ===================== ADMIN DASHBOARD CSS - BẢN TỐI ƯU CHO BÁO CÁO ===================== */
 
-:root {
-  --primary: #6c47ff;
-  --secondary: #f3f4f6;
-  --accent: #ffb300;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #dc2626;
-  --bg: #f8f9fb;
-  --card: #fff;
-  --border: #e5e7eb;
-  --text: #22223b;
-  --muted: #9ca3af;
-  --shadow: 0 2px 8px rgba(108, 71, 255, 0.08);
-  --shadow-lg: 0 10px 24px rgba(108, 71, 255, 0.12);
-  --font-heading: 'Poppins', sans-serif;
-  --font-body: 'Inter', sans-serif;
-  
-  /* Stats Grid Colors */
-  --revenue-primary: #10b981;
-  --revenue-secondary: #059669;
-  --orders-primary: #3b82f6;
-  --orders-secondary: #1d4ed8;
-  --users-primary: #8b5cf6;
-  --users-secondary: #7c3aed;
-  --low-stock-primary: #dc2626;
-  --low-stock-secondary: #b91c1c;
+/* Admin Container */
+.adminContainer {
+  min-height: 100vh;
+  background: var(--admin-bg);
+  font-family: var(--font-body);
 }
 
 /* ===================== STATS GRID COMPONENTS ===================== */
@@ -36,6 +15,8 @@
   gap: 1rem;
   margin-bottom: 2rem;
   padding: 0 1rem;
+  width: 100%;
+  overflow: visible;
 }
 
 .statCard {
@@ -44,10 +25,15 @@
   border-radius: 1.5rem;
   padding: 2rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06), 0 4px 10px rgba(0, 0, 0, 0.03);
-  backdrop-filter: blur(20px);
+  /* backdrop-filter: blur(20px); */
   transition: all 0.3s ease;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .statCard:hover {
@@ -70,71 +56,52 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .statCardTitle {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin: 0;
-}
-
-.statCardActions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.statCardRefreshButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.1rem;
-  padding: 0.5rem;
-  border-radius: 0.75rem;
-  color: var(--muted);
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.statCardRefreshButton:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--text);
-  transform: rotate(180deg);
-}
-
-.statCardIcon {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.5rem;
-  background: var(--card-gradient, linear-gradient(135deg, var(--primary) 0%, var(--primary) 100%));
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  flex: 1;
 }
 
 .statCardValue {
-  font-size: 2.5rem;
+  font-size: 2.75rem;
   font-weight: 900;
   color: var(--text);
-  margin-bottom: 1rem;
-  line-height: 1;
+  margin-bottom: 0.75rem;
+  line-height: 1.1;
   font-family: var(--font-heading);
+  white-space: nowrap;
+  display: flex;
+  align-items: baseline;
+  min-height: 3rem;
+  cursor: help;
+  /* Remove text-overflow ellipsis to show formatted text */
+}
+
+.valueNumber {
+  flex-shrink: 0;
+  overflow: visible;
+  white-space: nowrap;
+  min-width: fit-content;
+}
+
+.valueUnit {
+  font-size: 0.7em;
+  margin-left: 0.2rem;
+  opacity: 0.8;
+  flex-shrink: 0;
 }
 
 .statCardChange {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   font-weight: 600;
   padding: 0.75rem 1rem;
   border-radius: 0.75rem;
@@ -158,11 +125,6 @@
   color: var(--muted);
   background: rgba(100, 116, 139, 0.1);
   border: 1px solid rgba(100, 116, 139, 0.2);
-}
-
-.statCardChangeIcon {
-  font-size: 1rem;
-  font-weight: bold;
 }
 
 .statCardNote {
@@ -256,15 +218,9 @@
   .statCardValue {
     font-size: 2rem;
   }
-  
-  .statCardIcon {
-    width: 2.5rem;
-    height: 2.5rem;
-    font-size: 1.25rem;
-  }
 }
 
-body {
+.adminBody {
   font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
@@ -673,7 +629,7 @@ body {
   padding: 2.5rem;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04);
   margin-bottom: 2rem;
-  backdrop-filter: blur(20px);
+  /* backdrop-filter: blur(20px); */
 }
 
 .chartHeader {
@@ -1043,29 +999,37 @@ body {
 .paymentStatus {
   padding: 0.6rem 1rem;
   border-radius: 0.75rem;
-  color: white;
   font-size: 0.85rem;
   font-weight: 600;
   text-align: center;
   min-width: 120px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s;
+  border: 2px solid transparent;
 }
 
 .paymentStatus.pending {
-  background-color: #f59e0b;
+  background: rgba(251, 191, 36, 0.1);
+  color: #d97706;
+  border-color: rgba(251, 191, 36, 0.3);
 }
 
 .paymentStatus.paid {
-  background-color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
 .paymentStatus.failed {
-  background-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 .paymentStatus.cancelled {
-  background-color: #6b7280;
+  background: rgba(107, 114, 128, 0.1);
+  color: #4b5563;
+  border-color: rgba(107, 114, 128, 0.3);
 }
 
 .paymentStatusSelect {
@@ -1168,7 +1132,7 @@ body {
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
+  /* backdrop-filter: blur(10px); */
 }
 
 .orderActionButton:hover {
@@ -1335,25 +1299,25 @@ body {
 
 .paymentStatus.pending {
   background: rgba(251, 191, 36, 0.1);
-  color: #d97706;
+  color: #d97706 !important;
   border-color: rgba(251, 191, 36, 0.3);
 }
 
 .paymentStatus.paid {
-  background: rgba(16, 185, 129, 1);
-  color: white;
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669 !important;
   border-color: rgba(16, 185, 129, 0.3);
 }
 
 .paymentStatus.failed {
   background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
+  color: #dc2626 !important;
   border-color: rgba(239, 68, 68, 0.3);
 }
 
 .paymentStatus.cancelled {
   background: rgba(107, 114, 128, 0.1);
-  color: #4b5563;
+  color: #4b5563 !important;
   border-color: rgba(107, 114, 128, 0.3);
 }
 
@@ -1821,5 +1785,31 @@ body {
   
   .statCard {
     padding: 1rem;
+    min-height: 140px;
+  }
+  
+  .statCardValue {
+    font-size: 2rem;
+    min-height: 2.5rem;
+  }
+}
+
+/* Extra responsive handling for very long numbers */
+@media (max-width: 480px) {
+  .statCardValue {
+    font-size: 1.75rem;
+    min-height: 2.2rem;
+  }
+}
+
+/* Handle extremely long revenue numbers */
+@media (max-width: 360px) {
+  .statCardValue {
+    font-size: 1.5rem;
+    min-height: 2rem;
+  }
+  
+  .statCard {
+    min-height: 120px;
   }
 }

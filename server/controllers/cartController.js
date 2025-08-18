@@ -207,6 +207,45 @@ class CartController extends BaseController {
     }
   };
 
+  // PUT /api/cart/items/:productVariantId/variant - Change item variant
+  changeItemVariant = async (req, res, next) => {
+    try {
+      console.log('🔄 CHANGE CART ITEM VARIANT REQUEST:', {
+        oldProductVariantId: req.params.productVariantId,
+        newProductVariantId: req.body.newProductVariantId,
+        quantity: req.body.quantity,
+        userId: req.user._id
+      });
+      
+      const { productVariantId: oldProductVariantId } = req.params;
+      const { newProductVariantId, quantity } = req.body;
+      
+      if (!newProductVariantId) {
+        throw new AppError('New product variant ID is required', ERROR_CODES.BAD_REQUEST);
+      }
+      
+      if (!quantity || quantity < 1) {
+        throw new AppError('Valid quantity is required', ERROR_CODES.BAD_REQUEST);
+      }
+
+      const cart = await this.service.changeCartItemVariant(
+        req.user._id, 
+        oldProductVariantId, 
+        newProductVariantId, 
+        quantity
+      );
+      
+      console.log('✅ CHANGE CART ITEM VARIANT SUCCESS:', {
+        cartItemsCount: cart.items.length
+      });
+      
+      ResponseHandler.success(res, 'Cart item variant changed successfully', cart);
+    } catch (error) {
+      console.error('❌ CHANGE CART ITEM VARIANT ERROR:', error.message);
+      next(error);
+    }
+  };
+
   // DELETE /api/cart/items/:productVariantId - Remove item from cart
   removeItem = async (req, res, next) => {
     try {

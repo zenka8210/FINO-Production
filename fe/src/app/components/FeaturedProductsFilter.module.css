@@ -1,8 +1,8 @@
 /* FeaturedProductsFilter.module.css - Filter component cho section sản phẩm nổi bật */
 
 .filterContainer {
-  margin-bottom: 2rem;
-  padding: 0 0 1rem 0;
+  margin-bottom: 1.5rem;
+  padding: 0 0 0.75rem 0;
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -10,7 +10,7 @@
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .filterTab {
@@ -67,11 +67,6 @@
   cursor: not-allowed;
 }
 
-.filterIcon {
-  font-size: 1rem;
-  line-height: 1;
-}
-
 .filterLabel {
   font-weight: 500;
   white-space: nowrap;
@@ -113,19 +108,11 @@
     font-size: 0.8rem;
     min-width: auto;
   }
-  
-  .filterIcon {
-    font-size: 0.875rem;
-  }
-  
-  .filterLabel {
-    display: none; /* Hide text on mobile, show only icons */
-  }
 }
 
 @media (min-width: 480px) and (max-width: 768px) {
-  .filterLabel {
-    display: inline; /* Show text on larger mobile screens */
+  .filterTab {
+    padding: 0.6rem 1rem;
   }
 }
 
@@ -144,13 +131,9 @@
   animation: none;
 }
 
-.filterTab:not(.active):hover .filterIcon {
-  transform: scale(1.1);
+.filterTab:not(.active):hover .filterLabel {
+  transform: scale(1.02);
   transition: transform 0.2s ease;
-}
-
-.filterTab.active .filterIcon {
-  animation: pulse 2s infinite;
 }
 
 @keyframes pulse {

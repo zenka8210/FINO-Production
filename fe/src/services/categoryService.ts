@@ -189,7 +189,7 @@ export class CategoryService {
   }
 
   /**
-   * Delete category (Admin only)
+   * Delete category (Admin only) - Soft delete (sets isActive: false)
    * DELETE /api/categories/:id
    */
   async deleteCategory(id: string): Promise<ApiResponse<any>> {
@@ -197,6 +197,18 @@ export class CategoryService {
       return await apiClient.delete(`/api/categories/${id}`);
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to delete category');
+    }
+  }
+
+  /**
+   * Permanently delete category (Admin only) - Hard delete from database
+   * DELETE /api/categories/:id/permanent
+   */
+  async permanentlyDeleteCategory(id: string): Promise<ApiResponse<any>> {
+    try {
+      return await apiClient.delete(`/api/categories/${id}/permanent`);
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to permanently delete category');
     }
   }
 

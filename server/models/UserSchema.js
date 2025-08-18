@@ -2,8 +2,27 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const UserSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true, lowercase: true, 
-           match: [/^\S+@\S+\.\S+$/, 'Email không hợp lệ'] },
+  email: { 
+    type: String, 
+    required: true, 
+    unique: true, 
+    lowercase: true, 
+    match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Email không hợp lệ'],
+    validate: {
+      validator: function(email) {
+        // Additional validation for common domain typos
+        const commonDomainTypos = [
+          'gmai.com', 'gmal.com', 'gmial.com', 'gnail.com', 'gamil.com',
+          'yahho.com', 'yaho.com', 'hotmai.com', 'hotmial.com', 'hotmil.com',
+          'outlok.com', 'outloo.com'
+        ];
+        
+        const domain = email.split('@')[1]?.toLowerCase();
+        return !commonDomainTypos.includes(domain);
+      },
+      message: 'Email domain không hợp lệ. Vui lòng kiểm tra lại địa chỉ email.'
+    }
+  },
   password: { type: String, required: true, minlength: 8 }, 
   name: { type: String, maxlength: 60 },
   phone: { type: String, maxlength: 11 },

@@ -15,11 +15,11 @@ const { ERROR_CODES } = require('../config/constants');
  */
 class MoMoService {
   constructor() {
-    // MoMo configuration for sandbox
-    this.partnerCode = 'MOMO';
-    this.accessKey = 'F8BBA842ECF85';
-    this.secretKey = 'K951B6PE1waDMi640xX08PD3vg6EkVlz';
-    this.endpoint = 'https://test-payment.momo.vn/v2/gateway/api/create';
+    // MoMo configuration - Use environment variables with fallbacks
+    this.partnerCode = process.env.MOMO_PARTNER_CODE || 'MOMO';
+    this.accessKey = process.env.MOMO_ACCESS_KEY || 'F8BBA842ECF85';
+    this.secretKey = process.env.MOMO_SECRET_KEY || 'K951B6PE1waDMi640xX08PD3vg6EkVlz';
+    this.endpoint = process.env.MOMO_ENDPOINT || 'https://test-payment.momo.vn/v2/gateway/api/create';
     
     // Store callback URLs - FIX: Point return URL to backend for proper signature verification
     this.redirectUrl = `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/payment/momo/callback`;
@@ -29,7 +29,7 @@ class MoMoService {
       partnerCode: this.partnerCode,
       redirectUrl: this.redirectUrl,
       ipnUrl: this.ipnUrl,
-      environment: 'sandbox'
+      environment: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'
     });
   }
 
@@ -44,7 +44,7 @@ class MoMoService {
    */
   async createPaymentUrl(orderInfo) {
     try {
-      const { orderId, amount, orderDescription, clientIp } = orderInfo;
+      const { orderId, amount, orderDescription, clientIp, requestId } = orderInfo;
 
       // Validate input
       if (!orderId || !amount || !orderDescription) {
@@ -55,9 +55,11 @@ class MoMoService {
         throw new AppError('Amount must be greater than 0', ERROR_CODES.BAD_REQUEST);
       }
 
-      // Generate unique request ID and use actual order ID for MoMo
-      const requestId = orderId + '_' + new Date().getTime(); // Make requestId unique
+      // Use provided requestId or generate unique one
+      const uniqueRequestId = requestId || (orderId + '_' + Date.now());
       const momoOrderId = orderId; // Use actual order code from our system
+      
+      console.log('🔄 MoMo payment with unique requestId:', uniqueRequestId);
       
       // Prepare payment parameters according to MoMo documentation
       const requestType = "payWithMethod";
@@ -67,7 +69,7 @@ class MoMoService {
       const lang = 'vi';
 
       // Create raw signature string according to MoMo specification
-      const rawSignature = `accessKey=${this.accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${this.ipnUrl}&orderId=${momoOrderId}&orderInfo=${orderDescription}&partnerCode=${this.partnerCode}&redirectUrl=${this.redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
+      const rawSignature = `accessKey=${this.accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${this.ipnUrl}&orderId=${momoOrderId}&orderInfo=${orderDescription}&partnerCode=${this.partnerCode}&redirectUrl=${this.redirectUrl}&requestId=${uniqueRequestId}&requestType=${requestType}`;
 
       console.log('🔐 MoMo raw signature:', rawSignature);
 
@@ -84,7 +86,7 @@ class MoMoService {
         partnerCode: this.partnerCode,
         partnerName: "FINO Store",
         storeId: "FINO_STORE",
-        requestId: requestId,
+        requestId: uniqueRequestId, // Use the unique requestId
         amount: amount.toString(),
         orderId: momoOrderId,
         orderInfo: orderDescription,

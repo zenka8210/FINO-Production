@@ -15,25 +15,21 @@ const filterOptions = [
   {
     key: 'combined' as FeaturedFilterType,
     label: 'Tổng hợp',
-    icon: '⭐',
     description: 'Kết hợp tất cả tiêu chí'
   },
   {
     key: 'topRated' as FeaturedFilterType,
     label: 'Đánh giá cao',
-    icon: '🌟',
     description: 'Sản phẩm có điểm đánh giá cao nhất'
   },
   {
     key: 'mostWishlisted' as FeaturedFilterType,
     label: 'Yêu thích nhiều',
-    icon: '❤️',
     description: 'Được thêm vào wishlist nhiều nhất'
   },
   {
     key: 'bestSelling' as FeaturedFilterType,
     label: 'Bán chạy',
-    icon: '🔥',
     description: 'Sản phẩm bán được nhiều nhất'
   }
 ];
@@ -72,7 +68,6 @@ export default function FeaturedProductsFilter({
             aria-pressed={activeFilter === option.key}
             aria-label={`Filter by ${option.label}: ${option.description}`}
           >
-            <span className={styles.filterIcon}>{option.icon}</span>
             <span className={styles.filterLabel}>{option.label}</span>
             {loading && activeFilter === option.key && (
               <div className={styles.loadingSpinner}></div>

@@ -14,7 +14,7 @@ const ColorSchema = new mongoose.Schema({
       message: 'Tên màu sắc chỉ được chứa chữ cái, số, khoảng trắng và dấu gạch ngang'
     },
     minlength: [1, 'Tên màu sắc không được để trống'],
-    maxlength: [10, 'Tên màu sắc không được vượt quá 10 ký tự']
+    maxlength: [20, 'Tên màu sắc không được vượt quá 20 ký tự']
   },
   isActive: {
     type: Boolean,
