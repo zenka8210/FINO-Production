@@ -547,6 +547,21 @@
   margin: 0 0 0.5rem 0;
 }
 
+.deliveryPerson {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-primary, #1E40AF);
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.deliveryIcon {
+  font-size: 0.875rem;
+  color: var(--color-primary, #1E40AF);
+}
+
 .addressLine {
   font-size: 0.9375rem;
   color: var(--color-text-secondary, #6B7280);
