@@ -1476,26 +1476,40 @@ export default function AdminPage() {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '1.5rem',
-        animation: 'fadeIn 0.6s ease-out'
+        marginBottom: '2rem',
+        animation: 'fadeIn 0.6s ease-out',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        padding: '2rem',
+        borderRadius: '1.5rem',
+        color: 'white',
+        boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)'
       }}>
         <div>
           <h2 style={{
-            fontSize: '2rem',
-            fontWeight: '800',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            fontSize: '2.5rem',
+            fontWeight: '900',
             margin: 0,
-            marginBottom: '0.5rem'
-          }}>🚀 Dashboard Admin</h2>
+            marginBottom: '0.75rem',
+            textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}>🏆 FINO Admin Dashboard</h2>
           <p style={{
-            fontSize: '1rem',
-            color: '#64748b',
+            fontSize: '1.1rem',
             margin: 0,
-            fontWeight: '500'
-          }}>Chào mừng bạn đến với bảng điều khiển quản trị viên</p>
+            fontWeight: '400',
+            opacity: 0.9
+          }}>Quản lý hiệu quả - Phát triển bền vững</p>
+          <div style={{
+            fontSize: '0.9rem',
+            marginTop: '0.5rem',
+            opacity: 0.8
+          }}>
+            ⏰ Cập nhật lần cuối: {lastUpdateTime}
+          </div>
         </div>
+        <div style={{
+          fontSize: '4rem',
+          opacity: 0.3
+        }}>📊</div>
       </div>
       
       {/* Stats Grid - Clean Component-Based Structure */}
@@ -1590,28 +1604,62 @@ export default function AdminPage() {
           <div className={styles.chartsSection} style={{
             display: 'grid',
             gridTemplateColumns: '2fr 1fr',
-            gap: '1.5rem',
-            marginTop: '1rem'
+            gap: '2rem',
+            marginTop: '2rem'
           }}>
             <div className={styles.salesAnalysisCard} style={{
               background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
               border: '1px solid rgba(226, 232, 240, 0.8)',
-              borderRadius: '1.5rem',
-              padding: '1.5rem',
-              boxShadow: '0 10px 20px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.03)'
+              borderRadius: '2rem',
+              padding: '2rem',
+              boxShadow: '0 15px 35px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.03)',
+              position: 'relative',
+              overflow: 'hidden'
             }}>
+              {/* Background decoration */}
+              <div style={{
+                position: 'absolute',
+                top: '-50px',
+                right: '-50px',
+                width: '200px',
+                height: '200px',
+                background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
+                borderRadius: '50%',
+                filter: 'blur(20px)'
+              }}></div>
+              
               <div className={styles.chartHeader} style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: '1rem'
+                marginBottom: '1.5rem',
+                position: 'relative',
+                zIndex: 1
               }}>
-                <h3 className={styles.chartTitle}>Phân tích bán hàng</h3>
+                <h3 className={styles.chartTitle} style={{
+                  fontSize: '1.75rem',
+                  fontWeight: '800',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  margin: 0
+                }}>📈 Phân tích doanh thu</h3>
                 <div className={styles.chartFilters}>
                   <button 
                     className={`${styles.chartFilterButton} ${chartPeriod === '7' ? styles.active : ''}`}
                     onClick={() => handleChartPeriodChange('7')}
                     disabled={isLoadingChart}
+                    style={{
+                      padding: '0.6rem 1.2rem',
+                      borderRadius: '0.8rem',
+                      border: 'none',
+                      background: chartPeriod === '7' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                      color: chartPeriod === '7' ? 'white' : '#64748b',
+                      fontWeight: '600',
+                      fontSize: '0.9rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
                   >
                     7 ngày
                   </button>
@@ -1619,6 +1667,17 @@ export default function AdminPage() {
                     className={`${styles.chartFilterButton} ${chartPeriod === '30' ? styles.active : ''}`}
                     onClick={() => handleChartPeriodChange('30')}
                     disabled={isLoadingChart}
+                    style={{
+                      padding: '0.6rem 1.2rem',
+                      borderRadius: '0.8rem',
+                      border: 'none',
+                      background: chartPeriod === '30' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                      color: chartPeriod === '30' ? 'white' : '#64748b',
+                      fontWeight: '600',
+                      fontSize: '0.9rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
                   >
                     30 ngày
                   </button>
@@ -1626,6 +1685,17 @@ export default function AdminPage() {
                     className={`${styles.chartFilterButton} ${chartPeriod === '90' ? styles.active : ''}`}
                     onClick={() => handleChartPeriodChange('90')}
                     disabled={isLoadingChart}
+                    style={{
+                      padding: '0.6rem 1.2rem',
+                      borderRadius: '0.8rem',
+                      border: 'none',
+                      background: chartPeriod === '90' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                      color: chartPeriod === '90' ? 'white' : '#64748b',
+                      fontWeight: '600',
+                      fontSize: '0.9rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
                   >
                     90 ngày
                   </button>
@@ -1686,26 +1756,58 @@ export default function AdminPage() {
             <div className={styles.recentActivities} style={{
               background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
               border: '1px solid rgba(226, 232, 240, 0.8)',
-              borderRadius: '1.5rem',
-              padding: '1.5rem',
-              boxShadow: '0 10px 20px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.03)'
+              borderRadius: '2rem',
+              padding: '2rem',
+              boxShadow: '0 15px 35px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.03)',
+              position: 'relative',
+              overflow: 'hidden'
             }}>
+              {/* Background decoration */}
+              <div style={{
+                position: 'absolute',
+                top: '-30px',
+                left: '-30px',
+                width: '150px',
+                height: '150px',
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)',
+                borderRadius: '50%',
+                filter: 'blur(15px)'
+              }}></div>
+              
               <div className={styles.activitiesHeader} style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: '1rem'
+                marginBottom: '1.5rem',
+                position: 'relative',
+                zIndex: 1
               }}>
                 <h3 className={styles.activitiesTitle} style={{
                   fontSize: '1.5rem',
-                  fontWeight: '700',
-                  color: '#1e293b'
-                }}>Hoạt động gần đây</h3>
+                  fontWeight: '800',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  margin: 0
+                }}>🔔 Hoạt động gần đây</h3>
+                <div style={{
+                  padding: '0.5rem 1rem',
+                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)',
+                  borderRadius: '1rem',
+                  border: '1px solid rgba(16, 185, 129, 0.2)',
+                  fontSize: '0.8rem',
+                  fontWeight: '600',
+                  color: '#059669'
+                }}>
+                  Trực tiếp
+                </div>
               </div>
               <div className={styles.activitiesList} style={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '0.75rem'
+                gap: '1rem',
+                position: 'relative',
+                zIndex: 1
               }}>
                 {recentActivity.length > 0 ? (
                   recentActivity.map((activity, index) => (

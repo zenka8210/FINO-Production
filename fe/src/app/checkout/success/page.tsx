@@ -187,7 +187,7 @@ export default function CheckoutSuccessPage() {
                   ? 'Thanh toán khi nhận hàng' 
                   : orderDetails.paymentMethod?.method === 'VNPay'
                     ? 'VNPay (Thanh toán online)'
-                    : orderDetails.paymentMethod?.method === 'MoMo'
+                    : orderDetails.paymentMethod?.method === 'Momo'
                       ? 'MoMo (Thanh toán online)'
                       : orderDetails.paymentMethod?.method}
               </strong></span>
