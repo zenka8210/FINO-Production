@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, useCart } from '@/hooks';
 import { Button, PageHeader, LoadingSpinner } from '@/app/components/ui';
@@ -12,7 +12,7 @@ import { orderService } from '@/services/orderService';
 import { OrderWithRefs } from '@/types';
 import styles from './CheckoutSuccessPage.module.css';
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading: authLoading } = useAuth();
@@ -342,5 +342,20 @@ export default function CheckoutSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-2"></div>
+          <p className="text-gray-600 text-sm">Đang tải thông tin đơn hàng...</p>
+        </div>
+      </div>
+    }>
+      <CheckoutSuccessPageContent />
+    </Suspense>
   );
 }
