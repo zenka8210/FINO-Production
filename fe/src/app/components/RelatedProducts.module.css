@@ -72,7 +72,7 @@
 /* Specific styling for ProductItem in RelatedProducts */
 .relatedProductItem {
   height: 100%;
-  /* Any additional styling for ProductItem within RelatedProducts */
+  /* CSS override đã được move vào ProductItem variant */
 }
 
 @media (max-width: 768px) {

@@ -134,6 +134,7 @@ class ReviewService extends BaseService {
 
   // Check if user can review a product in a specific order
   async canUserReview(userId, productId, orderId = null) {
+    console.log('🔍 canUserReview called:', { userId, productId, orderId });
     let canReviewReasons = [];
 
     // If orderId is provided, check that specific order
@@ -142,7 +143,20 @@ class ReviewService extends BaseService {
         _id: orderId,
         user: userId,
         status: 'delivered'
-      }).populate('items.productVariant');
+      }).populate({
+        path: 'items.productVariant',
+        populate: { path: 'product', select: 'name _id' }
+      });
+
+      console.log('📦 Order found:', !!order);
+      if (order) {
+        console.log('📋 Order items count:', order.items.length);
+        console.log('📋 Order items:', order.items.map(item => ({
+          variantId: item.productVariant?._id,
+          productId: item.productVariant?.product?._id || item.productVariant?.product,
+          productName: item.productVariant?.product?.name
+        })));
+      }
 
       if (!order) {
         return { 
@@ -156,9 +170,17 @@ class ReviewService extends BaseService {
       const variants = await ProductVariant.find({ product: productId }).select('_id');
       const variantIds = variants.map(v => v._id.toString());
       
-      const hasProduct = order.items.some(item => 
-        variantIds.includes(item.productVariant.toString())
-      );
+      console.log('🎯 Target productId:', productId);
+      console.log('🔍 Found variants for product:', variantIds);
+      
+      const hasProduct = order.items.some(item => {
+        const itemVariantId = item.productVariant?._id?.toString();
+        const found = variantIds.includes(itemVariantId);
+        console.log('🔍 Checking item variant:', itemVariantId, 'found:', found);
+        return found;
+      });
+
+      console.log('✅ Product found in order?', hasProduct);
 
       if (!hasProduct) {
         return { 
@@ -186,17 +208,27 @@ class ReviewService extends BaseService {
     }
 
     // If no orderId provided, find all eligible orders
+    console.log('🔍 No orderId provided, finding eligible orders...');
     const ProductVariant = require('../models/ProductVariantSchema');
     const variants = await ProductVariant.find({ product: productId }).select('_id');
     const variantIds = variants.map(v => v._id);
+    
+    console.log('🎯 Target productId:', productId);
+    console.log('🔍 Found variants for product:', variantIds.map(v => v.toString()));
 
     const eligibleOrders = await Order.find({
       user: userId,
       status: 'delivered',
       'items.productVariant': { $in: variantIds }
     });
+    
+    console.log('📦 Found eligible orders:', eligibleOrders.length);
+    eligibleOrders.forEach((order, index) => {
+      console.log(`Order ${index + 1}: ${order.orderCode} - Items: ${order.items.length}`);
+    });
 
     if (eligibleOrders.length === 0) {
+      console.log('❌ No eligible orders found');
       return { 
         canReview: false, 
         reason: 'Bạn cần mua và nhận sản phẩm mới có thể đánh giá' 
@@ -230,15 +262,24 @@ class ReviewService extends BaseService {
 
   // Create review with strict validation
   async createReview(userId, reviewData) {
+    console.log('🔧 createReview called with:', { userId, reviewData });
+    
     const { product: productId, order: orderId, rating, comment } = reviewData;
     
+    console.log('🔧 Extracted data:', { productId, orderId, rating, comment });
+    
     if (!orderId) {
+      console.log('❌ No orderId provided');
       throw new AppError('ID đơn hàng là bắt buộc', ERROR_CODES.BAD_REQUEST);
     }
 
     // Validate that user can review this product for this order
+    console.log('🔧 Calling canUserReview with:', { userId, productId, orderId });
     const canReview = await this.canUserReview(userId, productId, orderId);
+    console.log('🔧 canUserReview result:', canReview);
+    
     if (!canReview.canReview) {
+      console.log('❌ Cannot review:', canReview.reason);
       throw new AppError(canReview.reason, ERROR_CODES.FORBIDDEN);
     }
 

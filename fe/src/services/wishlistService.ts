@@ -43,8 +43,11 @@ export class WishlistService {
   async getWishlist(): Promise<PopulatedWishList> {
     try {
       const response = await apiClient.get<PopulatedWishList>('/api/wishlist');
+      console.log('🛍️ WishlistService: Raw API response:', response);
+      console.log('🛍️ WishlistService: Response data:', response.data);
       return response.data!;
     } catch (error: any) {
+      console.error('❌ WishlistService: Error fetching wishlist:', error);
       throw new Error(error.response?.data?.message || 'Failed to fetch wishlist');
     }
   }
@@ -76,9 +79,9 @@ export class WishlistService {
   /**
    * Add product to wishlist
    */
-  async addToWishlist(productId: string): Promise<WishList> {
+  async addToWishlist(productId: string): Promise<PopulatedWishList> {
     try {
-      const response = await apiClient.post<WishList>('/api/wishlist', { productId });
+      const response = await apiClient.post<PopulatedWishList>('/api/wishlist', { productId });
       return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to add item to wishlist');
@@ -88,9 +91,9 @@ export class WishlistService {
   /**
    * Toggle product in wishlist
    */
-  async toggleWishlist(productId: string): Promise<{ added: boolean; wishlist: WishList }> {
+  async toggleWishlist(productId: string): Promise<{ added: boolean; wishlist: PopulatedWishList }> {
     try {
-      const response = await apiClient.post<{ added: boolean; wishlist: WishList }>('/api/wishlist/toggle', { productId });
+      const response = await apiClient.post<{ added: boolean; wishlist: PopulatedWishList }>('/api/wishlist/toggle', { productId });
       return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to toggle wishlist item');
@@ -100,9 +103,9 @@ export class WishlistService {
   /**
    * Remove product from wishlist
    */
-  async removeFromWishlist(productId: string): Promise<WishList> {
+  async removeFromWishlist(productId: string): Promise<PopulatedWishList> {
     try {
-      const response = await apiClient.delete<WishList>(`/api/wishlist/${productId}`);
+      const response = await apiClient.delete<PopulatedWishList>(`/api/wishlist/${productId}`);
       return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to remove item from wishlist');
@@ -124,10 +127,11 @@ export class WishlistService {
 
   /**
    * Sync session wishlist to database after login
+   * Backend automatically reads from req.session.wishList
    */
-  async syncWishlistFromSession(sessionWishlist: string[]): Promise<WishList> {
+  async syncWishlistFromSession(): Promise<PopulatedWishList> {
     try {
-      const response = await apiClient.post<WishList>('/api/wishlist/sync', { sessionWishlist });
+      const response = await apiClient.post<PopulatedWishList>('/api/wishlist/sync', {});
       return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to sync wishlist from session');
@@ -137,9 +141,9 @@ export class WishlistService {
   /**
    * Add multiple products to wishlist
    */
-  async addMultipleToWishlist(productIds: string[]): Promise<WishList> {
+  async addMultipleToWishlist(productIds: string[]): Promise<PopulatedWishList> {
     try {
-      const response = await apiClient.post<WishList>('/api/wishlist/multiple', { productIds });
+      const response = await apiClient.post<PopulatedWishList>('/api/wishlist/multiple', { productIds });
       return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to add multiple items to wishlist');
@@ -164,9 +168,9 @@ export class WishlistService {
   /**
    * Get all wishlists (Admin)
    */
-  async getAllWishlists(filters?: WishListFilters): Promise<PaginatedResponse<WishList>> {
+  async getAllWishlists(filters?: WishListFilters): Promise<PaginatedResponse<PopulatedWishList>> {
     try {
-      const response = await apiClient.getPaginated<WishList>('/api/wishlist/admin/all', filters);
+      const response = await apiClient.getPaginated<PopulatedWishList>('/api/wishlist/admin/all', filters);
       return response;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch all wishlists');
@@ -176,9 +180,9 @@ export class WishlistService {
   /**
    * Get user's wishlist by admin
    */
-  async getUserWishlistByAdmin(userId: string): Promise<WishList> {
+  async getUserWishlistByAdmin(userId: string): Promise<PopulatedWishList> {
     try {
-      const response = await apiClient.get<WishList>(`/api/wishlist/admin/user/${userId}`);
+      const response = await apiClient.get<PopulatedWishList>(`/api/wishlist/admin/user/${userId}`);
       return response.data!;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch user wishlist');
@@ -190,14 +194,14 @@ export class WishlistService {
   /**
    * Check if item is in wishlist (local utility)
    */
-  isItemInWishlist(wishlist: WishList, productId: string): boolean {
-    return wishlist.items.some(item => item.product === productId);
+  isItemInWishlist(wishlist: PopulatedWishList, productId: string): boolean {
+    return wishlist.items.some(item => item.product._id === productId);
   }
 
   /**
    * Get wishlist items count (local utility)
    */
-  getWishlistItemsCount(wishlist: WishList): number {
+  getWishlistItemsCount(wishlist: PopulatedWishList): number {
     return wishlist.items.length;
   }
 }

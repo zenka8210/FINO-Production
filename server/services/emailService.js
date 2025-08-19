@@ -384,10 +384,10 @@ class EmailService {
     // Voucher discount - use discountAmount from order
     const discountHtml = voucher && discountAmount > 0 ? `
       <tr>
-        <td colspan="2" style="text-align: right; padding: 10px; color: #10b981;">
+        <td colspan="2" style="text-align: right; padding: 10px; color: #1e40af;">
           Giảm giá (${voucher.code || voucher}):
         </td>
-        <td style="text-align: right; padding: 10px; color: #10b981;">
+        <td style="text-align: right; padding: 10px; color: #1e40af;">
           -${(discountAmount || 0).toLocaleString('vi-VN')} ₫
         </td>
       </tr>
@@ -402,24 +402,24 @@ class EmailService {
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
             .container { max-width: 650px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+            .header { background: linear-gradient(135deg, #1E40AF, #1D4ED8); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
             .content { padding: 0; background: #f9fafb; }
             .section { background: white; margin: 0; padding: 25px; border-bottom: 1px solid #e5e7eb; }
             .section:last-child { border-bottom: none; border-radius: 0 0 8px 8px; }
             .table { width: 100%; border-collapse: collapse; margin: 15px 0; }
             .table th { background: #f9fafb; padding: 15px 12px; text-align: left; font-weight: bold; color: #374151; }
             .table td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
-            .total-row { background: #f0fdf4; border-top: 2px solid #10b981; }
+            .total-row { background: #eff6ff; border-top: 2px solid #1e40af; }
             .footer { text-align: center; padding: 25px; color: #6b7280; font-size: 13px; background: #f9fafb; }
-            .success-badge { background: #d1fae5; color: #065f46; padding: 8px 16px; border-radius: 20px; font-size: 14px; display: inline-block; margin: 10px 0; }
-            .order-code { background: #3b82f6; color: white; padding: 8px 16px; border-radius: 6px; font-weight: bold; }
-            .btn { display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 15px 0; font-weight: bold; }
+            .success-badge { background: #dbeafe; color: #1e40af; padding: 8px 16px; border-radius: 20px; font-size: 14px; display: inline-block; margin: 10px 0; }
+            .order-code { background: #1e40af; color: white; padding: 8px 16px; border-radius: 6px; font-weight: bold; }
+            .btn { display: inline-block; background: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 15px 0; font-weight: bold; }
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
-                <h1>✅ Đơn hàng đã được xác nhận!</h1>
+                <h1>Đơn hàng đã được xác nhận!</h1>
                 <div class="success-badge">Thanh toán thành công</div>
             </div>
             
@@ -428,7 +428,7 @@ class EmailService {
                     <h2 style="color: #1f2937; margin-top: 0;">Cảm ơn bạn ${customerName}!</h2>
                     <p style="color: #4b5563; font-size: 16px;">Đơn hàng của bạn đã được đặt và thanh toán thành công. Chúng tôi sẽ xử lý và giao hàng trong thời gian sớm nhất.</p>
                     
-                    <div style="background: #eff6ff; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                    <div style="background: #eff6ff; padding: 20px; border-radius: 8px; border-left: 4px solid #1e40af;">
                         <p style="margin: 0;"><strong style="color: #1e40af;">Mã đơn hàng:</strong> <span class="order-code">${orderCode}</span></p>
                         <p style="margin: 10px 0 0 0;"><strong style="color: #1e40af;">Ngày đặt:</strong> ${new Date(createdAt).toLocaleString('vi-VN')}</p>
                         <p style="margin: 10px 0 0 0;"><strong style="color: #1e40af;">Phương thức thanh toán:</strong> ${paymentMethodText}</p>
@@ -436,7 +436,7 @@ class EmailService {
                 </div>
 
                 <div class="section">
-                    <h3 style="color: #1f2937; margin-top: 0;">📍 Địa chỉ giao hàng</h3>
+                    <h3 style="color: #1f2937; margin-top: 0;">Địa chỉ giao hàng</h3>
                     <div style="background: #f9fafb; padding: 15px; border-radius: 6px; border: 1px solid #e5e7eb;">
                         <p style="margin: 0; font-weight: bold; color: #1f2937;">${address.fullName}</p>
                         <p style="margin: 5px 0; color: #4b5563;">📞 ${address.phone}</p>
@@ -480,7 +480,7 @@ class EmailService {
                                 <td colspan="2" style="text-align: right; padding: 20px; font-size: 18px;">
                                     <strong>Tổng thanh toán:</strong>
                                 </td>
-                                <td style="text-align: right; padding: 20px; font-size: 18px; color: #10b981;">
+                                <td style="text-align: right; padding: 20px; font-size: 18px; color: #1e40af;">
                                     <strong>${finalTotal.toLocaleString('vi-VN')} ₫</strong>
                                 </td>
                             </tr>
@@ -489,10 +489,10 @@ class EmailService {
                 </div>
 
                 <div class="section">
-                    <h3 style="color: #1f2937; margin-top: 0;">📱 Theo dõi đơn hàng</h3>
+                    <h3 style="color: #1f2937; margin-top: 0;">Theo dõi đơn hàng</h3>
                     <p>Bạn có thể theo dõi trạng thái đơn hàng và lịch sử mua hàng tại:</p>
                     <div style="text-align: center;">
-                        <a href="http://localhost:3002/orders/${orderId}" style="display: inline-block; background: #3b82f6; color: white !important; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 15px 0; font-weight: bold;">Xem đơn hàng của tôi</a>
+                        <a href="http://localhost:3002/orders/${orderId}" style="display: inline-block; background: #1e40af; color: white !important; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 15px 0; font-weight: bold;">Xem đơn hàng của tôi</a>
                     </div>
                     <p style="color: #6b7280; font-size: 14px; text-align: center;">
                         Chúng tôi sẽ gửi email thông báo khi đơn hàng được giao thành công.
@@ -528,9 +528,9 @@ class EmailService {
         subject: '✅ Test Email - DATN E-Commerce Service',
         html: `
           <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: 0 auto;">
-            <h2 style="color: #10b981;">🎉 Email Service hoạt động thành công!</h2>
+            <h2 style="color: #1e40af;">🎉 Email Service hoạt động thành công!</h2>
             <p>Đây là email test để xác nhận rằng DATN E-Commerce email service đã được cấu hình đúng.</p>
-            <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981;">
+            <div style="background: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #1e40af;">
               <p><strong>✅ Kết nối Gmail thành công</strong></p>
               <p><strong>✅ Cấu hình SMTP hoạt động</strong></p>
               <p><strong>✅ Sẵn sàng gửi email thực tế</strong></p>

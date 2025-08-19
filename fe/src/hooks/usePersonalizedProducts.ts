@@ -152,13 +152,29 @@ export function usePersonalizedProducts(filters?: PersonalizedProductsFilters) {
     } finally {
       setLoading(false);
     }
-  }, [user?._id, stableFilters.limit, stableFilters.excludeIds.length, stableFilters.categoryFilters.length]); // Use stable dependencies
+  }, [user?._id, !!user, stableFilters.limit, stableFilters.excludeIds.length, stableFilters.categoryFilters.length]); // Track both userId and auth state
 
   // Fetch on mount and when dependencies change
   useEffect(() => {
     console.log('🎬 [DEBUG] useEffect triggered - calling fetchPersonalizedProducts');
     fetchPersonalizedProducts();
   }, [fetchPersonalizedProducts]);
+
+  // Clear state when user logs out and refetch guest data
+  useEffect(() => {
+    if (!user) {
+      console.log('🚪 [DEBUG] User logged out - clearing personalized products state and fetching guest data');
+      setData(null);
+      setProducts([]);
+      setError(null);
+      setLoading(true); // Show loading state during refetch
+      setLastFetchTime(0); // Reset fetch throttle
+      // Immediately fetch guest data
+      setTimeout(() => {
+        fetchPersonalizedProducts();
+      }, 100); // Small delay to ensure state clear is processed
+    }
+  }, [user, fetchPersonalizedProducts]);
 
   const refetch = useCallback(async () => {
     await fetchPersonalizedProducts();

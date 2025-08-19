@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts';
-import { useApiNotification } from '@/hooks';
-import { Button, PageHeader, LoadingSpinner, OrderDetailButton } from '@/app/components/ui';
+import { useApiNotification, useOrders } from '@/hooks';
+import { Button, PageHeader, LoadingSpinner, OrderDetailButton, OrderReviewModal } from '@/app/components/ui';
 import { userService } from '@/services/userService';
 import { orderService } from '@/services/orderService';
+import { reviewService } from '@/services/reviewService';
 import { User, Address, OrderWithRefs } from '@/types';
 import { formatCurrency } from '@/lib/utils';
-import { FaUser, FaMapMarkerAlt, FaShoppingBag, FaLock, FaChartBar, FaSignOutAlt, FaEdit, FaSave, FaTimes, FaPlus, FaTrash, FaHome, FaEye, FaClock, FaCheckCircle, FaTruck, FaTimesCircle } from 'react-icons/fa';
+import { FaUser, FaMapMarkerAlt, FaShoppingBag, FaLock, FaChartBar, FaSignOutAlt, FaEdit, FaSave, FaTimes, FaPlus, FaTrash, FaHome, FaEye, FaClock, FaCheckCircle, FaTruck, FaTimesCircle, FaShoppingCart, FaStar } from 'react-icons/fa';
 import styles from './ProfilePage.module.css';
 
 // Profile sections
@@ -41,6 +42,7 @@ export default function ProfilePage() {
   const searchParams = useSearchParams();
   const { user, logout, isLoading: authLoading } = useAuth();
   const { showSuccess, showError, handleApiResponse } = useApiNotification();
+  const { cancelOrder } = useOrders();
 
   // States
   const [activeSection, setActiveSection] = useState<ProfileSection>('overview');
@@ -75,6 +77,13 @@ export default function ProfilePage() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [orders, setOrders] = useState<OrderWithRefs[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
+  
+  // Modal states
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [selectedOrderForReview, setSelectedOrderForReview] = useState<OrderWithRefs | null>(null);
+  
+  // Review states
+  const [reviewedOrders, setReviewedOrders] = useState<Set<string>>(new Set());
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -172,6 +181,11 @@ export default function ProfilePage() {
       }
       
       setOrders(ordersData);
+      
+      // Check review status for all orders after loading
+      if (ordersData.length > 0) {
+        await checkOrderReviewStatus(ordersData);
+      }
     } catch (error: any) {
       console.error('❌ Error fetching orders:', error);
       setOrders([]); // Set empty array on error
@@ -424,6 +438,138 @@ export default function ProfilePage() {
       'cancelled': styles.statusCancelled
     };
     return statusClasses[status] || styles.statusDefault;
+  };
+
+  // Get Vietnamese order status text
+  const getOrderStatusText = (status: string) => {
+    const statusTexts: Record<string, string> = {
+      'pending': 'Chờ xác nhận',
+      'processing': 'Đang xử lý',
+      'shipped': 'Đã gửi hàng',
+      'delivered': 'Đã giao',
+      'cancelled': 'Đã hủy'
+    };
+    return statusTexts[status] || status;
+  };
+
+  // Handle reorder functionality
+  const handleReorder = async (order: OrderWithRefs) => {
+    try {
+      setLoading(true);
+      
+      // Prepare items for batch add to cart
+      const items = order.items?.map((item: any) => ({
+        productVariant: item.productVariant?._id,
+        quantity: item.quantity
+      })).filter(item => item.productVariant) || [];
+
+      if (items.length === 0) {
+        showError('Không tìm thấy sản phẩm hợp lệ trong đơn hàng');
+        return;
+      }
+
+      // Use batch add to cart (will update quantities if items already exist)
+      const cartService = await import('@/services/cartService');
+      const result = await cartService.CartService.getInstance().batchAddToCart(items);
+      
+      if (result.errorCount > 0) {
+        showError(`Đã thêm ${result.successCount} sản phẩm. ${result.errorCount} sản phẩm không thể thêm.`);
+      } else {
+        showSuccess(`Đã thêm ${result.successCount} sản phẩm vào giỏ hàng`);
+      }
+      
+      // Redirect to cart page
+      router.push('/cart');
+    } catch (error) {
+      showError('Không thể thêm sản phẩm vào giỏ hàng', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle review order functionality
+  const handleReviewOrder = (order: OrderWithRefs) => {
+    setSelectedOrderForReview(order);
+    setReviewModalOpen(true);
+  };
+
+  // Handle review modal close
+  const handleReviewModalClose = () => {
+    setReviewModalOpen(false);
+    setSelectedOrderForReview(null);
+  };
+
+  // Handle review success
+  const handleReviewSuccess = () => {
+    // Add the reviewed order to the set
+    if (selectedOrderForReview) {
+      setReviewedOrders(prev => new Set([...prev, selectedOrderForReview._id]));
+    }
+  };
+
+  // Handle cancel order
+  const handleCancelOrder = async (orderId: string) => {
+    try {
+      setLoading(true);
+      console.log('Cancel order:', orderId);
+      
+      // Call the cancel order API
+      await cancelOrder(orderId);
+      
+      // Show success message
+      showSuccess('Đơn hàng đã được hủy thành công');
+      
+      // Refresh orders list
+      await fetchOrders();
+      
+    } catch (error: any) {
+      console.error('Error cancelling order:', error);
+      showError('Không thể hủy đơn hàng', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Check if order has been reviewed
+  const checkOrderReviewStatus = async (orders: OrderWithRefs[]) => {
+    try {
+      const reviewPromises = orders
+        .filter(order => order.status === 'delivered')
+        .map(async (order) => {
+          try {
+            // Check each product in the order
+            const productPromises = order.items?.map(async (item: any) => {
+              try {
+                const result = await reviewService.canReviewProduct(item.productVariant?.product?._id);
+                return { orderId: order._id, canReview: result.canReview };
+              } catch {
+                return { orderId: order._id, canReview: true }; // Default to can review if check fails
+              }
+            }) || [];
+            
+            const results = await Promise.all(productPromises);
+            // If any product can't be reviewed, consider order as reviewed
+            const canReviewOrder = results.some(r => r.canReview);
+            return { orderId: order._id, isReviewed: !canReviewOrder };
+          } catch {
+            return { orderId: order._id, isReviewed: false };
+          }
+        });
+
+      const reviewStatuses = await Promise.all(reviewPromises);
+      const reviewedOrderIds = reviewStatuses
+        .filter(status => status.isReviewed)
+        .map(status => status.orderId);
+      
+      setReviewedOrders(new Set(reviewedOrderIds));
+    } catch (error) {
+      console.error('Error checking review status:', error);
+    }
+  };
+
+  // Check if specific order is reviewed
+  const isOrderReviewed = (orderId: string) => {
+    return reviewedOrders.has(orderId);
   };
 
   // Show loading if auth is still loading or user not authenticated
@@ -694,6 +840,7 @@ export default function ProfilePage() {
                               <FaEye className={styles.buttonIcon} />
                               Xem chi tiết
                             </OrderDetailButton>
+                            
                             {order.status === 'pending' && (
                               <Button
                                 variant="outline"
@@ -710,6 +857,32 @@ export default function ProfilePage() {
                                 Hủy đơn
                               </Button>
                             )}
+                            
+                            {/* Nút Đánh giá cho đơn hàng đã giao */}
+                            {order.status === 'delivered' && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className={styles.reviewButton}
+                                onClick={() => isOrderReviewed(order._id) ? undefined : handleReviewOrder(order)}
+                                disabled={isOrderReviewed(order._id)}
+                              >
+                                <FaStar className={styles.buttonIcon} />
+                                {isOrderReviewed(order._id) ? 'Đã đánh giá' : 'Đánh giá'}
+                              </Button>
+                            )}
+                            
+                            {/* Nút Mua lại - LUÔN Ở CUỐI (bên phải ngoài cùng) */}
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              className={styles.reorderButton}
+                              onClick={() => handleReorder(order)}
+                              disabled={loading}
+                            >
+                              <FaShoppingCart className={styles.buttonIcon} />
+                              Mua lại
+                            </Button>
                           </div>
                         </div>
                       ))}
@@ -1069,6 +1242,17 @@ export default function ProfilePage() {
                             )}
                           </div>
                           <div className={styles.addressActions}>
+                            {!address.isDefault && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleSetDefaultAddress(address._id)}
+                                title="Đặt làm mặc định"
+                              >
+                                <FaHome className={styles.buttonIcon} />
+                                Đặt làm mặc định
+                              </Button>
+                            )}
                             <Button
                               variant="ghost"
                               size="sm"
@@ -1095,19 +1279,6 @@ export default function ProfilePage() {
                             {address.addressLine}, {address.ward}, {address.district}, {address.city}
                           </p>
                         </div>
-
-                        {!address.isDefault && (
-                          <div className={styles.addressFooter}>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleSetDefaultAddress(address._id)}
-                            >
-                              <FaHome className={styles.buttonIcon} />
-                              Đặt làm mặc định
-                            </Button>
-                          </div>
-                        )}
                       </div>
                     ))}
                   </div>
@@ -1154,7 +1325,7 @@ export default function ProfilePage() {
                             <p className={styles.orderDate}>{formatDate(order.createdAt)}</p>
                           </div>
                           <div className={`${styles.orderStatus} ${getOrderStatusClass(order.status)}`}>
-                            {order.status}
+                            {getOrderStatusText(order.status)}
                           </div>
                         </div>
 
@@ -1174,13 +1345,55 @@ export default function ProfilePage() {
                           <div className={styles.orderTotal}>
                             <strong>{order.finalTotal?.toLocaleString('vi-VN')}đ</strong>
                           </div>
-                          <OrderDetailButton 
-                            orderId={order._id}
-                            variant="outline"
-                            size="sm"
-                          >
-                            Chi tiết
-                          </OrderDetailButton>
+                          <div className={styles.orderActions}>
+                            <OrderDetailButton 
+                              orderId={order._id}
+                              variant="outline"
+                              size="sm"
+                            >
+                              Chi tiết
+                            </OrderDetailButton>
+                            
+                            {order.status === 'pending' && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className={styles.cancelButton}
+                                onClick={async () => {
+                                  if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
+                                    await handleCancelOrder(order._id);
+                                  }
+                                }}
+                                disabled={loading}
+                              >
+                                {loading ? 'Đang hủy...' : 'Hủy đơn'}
+                              </Button>
+                            )}
+                            
+                            {/* Nút Đánh giá cho đơn hàng đã giao */}
+                            {order.status === 'delivered' && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className={styles.reviewButton}
+                                onClick={() => isOrderReviewed(order._id) ? undefined : handleReviewOrder(order)}
+                                disabled={isOrderReviewed(order._id)}
+                              >
+                                {isOrderReviewed(order._id) ? 'Đã đánh giá' : 'Đánh giá'}
+                              </Button>
+                            )}
+                            
+                            {/* Nút Mua lại - LUÔN Ở CUỐI (bên phải ngoài cùng) */}
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              className={styles.reorderButton}
+                              onClick={() => handleReorder(order)}
+                              disabled={loading}
+                            >
+                              Mua lại
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -1320,6 +1533,16 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Order Review Modal */}
+      {selectedOrderForReview && (
+        <OrderReviewModal
+          isOpen={reviewModalOpen}
+          onClose={handleReviewModalClose}
+          order={selectedOrderForReview}
+          onSuccess={handleReviewSuccess}
+        />
+      )}
     </div>
   );
 }

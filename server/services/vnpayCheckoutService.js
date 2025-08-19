@@ -70,11 +70,17 @@ class VNPayCheckoutService {
         clientIp: clientIp
       });
 
-      console.log('✅ VNPay session created with real order:', {
+      console.log('✅ VNPay payment URL creation result:', {
+        paymentUrl: paymentUrl ? 'URL generated' : 'URL is undefined',
+        paymentUrlLength: paymentUrl ? paymentUrl.length : 0,
         orderCode: order.orderCode,
-        amount: order.finalTotal,
-        paymentUrlLength: paymentUrl.length
+        amount: order.finalTotal
       });
+
+      // Validate paymentUrl before returning
+      if (!paymentUrl || typeof paymentUrl !== 'string') {
+        throw new AppError('Failed to generate VNPay payment URL', ERROR_CODES.PAYMENT_ERROR);
+      }
 
       return {
         paymentUrl,

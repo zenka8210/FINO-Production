@@ -461,6 +461,71 @@ class CartService extends BaseService {
     return savedCart;
   }
 
+  // Change cart item variant (remove old, add new)
+  async changeCartItemVariant(userId, oldProductVariantId, newProductVariantId, quantity) {
+    const cart = await Cart.findOrCreateCart(userId);
+    if (!cart) {
+      throw new AppError('Cart not found', ERROR_CODES.NOT_FOUND);
+    }
+
+    // Verify new variant exists and is available
+    const newVariant = await ProductVariant.findById(newProductVariantId)
+      .populate('product', 'isActive price salePrice')
+      .populate('color', 'isActive')
+      .populate('size', 'isActive');
+
+    if (!newVariant || !newVariant.isActive) {
+      throw new AppError('New product variant not found or inactive', ERROR_CODES.NOT_FOUND);
+    }
+
+    if (!newVariant.product?.isActive || !newVariant.color?.isActive) {
+      throw new AppError('Product or color is inactive', ERROR_CODES.BAD_REQUEST);
+    }
+
+    if (newVariant.stock < quantity) {
+      throw new AppError(`Insufficient stock. Available: ${newVariant.stock}`, ERROR_CODES.BAD_REQUEST);
+    }
+
+    // Remove old variant
+    await cart.removeItem(oldProductVariantId);
+    
+    // Calculate price to use (salePrice or product price or variant price)
+    const priceToUse = newVariant.product.salePrice || newVariant.product.price || newVariant.price;
+    
+    console.log('🔄 Adding new variant with price:', {
+      newProductVariantId,
+      quantity,
+      priceToUse,
+      productSalePrice: newVariant.product.salePrice,
+      productPrice: newVariant.product.price,
+      variantPrice: newVariant.price
+    });
+    
+    // Add new variant with correct price
+    await cart.addItem(newProductVariantId, quantity, priceToUse);
+    
+    // Save cart
+    const savedCart = await cart.save();
+    
+    // Populate for response
+    await savedCart.populate([
+      {
+        path: 'items.productVariant',
+        select: 'product color size price stock',
+        populate: [
+          { 
+            path: 'product', 
+            select: 'name images price salePrice'
+          },
+          { path: 'color', select: 'name' },
+          { path: 'size', select: 'name' }
+        ]
+      }
+    ]);
+    
+    return savedCart;
+  }
+
   // Clear entire cart
   async clearUserCart(userId) {
     try {

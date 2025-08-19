@@ -90,6 +90,19 @@ router.put('/items/:productVariantId',
 );
 
 /**
+ * @route PUT /api/cart/items/:productVariantId/variant
+ * @description Change cart item variant
+ * @access Private
+ * @param {String} productVariantId - Current product variant ID
+ * @body {String} newProductVariantId - New product variant ID
+ * @body {Number} quantity - Quantity to transfer
+ */
+router.put('/items/:productVariantId/variant', 
+  validateObjectId('productVariantId'), 
+  cartController.changeItemVariant
+);
+
+/**
  * @route DELETE /api/cart/items/:productVariantId
  * @description Remove item from cart
  * @access Private
