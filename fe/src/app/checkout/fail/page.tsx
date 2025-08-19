@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks';
 import { Button, PageHeader } from '@/app/components/ui';
@@ -8,7 +8,7 @@ import { FaExclamationTriangle, FaShoppingCart, FaHome, FaArrowLeft, FaPhoneAlt 
 import Link from 'next/link';
 import styles from './CheckoutFailPage.module.css';
 
-export default function CheckoutFailPage() {
+function CheckoutFailPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading: authLoading } = useAuth();
@@ -186,5 +186,20 @@ export default function CheckoutFailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutFailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-2"></div>
+          <p className="text-gray-600 text-sm">Đang tải...</p>
+        </div>
+      </div>
+    }>
+      <CheckoutFailPageContent />
+    </Suspense>
   );
 }
