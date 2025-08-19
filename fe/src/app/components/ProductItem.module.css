@@ -34,8 +34,44 @@
 }
 
 .productItem.grid .imageWrapper {
-  height: 200px; /* Fixed height for consistency */
+  /* Chỉ dùng aspect ratio, remove min/max height */
+  height: auto;
   flex-shrink: 0;
+  aspect-ratio: 4/3;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Global override để đảm bảo tất cả grid layouts đều responsive */
+.productItem.grid :global(.imageWrapper) {
+  height: auto !important;
+  aspect-ratio: 4/3 !important;
+  min-height: unset !important;
+  max-height: unset !important;
+}
+
+/* Related Products Variant - Subtle height increase for fashion images */
+.productItem.relatedVariant .imageWrapper {
+  aspect-ratio: 4/4.4 !important; /* Chỉ tăng height 10% từ 4:3 → 4:4.4 */
+  height: auto !important;
+}
+
+.productItem.relatedVariant .productImage {
+  object-fit: cover !important;
+  object-position: center top !important; /* Ưu tiên hiển thị phần trên */
+}
+
+/* Responsive cho related variant */
+@media (max-width: 768px) {
+  .productItem.relatedVariant .imageWrapper {
+    aspect-ratio: 4/4.2 !important; /* Tablet: chỉ tăng 5% */
+  }
+}
+
+@media (max-width: 480px) {
+  .productItem.relatedVariant .imageWrapper {
+    aspect-ratio: 4/4.1 !important; /* Mobile: chỉ tăng 2.5% */
+  }
 }
 
 .productItem.grid .productInfo {
@@ -66,7 +102,7 @@
 
 .productItem.list .imageWrapper {
   width: 200px;
-  height: 150px;
+  height: 150px; /* Fixed height cho list layout consistency */
   flex-shrink: 0;
 }
 
@@ -126,13 +162,35 @@
   position: relative;
   overflow: hidden;
   background-color: #f8fafc;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  margin: 0 auto;
+  /* Default aspect ratio cho responsive design */
+  aspect-ratio: 4/3;
+  /* Remove min/max height cho flexible sizing */
+  height: auto;
 }
 
 .productImage {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* Cover nhưng với container được control */
+  object-position: center center; /* Đảm bảo hiển thị phần trung tâm của ảnh */
   transition: transform 0.3s ease;
+  /* Fallback cho trình duyệt cũ */
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+/* Fallback khi ảnh không load được */
+.productImage:not([src]),
+.productImage[src=""],
+.productImage[src="undefined"] {
+  display: none;
 }
 
 .noImage {
@@ -142,13 +200,22 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #f8fafc;
-  color: var(--color-muted);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  color: var(--color-muted, #9CA3AF);
   gap: 0.5rem;
+  border: 2px dashed #e2e8f0;
+  box-sizing: border-box;
 }
 
 .noImage svg {
-  color: var(--color-muted);
+  color: var(--color-muted, #9CA3AF);
+  opacity: 0.7;
+}
+
+.noImage span {
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
 }
 
 .noImage span {
@@ -190,6 +257,11 @@
   white-space: nowrap;
 }
 
+/* When there's no sale badge, move rating badge to top position */
+.imageWrapper.noSaleBadge .ratingBadge {
+  top: 0.75rem;  /* Same position as sale badge when sale badge doesn't exist */
+}
+
 /* Responsive rating badge */
 @media (max-width: 768px) {
   .ratingBadge {
@@ -198,6 +270,11 @@
     top: 2rem;  /* Adjust for smaller sale badge on mobile */
     left: 0.5rem;
   }
+  
+  /* When no sale badge on mobile, move to top */
+  .imageWrapper.noSaleBadge .ratingBadge {
+    top: 0.5rem;  /* Match mobile sale badge position */
+  }
 }
 
 @media (max-width: 480px) {
@@ -205,6 +282,11 @@
     font-size: 0.625rem;
     padding: 0.25rem 0.375rem;
     border-radius: 15px;
+  }
+  
+  /* When no sale badge on small mobile, move to top */
+  .imageWrapper.noSaleBadge .ratingBadge {
+    top: 0.5rem;  /* Match small mobile sale badge position */
   }
 }
 
@@ -413,7 +495,8 @@
   
   .productItem.list .imageWrapper {
     width: 100%;
-    height: 200px;
+    /* Chỉ dùng aspect ratio cho mobile */
+    height: auto;
   }
   
   .productItem.list .productInfo {
@@ -444,7 +527,11 @@
 
 @media (max-width: 640px) {
   .productItem.grid .imageWrapper {
-    height: 180px;
+    /* Chỉ dùng aspect ratio trên mobile */
+    height: auto;
+    aspect-ratio: 4/3;
+    width: 100%;
+    max-width: 100%;
   }
   
   .saleBadge {
@@ -537,4 +624,13 @@
 
 .actionBtn:hover:not(:disabled) {
   background-color: rgba(30, 64, 175, 0.1);
+}
+
+/* Override for active wishlist button - show gray on hover to indicate removal */
+.actionBtn.active:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.95) !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: var(--color-text, #111827) !important;
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }

@@ -34,48 +34,44 @@ export function useRelatedProducts({ currentId, category, limit = 8 }: UseRelate
           (product: ProductWithCategory) => product._id !== currentId
         );
 
+        // Filter out products without stock/variants - check backend stockInfo if available
+        const productsWithStock = filteredProducts.filter((product: ProductWithCategory) => {
+          // If backend provides stockInfo, use it
+          if (product.stockInfo) {
+            const stockInfo = product.stockInfo as any;
+            return stockInfo.available || stockInfo.totalStock > 0;
+          }
+          
+          // Fallback: assume active products are available
+          return product.isActive;
+        });
+
+        console.log('🔍 Products with stock after filtering:', productsWithStock.length, 'out of', filteredProducts.length);
+
+        // Use products with stock for related logic
+        filteredProducts = productsWithStock;
+
         // Enhanced related products logic
         if (category) {
-          // 1. Same category products (highest priority)
+          // Only get products from the SAME category (exact match)
           const sameCategoryProducts = filteredProducts.filter(
-            (product: ProductWithCategory) => 
-              product.category && 
-              (typeof product.category === 'object' ? product.category.name === category : product.category === category)
+            (product: ProductWithCategory) => {
+              if (!product.category) return false;
+              
+              // Get category name from product
+              const productCategoryName = typeof product.category === 'object' 
+                ? product.category.name 
+                : product.category;
+              
+              // Exact match with current product's category
+              return productCategoryName === category;
+            }
           );
           
-          // 2. Similar price range products from same category  
-          const currentProduct = products.find((p: ProductWithCategory) => p._id === currentId);
-          let similarPriceProducts: ProductWithCategory[] = [];
+          console.log(`🔗 Same category "${category}" products found:`, sameCategoryProducts.length);
           
-          if (currentProduct) {
-            const priceRange = currentProduct.price * 0.3; // +/- 30% price range
-            similarPriceProducts = sameCategoryProducts.filter(
-              (product: ProductWithCategory) => 
-                Math.abs(product.price - currentProduct.price) <= priceRange
-            );
-          }
-
-          // 3. Other products from same category
-          const otherSameCategoryProducts = sameCategoryProducts.filter(
-            (product: ProductWithCategory) => 
-              !similarPriceProducts.some(p => p._id === product._id)
-          );
-
-          // 4. Popular products from other categories (fallback)
-          const otherCategoryProducts = filteredProducts.filter(
-            (product: ProductWithCategory) => 
-              product.category && 
-              (typeof product.category === 'object' ? product.category.name !== category : product.category !== category)
-          );
-
-          // Combine with smart prioritization
-          const combinedProducts = [
-            ...similarPriceProducts.slice(0, Math.ceil(limit * 0.5)), // 50% similar price same category
-            ...otherSameCategoryProducts.slice(0, Math.ceil(limit * 0.3)), // 30% other same category
-            ...otherCategoryProducts.slice(0, Math.floor(limit * 0.2)) // 20% other categories
-          ];
-
-          filteredProducts = combinedProducts;
+          // Use only same category products
+          filteredProducts = sameCategoryProducts;
         }
         
         // Shuffle to add variety and limit

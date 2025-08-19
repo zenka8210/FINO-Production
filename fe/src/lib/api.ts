@@ -5,6 +5,7 @@ import { ApiResponse, PaginatedResponse } from '@/types';
 const API_CONFIG = {
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
   timeout: 15000, // Increased timeout for better stability
+  withCredentials: true, // Enable cookies/session support for guest users
   headers: {
     'Content-Type': 'application/json',
   },

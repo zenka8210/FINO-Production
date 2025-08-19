@@ -1,0 +1,282 @@
+/* Order Review Modal Styles */
+
+.modalContent {
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  background: #e2e8f0;
+  border-radius: 50%;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: #cbd5e1;
+  color: #374151;
+}
+
+.modalBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.reviewForms {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+.productReviewForm {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  background: #fafafa;
+}
+
+.productInfo {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.productImage {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.productDetails {
+  flex: 1;
+}
+
+.productName {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 0.75rem 0;
+}
+
+.ratingSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ratingLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.starRating {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.star {
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.starActive {
+  color: #fbbf24;
+}
+
+.starInactive {
+  color: #d1d5db;
+}
+
+.star:hover {
+  color: #f59e0b;
+}
+
+.ratingText {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-left: 0.5rem;
+}
+
+.commentSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.commentLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.commentTextarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+  background: white;
+  color: black;
+}
+
+.commentTextarea:focus {
+  outline: none;
+  border-color: var(--color-primary, #1E40AF);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+  background: white;
+  color: black;
+}
+
+.commentTextarea::placeholder {
+  color: #9ca3af;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modalContent {
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+
+  .modalHeader {
+    padding: 1rem 1.5rem;
+  }
+
+  .modalTitle {
+    font-size: 1.125rem;
+  }
+
+  .reviewForms {
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+
+  .productReviewForm {
+    padding: 1rem;
+  }
+
+  .productInfo {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .productImage {
+    width: 100px;
+    height: 100px;
+  }
+
+  .modalFooter {
+    padding: 1rem 1.5rem;
+    flex-direction: column;
+  }
+
+  .modalFooter button {
+    width: 100%;
+  }
+}
+
+/* Animation for star rating */
+.star {
+  transform: scale(1);
+  transition: transform 0.15s ease, color 0.2s ease;
+}
+
+.star:hover {
+  transform: scale(1.1);
+}
+
+.star:active {
+  transform: scale(0.95);
+}
+
+/* Custom scrollbar for modal body */
+.modalBody::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modalBody::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.modalBody::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.modalBody::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Force text colors for form fields */
+.commentTextarea,
+.commentTextarea:focus,
+.commentTextarea:active,
+.commentTextarea:hover {
+  background: white !important;
+  color: black !important;
+}
+
+/* Ensure all text inputs have proper colors */
+.modalContent input,
+.modalContent textarea,
+.modalContent select {
+  background: white !important;
+  color: black !important;
+}
+
+.modalContent input:focus,
+.modalContent textarea:focus,
+.modalContent select:focus {
+  background: white !important;
+  color: black !important;
+}

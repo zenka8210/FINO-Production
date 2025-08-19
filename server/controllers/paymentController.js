@@ -48,13 +48,14 @@ class PaymentController extends BaseController {
       });
 
       ResponseHandler.success(res, 'VNPay checkout session created', {
-        paymentUrl: result.payment.paymentUrl,
+        paymentUrl: result.paymentUrl, // Fix: Use result.paymentUrl instead of result.payment.paymentUrl
         orderCode: result.order.orderCode,
         orderId: result.order._id,
         amount: result.order.finalTotal,
         status: result.order.status,
-        vnpTxnRef: result.payment.vnpTxnRef,
-        vnpOrderInfo: result.payment.vnpOrderInfo
+        // Remove undefined vnpTxnRef and vnpOrderInfo for now
+        temporaryOrderId: result.order._id.toString(),
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString() // 15 minutes
       });
 
     } catch (error) {
@@ -92,18 +93,18 @@ class PaymentController extends BaseController {
     try {
       console.log('📨 VNPay callback received:', req.query);
 
-      // Process VNPay callback
-      const result = await this.vnpayCheckoutService.handleVNPayCallback(req.query);
+      // Process VNPay callback - use correct method name
+      const result = await this.vnpayCheckoutService.processVNPayCallback(req.query);
 
       console.log('✅ VNPay callback processed:', {
         success: result.success,
-        isSuccess: result.isSuccess,
-        orderCode: result.order?.orderCode
+        orderCode: result.order?.orderCode,
+        message: result.message
       });
 
       // Redirect to success or error page based on payment result
-      if (result.success && result.isSuccess) {
-        const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/checkout/success?orderCode=${result.order.orderCode}&transactionId=${result.payment.transactionId}&paymentMethod=vnpay&amount=${result.payment.amount}`;
+      if (result.success) {
+        const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/checkout/success?orderCode=${result.order.orderCode}&transactionId=${result.vnpayData?.transactionNo || ''}&paymentMethod=vnpay&amount=${result.order.finalTotal}`;
         return res.redirect(redirectUrl);
       } else {
         const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/checkout/error?message=${encodeURIComponent(result.message || 'Payment failed')}`;
@@ -122,8 +123,8 @@ class PaymentController extends BaseController {
     try {
       console.log('📨 VNPay frontend callback received:', req.body);
 
-      // Process VNPay callback data from frontend
-      const result = await this.vnpayCheckoutService.handleVNPayCallback(req.body);
+      // Process VNPay callback data from frontend - use correct method name
+      const result = await this.vnpayCheckoutService.processVNPayCallback(req.body);
 
       console.log('✅ VNPay frontend callback processed:', {
         success: result.success,
