@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ProductWithCategory, ProductFilters, PaginatedResponse } from '@/types';
 import { useProducts, useProductStats } from '@/hooks';
@@ -21,7 +21,7 @@ const SORT_OPTIONS = [
   { value: 'on-sale', label: 'Đang giảm giá', sort: 'createdAt' as const, order: 'desc' as const }, // Special filter for sale items
 ] as const;
 
-export default function ProductsPage() {
+function ProductsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { getProducts, loading, error } = useProducts();
@@ -419,5 +419,20 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p className="text-gray-600 text-sm">Đang tải sản phẩm...</p>
+        </div>
+      </div>
+    }>
+      <ProductsPageContent />
+    </Suspense>
   );
 }

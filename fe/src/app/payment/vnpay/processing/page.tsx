@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { vnpayService } from '@/services/vnpayService';
 import { useCart } from '@/hooks';
@@ -9,7 +9,7 @@ import styles from './VNPayProcessing.module.css';
 // Global flag to prevent duplicate cart clearing across component re-renders
 let cartClearInProgress = false;
 
-export default function VNPayProcessingPage() {
+function VNPayProcessingContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { clearCart } = useCart();
@@ -225,5 +225,20 @@ export default function VNPayProcessingPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VNPayProcessingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p className="text-gray-600 text-sm">Đang tải...</p>
+        </div>
+      </div>
+    }>
+      <VNPayProcessingContent />
+    </Suspense>
   );
 }
