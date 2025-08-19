@@ -101,16 +101,15 @@ function SaleProductsPageContent() {
         console.log('📦 Sale Page: Response structure - success:', response?.success);
         console.log('📦 Sale Page: Response structure - data:', response?.data);
         console.log('📦 Sale Page: Response data type:', typeof response?.data);
-        console.log('📦 Sale Page: Is data.data array?:', Array.isArray(response?.data?.data));
+        console.log('📦 Sale Page: Is data array?:', Array.isArray(response?.data));
         
-        // Handle response data same as FlashSale.tsx
-        const productsArray = Array.isArray(response.data) ? response.data : 
-                             (response.data && Array.isArray((response.data as any).data)) ? (response.data as any).data : [];
+        // Handle response data - response is PaginatedResponse<ProductWithCategory>
+        const productsArray = Array.isArray(response?.data) ? response.data : [];
         
         console.log('📦 Sale Page: Raw sale products received:', productsArray.length);
         
         // Use EXACT same filtering logic as FlashSale.tsx
-        let saleProducts = [];
+        let saleProducts: ProductWithCategory[] = [];
         
         if (productsArray.length > 0) {
           // Additional frontend filter to ensure products have salePrice - EXACT same as FlashSale.tsx
