@@ -124,6 +124,7 @@ export default function AdminPageNew() {
       },
     ];
 
+    // Load mock data with timeout
     setTimeout(() => {
       setStats(mockStats);
       setChartData(mockChartData);
