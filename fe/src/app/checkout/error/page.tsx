@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/app/components/ui';
 import { FaExclamationTriangle, FaHome, FaShoppingCart } from 'react-icons/fa';
 import styles from './CheckoutErrorPage.module.css';
 
-export default function CheckoutErrorPage() {
+function CheckoutErrorPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -81,5 +81,20 @@ export default function CheckoutErrorPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutErrorPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-2"></div>
+          <p className="text-gray-600 text-sm">Đang tải...</p>
+        </div>
+      </div>
+    }>
+      <CheckoutErrorPageContent />
+    </Suspense>
   );
 }
