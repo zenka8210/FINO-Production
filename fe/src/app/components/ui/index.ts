@@ -15,9 +15,12 @@ export { default as OrderDetailButton } from './OrderDetailButton';
 export { default as OrderReviewModal } from './OrderReviewModal';
 export { default as SearchableSelect } from './SearchableSelect';
 export { default as ProductStatisticsCards } from './ProductStatisticsCards';
+export { default as Avatar } from './Avatar';
+export { default as UserPreferences } from './UserPreferences';
+export { default as EnhancedSearch } from './EnhancedSearch';
 export { ErrorPageVariants, renderErrorByStatus, renderErrorByType } from './ErrorPageVariants';
 export type { PaginationInfo, PaginationProps } from './Pagination';
 
 // Add more UI components as they are created
 // export { default as Badge } from './Badge';
-// export { default as Avatar } from './Avatar';
+// export { default as Notification } from './Notification';

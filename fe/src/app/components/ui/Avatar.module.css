@@ -1,0 +1,282 @@
+/* Avatar Component - Enhanced User Profile Features */
+
+/* =============== AVATAR CONTAINER =============== */
+.avatarContainer {
+  position: relative;
+  display: inline-block;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--color-bg-secondary, #f8fafc);
+  border: 3px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.avatarContainer.editable {
+  cursor: pointer;
+  border-color: var(--color-border, #e2e8f0);
+}
+
+.avatarContainer.editable:hover {
+  border-color: var(--color-primary, #1e40af);
+  transform: scale(1.05);
+  box-shadow: 0 8px 32px rgba(30, 64, 175, 0.3);
+}
+
+.avatarContainer.dragOver {
+  border-color: var(--color-success, #10b981);
+  background: rgba(16, 185, 129, 0.1);
+  transform: scale(1.05);
+}
+
+.avatarContainer.loading {
+  pointer-events: none;
+}
+
+/* =============== SIZE VARIANTS =============== */
+.avatarSmall {
+  width: 40px;
+  height: 40px;
+  border-width: 2px;
+}
+
+.avatarMedium {
+  width: 64px;
+  height: 64px;
+  border-width: 3px;
+}
+
+.avatarLarge {
+  width: 96px;
+  height: 96px;
+  border-width: 4px;
+}
+
+.avatarXLarge {
+  width: 128px;
+  height: 128px;
+  border-width: 4px;
+}
+
+/* =============== IMAGE WRAPPER =============== */
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.editable:hover .avatarImage {
+  transform: scale(1.1);
+}
+
+/* =============== OVERLAYS =============== */
+.loadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  z-index: 10;
+}
+
+.editOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  z-index: 5;
+}
+
+.editable:hover .editOverlay {
+  opacity: 1;
+}
+
+.editOverlay i {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.avatarSmall .editOverlay i {
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.avatarSmall .editOverlay span {
+  font-size: 8px;
+}
+
+.avatarMedium .editOverlay i {
+  font-size: 16px;
+  margin-bottom: 3px;
+}
+
+.avatarMedium .editOverlay span {
+  font-size: 10px;
+}
+
+/* =============== DROP ZONE =============== */
+.dropZone {
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 2px dashed var(--color-success, #10b981);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-success, #10b981);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  z-index: 15;
+}
+
+.dropZone i {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.avatarSmall .dropZone {
+  font-size: 8px;
+}
+
+.avatarSmall .dropZone i {
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+/* =============== LOADING SPINNER =============== */
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid var(--color-primary, #1e40af);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.avatarSmall .spinner {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+.avatarMedium .spinner {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* =============== HIDDEN INPUT =============== */
+.hiddenInput {
+  display: none;
+}
+
+/* =============== STATUS INDICATORS =============== */
+.avatarContainer::after {
+  content: '';
+  position: absolute;
+  bottom: 8%;
+  right: 8%;
+  width: 20%;
+  height: 20%;
+  border-radius: 50%;
+  border: 2px solid white;
+  z-index: 10;
+}
+
+.avatarContainer.online::after {
+  background: var(--color-success, #10b981);
+}
+
+.avatarContainer.offline::after {
+  background: var(--color-text-secondary, #6b7280);
+}
+
+.avatarContainer.busy::after {
+  background: var(--color-warning, #f59e0b);
+}
+
+.avatarSmall::after {
+  width: 25%;
+  height: 25%;
+  border-width: 1px;
+}
+
+/* =============== RESPONSIVE DESIGN =============== */
+@media (max-width: 768px) {
+  .avatarContainer.editable:hover {
+    transform: none;
+  }
+
+  .editOverlay {
+    opacity: 0.8;
+  }
+
+  .dropZone {
+    display: none;
+  }
+}
+
+/* =============== ACCESSIBILITY =============== */
+.avatarContainer:focus {
+  outline: 2px solid var(--color-primary, #1e40af);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatarContainer,
+  .avatarImage,
+  .editOverlay,
+  .spinner {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* =============== HIGH CONTRAST MODE =============== */
+@media (prefers-contrast: high) {
+  .avatarContainer {
+    border-width: 4px;
+    border-color: currentColor;
+  }
+
+  .editOverlay {
+    background: rgba(0, 0, 0, 0.9);
+  }
+}
