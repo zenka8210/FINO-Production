@@ -19,7 +19,7 @@ export default function CheckoutPage() {
   const { cart, isLoading: cartLoading, isEmpty, loadCart } = useCart();
   const { showSuccess, showError } = useApiNotification();
 
-  // Memoized cart subtotal calculation using sale price
+  // Memoized cart subtotal calculation using backend computed prices
   const cartSubtotal = useMemo(() => {
     if (!cart?.items?.length) return 0;
     
@@ -30,14 +30,15 @@ export default function CheckoutPage() {
         return sum;
       }
       
-      // Use same logic as CartContext: sale price from product, regular price from variant
-      const salePrice = item.productVariant.product.salePrice;
-      const regularPrice = item.productVariant.price; // Get from variant, not product
-      const currentPrice = salePrice || regularPrice;
+      // CRITICAL FIX: Trust backend computed values completely
+      // Backend already handles all sale logic, date validation, and price calculations
+      const product = item.productVariant.product;
+      const regularPrice = item.productVariant.price; // Variant price fallback
+      const currentPrice = product.currentPrice || product.price || regularPrice; // Backend computed price
       
       // Additional safety check for price
       if (!currentPrice || isNaN(currentPrice)) {
-        console.warn('Cart item has invalid price:', { item, salePrice, regularPrice });
+        console.warn('Cart item has invalid price:', { item, currentPrice, regularPrice });
         return sum;
       }
       
@@ -710,8 +711,10 @@ export default function CheckoutPage() {
                   }
                   
                   const { product, price, size, color } = productVariant;
-                  // Use same logic as CartContext: sale price from product, regular price from variant
-                  const currentPrice = product.salePrice || price;
+                  
+                  // CRITICAL FIX: Trust backend computed values completely
+                  // Backend already handles all sale logic, date validation, and price calculations
+                  const currentPrice = product.currentPrice || product.price || price; // Backend computed price
                   const totalPrice = currentPrice * quantity;
                   const mainImage = product.images && product.images.length > 0 ? product.images[0] : null;
 

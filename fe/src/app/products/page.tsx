@@ -139,9 +139,7 @@ function ProductsPageContent() {
     // Apply "on-sale" filter first (if sortBy is 'on-sale', treat it as a filter)
     if (sortBy === 'on-sale') {
       filtered = filtered.filter(product => 
-        product.salePrice && 
-        product.salePrice < product.price && 
-        product.isActive !== false
+        product.isOnSale && product.isActive !== false
       );
     }
 
@@ -164,14 +162,14 @@ function ProductsPageContent() {
     if (priceRange.min) {
       const minPrice = parseFloat(priceRange.min);
       filtered = filtered.filter(product => {
-        const price = product.salePrice || product.price;
+        const price = product.currentPrice || product.price;
         return price >= minPrice;
       });
     }
     if (priceRange.max) {
       const maxPrice = parseFloat(priceRange.max);
       filtered = filtered.filter(product => {
-        const price = product.salePrice || product.price;
+        const price = product.currentPrice || product.price;
         return price <= maxPrice;
       });
     }
@@ -204,8 +202,8 @@ function ProductsPageContent() {
             // If ratings are equal, use review count as tiebreaker
             return bReviews - aReviews;
           case 'price':
-            aValue = a.salePrice || a.price;
-            bValue = b.salePrice || b.price;
+            aValue = a.currentPrice || a.price;
+            bValue = b.currentPrice || b.price;
             break;
           case 'name':
             aValue = a.name.toLowerCase();

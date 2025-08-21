@@ -16,7 +16,20 @@ const OrderSchema = new mongoose.Schema({
   }, // Mã đơn hàng thân thiện: FINO2025071100001
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   items: [OrderDetailsSchema],
-  address: { type: mongoose.Schema.Types.ObjectId, ref: 'Address', required: true }, // Địa chỉ giao hàng
+  address: { type: mongoose.Schema.Types.ObjectId, ref: 'Address', required: true }, // Địa chỉ giao hàng (reference)
+  
+  // 🆕 ADDRESS SNAPSHOT - Backup address data to prevent data loss when address is deleted
+  addressSnapshot: {
+    fullName: { type: String },
+    phone: { type: String },
+    addressLine: { type: String },
+    ward: { type: String },
+    district: { type: String },
+    city: { type: String },
+    postalCode: { type: String },
+    isDefault: { type: Boolean, default: false },
+    snapshotCreatedAt: { type: Date, default: Date.now }
+  },
   total: { type: Number }, // Tổng tiền trước khi áp dụng voucher và phí vận chuyển
   voucher: { type: mongoose.Schema.Types.ObjectId, ref: 'Voucher', default: null },
   discountAmount: { type: Number, default: 0 }, // Số tiền giảm giá từ voucher
@@ -132,29 +145,28 @@ OrderSchema.statics.createFromCart = async function(cart, orderDetails) {
     
     let currentPrice;
     
-    if (productWithSaleInfo.isOnSale && productWithSaleInfo.currentPrice) {
-      // Use product sale price (applies to all variants)
+    // Use currentPrice from productService (which handles all sale logic and date validation)
+    if (productWithSaleInfo.currentPrice) {
       currentPrice = productWithSaleInfo.currentPrice;
-      console.log('💰 Using product SALE price (applies to variant):', {
+      console.log('💰 Using computed currentPrice from productService:', {
         productName: productWithSaleInfo.name,
         variantId: item.productVariant._id,
-        regularPrice: productWithSaleInfo.price,
+        isOnSale: productWithSaleInfo.isOnSale,
         salePrice: productWithSaleInfo.salePrice,
-        currentPrice: currentPrice,
-        isOnSale: true
+        regularPrice: productWithSaleInfo.price,
+        currentPrice: currentPrice
       });
     } else {
       // Fallback to variant price or product regular price
       const variantPrice = item.productVariant?.price;
       currentPrice = variantPrice && variantPrice > 0 ? variantPrice : productWithSaleInfo.price;
       
-      console.log('💰 Using variant/product regular price:', {
+      console.log('💰 Using fallback pricing (currentPrice not set):', {
         productName: productWithSaleInfo.name,
         variantId: item.productVariant._id,
         variantPrice: variantPrice,
         productPrice: productWithSaleInfo.price,
-        currentPrice: currentPrice,
-        isOnSale: false
+        currentPrice: currentPrice
       });
     }
     
@@ -179,12 +191,55 @@ OrderSchema.statics.createFromCart = async function(cart, orderDetails) {
   
   const finalTotal = total - (orderDetails.discountAmount || 0) + (orderDetails.shippingFee || 0);
   
+  // 🆕 CREATE ADDRESS SNAPSHOT to prevent data loss
+  let addressSnapshot = null;
+  if (orderDetails.addressData) {
+    // If full address data is provided, use it directly
+    addressSnapshot = {
+      fullName: orderDetails.addressData.fullName,
+      phone: orderDetails.addressData.phone,
+      addressLine: orderDetails.addressData.addressLine,
+      ward: orderDetails.addressData.ward,
+      district: orderDetails.addressData.district,
+      city: orderDetails.addressData.city,
+      postalCode: orderDetails.addressData.postalCode,
+      isDefault: orderDetails.addressData.isDefault || false,
+      snapshotCreatedAt: new Date()
+    };
+    console.log('💾 Using provided address data for snapshot');
+  } else if (orderDetails.address) {
+    // If only addressId is provided, fetch address data
+    try {
+      const Address = mongoose.model('Address');
+      const addressData = await Address.findById(orderDetails.address);
+      if (addressData) {
+        addressSnapshot = {
+          fullName: addressData.fullName,
+          phone: addressData.phone,
+          addressLine: addressData.addressLine,
+          ward: addressData.ward,
+          district: addressData.district,
+          city: addressData.city,
+          postalCode: addressData.postalCode,
+          isDefault: addressData.isDefault || false,
+          snapshotCreatedAt: new Date()
+        };
+        console.log('💾 Fetched and created address snapshot:', addressSnapshot.fullName);
+      } else {
+        console.log('⚠️  Warning: Address not found for snapshot creation');
+      }
+    } catch (error) {
+      console.error('❌ Error creating address snapshot:', error);
+    }
+  }
+  
   // Create new order
   const orderData = {
     orderCode,
     user: cart.user,
     items: orderItems, // Use calculated items with current prices
     address: orderDetails.address,
+    addressSnapshot, // 🆕 Add address snapshot
     paymentMethod: orderDetails.paymentMethod,
     voucher: orderDetails.voucher || null,
     total,

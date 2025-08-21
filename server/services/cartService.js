@@ -4,6 +4,7 @@ const Order = require('../models/OrderSchema'); // Import Order model for creati
 const ProductVariant = require('../models/ProductVariantSchema');
 const Address = require('../models/AddressSchema');
 const Voucher = require('../models/VoucherSchema');
+const ProductService = require('./productService'); // Import to apply sale logic
 const { AppError } = require('../middlewares/errorHandler');
 const { ERROR_CODES, SHIPPING } = require('../config/constants');
 
@@ -24,7 +25,7 @@ class CartService extends BaseService {
         populate: [
           { 
             path: 'product', 
-            select: 'name images category price salePrice isActive', // Removed description for faster loading
+            select: 'name images category price salePrice saleStartDate saleEndDate isActive', // Added sale date fields
             populate: {
               path: 'category',
               select: 'name parent isActive'
@@ -35,6 +36,16 @@ class CartService extends BaseService {
         ]
       }
     ]);
+    
+    // CRITICAL FIX: Apply sale info to all products in cart
+    if (cart && cart.items) {
+      const productService = new ProductService();
+      for (const item of cart.items) {
+        if (item.productVariant && item.productVariant.product) {
+          productService.addSaleInfoToProduct(item.productVariant.product);
+        }
+      }
+    }
     
     return cart;
   }
@@ -55,13 +66,23 @@ class CartService extends BaseService {
         populate: [
           { 
             path: 'product', 
-            select: 'name images price salePrice', // Only display fields
+            select: 'name images price salePrice saleStartDate saleEndDate', // Added sale date fields
           },
           { path: 'color', select: 'name' },
           { path: 'size', select: 'name' }
         ]
       }
     ]);
+    
+    // CRITICAL FIX: Apply sale info to all products in cart
+    if (cart && cart.items) {
+      const productService = new ProductService();
+      for (const item of cart.items) {
+        if (item.productVariant && item.productVariant.product) {
+          productService.addSaleInfoToProduct(item.productVariant.product);
+        }
+      }
+    }
     
     return cart;
   }
@@ -100,7 +121,7 @@ class CartService extends BaseService {
         populate: [
           { 
             path: 'product', 
-            select: 'name images category price salePrice isActive',
+            select: 'name images category price salePrice saleStartDate saleEndDate isActive', // Added sale date fields
             populate: {
               path: 'category',
               select: 'name parent isActive'
@@ -114,6 +135,14 @@ class CartService extends BaseService {
 
     // Filter populated items to match pagination
     const paginatedItems = cart.items.slice(startIndex, endIndex);
+
+    // CRITICAL FIX: Apply sale info to paginated products
+    const productService = new ProductService();
+    for (const item of paginatedItems) {
+      if (item.productVariant && item.productVariant.product) {
+        productService.addSaleInfoToProduct(item.productVariant.product);
+      }
+    }
 
     return {
       cart: {
@@ -134,7 +163,7 @@ class CartService extends BaseService {
     const variant = await ProductVariant.findById(productVariantId)
       .populate({
         path: 'product', 
-        select: 'name price salePrice isActive category',
+        select: 'name price salePrice saleStartDate saleEndDate isActive category', // Added sale date fields
         populate: {
           path: 'category',
           select: 'name parent isActive'
@@ -145,6 +174,12 @@ class CartService extends BaseService {
       
     if (!variant) {
       throw new AppError('Product variant not found', ERROR_CODES.NOT_FOUND);
+    }
+    
+    // CRITICAL FIX: Apply sale info to product before adding to cart
+    if (variant.product) {
+      const productService = new ProductService();
+      productService.addSaleInfoToProduct(variant.product);
     }
     
     // Check if product exists and is active
@@ -234,13 +269,13 @@ class CartService extends BaseService {
     // Process all items in parallel for validation
     const validationPromises = items.map(async (item) => {
       try {
-        // Validate product variant exists and has stock
+        // Validate product variant exists and has stock - need ALL fields for sale logic
         const variant = await ProductVariant.findById(item.productVariant)
           .populate({
             path: 'product', 
-            select: 'name price salePrice isActive'
+            select: 'name price salePrice saleStartDate saleEndDate isActive category'
           })
-          .populate('color', 'name')
+          .populate('color', 'name isActive')
           .populate('size', 'name');
           
         if (!variant) {
@@ -266,10 +301,47 @@ class CartService extends BaseService {
           throw new Error(`Only ${availableStock} items available`);
         }
 
+        // CRITICAL FIX: Apply proper sale logic with date validation
+        const ProductService = require('./productService');
+        const productService = new ProductService();
+        
+        let priceToUse;
+        if (variant.product) {
+          // Apply sale logic with date validation
+          const productWithSaleInfo = productService.addSaleInfoToProduct(
+            variant.product.toObject ? variant.product.toObject() : variant.product
+          );
+          
+          console.log('🔍 Batch add - Sale logic for product:', {
+            productName: productWithSaleInfo.name,
+            isOnSale: productWithSaleInfo.isOnSale,
+            currentPrice: productWithSaleInfo.currentPrice,
+            salePrice: productWithSaleInfo.salePrice,
+            productPrice: productWithSaleInfo.price,
+            variantPrice: variant.price
+          });
+          
+          // Use proper pricing logic: sale price (if active) or variant price or product price
+          if (productWithSaleInfo.isOnSale && productWithSaleInfo.salePrice) {
+            priceToUse = productWithSaleInfo.salePrice;
+            console.log('💰 Batch add - Using active sale price:', priceToUse);
+          } else if (variant.price && variant.price > 0) {
+            priceToUse = variant.price;
+            console.log('💰 Batch add - Using variant price:', priceToUse);
+          } else {
+            priceToUse = productWithSaleInfo.price;
+            console.log('💰 Batch add - Using product regular price:', priceToUse);
+          }
+        } else {
+          // Fallback if no product data
+          priceToUse = variant.price || 100000;
+          console.log('💰 Batch add - Using fallback price:', priceToUse);
+        }
+
         return {
           productVariantId: item.productVariant,
           quantity: item.quantity,
-          price: variant.price || 100000
+          price: priceToUse
         };
       } catch (error) {
         errors.push({ productVariant: item.productVariant, error: error.message });
@@ -330,15 +402,50 @@ class CartService extends BaseService {
     // Save cart once after all additions
     const savedCart = await cart.save();
 
-    // PERFORMANCE: Return minimal cart for batch operations
-    // Cart page will reload with optimized endpoint for full data
+    // CRITICAL: Populate with proper sale logic for consistent response
+    await savedCart.populate([
+      {
+        path: 'items.productVariant',
+        select: 'product color size price stock',
+        populate: [
+          { 
+            path: 'product', 
+            select: 'name images price salePrice saleStartDate saleEndDate isActive category'
+          },
+          { path: 'color', select: 'name isActive' },
+          { path: 'size', select: 'name' }
+        ]
+      }
+    ]);
+    
+    // Apply sale info to all products in the response
+    const ProductService = require('./productService');
+    const productService = new ProductService();
+    
+    if (savedCart.items) {
+      savedCart.items.forEach(item => {
+        if (item.productVariant && item.productVariant.product) {
+          const productObj = item.productVariant.product.toObject ? 
+            item.productVariant.product.toObject() : 
+            item.productVariant.product;
+          
+          // Apply sale logic with date validation
+          const productWithSaleInfo = productService.addSaleInfoToProduct(productObj);
+          
+          // Update the product object with computed sale info
+          Object.assign(item.productVariant.product, productWithSaleInfo);
+          
+          console.log('✅ Batch add - Applied sale info to response product:', {
+            productName: productWithSaleInfo.name,
+            isOnSale: productWithSaleInfo.isOnSale,
+            currentPrice: productWithSaleInfo.currentPrice
+          });
+        }
+      });
+    }
+
     return {
-      cart: {
-        _id: savedCart._id,
-        user: savedCart.user,
-        items: savedCart.items,
-        totalAmount: savedCart.totalAmount
-      },
+      cart: savedCart,
       successCount,
       errorCount,
       errors
@@ -489,17 +596,36 @@ class CartService extends BaseService {
     // Remove old variant
     await cart.removeItem(oldProductVariantId);
     
-    // Calculate price to use (salePrice or product price or variant price)
-    const priceToUse = newVariant.product.salePrice || newVariant.product.price || newVariant.price;
+    // CRITICAL FIX: Use the same sale logic as other parts of the app
+    const ProductService = require('./productService');
+    const productService = new ProductService();
     
-    console.log('🔄 Adding new variant with price:', {
+    // Apply proper sale logic with date validation
+    const productWithSaleInfo = productService.addSaleInfoToProduct(newVariant.product.toObject ? newVariant.product.toObject() : newVariant.product);
+    
+    console.log('🔄 Adding new variant with proper sale logic:', {
       newProductVariantId,
       quantity,
-      priceToUse,
-      productSalePrice: newVariant.product.salePrice,
-      productPrice: newVariant.product.price,
+      productName: productWithSaleInfo.name,
+      isOnSale: productWithSaleInfo.isOnSale,
+      currentPrice: productWithSaleInfo.currentPrice,
+      salePrice: productWithSaleInfo.salePrice,
+      productPrice: productWithSaleInfo.price,
       variantPrice: newVariant.price
     });
+    
+    // Use proper pricing logic: sale price (if active) or variant price or product price
+    let priceToUse;
+    if (productWithSaleInfo.isOnSale && productWithSaleInfo.salePrice) {
+      priceToUse = productWithSaleInfo.salePrice;
+      console.log('💰 Using active sale price:', priceToUse);
+    } else if (newVariant.price && newVariant.price > 0) {
+      priceToUse = newVariant.price;
+      console.log('💰 Using variant price:', priceToUse);
+    } else {
+      priceToUse = productWithSaleInfo.price;
+      console.log('💰 Using product regular price:', priceToUse);
+    }
     
     // Add new variant with correct price
     await cart.addItem(newProductVariantId, quantity, priceToUse);
@@ -507,7 +633,7 @@ class CartService extends BaseService {
     // Save cart
     const savedCart = await cart.save();
     
-    // Populate for response
+    // Populate for response with ALL necessary fields for sale logic
     await savedCart.populate([
       {
         path: 'items.productVariant',
@@ -515,13 +641,36 @@ class CartService extends BaseService {
         populate: [
           { 
             path: 'product', 
-            select: 'name images price salePrice'
+            select: 'name images price salePrice saleStartDate saleEndDate isActive category'
           },
-          { path: 'color', select: 'name' },
+          { path: 'color', select: 'name isActive' },
           { path: 'size', select: 'name' }
         ]
       }
     ]);
+    
+    // CRITICAL: Apply sale info to all products in the response
+    if (savedCart.items) {
+      savedCart.items.forEach(item => {
+        if (item.productVariant && item.productVariant.product) {
+          const productObj = item.productVariant.product.toObject ? 
+            item.productVariant.product.toObject() : 
+            item.productVariant.product;
+          
+          // Apply sale logic with date validation
+          const productWithSaleInfo = productService.addSaleInfoToProduct(productObj);
+          
+          // Update the product object with computed sale info
+          Object.assign(item.productVariant.product, productWithSaleInfo);
+          
+          console.log('✅ Applied sale info to product in response:', {
+            productName: productWithSaleInfo.name,
+            isOnSale: productWithSaleInfo.isOnSale,
+            currentPrice: productWithSaleInfo.currentPrice
+          });
+        }
+      });
+    }
     
     return savedCart;
   }

@@ -445,20 +445,22 @@ export function CartProvider({ children }: CartProviderProps) {
   const getCartTotal = (): number => {
     if (!state.cart?.items?.length) return 0;
     
-    // Calculate subtotal based on individual items (use sale price if available)
+    // Calculate subtotal based on backend computed prices
     return state.cart.items.reduce((total, item) => {
       // Add null checks to prevent errors
       if (!item.productVariant?.product) {
         return total; // Skip unpopulated items silently
       }
       
-      const salePrice = item.productVariant.product.salePrice;
+      // CRITICAL FIX: Trust backend computed values completely
+      // Backend already handles all sale logic, date validation, and price calculations
+      const product = item.productVariant.product;
       const regularPrice = item.productVariant.price;
-      const currentPrice = salePrice || regularPrice;
+      const currentPrice = product.currentPrice || product.price || regularPrice; // Backend computed price
       
       // Additional safety check for price
       if (!currentPrice || isNaN(currentPrice)) {
-        console.warn('Cart item has invalid price:', { item, salePrice, regularPrice });
+        console.warn('Cart item has invalid price:', { item, currentPrice, regularPrice });
         return total;
       }
       

@@ -6,7 +6,14 @@
   min-height: 100vh;
 }
 
+/* Content wrapper - consistent with other pages */
 .contentWrapper {
+  padding: 0; /* Remove padding to match wishlist and other pages */
+  margin: 0;
+}
+
+/* Product main container - no additional spacing */
+.productMain {
   padding: 0;
   margin: 0;
 }
@@ -17,6 +24,7 @@
   padding: 0;
 }
 
+/* Legacy mainContent - keeping for backward compatibility */
 .mainContent {
   padding: 2rem 0 0 0;
   position: relative;

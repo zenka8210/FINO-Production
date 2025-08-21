@@ -11,7 +11,6 @@ import { useProductDebug as useProduct } from '@/hooks/useProduct'; // Direct im
 import { useCart, useWishlist, useReviews } from '@/hooks';
 import { ProductVariantWithRefs } from '@/types';
 import { formatPrice } from '@/utils/formatPrice';
-import { getProductPriceInfo } from '@/lib/productUtils';
 
 // Import UI components
 import Button from '@/app/components/ui/Button';
@@ -348,18 +347,16 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
     );
   }
 
-  // Get price info using utility for consistent sale logic
-  const priceInfo = getProductPriceInfo(productWithSaleLogic || product);
-  
-  // FIXED: Prioritize product-level pricing (including sales) over variant pricing
-  // If product has sale price or dynamic sale price, use it; otherwise use variant price
-  const currentPrice = priceInfo.isOnSale 
-    ? priceInfo.currentPrice  // Use product sale price (prioritized)
-    : (selectedVariant?.price || priceInfo.currentPrice); // Fallback to variant price
-    
+  // CRITICAL FIX: Trust backend computed values completely
+  // Backend already handles all sale logic, date validation, and price calculations
+  const currentPrice = product.currentPrice || product.price; // Backend computed price
   const originalPrice = product.price;
-  const isOnSale = priceInfo.isOnSale;
-  const discountPercent = priceInfo.discountPercent;
+  const isOnSale = product.isOnSale || false; // Backend computed sale status  
+  
+  // Calculate discount percent if on sale
+  const discountPercent = isOnSale && currentPrice < originalPrice 
+    ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
+    : 0;
   
   // Calculate total prices based on quantity
   const totalPrice = currentPrice * quantity;
@@ -383,9 +380,8 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
         />
 
         {/* Main Content */}
-        <div className={styles.mainContent}>
-          <div className={styles.container}>
-            <div className={styles.productMain}>
+        <div className={styles.contentWrapper}>
+          <div className={styles.productMain}>
           {/* Image Gallery */}
           <div className={styles.imageSection}>
             <div className={styles.mainImage}>
@@ -864,12 +860,10 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
         </div>
       </Modal>
 
-        </div>
-      </div>
-
       {/* Review Section */}
       <ReviewSection productId={productId} />
-
+      
+      </div>
     </div>
   );
 }

@@ -527,7 +527,41 @@ class OrderService extends BaseService {
     if (!order) {
       throw new AppError(orderMessages.ORDER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
     }
-    return order;
+
+    // Convert to plain object to allow modification
+    const orderObj = order.toObject();
+    
+    // 🔍 DEBUG: Log address state before fallback
+    console.log(`🔍 DEBUG Order ${orderObj.orderCode}:`);
+    console.log(`   - address is null: ${orderObj.address === null}`);
+    console.log(`   - address is undefined: ${orderObj.address === undefined}`);
+    console.log(`   - addressSnapshot exists: ${!!orderObj.addressSnapshot}`);
+    
+    // 🆕 FALLBACK TO ADDRESS SNAPSHOT if address reference is lost
+    if (!orderObj.address && orderObj.addressSnapshot) {
+      console.log(`⚠️  Order ${orderObj.orderCode}: Address reference lost, using addressSnapshot fallback`);
+      // Create a mock address object from snapshot for compatibility
+      orderObj.address = {
+        _id: null, // Indicate this is from snapshot
+        fullName: orderObj.addressSnapshot.fullName,
+        phone: orderObj.addressSnapshot.phone,
+        addressLine: orderObj.addressSnapshot.addressLine,
+        ward: orderObj.addressSnapshot.ward,
+        district: orderObj.addressSnapshot.district,
+        city: orderObj.addressSnapshot.city,
+        postalCode: orderObj.addressSnapshot.postalCode,
+        isDefault: orderObj.addressSnapshot.isDefault,
+        isSnapshot: true, // Flag to indicate this is from snapshot
+        snapshotCreatedAt: orderObj.addressSnapshot.snapshotCreatedAt
+      };
+      console.log(`✅ Address fallback applied successfully for ${orderObj.orderCode}`);
+    } else if (!orderObj.address && !orderObj.addressSnapshot) {
+      console.log(`❌ Order ${orderObj.orderCode}: Both address reference and snapshot are missing!`);
+    } else {
+      console.log(`ℹ️  Order ${orderObj.orderCode}: Address is available, no fallback needed`);
+    }
+
+    return orderObj;
   }
 
   // Get order by orderCode with full details (for VNPay callbacks)
@@ -542,7 +576,7 @@ class OrderService extends BaseService {
         populate: [
           { path: 'product', select: 'name images' },
           { path: 'color', select: 'name isActive' },
-          { path: 'size', select: 'name' }
+          { path: 'size', select: 'name isActive' }
         ]
       });
 

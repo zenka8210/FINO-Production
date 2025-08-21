@@ -42,8 +42,10 @@ export default function WishlistPage() {
   
   const variantCache = VariantCacheService.getInstance();
 
-  // Get product stats for rating badges
-  const productIds = wishlistItems.map(item => item.product._id);
+  // Get product stats for rating badges - filter out undefined IDs
+  const productIds = wishlistItems
+    .map(item => item.product?._id)
+    .filter((id): id is string => Boolean(id));
   const { stats: productStats, loading: statsLoading } = useProductStats(productIds);
 
   // States for FilterSidebar
@@ -103,7 +105,9 @@ export default function WishlistPage() {
       const minPrice = priceRange.min ? parseFloat(priceRange.min) : 0;
       const maxPrice = priceRange.max ? parseFloat(priceRange.max) : Infinity;
       if (minPrice > 0 || maxPrice < Infinity) {
-        const price = (item.product as any).salePrice || (item.product as any).price;
+        // CRITICAL FIX: Trust backend computed values
+        const product = item.product as any;
+        const price = product.currentPrice || product.price;
         if (price < minPrice || price > maxPrice) {
           return false;
         }
@@ -124,11 +128,15 @@ export default function WishlistPage() {
           const bDateOld = (b as any).addedAt || (b as any).createdAt || b.product.createdAt;
           return new Date(aDateOld).getTime() - new Date(bDateOld).getTime();
         case 'price-asc':
-          return ((a.product as any).salePrice || (a.product as any).price) - 
-                 ((b.product as any).salePrice || (b.product as any).price);
+          // CRITICAL FIX: Trust backend computed values
+          const aPriceAsc = (a.product as any).currentPrice || (a.product as any).price;
+          const bPriceAsc = (b.product as any).currentPrice || (b.product as any).price;
+          return aPriceAsc - bPriceAsc;
         case 'price-desc':
-          return ((b.product as any).salePrice || (b.product as any).price) - 
-                 ((a.product as any).salePrice || (a.product as any).price);
+          // CRITICAL FIX: Trust backend computed values
+          const aPriceDesc = (a.product as any).currentPrice || (a.product as any).price;
+          const bPriceDesc = (b.product as any).currentPrice || (b.product as any).price;
+          return bPriceDesc - aPriceDesc;
         case 'name':
           return a.product.name.localeCompare(b.product.name);
         default:

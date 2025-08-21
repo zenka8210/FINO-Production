@@ -416,8 +416,8 @@ class ProductService extends BaseService {
                 query = query.populate({
                     path: 'variants',
                     populate: [
-                        { path: 'color', select: 'name hexCode' },
-                        { path: 'size', select: 'name code' }
+                        { path: 'color', select: 'name isActive' },
+                        { path: 'size', select: 'name isActive'}
                     ]
                 });
             }
@@ -882,34 +882,52 @@ class ProductService extends BaseService {
     addSaleInfoToProduct(product) {
         const now = new Date();
         
+        console.log(`🔍 Checking sale info for product: ${product.name}`);
+        console.log(`💰 Price: ${product.price}, SalePrice: ${product.salePrice}`);
+        console.log(`📅 SaleStartDate: ${product.saleStartDate}, SaleEndDate: ${product.saleEndDate}`);
+        console.log(`⏰ Current time: ${now}`);
+        
         // Check if product has explicit salePrice in database
         const hasSalePrice = product.salePrice && 
                            product.salePrice > 0 && 
                            product.salePrice < product.price;
+        
+        console.log(`✅ Has valid sale price? ${hasSalePrice}`);
         
         if (hasSalePrice) {
             // If has date range, check it; otherwise assume active
             let isOnSale = true;
             
             if (product.saleStartDate && product.saleEndDate) {
-                isOnSale = now >= new Date(product.saleStartDate) && now <= new Date(product.saleEndDate);
+                const startDate = new Date(product.saleStartDate);
+                const endDate = new Date(product.saleEndDate);
+                isOnSale = now >= startDate && now <= endDate;
+                console.log(`📊 Date range check: ${startDate} <= ${now} <= ${endDate} = ${isOnSale}`);
+            } else {
+                console.log(`📝 No date restrictions, assuming permanent sale`);
             }
             
             if (isOnSale) {
                 // Add sale information
                 product.isOnSale = true;
                 product.discountPercent = Math.round((1 - product.salePrice / product.price) * 100);
+                product.currentPrice = product.salePrice; // Set the actual current price
                 
                 console.log(`✅ Sale product processed: ${product.name} - ${product.discountPercent}% off`);
             } else {
                 product.isOnSale = false;
                 product.discountPercent = 0;
+                product.currentPrice = product.price; // Use regular price when sale expired
                 console.log(`⏰ Sale expired for: ${product.name}`);
             }
         } else {
             product.isOnSale = false;
             product.discountPercent = 0;
+            product.currentPrice = product.price; // Use regular price when no sale
+            console.log(`❌ No valid sale price for: ${product.name}`);
         }
+        
+        console.log(`🎯 Final sale status for ${product.name}: isOnSale=${product.isOnSale}, currentPrice=${product.currentPrice}`);
         
         return product;
     }

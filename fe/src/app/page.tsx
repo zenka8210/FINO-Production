@@ -198,9 +198,8 @@ export default function Home() {
           showPersonalizationInfo={false}
         />
 
-        {/* Flash Sale Section - Real-time data sync */}
-                {/* Flash Sale Section */}
-        <FlashSale /> {/* Removed aggressive refresh to prevent infinite loops */}
+        {/* Flash Sale Section - Synchronized with Sale page */}
+        <FlashSale maxProducts={12} /> {/* Show 12 products to match Sale page consistency */}
 
         {/* Featured Products */}
         <section className={styles.section}>

@@ -563,9 +563,10 @@ const CartItemCard = memo(function CartItemCard({ item, onQuantityChange, onRemo
   
   const { product, price, size, color } = productVariant;
   
-  // Use product's sale price if available, otherwise use variant price
-  const currentPrice = product.salePrice || price;
-  const isOnSale = product.salePrice && product.salePrice < product.price;
+  // CRITICAL FIX: Trust backend computed values completely
+  // Backend already handles all sale logic, date validation, and price calculations
+  const currentPrice = product.currentPrice || product.price || price; // Backend computed price
+  const isOnSale = product.isOnSale || false; // Backend computed sale status
   const totalPrice = currentPrice * quantity;
 
   const mainImage = product.images && product.images.length > 0 ? product.images[0] : null;

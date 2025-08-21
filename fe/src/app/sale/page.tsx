@@ -113,13 +113,14 @@ function SaleProductsPageContent() {
         let saleProducts = [];
         
         if (productsArray.length > 0) {
-          // Additional frontend filter to ensure products have salePrice - EXACT same as FlashSale.tsx
+          // CRITICAL FIX: Trust backend computed isOnSale values
           saleProducts = productsArray
             .filter((product: ProductWithCategory) => 
-              product.salePrice && 
-              product.salePrice < product.price && 
+              (product as any).isOnSale === true && 
               product.isActive !== false
             );
+          
+          console.log(`🎯 Sale Page: After filtering - ${saleProducts.length} products are on sale`);
         }
 
         console.log('✅ Sale Page: Final filtered sale products:', saleProducts.length);
@@ -177,16 +178,16 @@ function SaleProductsPageContent() {
       });
     }
 
-    // Price range filter (use current discounted price, not salePrice)
+    // Price range filter (use backend computed currentPrice)
     if (priceRange.min) {
       filtered = filtered.filter(product => {
-        const currentPrice = product.salePrice ?? product.price;
+        const currentPrice = product.currentPrice || product.price;
         return currentPrice >= parseInt(priceRange.min);
       });
     }
     if (priceRange.max) {
       filtered = filtered.filter(product => {
-        const currentPrice = product.salePrice ?? product.price;
+        const currentPrice = product.currentPrice || product.price;
         return currentPrice <= parseInt(priceRange.max);
       });
     }
@@ -218,9 +219,9 @@ function SaleProductsPageContent() {
           // If ratings are equal, use review count as tiebreaker
           return bReviews - aReviews;
         case 'price-asc':
-          return (a.salePrice || a.price) - (b.salePrice || b.price);
+          return (a.currentPrice || a.price) - (b.currentPrice || b.price);
         case 'price-desc':
-          return (b.salePrice || b.price) - (a.salePrice || a.price);
+          return (b.currentPrice || b.price) - (a.currentPrice || a.price);
         case 'name-asc':
           return a.name.localeCompare(b.name);
         case 'name-desc':

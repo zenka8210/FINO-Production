@@ -29,7 +29,12 @@ export function useProductStats(productIds: string[]) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!productIds || productIds.length === 0) {
+    // Filter out invalid productIds (null, undefined, empty strings)
+    const validProductIds = productIds?.filter((id): id is string => 
+      Boolean(id) && typeof id === 'string' && id.trim().length > 0
+    ) || [];
+
+    if (validProductIds.length === 0) {
       setStats({});
       return;
     }
@@ -42,10 +47,16 @@ export function useProductStats(productIds: string[]) {
         const statsMap: ProductStatsMap = {};
         const reviewService = ReviewService.getInstance();
 
-        // Fetch stats for each product
+        // Fetch stats for each valid product
         await Promise.all(
-          productIds.map(async (productId) => {
+          validProductIds.map(async (productId) => {
             try {
+              // Additional validation before API call
+              if (!productId || typeof productId !== 'string' || productId.trim() === '') {
+                console.warn('Skipping invalid productId:', productId);
+                return;
+              }
+
               const response = await reviewService.getProductReviews(productId, 1, 100); // Get all reviews
               const reviews = response?.data || [];
 
@@ -102,7 +113,7 @@ export function useProductStats(productIds: string[]) {
     };
 
     fetchProductStats();
-  }, [productIds.join(',')]); // Re-run when product IDs change
+  }, [productIds?.filter(id => Boolean(id)).join(',') || '']); // Re-run when valid product IDs change
 
   return { stats, loading, error };
 }

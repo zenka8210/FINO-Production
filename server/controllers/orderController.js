@@ -49,6 +49,7 @@ class OrderController extends BaseController {
       }
 
       // Admin có thể xem tất cả đơn hàng, không cần check user ownership
+      // Fallback logic được xử lý trong service.getOrderWithDetails()
       ResponseHandler.success(res, orderMessages.ORDER_DETAIL_FETCHED_SUCCESSFULLY, order);
     } catch (error) {
       next(error);

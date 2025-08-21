@@ -35,6 +35,31 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: OrderDeta
     }
   };
 
+  // 🆕 Helper function to get address (with fallback to snapshot)
+  const getDisplayAddress = () => {
+    if (!orderDetail) return null;
+    
+    // If address exists, use it directly
+    if (orderDetail.address) {
+      return orderDetail.address;
+    }
+    
+    // Fallback to addressSnapshot if available
+    if (orderDetail.addressSnapshot) {
+      return {
+        fullName: orderDetail.addressSnapshot.fullName,
+        phone: orderDetail.addressSnapshot.phone,
+        addressLine: orderDetail.addressSnapshot.addressLine,
+        ward: orderDetail.addressSnapshot.ward,
+        district: orderDetail.addressSnapshot.district,
+        city: orderDetail.addressSnapshot.city,
+        isSnapshot: true // Flag to indicate this is from snapshot
+      };
+    }
+    
+    return null;
+  };
+
   const getStatusDisplay = (status: string) => {
     const statusMap: Record<string, { label: string; color: string }> = {
       pending: { label: 'Chờ xử lý', color: '#F59E0B' },
@@ -188,7 +213,7 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: OrderDeta
                 </h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', fontSize: '0.875rem' }}>
                   <div>
-                    <span style={{ color: '#6b7280' }}>Họ tên:</span>
+                    <span style={{ color: '#6b7280' }}>Người đặt:</span>
                     <span style={{ fontWeight: 600, marginLeft: '0.5rem', color: '#1f2937' }}>
                       {orderDetail.user?.name || 'N/A'}
                     </span>
@@ -199,18 +224,60 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: OrderDeta
                       {orderDetail.user?.email || 'N/A'}
                     </span>
                   </div>
-                  <div style={{ gridColumn: 'span 2' }}>
-                    <span style={{ color: '#6b7280' }}>Địa chỉ giao hàng:</span>
-                    <div style={{ fontWeight: 600, marginTop: '0.25rem', color: '#1f2937' }}>
-                      {orderDetail.address ? (
-                        <>
-                          {orderDetail.address.addressLine}<br />
-                          {orderDetail.address.ward}, {orderDetail.address.district}, {orderDetail.address.city}<br />
-                          <span style={{ color: '#6b7280' }}>SĐT: {orderDetail.address.phone}</span>
-                        </>
-                      ) : 'N/A'}
-                    </div>
-                  </div>
+                </div>
+              </div>
+
+              {/* Delivery Info */}
+              <div style={{
+                background: '#f0fdf4',
+                padding: '1rem',
+                borderRadius: '0.5rem',
+                border: '1px solid #bbf7d0'
+              }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.75rem', color: '#374151' }}>
+                  Thông tin giao hàng
+                </h3>
+                <div style={{ fontSize: '0.875rem' }}>
+                  {(() => {
+                    const displayAddress = getDisplayAddress();
+                    return displayAddress ? (
+                      <>
+                        <div style={{ marginBottom: '0.5rem' }}>
+                          <span style={{ color: '#6b7280' }}>Người nhận:</span>
+                          <span style={{ fontWeight: 600, marginLeft: '0.5rem', color: '#1f2937' }}>
+                            {displayAddress.fullName || 'N/A'}
+                            {(displayAddress as any).isSnapshot && (
+                              <span style={{ 
+                                marginLeft: '0.5rem', 
+                                fontSize: '0.75rem', 
+                                color: '#f59e0b', 
+                                fontStyle: 'italic' 
+                              }}>
+                                (từ lịch sử)
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                        <div style={{ marginBottom: '0.5rem' }}>
+                          <span style={{ color: '#6b7280' }}>Số điện thoại:</span>
+                          <span style={{ fontWeight: 600, marginLeft: '0.5rem', color: '#1f2937' }}>
+                            {displayAddress.phone || 'N/A'}
+                          </span>
+                        </div>
+                        <div>
+                          <span style={{ color: '#6b7280' }}>Địa chỉ:</span>
+                          <div style={{ fontWeight: 600, marginTop: '0.25rem', color: '#1f2937' }}>
+                            {displayAddress.addressLine}<br />
+                            {displayAddress.ward}, {displayAddress.district}, {displayAddress.city}
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{ color: '#9ca3af', fontStyle: 'italic' }}>
+                        Không có thông tin giao hàng
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
 

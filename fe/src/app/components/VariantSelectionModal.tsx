@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { FaCheck, FaTimes, FaSpinner } from 'react-icons/fa';
 import { ProductVariantWithRefs } from '@/types';
 import { formatCurrency } from '@/lib/utils';
+import { getCurrentPrice, isOnSale } from '@/utils/product';
 import { productService } from '@/services';
 import Modal from './ui/Modal';
 import Button from './ui/Button';
@@ -31,6 +32,45 @@ export default function VariantSelectionModal({
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Helper function to get correct price for variant (matches backend logic)
+  const getVariantPrice = (variant: ProductVariantWithRefs | null, productData: any): number => {
+    if (!productData) {
+      return 0;
+    }
+
+    console.log('🔍 Modal price calculation:', {
+      productName: productData.name,
+      isOnSale: productData.isOnSale,
+      salePrice: productData.salePrice,
+      productPrice: productData.price,
+      currentPrice: productData.currentPrice,
+      variantId: variant?._id,
+      variantPrice: variant?.price
+    });
+
+    // Priority 1: Use currentPrice from backend if available (it handles sale date logic)
+    if (productData.currentPrice) {
+      console.log('💰 Using backend currentPrice:', productData.currentPrice);
+      return productData.currentPrice;
+    }
+
+    // Priority 2: If product is actively on sale, use product sale price for ALL variants
+    if (productData.isOnSale && productData.salePrice) {
+      console.log('💰 Using sale price:', productData.salePrice);
+      return productData.salePrice;
+    }
+
+    // Priority 3: Use variant price if available and greater than 0
+    if (variant?.price && variant.price > 0) {
+      console.log('💰 Using variant price:', variant.price);
+      return variant.price;
+    }
+
+    // Priority 4: Fallback to product regular price
+    console.log('💰 Using product price:', productData.price);
+    return productData.price || 0;
+  };
 
   // Fetch product with variants when modal opens
   useEffect(() => {
@@ -178,9 +218,9 @@ export default function VariantSelectionModal({
                 <h3 className={styles.productName}>{product.name}</h3>
                 <div className={styles.priceInfo}>
                   <span className={styles.currentPrice}>
-                    {formatCurrency(selectedVariant ? (product.salePrice || selectedVariant.price) : (product.salePrice || currentVariant.price))}
+                    {formatCurrency(getVariantPrice(selectedVariant, product))}
                   </span>
-                  {product.salePrice && product.salePrice < product.price && (
+                  {isOnSale(product) && (
                     <span className={styles.originalPrice}>{formatCurrency(product.price)}</span>
                   )}
                 </div>

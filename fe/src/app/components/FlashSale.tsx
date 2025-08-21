@@ -71,33 +71,37 @@ export default function FlashSale({
     
     const fetchProducts = async () => {
       try {
-        // Get sale products for display (limited to maxProducts)
+        // Get sale products for display (use same query as Sale page for consistency)
+        console.log(`🔍 FlashSale: Calling API with isOnSale=true, limit=${maxProducts} (same as Sale page)`);
         const response = await getProducts({
-          isOnSale: true,
-          limit: maxProducts, // Only get exactly what we need to display
+          isOnSale: 'true',  // Use string like Sale page
+          limit: 1000,       // Use high limit like Sale page to get all, then slice
           sort: 'createdAt', 
           order: 'desc' 
         });
+        
+        console.log(`📦 FlashSale: API response received:`, response);
         
         // Use EXACT same data parsing as sale page
         const productsArray = Array.isArray(response.data) ? response.data : 
                              (response.data && Array.isArray((response.data as any).data)) ? (response.data as any).data : [];
         
+        console.log(`📊 FlashSale: Parsed ${productsArray.length} products from API`);
+        
         let saleProducts = [];
         
         if (productsArray.length > 0) {
-          // Additional frontend filter to ensure products have salePrice - EXACT same as sale page
+          // Additional frontend filter to ensure products are on sale - using backend computed fields
           saleProducts = productsArray
             .filter((product: ProductWithCategory) => 
-              product.salePrice && 
-              product.salePrice < product.price && 
-              product.isActive !== false
+              product.isOnSale && product.isActive !== false
             )
             .slice(0, maxProducts); // Ensure we don't exceed maxProducts
         }
         
         // Only set products if we have actual sale products - NO FALLBACK
         if (saleProducts.length > 0) {
+          console.log(`🎯 FlashSale: Found ${saleProducts.length} sale products, setting state...`);
           setFlashSaleProducts(saleProducts);
           
           // PERFORMANCE: Cache the results
@@ -106,6 +110,8 @@ export default function FlashSale({
             timestamp: Date.now(),
             expiry: 5 * 60 * 1000 // 5 minutes
           };
+        } else {
+          console.log(`⚠️ FlashSale: No sale products found from ${productsArray.length} products`);
         }
       } catch (error) {
         console.error('❌ FlashSale Error:', error);
@@ -188,6 +194,13 @@ export default function FlashSale({
   // Cố định 4 sản phẩm mỗi slide (theo yêu cầu)
   const productsPerSlide = 4;
   const totalSlides = Math.ceil(flashSaleProducts.length / productsPerSlide);
+  
+  console.log(`📊 FlashSale Render Stats:`, {
+    totalProducts: flashSaleProducts.length,
+    productsPerSlide,
+    totalSlides,
+    maxProducts
+  });
 
   // Real-time countdown timer based on sale data
   useEffect(() => {

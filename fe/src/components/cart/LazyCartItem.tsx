@@ -45,9 +45,7 @@ const LazyCartItem = memo(function LazyCartItem({
   const colorName = item.productVariant.color?.name || '';
   const sizeName = item.productVariant.size?.name || '';
   const productImage = item.productVariant.product?.images?.[0] || '/placeholder-image.jpg';
-  const salePrice = item.productVariant.product?.salePrice;
-  const regularPrice = item.price;
-  const currentPrice = salePrice || regularPrice;
+  const currentPrice = item.productVariant.product?.currentPrice || item.price;
   const totalPrice = currentPrice * item.quantity;
 
   return (
@@ -92,10 +90,10 @@ const LazyCartItem = memo(function LazyCartItem({
           )}
           
           <div className="price-info">
-            {salePrice && salePrice < regularPrice ? (
+            {item.productVariant.product?.isOnSale ? (
               <>
-                <span className="sale-price">{formatCurrency(salePrice)}</span>
-                <span className="regular-price">{formatCurrency(regularPrice)}</span>
+                <span className="sale-price">{formatCurrency(currentPrice)}</span>
+                <span className="regular-price">{formatCurrency(item.productVariant.product.price)}</span>
               </>
             ) : (
               <span className="current-price">{formatCurrency(currentPrice)}</span>
