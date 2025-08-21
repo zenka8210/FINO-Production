@@ -144,6 +144,14 @@ export interface Order extends BaseEntity {
   user?: string; // ObjectId ref User
   items: OrderDetail[];
   address: string; // ObjectId ref Address, required
+  addressSnapshot?: {
+    fullName: string;
+    phone: string;
+    addressLine: string;
+    city: string;
+    district: string;
+    ward: string;
+  }; // Historical address snapshot
   total?: number; // total before voucher and shipping
   voucher?: string; // ObjectId ref Voucher, default: null
   discountAmount: number; // default: 0

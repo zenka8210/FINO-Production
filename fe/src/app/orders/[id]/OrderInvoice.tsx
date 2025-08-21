@@ -17,6 +17,48 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ order }) => {
     });
   };
 
+  // Helper function to get display address (priority: address -> addressSnapshot -> defaults)
+  const getDisplayAddress = () => {
+    // First try current address (if still exists)
+    if (order.address && typeof order.address === 'object') {
+      return {
+        fullName: order.address.fullName,
+        phone: order.address.phone,
+        addressLine: order.address.addressLine,
+        ward: order.address.ward,
+        district: order.address.district,
+        city: order.address.city,
+        source: 'current'
+      };
+    }
+    
+    // Fallback to addressSnapshot (preserved historical data)
+    if (order.addressSnapshot) {
+      return {
+        fullName: order.addressSnapshot.fullName,
+        phone: order.addressSnapshot.phone,
+        addressLine: order.addressSnapshot.addressLine,
+        ward: order.addressSnapshot.ward,
+        district: order.addressSnapshot.district,
+        city: order.addressSnapshot.city,
+        source: 'snapshot'
+      };
+    }
+    
+    // Final fallback
+    return {
+      fullName: 'N/A',
+      phone: 'N/A',
+      addressLine: 'N/A',
+      ward: 'N/A',
+      district: 'N/A',
+      city: 'N/A',
+      source: 'none'
+    };
+  };
+
+  const displayAddress = getDisplayAddress();
+
   // Format payment method text properly
   const getPaymentMethodText = (): string => {
     if (typeof order.paymentMethod === 'object' && order.paymentMethod?.method) {
@@ -60,15 +102,21 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ order }) => {
       <div className="customerSection">
         <div className="customerInfo">
           <h3>Thông tin khách hàng</h3>
-          <p><strong>Họ tên:</strong> {order.address?.fullName || 'N/A'}</p>
-          <p><strong>Điện thoại:</strong> {order.address?.phone || 'N/A'}</p>
+          <p><strong>Họ tên:</strong> {displayAddress.fullName}</p>
+          <p><strong>Điện thoại:</strong> {displayAddress.phone}</p>
           <p><strong>Email:</strong> {order.user?.email || 'N/A'}</p>
+          {displayAddress.source === 'snapshot' && (
+            <p style={{ fontSize: '10px', fontStyle: 'italic', color: '#666' }}>(từ lịch sử)</p>
+          )}
         </div>
         <div className="shippingInfo">
           <h3>Địa chỉ giao hàng</h3>
-          <p>{order.address?.addressLine}</p>
-          <p>{order.address?.ward}, {order.address?.district}</p>
-          <p>{order.address?.city}</p>
+          <p>{displayAddress.addressLine}</p>
+          <p>{displayAddress.ward}, {displayAddress.district}</p>
+          <p>{displayAddress.city}</p>
+          {displayAddress.source === 'snapshot' && (
+            <p style={{ fontSize: '10px', fontStyle: 'italic', color: '#666' }}>(từ lịch sử)</p>
+          )}
         </div>
       </div>
 

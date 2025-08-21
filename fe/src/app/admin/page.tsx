@@ -772,6 +772,45 @@ export default function AdminPage() {
     }
   };
 
+  // Function to get today's order count
+  const getTodaysOrderCount = async (token: string | null, baseUrl: string) => {
+    try {
+      // Fetch recent orders to count today's orders
+      const ordersResponse = await fetch(`${baseUrl}/api/orders?limit=100&page=1`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (ordersResponse.ok) {
+        const ordersData = await ordersResponse.json();
+        const orders = ordersData.data?.documents || ordersData.data || ordersData.orders || [];
+        
+        // Filter orders for today
+        const today = new Date();
+        const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        
+        const todayOrders = Array.isArray(orders) ? orders.filter((order: any) => {
+          if (!order.createdAt) return false;
+          const orderDate = new Date(order.createdAt);
+          return orderDate >= todayStart;
+        }) : [];
+        
+        console.log('Today orders count:', todayOrders.length);
+        
+        // Update only the todayOrders count
+        setDailyRevenue(prev => ({
+          ...prev,
+          todayOrders: todayOrders.length
+        }));
+        
+      }
+    } catch (error) {
+      console.error('Failed to get today\'s order count:', error);
+    }
+  };
+
   // Function to load daily revenue data
   const loadDailyRevenue = async () => {
     console.log('🔄 loadDailyRevenue called');
@@ -849,8 +888,11 @@ export default function AdminPage() {
             today: todayRevenue,
             yesterday: yesterdayRevenue,
             changePercent,
-            todayOrders: 0 // We don't have order count from chart API
+            todayOrders: 0 // We don't have order count from chart API - will get it separately
           });
+          
+          // After setting revenue, also fetch orders to get today's order count
+          await getTodaysOrderCount(token, BASE_URL);
           
           return; // Successfully got data from chart API
         }
@@ -904,8 +946,15 @@ export default function AdminPage() {
           yesterdayEnd: yesterdayEnd.toISOString()
         });
         
-        // Filter all orders for today (not just recent 5)
-        const todayOrders = ordersArray.filter((order: any) => {
+        // Filter all orders for today (count all orders created today, not just paid ones)
+        const todayAllOrders = ordersArray.filter((order: any) => {
+          if (!order.createdAt) return false;
+          const orderDate = new Date(order.createdAt);
+          return orderDate >= todayStart;
+        });
+        
+        // Filter paid orders for today (for revenue calculation)
+        const todayPaidOrders = ordersArray.filter((order: any) => {
           if (!order.createdAt) return false;
           const orderDate = new Date(order.createdAt);
           const isToday = orderDate >= todayStart;
@@ -938,14 +987,15 @@ export default function AdminPage() {
         
         console.log('Orders analysis:', {
           totalOrders: ordersArray.length,
-          todayOrders: todayOrders.length,
+          todayAllOrders: todayAllOrders.length,
+          todayPaidOrders: todayPaidOrders.length,
           yesterdayOrders: yesterdayOrders.length,
           allPaidOrders: allPaidOrders.length,
           samplePaidOrder: allPaidOrders[0]
         });
         
         // Calculate revenue using same logic as total revenue
-        const todayRevenue = todayOrders.reduce((sum: number, order: any) => {
+        const todayRevenue = todayPaidOrders.reduce((sum: number, order: any) => {
           const finalTotal = order.finalTotal || order.total || order.totalAmount || 0;
           const parsedTotal = typeof finalTotal === 'string' ? parseFloat(finalTotal) : finalTotal;
           return sum + (isNaN(parsedTotal) ? 0 : parsedTotal);
@@ -967,7 +1017,8 @@ export default function AdminPage() {
         }
         
         console.log('Daily revenue calculation:', {
-          todayOrders: todayOrders.length,
+          todayAllOrders: todayAllOrders.length,
+          todayPaidOrders: todayPaidOrders.length,
           yesterdayOrders: yesterdayOrders.length,
           todayRevenue,
           yesterdayRevenue,
@@ -978,7 +1029,7 @@ export default function AdminPage() {
           today: todayRevenue,
           yesterday: yesterdayRevenue,
           changePercent,
-          todayOrders: todayOrders.length
+          todayOrders: todayAllOrders.length // Use all orders created today, not just paid ones
         });
       } else {
         console.error('Failed to fetch orders for daily revenue calculation');

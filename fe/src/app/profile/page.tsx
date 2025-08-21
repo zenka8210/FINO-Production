@@ -80,6 +80,7 @@ function ProfilePageContent() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [orders, setOrders] = useState<OrderWithRefs[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
+  const [addressesKey, setAddressesKey] = useState(0); // Force re-render key
   
   // Modal states
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
@@ -152,9 +153,18 @@ function ProfilePageContent() {
   // Fetch user addresses
   const fetchAddresses = async () => {
     try {
+      console.log('🔄 Fetching addresses from server...');
       const userAddresses = await userService.getUserAddresses();
+      console.log('📦 Received addresses:', userAddresses.map(addr => ({
+        name: addr.fullName,
+        isDefault: addr.isDefault,
+        id: addr._id.slice(-4)
+      })));
       setAddresses(userAddresses);
+      setAddressesKey(prev => prev + 1); // Force re-render
+      console.log('✅ Addresses state updated');
     } catch (error: any) {
+      console.error('❌ Error fetching addresses:', error);
       showError('Không thể tải danh sách địa chỉ', error);
     }
   };
@@ -295,7 +305,8 @@ function ProfilePageContent() {
 
     try {
       await userService.deleteUserAddress(addressId);
-      setAddresses(prev => prev.filter(addr => addr._id !== addressId));
+      // Refetch all addresses to ensure state consistency
+      await fetchAddresses();
       showSuccess('Xóa địa chỉ thành công');
     } catch (error: any) {
       // Handle specific error messages from backend
@@ -311,10 +322,8 @@ function ProfilePageContent() {
   const handleSetDefaultAddress = async (addressId: string) => {
     try {
       await userService.setDefaultUserAddress(addressId);
-      setAddresses(prev => prev.map(addr => ({
-        ...addr,
-        isDefault: addr._id === addressId
-      })));
+      // Refetch all addresses from server to ensure accurate isDefault states
+      await fetchAddresses();
       showSuccess('Đặt địa chỉ mặc định thành công');
     } catch (error: any) {
       showError('Đặt địa chỉ mặc định thất bại', error);
@@ -396,10 +405,13 @@ function ProfilePageContent() {
       };
 
       const newAddress = await userService.addUserAddress(addressRequest);
-      setAddresses(prev => addressForm.isDefault 
-        ? prev.map(addr => ({ ...addr, isDefault: false })).concat(newAddress)
-        : [...prev, newAddress]
-      );
+      console.log('🆕 New address created:', newAddress);
+      
+      // Refetch all addresses from server to ensure accurate isDefault states
+      // This prevents showing multiple "Mặc định" badges temporarily
+      console.log('🔄 Refetching addresses after add...');
+      await fetchAddresses();
+      console.log('✅ Addresses refetched, current count:', addresses.length);
       
       // Reset form
       setAddressForm({
@@ -1257,9 +1269,9 @@ function ProfilePageContent() {
                     </Button>
                   </div>
                 ) : (
-                  <div className={styles.addressesList}>
+                  <div className={styles.addressesList} key={`addresses-${addressesKey}`}>
                     {addresses.map((address) => (
-                      <div key={address._id} className={`${styles.addressCard} ${address.isDefault ? styles.addressDefault : ''}`}>
+                      <div key={`${address._id}-${addressesKey}`} className={`${styles.addressCard} ${address.isDefault ? styles.addressDefault : ''}`}>
                         <div className={styles.addressHeader}>
                           <div className={styles.addressTitle}>
                             <h4>{address.fullName}</h4>

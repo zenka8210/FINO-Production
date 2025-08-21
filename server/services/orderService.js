@@ -228,14 +228,31 @@ class OrderService extends BaseService {
       throw new AppError('Trạng thái đơn hàng không hợp lệ', ERROR_CODES.BAD_REQUEST);
     }
 
-    // Business rule: Can't change status of cancelled orders (only restriction)
-    if (order.status === 'cancelled' && newStatus !== 'cancelled') {
-      throw new AppError('Không thể thay đổi trạng thái đơn hàng đã hủy', ERROR_CODES.BAD_REQUEST);
-    }
-
-    // Business rule: Can only cancel orders that are in pending or processing status
-    if (newStatus === 'cancelled' && !['pending', 'processing'].includes(order.status)) {
-      throw new AppError('Chỉ có thể hủy đơn hàng ở trạng thái chờ xử lý hoặc đang xử lý', ERROR_CODES.BAD_REQUEST);
+    // =========== ENHANCED ADMIN CONTROL LOGIC ===========
+    
+    // 1. LOGICAL STATUS FLOW VALIDATION - No backward transitions allowed
+    const statusFlow = {
+      'pending': ['processing', 'cancelled'],
+      'processing': ['shipped', 'delivered', 'cancelled'], 
+      'shipped': ['delivered', 'cancelled'], // Can cancel if customer doesn't receive (return)
+      'delivered': [], // Final state - no changes allowed
+      'cancelled': [] // Final state - no changes allowed
+    };
+    
+    // Check if transition is allowed
+    if (!statusFlow[oldStatus]?.includes(newStatus)) {
+      const flowMessage = {
+        'pending': 'Từ "Chờ xử lý" chỉ có thể chuyển sang "Đang xử lý" hoặc "Hủy đơn"',
+        'processing': 'Từ "Đang xử lý" chỉ có thể chuyển sang "Đã gửi hàng", "Đã giao" hoặc "Hủy đơn"',
+        'shipped': 'Từ "Đã gửi hàng" chỉ có thể chuyển sang "Đã giao hàng" hoặc "Hủy đơn" (không nhận hàng)',
+        'delivered': 'Đơn hàng đã hoàn thành - không thể thay đổi trạng thái',
+        'cancelled': 'Đơn hàng đã hủy - không thể thay đổi trạng thái'
+      };
+      
+      throw new AppError(
+        `❌ Không thể cập nhật trạng thái: ${flowMessage[oldStatus]}`, 
+        ERROR_CODES.BAD_REQUEST
+      );
     }
 
     // VOUCHER LOGIC: Handle usedCount based on status changes
@@ -329,17 +346,62 @@ class OrderService extends BaseService {
       throw new AppError('Trạng thái thanh toán không hợp lệ', ERROR_CODES.BAD_REQUEST);
     }
 
-    // Business validation: COD orders delivered must be paid
+    // =========== ENHANCED PAYMENT STATUS CONTROL ===========
+    
+    // 1. RESTRICT PAYMENT STATUS CHANGES FOR CANCELLED ORDERS
+    if (order.status === 'cancelled') {
+      throw new AppError(
+        `❌ Không thể thay đổi trạng thái thanh toán cho đơn hàng đã hủy. ` +
+        `Đơn hàng đã hủy có trạng thái thanh toán cố định.`,
+        ERROR_CODES.FORBIDDEN
+      );
+    }
+    
+    // 2. RESTRICT VNPay AND MOMO MANUAL CHANGES
+    const paymentMethod = order.paymentMethod?.method || order.paymentMethod || '';
+    const digitalPaymentMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
+    
+    if (digitalPaymentMethods.includes(paymentMethod)) {
+      throw new AppError(
+        `❌ Không thể thay đổi thủ công trạng thái thanh toán cho phương thức ${paymentMethod}. ` +
+        `Trạng thái này chỉ được cập nhật tự động thông qua callback từ hệ thống thanh toán.`,
+        ERROR_CODES.FORBIDDEN
+      );
+    }
+
+    // 3. RESTRICT COD PAYMENT STATUS CHANGES FOR DELIVERED ORDERS ONLY
+    // Note: COD shipped orders can still be cancelled if customer doesn't receive
+    const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
+    const isDelivered = order.status === 'delivered';
+    
+    if (isCOD && isDelivered) {
+      throw new AppError(
+        `❌ Không thể thay đổi trạng thái thanh toán COD khi đơn hàng đã giao hàng thành công. ` +
+        `Trạng thái thanh toán COD được tự động cập nhật khi đơn hàng giao thành công.`,
+        ERROR_CODES.FORBIDDEN
+      );
+    }
+
+    // 4. BUSINESS VALIDATION FOR SPECIAL ORDER STATES
     if (order.status === 'delivered') {
-      const paymentMethod = order.paymentMethod?.method || order.paymentMethod;
-      
-      if ((paymentMethod === 'COD' || paymentMethod === 'cod') && newPaymentStatus !== 'paid') {
+      if (isCOD && newPaymentStatus !== 'paid') {
         throw new AppError(
           'Đơn hàng COD đã giao không thể có trạng thái thanh toán khác "paid"',
           ERROR_CODES.BAD_REQUEST
         );
       }
     }
+    
+    // Cancelled orders should have consistent payment status
+    if (order.status === 'cancelled' && newPaymentStatus === 'paid') {
+      throw new AppError(
+        'Đơn hàng đã hủy không thể có trạng thái thanh toán "paid"',
+        ERROR_CODES.BAD_REQUEST
+      );
+    }
+
+    // 5. LOG MANUAL PAYMENT STATUS CHANGE
+    console.log(`🔧 [ADMIN PAYMENT UPDATE] Order ${order.orderCode}: ${order.paymentStatus} → ${newPaymentStatus} by admin ${adminId}`);
 
     // Prepare update data
     const updateData = {

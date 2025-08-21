@@ -5,6 +5,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { useAdminOrders } from "../../../hooks/useAdminOrders";
 import { OrderWithRefs } from "../../../types";
 import OrderDetailModal from "../../../components/OrderDetailModal";
+import OrderInvoice from "../../orders/[id]/OrderInvoice";
 import styles from "./order-admin.module.css";
 
 export default function AdminOrdersPage() {
@@ -38,22 +39,52 @@ export default function AdminOrdersPage() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [showPageInput, setShowPageInput] = useState(false);
   const [pageInputValue, setPageInputValue] = useState('');
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [printOrder, setPrintOrder] = useState<OrderWithRefs | null>(null);
 
   // Business logic for status transitions  
   const getValidStatusTransitions = (currentStatus: string): string[] => {
-    // If order is cancelled, no status changes allowed
-    if (currentStatus === 'cancelled') {
-      return ['cancelled'];
-    }
+    // ENHANCED ADMIN CONTROL - Match backend logic exactly
+    const statusFlow = {
+      'pending': ['pending', 'processing', 'cancelled'],
+      'processing': ['processing', 'shipped', 'delivered', 'cancelled'], 
+      'shipped': ['shipped', 'delivered', 'cancelled'], // Can cancel if customer doesn't receive (return)
+      'delivered': ['delivered'], // Final state - no changes allowed
+      'cancelled': ['cancelled'] // Final state - no changes allowed
+    };
     
-    // Admin can change to any status (including back to previous statuses for correction)
-    // Only restriction is: cannot change FROM cancelled
-    return ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+    return statusFlow[currentStatus] || [currentStatus];
   };
 
-  // Check if cancellation is allowed
+  // Check if cancellation is allowed - Updated logic
   const canCancelOrder = (currentStatus: string): boolean => {
     return ['pending', 'processing'].includes(currentStatus);
+  };
+
+  // NEW: Check if payment status can be changed manually
+  const canChangePaymentStatus = (order: OrderWithRefs): boolean => {
+    const paymentMethod = order.paymentMethod?.method || order.paymentMethod || '';
+    const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
+    
+    // Không cho phép thay đổi payment status cho VNPay/Momo
+    if (digitalMethods.includes(paymentMethod)) {
+      return false;
+    }
+    
+    // Không cho phép thay đổi payment status cho đơn hàng đã hủy
+    if (order.status === 'cancelled') {
+      return false;
+    }
+    
+    // Không cho phép thay đổi payment status cho COD đã giao (chỉ delivered, shipped vẫn có thể cancel nếu không nhận)
+    const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
+    const isDelivered = order.status === 'delivered';
+    
+    if (isCOD && isDelivered) {
+      return false;
+    }
+    
+    return true;
   };
 
   // Check auth token on client side
@@ -493,6 +524,16 @@ export default function AdminOrdersPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
           </button>
+          <button
+            onClick={() => handlePrint(order)}
+            className="p-1 text-sm rounded hover:scale-105 transition-transform duration-200 ml-1"
+            style={{ color: 'var(--color-primary, #1E40AF)' }}
+            title="In đơn hàng"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+          </button>
         </div>
       )
     }
@@ -642,6 +683,32 @@ export default function AdminOrdersPage() {
       console.log('[DEBUG] 📋 Update details:', { orderId, newPaymentStatus });
       setUpdateMessage(''); // Clear previous message
       
+      // Find the order to check payment method
+      const order = orders.find(o => o._id === orderId);
+      if (!order) {
+        throw new Error('Không tìm thấy đơn hàng');
+      }
+      
+      // Check if payment status can be changed
+      if (!canChangePaymentStatus(order)) {
+        const paymentMethod = order.paymentMethod?.method || order.paymentMethod || '';
+        const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
+        const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
+        const isDelivered = order.status === 'delivered';
+        
+        let errorMsg = 'Không thể thay đổi trạng thái thanh toán';
+        
+        if (order.status === 'cancelled') {
+          errorMsg = 'Không thể thay đổi trạng thái thanh toán cho đơn hàng đã hủy';
+        } else if (digitalMethods.includes(paymentMethod)) {
+          errorMsg = `Không thể thay đổi trạng thái thanh toán cho phương thức ${paymentMethod} - Đây là phương thức thanh toán điện tử`;
+        } else if (isCOD && isDelivered) {
+          errorMsg = `Không thể thay đổi trạng thái thanh toán COD khi đơn hàng đã giao hàng thành công`;
+        }
+        
+        throw new Error(errorMsg);
+      }
+      
       // Check authentication status first
       const token = localStorage.getItem('authToken');
       if (!token) {
@@ -700,6 +767,358 @@ export default function AdminOrdersPage() {
   const handleCloseDetailModal = () => {
     setIsDetailModalOpen(false);
     setSelectedOrderId(null);
+  };
+
+  const handlePrint = (order: OrderWithRefs) => {
+    console.log('[DEBUG] 🖨️ Print order data:', order);
+    console.log('[DEBUG] 🖨️ Order address:', order.address);
+    console.log('[DEBUG] 🖨️ Order addressSnapshot:', order.addressSnapshot);
+    console.log('[DEBUG] 🖨️ Order user:', order.user);
+    
+    setPrintOrder(order);
+    setShowInvoice(true);
+    // Wait for invoice to render, then print
+    setTimeout(() => {
+      const invoiceElement = document.getElementById('order-invoice');
+      if (invoiceElement) {
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(`
+            <html>
+              <head>
+                <title>Hóa đơn #${order?.orderCode}</title>
+                <style>
+                  * { margin: 0; padding: 0; box-sizing: border-box; }
+                  body { font-family: Arial, sans-serif; }
+                  ${getInvoiceStyles()}
+                </style>
+              </head>
+              <body>
+                ${invoiceElement.outerHTML}
+              </body>
+            </html>
+          `);
+          printWindow.document.close();
+          printWindow.print();
+          printWindow.close();
+        }
+      }
+      setShowInvoice(false);
+    }, 100);
+  };
+
+  const getInvoiceStyles = () => {
+    // Professional black & white invoice styles for paper printing
+    return `
+      @page { 
+        size: A4; 
+        margin: 15mm; 
+      }
+      
+      * { 
+        margin: 0; 
+        padding: 0; 
+        box-sizing: border-box; 
+      }
+      
+      body { 
+        font-family: 'Times New Roman', Times, serif; 
+        font-size: 11pt; 
+        line-height: 1.4; 
+        color: #000; 
+        background: white;
+      }
+      
+      .invoice { 
+        max-width: 210mm; 
+        margin: 0 auto; 
+        padding: 0; 
+        background: white;
+      }
+      
+      /* Header Section */
+      .header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: flex-start;
+        margin-bottom: 20pt; 
+        padding-bottom: 15pt; 
+        border-bottom: 2pt solid #000; 
+      }
+      
+      .logo h1 { 
+        font-size: 24pt; 
+        font-weight: bold; 
+        letter-spacing: 2pt; 
+        margin-bottom: 5pt;
+        text-transform: uppercase;
+      }
+      
+      .logo p { 
+        font-size: 10pt; 
+        font-style: italic; 
+        margin-bottom: 2pt;
+      }
+      
+      .companyInfo p {
+        font-size: 9pt;
+        margin: 1pt 0;
+      }
+      
+      .invoiceInfo { 
+        text-align: right; 
+        border: 1pt solid #000;
+        padding: 10pt;
+        background: #f9f9f9;
+      }
+      
+      .invoiceInfo h2 { 
+        font-size: 18pt; 
+        font-weight: bold; 
+        margin-bottom: 8pt;
+        text-transform: uppercase;
+        letter-spacing: 1pt;
+      }
+      
+      .invoiceInfo p {
+        font-size: 10pt;
+        margin: 2pt 0;
+      }
+      
+      /* Customer Section */
+      .customerSection { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 30pt; 
+        margin-bottom: 20pt; 
+      }
+      
+      .customerInfo, .shippingInfo { 
+        border: 1pt solid #000;
+        padding: 10pt;
+      }
+      
+      .customerInfo h3, .shippingInfo h3 { 
+        font-size: 12pt; 
+        font-weight: bold;
+        margin-bottom: 8pt; 
+        text-transform: uppercase;
+        border-bottom: 1pt solid #000;
+        padding-bottom: 3pt;
+      }
+      
+      .customerInfo p, .shippingInfo p {
+        font-size: 10pt;
+        margin: 2pt 0;
+      }
+      
+      /* Items Table */
+      .itemsTable { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin-bottom: 20pt; 
+        border: 1pt solid #000;
+      }
+      
+      .itemsTable th { 
+        background: #000; 
+        color: white; 
+        padding: 8pt; 
+        font-weight: bold; 
+        text-align: left;
+        font-size: 10pt;
+        text-transform: uppercase;
+      }
+      
+      .itemsTable th:last-child,
+      .itemsTable td:last-child { 
+        text-align: right; 
+      }
+      
+      .itemsTable td { 
+        padding: 6pt 8pt; 
+        border-bottom: 1pt solid #ccc; 
+        font-size: 10pt;
+      }
+      
+      .itemsTable tbody tr:nth-child(even) {
+        background: #f9f9f9;
+      }
+      
+      .item-name {
+        font-weight: bold;
+        margin-bottom: 2pt;
+      }
+      
+      .item-variant {
+        font-size: 9pt;
+        color: #666;
+        font-style: italic;
+      }
+      
+      /* Summary Section */
+      .summarySection { 
+        display: flex; 
+        justify-content: flex-end; 
+        margin-bottom: 20pt; 
+      }
+      
+      .summaryTable { 
+        min-width: 200pt; 
+        border: 1pt solid #000;
+      }
+      
+      .summaryRow { 
+        display: flex; 
+        justify-content: space-between; 
+        padding: 5pt 10pt; 
+        border-bottom: 1pt solid #ccc; 
+        font-size: 10pt;
+      }
+      
+      .summaryRow:last-child {
+        border-bottom: none;
+      }
+      
+      .summaryRow.subtotal {
+        background: #f9f9f9;
+      }
+      
+      .summaryRow.discount {
+        background: #f9f9f9;
+        font-style: italic;
+      }
+      
+      .summaryRow.shipping {
+        background: #f9f9f9;
+      }
+      
+      .summaryRow.total { 
+        background: #000;
+        color: white;
+        font-weight: bold; 
+        font-size: 12pt;
+        border-top: 2pt solid #000;
+      }
+      
+      /* Payment & Status Info */
+      .paymentSection {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20pt;
+        margin-bottom: 20pt;
+      }
+      
+      .paymentInfo, .statusInfo {
+        border: 1pt solid #000;
+        padding: 10pt;
+      }
+      
+      .paymentInfo h4, .statusInfo h4 {
+        font-size: 11pt;
+        font-weight: bold;
+        margin-bottom: 5pt;
+        text-transform: uppercase;
+        border-bottom: 1pt solid #000;
+        padding-bottom: 2pt;
+      }
+      
+      .paymentInfo p, .statusInfo p {
+        font-size: 10pt;
+        margin: 2pt 0;
+      }
+      
+      /* Footer */
+      .footer { 
+        border-top: 2pt solid #000;
+        padding-top: 15pt;
+        margin-top: 20pt;
+      }
+      
+      .footerContent {
+        display: grid; 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 20pt; 
+      }
+      
+      .footerSection h4 { 
+        font-size: 10pt; 
+        font-weight: bold;
+        margin-bottom: 5pt;
+        text-transform: uppercase;
+      }
+      
+      .footerSection p { 
+        font-size: 9pt; 
+        margin: 1pt 0;
+      }
+      
+      .thankYou { 
+        text-align: center; 
+        margin-top: 15pt;
+        padding: 10pt;
+        border: 1pt solid #000;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1pt;
+      }
+      
+      /* Signature Section */
+      .signatureSection {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30pt;
+        padding-top: 20pt;
+        border-top: 1pt solid #000;
+      }
+      
+      .signature {
+        text-align: center;
+        width: 150pt;
+      }
+      
+      .signature p {
+        font-size: 10pt;
+        margin-bottom: 30pt;
+        font-weight: bold;
+      }
+      
+      .signature .signLine {
+        border-bottom: 1pt solid #000;
+        margin-bottom: 5pt;
+      }
+      
+      .signature .signLabel {
+        font-size: 9pt;
+        font-style: italic;
+      }
+      
+      /* Print Specific */
+      @media print {
+        body { 
+          print-color-adjust: exact; 
+          -webkit-print-color-adjust: exact;
+        }
+        
+        .invoice { 
+          margin: 0; 
+          padding: 0; 
+          box-shadow: none;
+        }
+        
+        .header, .footer {
+          break-inside: avoid;
+        }
+        
+        .itemsTable {
+          break-inside: auto;
+        }
+        
+        .summarySection {
+          break-inside: avoid;
+        }
+      }
+    `;
   };
 
   // Hiển thị loading khi đang load auth
@@ -1170,23 +1589,87 @@ export default function AdminOrdersPage() {
                       </option>
                     ))}
                   </select>
-                  <select
-                    value={order.paymentStatus || 'pending'}
-                    onChange={(e) => handlePaymentStatusChange(order._id, e.target.value)}
-                    className={styles.orderStatusSelect}
-                    title="Trạng thái thanh toán"
-                  >
-                    <option value="pending">Chờ thanh toán</option>
-                    <option value="paid">Đã thanh toán</option>
-                    <option value="failed">Thanh toán thất bại</option>
-                    <option value="cancelled">Đã hủy thanh toán</option>
-                  </select>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <select
+                      value={order.paymentStatus || 'pending'}
+                      onChange={(e) => handlePaymentStatusChange(order._id, e.target.value)}
+                      onClick={(e) => {
+                        if (!canChangePaymentStatus(order)) {
+                          e.preventDefault();
+                          const paymentMethod = order.paymentMethod?.method || order.paymentMethod || '';
+                          const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
+                          const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
+                          const isDelivered = order.status === 'delivered';
+                          
+                          let errorMsg = 'Không thể thay đổi trạng thái thanh toán';
+                          
+                          if (order.status === 'cancelled') {
+                            errorMsg = '⚠️ Không thể thay đổi trạng thái thanh toán cho đơn hàng đã hủy';
+                          } else if (digitalMethods.includes(paymentMethod)) {
+                            errorMsg = `⚠️ Không thể thay đổi trạng thái thanh toán cho phương thức ${paymentMethod} - Đây là phương thức thanh toán điện tử`;
+                          } else if (isCOD && isDelivered) {
+                            errorMsg = `⚠️ Không thể thay đổi trạng thái thanh toán COD khi đơn hàng đã giao thành công`;
+                          }
+                          
+                          setUpdateMessage(errorMsg);
+                          setTimeout(() => setUpdateMessage(''), 5000);
+                        }
+                      }}
+                      className={styles.orderStatusSelect}
+                      title={canChangePaymentStatus(order) ? "Trạng thái thanh toán" : (() => {
+                        const paymentMethod = order.paymentMethod?.method || order.paymentMethod || '';
+                        const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
+                        const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
+                        const isDelivered = order.status === 'delivered';
+                        
+                        if (order.status === 'cancelled') {
+                          return 'Không thể thay đổi thanh toán cho đơn hàng đã hủy';
+                        } else if (digitalMethods.includes(paymentMethod)) {
+                          return `Không thể thay đổi thanh toán ${paymentMethod} - Phương thức điện tử`;
+                        } else if (isCOD && isDelivered) {
+                          return `Không thể thay đổi COD khi đã giao hàng thành công`;
+                        }
+                        return 'Không thể thay đổi trạng thái thanh toán';
+                      })()}
+                      disabled={!canChangePaymentStatus(order)}
+                      style={{
+                        opacity: !canChangePaymentStatus(order) ? 0.6 : 1,
+                        cursor: !canChangePaymentStatus(order) ? 'not-allowed' : 'pointer',
+                        backgroundColor: !canChangePaymentStatus(order) ? '#f5f5f5' : ''
+                      }}
+                    >
+                      <option value="pending">Chờ thanh toán</option>
+                      <option value="paid">Đã thanh toán</option>
+                      <option value="failed">Thanh toán thất bại</option>
+                      <option value="cancelled">Đã hủy thanh toán</option>
+                    </select>
+                    {!canChangePaymentStatus(order) && (
+                      <span 
+                        style={{ 
+                          fontSize: '14px', 
+                          color: '#f59e0b',
+                          cursor: 'help'
+                        }}
+                        title={`Đơn hàng thanh toán qua ${order.paymentMethod?.method} không thể thay đổi trạng thái`}
+                      >
+                        🔒
+                      </span>
+                    )}
+                  </div>
                   <button
                     onClick={() => handleViewDetails(order)}
                     className={styles.orderDetailsButton}
                     title="Xem chi tiết"
                   >
                     Chi tiết
+                  </button>
+                  <button
+                    onClick={() => handlePrint(order)}
+                    className={styles.orderDetailsButton}
+                    title="In đơn hàng"
+                    style={{ marginLeft: '8px' }}
+                  >
+                    In đơn hàng
                   </button>
                 </div>
               </div>
@@ -1361,6 +1844,13 @@ export default function AdminOrdersPage() {
         isOpen={isDetailModalOpen}
         onClose={handleCloseDetailModal}
       />
+
+      {/* Order Invoice Modal */}
+      {showInvoice && printOrder && (
+        <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+          <OrderInvoice order={printOrder} />
+        </div>
+      )}
     </div>
   );
 }
