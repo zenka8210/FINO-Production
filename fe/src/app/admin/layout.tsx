@@ -1,8 +1,10 @@
 "use client";
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import AdminHeader from '../components/AdminHeader';
 import { AdminProvider, useAdmin } from '@/contexts';
+import { useAuth } from '@/contexts/AuthContext';
 import styles from './admin.module.css';
 
 // Sidebar component
@@ -51,14 +53,57 @@ const AdminNavigation = () => {
   );
 };
 
-// Layout tổng cho admin
+// Layout tổng cho admin với admin guard
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <AdminProvider>
-      <AdminHeader />
-      <AdminLayoutContent>{children}</AdminLayoutContent>
+      <AdminGuard>
+        <AdminHeader />
+        <AdminLayoutContent>{children}</AdminLayoutContent>
+      </AdminGuard>
     </AdminProvider>
   );
+}
+
+// Admin Guard component for role-based access control
+function AdminGuard({ children }: { children: React.ReactNode }) {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+  
+  useEffect(() => {
+    // Đợi AuthContext load xong trước khi kiểm tra
+    if (isLoading) return;
+    
+    if (!user || user.role !== "admin") {
+      router.replace("/maintenance?reason=access-denied");
+      return;
+    }
+  }, [user, isLoading, router]);
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        background: '#f8fafc'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '24px', marginBottom: '16px' }}>⏳</div>
+          <div>Đang kiểm tra quyền truy cập...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render children if user is not admin
+  if (!user || user.role !== "admin") {
+    return null;
+  }
+
+  return <>{children}</>;
 }
 
 // Layout content component to use admin context

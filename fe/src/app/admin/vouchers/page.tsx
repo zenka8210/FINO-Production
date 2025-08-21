@@ -69,16 +69,10 @@ export default function VoucherPage() {
   }, [searchTerm]);
 
   useEffect(() => {
-    if (isLoading) return;
-    
-    if (!user || user.role !== "admin") {
-      router.replace("/login");
-      return;
-    }
-    
+    // Admin access control is handled by AdminLayout
     fetchVouchers();
     fetchStatistics();
-  }, [user?.role, isLoading, currentPage, filterStatus, debouncedSearchTerm, sortBy, sortOrder]);
+  }, [currentPage, filterStatus, debouncedSearchTerm, sortBy, sortOrder]);
 
   const fetchVouchers = async () => {
     try {

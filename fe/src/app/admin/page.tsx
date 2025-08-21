@@ -101,14 +101,8 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    // Đợi AuthContext load xong trước khi kiểm tra
-    // if (isLoading) return;
+    // Admin access control is handled by AdminLayout, so we can directly fetch stats
     
-    // if (!user || user.role !== "admin") {
-    //   router.replace("/login");
-    //   return;
-    // }
-
     // Fallback function to get stats from individual APIs
     async function fetchFallbackStats(baseUrl: string, headers: any) {
       try {
@@ -468,7 +462,7 @@ export default function AdminPage() {
       }
     }
     fetchStats();
-  }, []); // [user, router, isLoading]);
+  }, []); // Admin guard handled by layout, no need for user/isLoading deps
 
   // Load initial revenue data
   useEffect(() => {
@@ -526,21 +520,10 @@ export default function AdminPage() {
     }
   };
 
-  // Business logic helper: Get valid status options based on current status
+  // Business logic helper: Get valid status options based on current status (updated to use transitions)
   const getValidStatusOptions = (currentStatus: string) => {
-    // If order is cancelled, no status changes allowed
-    if (currentStatus === 'cancelled') {
-      return ['cancelled'];
-    }
-    
-    // Admin can change to any status (including back to previous statuses for correction)
-    // Only restriction is: cannot change FROM cancelled
-    return ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
-  };
-
-  // Business logic helper: Check if status can be changed to cancelled
-  const canCancelOrder = (currentStatus: string) => {
-    return ['pending', 'processing'].includes(currentStatus);
+    // Use the more restrictive transition logic (consistent with admin/orders page)
+    return getValidStatusTransitions(currentStatus);
   };
 
   // Function to handle chart period change
@@ -589,6 +572,51 @@ export default function AdminPage() {
     }
   };
 
+  // Business logic for status transitions (consistent with admin/orders page)  
+  const getValidStatusTransitions = (currentStatus: string): string[] => {
+    // ENHANCED ADMIN CONTROL - Match backend logic exactly
+    const statusFlow = {
+      'pending': ['pending', 'processing', 'cancelled'],
+      'processing': ['processing', 'shipped', 'delivered', 'cancelled'], 
+      'shipped': ['shipped', 'delivered', 'cancelled'], // Can cancel if customer doesn't receive (return)
+      'delivered': ['delivered'], // Final state - no changes allowed
+      'cancelled': ['cancelled'] // Final state - no changes allowed
+    };
+    
+    return statusFlow[currentStatus] || [currentStatus];
+  };
+
+  // Helper functions for validation (consistent with admin/orders page)
+  const canCancelOrder = (currentStatus: string): boolean => {
+    return ['pending', 'processing'].includes(currentStatus);
+  };
+
+  // Check if payment status can be changed manually
+  const canChangePaymentStatus = (order: any): boolean => {
+    const paymentMethod = order.paymentMethod?.method || order.paymentMethod || '';
+    const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
+    
+    // Không cho phép thay đổi payment status cho VNPay/Momo
+    if (digitalMethods.includes(paymentMethod)) {
+      return false;
+    }
+    
+    // Không cho phép thay đổi payment status cho đơn hàng đã hủy
+    if (order.status === 'cancelled') {
+      return false;
+    }
+    
+    // Không cho phép thay đổi payment status cho COD đã giao
+    const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
+    const isDelivered = order.status === 'delivered';
+    
+    if (isCOD && isDelivered) {
+      return false;
+    }
+    
+    return true;
+  };
+
   // Function to update order status
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     // Find the current order to check its current status
@@ -598,15 +626,22 @@ export default function AdminPage() {
       return;
     }
 
-    // Business logic validation
-    if (newStatus === 'cancelled' && !canCancelOrder(currentOrder.status)) {
-      alert('⚠️ Không thể hủy đơn hàng đã gửi hàng hoặc đã giao hàng!\n\nChỉ có thể hủy đơn hàng ở trạng thái "Chờ xử lý" hoặc "Đang xử lý".');
-      return;
-    }
-
-    // Check if trying to change FROM cancelled status (not allowed)
-    if (currentOrder.status === 'cancelled' && newStatus !== 'cancelled') {
-      alert('⚠️ Không thể thay đổi trạng thái đơn hàng đã hủy!\n\nĐơn hàng đã hủy không thể chuyển sang trạng thái khác.');
+    // Enhanced business logic validation using transition rules (consistent with admin/orders page)
+    const validTransitions = getValidStatusTransitions(currentOrder.status);
+    if (!validTransitions.includes(newStatus)) {
+      let errorMessage = '';
+      
+      if (currentOrder.status === 'cancelled') {
+        errorMessage = '⚠️ Không thể thay đổi trạng thái đơn hàng đã hủy!\n\nĐơn hàng đã hủy không thể chuyển sang trạng thái khác.';
+      } else if (currentOrder.status === 'delivered') {
+        errorMessage = '⚠️ Không thể thay đổi trạng thái đơn hàng đã giao!\n\nĐơn hàng đã giao là trạng thái cuối cùng.';
+      } else if (newStatus === 'cancelled' && !canCancelOrder(currentOrder.status)) {
+        errorMessage = '⚠️ Không thể hủy đơn hàng đã gửi hàng hoặc đã giao hàng!\n\nChỉ có thể hủy đơn hàng ở trạng thái "Chờ xử lý" hoặc "Đang xử lý".';
+      } else {
+        errorMessage = `⚠️ Không thể chuyển từ "${getStatusLabel(currentOrder.status)}" sang "${getStatusLabel(newStatus)}"!\n\nVui lòng tuân theo quy trình xử lý đơn hàng.`;
+      }
+      
+      alert(errorMessage);
       return;
     }
 
@@ -629,25 +664,44 @@ export default function AdminPage() {
       const result = await response.json();
       
       if (result.success || response.ok) {
-        // Update local state
+        // Update local state with auto-update paymentStatus logic (consistent with admin/orders page)
         setRecentOrders(prev => 
-          prev.map(order => 
-            order._id === orderId 
-              ? { ...order, status: newStatus, updatedAt: new Date().toISOString() }
-              : order
-          )
+          prev.map(order => {
+            if (order._id === orderId) {
+              const updatedOrder = { ...order, status: newStatus, updatedAt: new Date().toISOString() };
+              
+              // Auto-update paymentStatus to 'paid' when status is 'delivered'
+              if (newStatus === 'delivered') {
+                updatedOrder.paymentStatus = 'paid';
+                console.log('[DEBUG] 🔄 Auto-updating paymentStatus to paid (order delivered)');
+              }
+              
+              return updatedOrder;
+            }
+            return order;
+          })
         );
         
         setAllOrders(prev => 
-          prev.map(order => 
-            order._id === orderId 
-              ? { ...order, status: newStatus, updatedAt: new Date().toISOString() }
-              : order
-          )
+          prev.map(order => {
+            if (order._id === orderId) {
+              const updatedOrder = { ...order, status: newStatus, updatedAt: new Date().toISOString() };
+              
+              // Auto-update paymentStatus to 'paid' when status is 'delivered'
+              if (newStatus === 'delivered') {
+                updatedOrder.paymentStatus = 'paid';
+                console.log('[DEBUG] 🔄 Auto-updating paymentStatus to paid (order delivered)');
+              }
+              
+              return updatedOrder;
+            }
+            return order;
+          })
         );
         
         console.log('Order status updated successfully');
-        alert('✅ Cập nhật trạng thái đơn hàng thành công!');
+        const paymentMessage = newStatus === 'delivered' ? ' (Thanh toán: Đã thanh toán)' : '';
+        alert(`✅ Cập nhật trạng thái đơn hàng thành công!${paymentMessage}`);
       } else {
         throw new Error(result.message || 'Failed to update order status');
       }
@@ -667,6 +721,35 @@ export default function AdminPage() {
 
   // Function to update payment status
   const updatePaymentStatus = async (orderId: string, newPaymentStatus: string) => {
+    // Find the current order to check validation
+    const currentOrder = [...recentOrders, ...allOrders].find(order => order._id === orderId);
+    if (!currentOrder) {
+      alert('Không tìm thấy đơn hàng!');
+      return;
+    }
+
+    // Validation using helper function (consistent with admin/orders page)
+    if (!canChangePaymentStatus(currentOrder)) {
+      const paymentMethod = currentOrder.paymentMethod?.method || currentOrder.paymentMethod || '';
+      const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
+      
+      if (digitalMethods.includes(paymentMethod)) {
+        alert('⚠️ Không thể thay đổi trạng thái thanh toán cho đơn hàng thanh toán điện tử (VNPay/Momo)!\n\nTrạng thái thanh toán được cập nhật tự động từ cổng thanh toán.');
+        return;
+      } else if (currentOrder.status === 'cancelled') {
+        alert('⚠️ Không thể thay đổi trạng thái thanh toán cho đơn hàng đã hủy!');
+        return;
+      } else {
+        const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
+        const isDelivered = currentOrder.status === 'delivered';
+        
+        if (isCOD && isDelivered) {
+          alert('⚠️ Không thể thay đổi trạng thái thanh toán cho đơn hàng COD đã giao hàng!');
+          return;
+        }
+      }
+    }
+
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
 
@@ -1984,13 +2067,17 @@ export default function AdminPage() {
                         value={order.status}
                         onChange={(e) => updateOrderStatus(order._id, e.target.value)}
                         onClick={(e) => e.stopPropagation()}
-                        className={styles.orderStatusSelect}
+                        disabled={getValidStatusOptions(order.status).length <= 1}
+                        className={`${styles.orderStatusSelect} ${getValidStatusOptions(order.status).length <= 1 ? styles.disabled : ''}`}
                         style={{
                           position: 'relative',
                           zIndex: 10,
                           minWidth: '140px',
-                          maxWidth: '140px'
+                          maxWidth: '140px',
+                          opacity: getValidStatusOptions(order.status).length <= 1 ? 0.5 : 1,
+                          cursor: getValidStatusOptions(order.status).length <= 1 ? 'not-allowed' : 'pointer'
                         }}
+                        title={getValidStatusOptions(order.status).length <= 1 ? 'Không thể thay đổi trạng thái từ trạng thái hiện tại' : ''}
                         onFocus={(e) => {
                           e.target.style.zIndex = '1000';
                           if (e.target.parentElement) {
@@ -2025,13 +2112,17 @@ export default function AdminPage() {
                         value={order.paymentStatus || 'pending'}
                         onChange={(e) => updatePaymentStatus(order._id, e.target.value)}
                         onClick={(e) => e.stopPropagation()}
-                        className={styles.paymentStatusSelect}
+                        disabled={!canChangePaymentStatus(order)}
+                        className={`${styles.paymentStatusSelect} ${!canChangePaymentStatus(order) ? styles.disabled : ''}`}
                         style={{
                           position: 'relative',
                           zIndex: 10,
                           minWidth: '140px',
-                          maxWidth: '140px'
+                          maxWidth: '140px',
+                          opacity: !canChangePaymentStatus(order) ? 0.5 : 1,
+                          cursor: !canChangePaymentStatus(order) ? 'not-allowed' : 'pointer'
                         }}
+                        title={!canChangePaymentStatus(order) ? 'Không thể thay đổi trạng thái thanh toán cho đơn hàng này' : ''}
                         onFocus={(e) => {
                           e.target.style.zIndex = '1000';
                           if (e.target.parentElement) {

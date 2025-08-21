@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/contexts";
 import { useApiNotification } from "@/hooks";
 import { validateLoginForm, hasFormErrors, FormErrors } from "@/utils/validation";
+import { getRedirectUrl } from '@/lib/redirectUtils';
 import { Button, PageHeader, LoadingSpinner, GoogleSignInButton } from "@/app/components/ui";
 import FormError from "../components/FormError";
 import { FaSignInAlt, FaLock, FaEye, FaEyeSlash, FaEnvelope } from "react-icons/fa";
@@ -20,7 +21,7 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const { login, user, setUser } = useAuth();
   const { showError, showSuccess } = useApiNotification();
-  const redirectPath = searchParams.get('redirect') || '/';
+  const redirectPath = getRedirectUrl(searchParams, '/');
 
   // Handle navigation efficiently
   const handleNavigation = (path: string) => {
@@ -119,7 +120,8 @@ function LoginForm() {
       await login({ email, password });
       showSuccess('Đăng nhập thành công! Chào mừng bạn trở lại.');
       
-      // Redirect will be handled automatically in AuthContext
+      // Redirect to the page user was trying to access, or home
+      router.push(redirectPath);
     } catch (error: any) {
       console.error('Login error:', error);
       

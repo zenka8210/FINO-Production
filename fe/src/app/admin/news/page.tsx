@@ -79,19 +79,9 @@ export default function AdminNewsPage() {
   const [showPageInput, setShowPageInput] = useState(false);
   const [pageInputValue, setPageInputValue] = useState('');
 
-  // Auth check
-  useEffect(() => {
-    if (isLoading) return;
-    
-    if (!user || user.role !== "admin") {
-      router.replace("/login");
-      return;
-    }
-  }, [user, isLoading, router]);
-
   // Load data on component mount and filter changes
   useEffect(() => {
-    if (!user || user.role !== "admin" || isLoading) return;
+    // Admin access control is handled by AdminLayout
     loadPostsData();
     loadStatistics();
   }, [user, isLoading, currentPage, searchTerm, filterStatus, sortBy, sortOrder]);

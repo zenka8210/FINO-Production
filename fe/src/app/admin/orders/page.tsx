@@ -95,19 +95,12 @@ export default function AdminOrdersPage() {
   }, []);
 
   useEffect(() => {
-    // Đợi AuthContext load xong trước khi kiểm tra
-    if (isLoading) return;
-    
-    if (!user || user.role !== "admin") {
-      router.replace("/login");
-      return;
-    }
-    
+    // Admin access control is handled by AdminLayout, so we can directly load data
     console.log('[DEBUG] 🚀 Initial load - fetchStatistics and fetchOrders');
     fetchStatistics();
     // Initial load of orders
     fetchOrders();
-  }, [user, router, isLoading]);
+  }, []);
 
   // Separate useEffect for orders with debouncing
   useEffect(() => {

@@ -73,21 +73,9 @@ export default function AdminUsersPage() {
   const [showPageInput, setShowPageInput] = useState(false);
   const [pageInputValue, setPageInputValue] = useState('');
 
-  // Auth check
-  useEffect(() => {
-    console.log('[DEBUG] Auth check - isLoading:', isLoading, 'user:', user);
-    if (isLoading) return;
-    if (!user || user.role !== "admin") {
-      console.log('[DEBUG] Redirecting to login - user role:', user?.role);
-      router.replace("/login");
-      return;
-    }
-    console.log('[DEBUG] User is admin, should fetch users');
-  }, [user, router, isLoading]);
-
   // Fetch users with debouncing for search
   useEffect(() => {
-    console.log('[DEBUG] Filter useEffect triggered', { isLoading, user: !!user, role: user?.role });
+    console.log('[DEBUG] Filter useEffect triggered - admin access handled by layout');
     if (isLoading || !user || user.role !== "admin") return;
     
     if (searchTerm || filterRole !== 'all' || filterStatus !== 'all' || sortBy !== 'createdAt' || sortOrder !== 'desc') {

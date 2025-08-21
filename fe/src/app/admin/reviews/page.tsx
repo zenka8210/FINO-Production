@@ -42,17 +42,10 @@ export default function AdminReviewsPage() {
   }, [searchTerm]);
 
   useEffect(() => {
-    // Wait for AuthContext to load before checking
-    if (isLoading) return;
-    
-    if (!user || user.role !== "admin") {
-      router.replace("/login");
-      return;
-    }
-    
+    // Admin access control is handled by AdminLayout
     fetchReviews();
     fetchStatistics();
-  }, [user?.role, isLoading, currentPage, filterRating, debouncedSearchTerm, sortBy, sortOrder]);
+  }, [currentPage, filterRating, debouncedSearchTerm, sortBy, sortOrder]);
 
   const fetchReviews = async () => {
     try {

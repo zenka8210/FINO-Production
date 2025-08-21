@@ -11,6 +11,7 @@ import { useProductDebug as useProduct } from '@/hooks/useProduct'; // Direct im
 import { useCart, useWishlist, useReviews } from '@/hooks';
 import { ProductVariantWithRefs } from '@/types';
 import { formatPrice } from '@/utils/formatPrice';
+import { redirectToLogin } from '@/lib/redirectUtils';
 
 // Import UI components
 import Button from '@/app/components/ui/Button';
@@ -179,8 +180,7 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
   // Handle add to cart
   const handleAddToCart = async () => {
     if (!user) {
-      showError('Vui lòng đăng nhập để thêm vào giỏ hàng');
-      router.push('/login');
+      redirectToLogin(router, 'Vui lòng đăng nhập để thêm vào giỏ hàng', showError);
       return;
     }
 
@@ -206,8 +206,7 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
   // Handle buy now
   const handleBuyNow = async () => {
     if (!user) {
-      showError('Vui lòng đăng nhập để mua hàng');
-      router.push('/login');
+      redirectToLogin(router, 'Vui lòng đăng nhập để mua hàng', showError);
       return;
     }
 
@@ -227,12 +226,7 @@ export default function ProductDetailPage({ productId }: ProductDetailPageProps)
 
   // Handle wishlist toggle
   const handleToggleWishlist = async () => {
-    if (!user) {
-      showError('Vui lòng đăng nhập để thêm vào yêu thích');
-      router.push('/login');
-      return;
-    }
-
+    // Wishlist không cần login - có thể dùng guest session
     if (!product) return;
 
     try {

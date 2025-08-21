@@ -1,10 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { FaStar, FaRegStar } from 'react-icons/fa';
 import { ProductWithCategory, ProductVariantWithRefs } from '@/types';
-import { useCart, useWishlist, useApiNotification } from '@/hooks';
+import { useCart, useWishlist, useApiNotification, useAuth } from '@/hooks';
+import { redirectToLogin } from '@/lib/redirectUtils';
 import { formatCurrency } from '@/lib/utils';
 import { getProductPriceInfo } from '@/lib/productUtils';
 import { selectBestVariant, hasAvailableVariants } from '@/lib/variantUtils';
@@ -45,6 +47,8 @@ export default function ProductItem({
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { showError } = useApiNotification();
+  const { user } = useAuth();
+  const router = useRouter();
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   
   const inWishlist = isInWishlist(product._id);
@@ -91,6 +95,12 @@ export default function ProductItem({
     e.stopPropagation();
     
     if (isAddingToCart) return; // Prevent double clicks
+    
+    // Check if user is logged in (consistent with ProductDetailPage)
+    if (!user) {
+      redirectToLogin(router, 'Vui lòng đăng nhập để mua hàng', showError);
+      return;
+    }
     
     let bestVariant = null;
     
@@ -139,15 +149,14 @@ export default function ProductItem({
       // Step 2: Show loading state only briefly before API call
       setIsAddingToCart(true);
       
-      // Step 3: Add to cart with optimistic success handling
+      // Step 3: Add to cart - CartContext will handle all notifications
       await addToCart(bestVariant._id, 1);
       
-      // Step 4: Quick success feedback (context will handle notifications)
-      // Loading state will be cleared in finally block
+      // No additional success/error handling needed - CartContext handles it
 
     } catch (error) {
       console.error('Add to cart error:', error);
-      showError('Có lỗi xảy ra khi thêm vào giỏ hàng');
+      // Don't show additional error toast - CartContext already handles it
     } finally {
       // Always clear loading state quickly for smooth UX
       setIsAddingToCart(false);
@@ -159,6 +168,7 @@ export default function ProductItem({
     e.preventDefault();
     e.stopPropagation();
     
+    // Wishlist không cần login - có thể dùng guest session
     try {
       if (inWishlist) {
         await removeFromWishlist(product._id);

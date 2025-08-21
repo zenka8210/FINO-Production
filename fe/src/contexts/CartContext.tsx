@@ -109,36 +109,14 @@ export function CartProvider({ children }: CartProviderProps) {
 
   const addToCart = async (productVariantId: string, quantity: number): Promise<void> => {
     try {
-      // Show immediate success feedback for faster perceived performance
-      showSuccess('Đã thêm vào giỏ hàng');
-      
-      // Optimistic update first - estimate the item data
-      if (state.cart) {
-        const optimisticItem = {
-          _id: `temp-${Date.now()}`,
-          productVariant: {
-            _id: productVariantId,
-            product: { name: 'Đang tải...', images: [], price: 0, salePrice: 0 },
-            color: { name: '' },
-            size: { name: '' },
-            price: 0
-          },
-          quantity: quantity,
-          price: 0
-        };
-        
-        const optimisticCart = {
-          ...state.cart,
-          items: [...state.cart.items, optimisticItem]
-        };
-        
-        dispatch({ type: 'CART_SUCCESS', payload: optimisticCart as any });
-      }
-      
-      // Then sync with backend
       dispatch({ type: 'CART_LOADING' });
+      
+      // Call API first - no optimistic update to avoid confusion
       const updatedCart = await cartService.addToCart(productVariantId, quantity);
+      
+      // Only show success if API call succeeds
       dispatch({ type: 'CART_SUCCESS', payload: updatedCart });
+      showSuccess('Đã thêm vào giỏ hàng');
       
     } catch (error: any) {
       console.error('addToCart error:', error);
@@ -152,10 +130,14 @@ export function CartProvider({ children }: CartProviderProps) {
         } catch (loadError) {
           console.error('Failed to reload cart:', loadError);
         }
+      } else if (!error.message?.includes('Unauthorized') && 
+                 !error.message?.includes('Xác thực') &&
+                 !error.message?.includes('Token') &&
+                 !error.message?.includes('Login required')) {
+        // For other errors (not authentication), show generic error message
+        showError('Có lỗi xảy ra, vui lòng thử lại');
       }
       
-      // Show error after the optimistic success
-      showError('Có lỗi xảy ra, vui lòng thử lại', error.message);
       throw error;
     }
   };

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth, useCart, useApiNotification } from '@/hooks';
 import { Button, PageHeader, LoadingSpinner } from '@/app/components/ui';
 import AddressSelectionModal from '@/app/components/AddressSelectionModal';
+import AddAddressModal from '@/app/components/AddAddressModal';
 import { FaCreditCard, FaShoppingCart, FaMapMarkerAlt, FaTicketAlt, FaExclamationTriangle } from 'react-icons/fa';
 import { formatCurrency } from '@/lib/utils';
 import { addressService, voucherService, cartService, paymentMethodService, vnpayService, momoService, orderService } from '@/services';
@@ -68,6 +69,7 @@ export default function CheckoutPage() {
   const [shippingFee, setShippingFee] = useState(30000); // Default shipping fee
   const [isLoadingShipping, setIsLoadingShipping] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false); // Modal state
+  const [showAddAddressModal, setShowAddAddressModal] = useState(false); // Add address modal state
 
   // Filter available vouchers based on order subtotal (before shipping)
   const eligibleVouchers = useMemo(() => {
@@ -349,6 +351,30 @@ export default function CheckoutPage() {
     }
   };
 
+  // Handle opening add address modal from address selection modal
+  const handleOpenAddAddress = () => {
+    setShowAddressModal(false); // Close address selection modal
+    setShowAddAddressModal(true); // Open add address modal
+  };
+
+  // Handle successful address creation
+  const handleAddAddressSuccess = async (newAddress: Address) => {
+    setShowAddAddressModal(false); // Close add address modal
+    setDefaultAddress(newAddress); // Set new address as selected
+    
+    // Recalculate shipping fee for new address
+    try {
+      setIsLoadingShipping(true);
+      const result = await orderService.calculateShippingFee(newAddress._id);
+      setShippingFee(result.shippingFee || 30000);
+    } catch (error) {
+      console.error('Error calculating shipping for new address:', error);
+      setShippingFee(30000);
+    } finally {
+      setIsLoadingShipping(false);
+    }
+  };
+
   // Helper function to determine address badge
   const getAddressBadge = () => {
     if (!defaultAddress) return null;
@@ -558,7 +584,7 @@ export default function CheckoutPage() {
                   </div>
                   <Button 
                     variant="primary" 
-                    onClick={() => router.push('/profile?section=addresses')}
+                    onClick={() => setShowAddAddressModal(true)}
                   >
                     Thiết lập địa chỉ
                   </Button>
@@ -796,10 +822,14 @@ export default function CheckoutPage() {
         onClose={() => setShowAddressModal(false)}
         currentAddress={defaultAddress}
         onSelectAddress={handleAddressSelect}
-        onCreateNew={() => {
-          setShowAddressModal(false);
-          router.push('/profile?section=addresses');
-        }}
+        onCreateNew={handleOpenAddAddress}
+      />
+
+      {/* Add Address Modal */}
+      <AddAddressModal
+        isOpen={showAddAddressModal}
+        onClose={() => setShowAddAddressModal(false)}
+        onAddSuccess={handleAddAddressSuccess}
       />
     </div>
   );

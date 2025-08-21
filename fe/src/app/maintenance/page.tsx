@@ -1,6 +1,25 @@
+'use client';
+import { useSearchParams } from 'next/navigation';
 import ErrorPage from '@/app/components/ui/ErrorPage';
 
 export default function MaintenancePage() {
+  const searchParams = useSearchParams();
+  const reason = searchParams.get('reason');
+
+  // Check if this is access denied case
+  if (reason === 'access-denied') {
+    return (
+      <ErrorPage
+        title="Không có quyền truy cập"
+        message="Bạn không có quyền truy cập vào trang quản trị. Chỉ có tài khoản quản trị viên mới có thể sử dụng tính năng này."
+        errorCode="403"
+        showRefreshButton={false}
+        showBackButton={true}
+      />
+    );
+  }
+
+  // Default maintenance message
   return (
     <ErrorPage
       title="Trang đang bảo trì"

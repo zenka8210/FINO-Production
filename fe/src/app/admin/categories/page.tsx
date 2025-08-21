@@ -99,18 +99,6 @@ export default function AdminCategoriesPage() {
     return parent ? parent.name : 'Không xác định';
   };
 
-  // Auth check
-  useEffect(() => {
-    console.log('[DEBUG] Auth check - isLoading:', isLoading, 'user:', user);
-    if (isLoading) return;
-    if (!user || user.role !== "admin") {
-      console.log('[DEBUG] Redirecting to login - user role:', user?.role);
-      router.replace("/login");
-      return;
-    }
-    console.log('[DEBUG] User is admin, should fetch categories');
-  }, [user, router, isLoading]);
-
   // Fetch categories with debouncing for search
   useEffect(() => {
     console.log('[DEBUG] Filter useEffect triggered', { isLoading, user: !!user, role: user?.role });

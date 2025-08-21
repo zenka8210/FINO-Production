@@ -56,18 +56,11 @@ export default function AdminProductsPage() {
   }, [searchTerm]);
 
   useEffect(() => {
-    // Đợi AuthContext load xong trước khi kiểm tra
-    if (isLoading) return;
-    
-    if (!user || user.role !== "admin") {
-      router.replace("/login");
-      return;
-    }
-    
+    // Admin access control is handled by AdminLayout
     fetchProducts();
     fetchStatistics();
     loadFilterCategories();
-  }, [user?.role, isLoading, currentPage, filterCategory, filterStock, debouncedSearchTerm]);
+  }, [currentPage, filterCategory, filterStock, debouncedSearchTerm]);
 
   // Load filter categories once
   const loadFilterCategories = async () => {
