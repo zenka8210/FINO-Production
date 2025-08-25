@@ -287,6 +287,20 @@ class UserController extends BaseController {
       next(error);
     }
   };
+
+  // --- Admin Address Management ---
+  getUserAddressesByAdmin = async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+      console.log(`[DEBUG] Admin getting addresses for user: ${userId}`);
+      
+      const addresses = await this.service.getUserAddressesByAdmin(userId);
+      ResponseHandler.success(res, 'Lấy danh sách địa chỉ thành công', addresses);
+    } catch (error) {
+      console.error('[ERROR] getUserAddressesByAdmin:', error);
+      next(error);
+    }
+  };
 }
 
 module.exports = UserController;

@@ -30,6 +30,7 @@ const authMiddleware = async (req, res, next) => {
     req.user = user; // Gắn thông tin user vào request
     next();
   } catch (err) {
+    console.error('[ERROR] AuthMiddleware error:', err.message, err.name);
     // console.error('JWT error:', err); // Có thể giữ lại để debug nếu cần
     if (err.name === 'JsonWebTokenError') {
         return next(new AppError(MESSAGES.AUTH_FAILED || 'Token không hợp lệ', ERROR_CODES.UNAUTHORIZED));
@@ -38,7 +39,7 @@ const authMiddleware = async (req, res, next) => {
         return next(new AppError(MESSAGES.AUTH_FAILED || 'Token đã hết hạn', ERROR_CODES.UNAUTHORIZED));
     }
     // Lỗi chung khác
-    return next(new AppError(MESSAGES.AUTH_FAILED || 'Xác thực thất bại', ERROR_CODES.UNAUTHORIZED));
+    return next(new AppError(MESSAGES.AUTH_FAILED || 'Xác thực không thành công', ERROR_CODES.UNAUTHORIZED));
   }
 };
 

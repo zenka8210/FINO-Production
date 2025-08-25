@@ -410,3 +410,166 @@
     gap: 4px;
   }
 }
+
+/* Addresses Tab */
+.addressesTab {
+  min-height: 200px;
+}
+
+.addressHeader h4, .ordersHeader h4 {
+  margin: 0 0 16px 0;
+  color: #1e293b;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.loadingState, .emptyState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  color: #64748b;
+  font-style: italic;
+}
+
+.addressList, .orderList {
+  max-height: 400px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 8px;
+}
+
+.addressList::-webkit-scrollbar, .orderList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.addressList::-webkit-scrollbar-track, .orderList::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.addressList::-webkit-scrollbar-thumb, .orderList::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.addressList::-webkit-scrollbar-thumb:hover, .orderList::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.addressItem, .orderItem {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s;
+}
+
+.addressItem:hover, .orderItem:hover {
+  border-color: #6c47ff;
+  box-shadow: 0 2px 8px rgba(108, 71, 255, 0.1);
+}
+
+/* Address Item Styles */
+.addressItem .addressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.addressName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.addressName strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.defaultBadge {
+  background: #10b981;
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.addressPhone {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.addressDetails {
+  margin-bottom: 8px;
+}
+
+.addressLine {
+  color: #1e293b;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.addressLocation {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.addressMeta {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.createdDate {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+/* Orders Tab */
+.ordersTab {
+  min-height: 200px;
+}
+
+.orderItem .orderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.orderCode strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.orderStatus {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.orderDetails {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.orderMoney {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.orderMoney span {
+  color: #64748b;
+}
+
+.orderDate {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}

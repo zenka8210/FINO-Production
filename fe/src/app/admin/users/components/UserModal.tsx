@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { User } from '../../../../types';
-import { userService, orderService } from '../../../../services';
+import { User, Address } from '../../../../types';
+import { userService, orderService, addressService } from '../../../../services';
 import { useApiNotification } from '../../../../hooks/useApiNotification';
+import { apiClient } from '../../../../lib/api';
+import OrderDetailModal from '../../../../components/OrderDetailModal';
 import styles from './UserModal.module.css';
 
 interface UserModalProps {
@@ -31,12 +33,21 @@ export default function UserModal({
   const { showSuccess, showError } = useApiNotification();
   const [activeTab, setActiveTab] = useState<'info' | 'orders' | 'addresses'>('info');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
   const [userOrders, setUserOrders] = useState<UserOrders[]>([]);
-  const [userAddresses, setUserAddresses] = useState<any[]>([]);
+  const [userAddresses, setUserAddresses] = useState<Address[]>([]);
+  
+  // Order detail modal state
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [isOrderDetailModalOpen, setIsOrderDetailModalOpen] = useState(false);
 
   useEffect(() => {
     if (user && isOpen) {
       setActiveTab('info');
+      // Load both addresses and orders count when modal opens
+      fetchUserAddresses();
+      fetchUserOrders();
     }
   }, [user, isOpen]);
 
@@ -47,6 +58,10 @@ export default function UserModal({
       setUserOrders([]);
       setUserAddresses([]);
       setIsLoading(false);
+      setIsLoadingOrders(false);
+      setIsLoadingAddresses(false);
+      setSelectedOrderId(null);
+      setIsOrderDetailModalOpen(false);
     }
   }, [isOpen]);
 
@@ -54,7 +69,7 @@ export default function UserModal({
     if (!user) return;
     
     try {
-      setIsLoading(true);
+      setIsLoadingOrders(true);
       const response = await orderService.getOrdersByUserId(user._id, {
         sortBy: 'createdAt',
         sortOrder: 'desc'
@@ -81,8 +96,44 @@ export default function UserModal({
       console.error('Error fetching user orders:', error);
       setUserOrders([]);
     } finally {
-      setIsLoading(false);
+      setIsLoadingOrders(false);
     }
+  };
+
+  const fetchUserAddresses = async () => {
+    if (!user) return;
+    
+    try {
+      setIsLoadingAddresses(true);
+      console.log('[DEBUG] UserModal fetching addresses for user:', user._id);
+      
+      // Use apiClient which automatically handles authentication
+      const response = await apiClient.get(`/api/users/${user._id}/addresses`);
+      
+      console.log('[DEBUG] UserModal addresses response:', response);
+      
+      // Handle response structure
+      const addresses = response.data || [];
+      setUserAddresses(addresses);
+      console.log('[DEBUG] UserModal addresses set:', addresses.length, 'addresses');
+      
+    } catch (error: any) {
+      console.error('[ERROR] UserModal fetch addresses failed:', error);
+      setUserAddresses([]);
+    } finally {
+      setIsLoadingAddresses(false);
+    }
+  };
+
+  // Order detail modal handlers
+  const handleOrderClick = (orderId: string) => {
+    setSelectedOrderId(orderId);
+    setIsOrderDetailModalOpen(true);
+  };
+
+  const handleCloseOrderModal = () => {
+    setSelectedOrderId(null);
+    setIsOrderDetailModalOpen(false);
   };
 
   const handleToggleStatus = () => {
@@ -152,13 +203,37 @@ export default function UserModal({
           </span>
         </div>
 
-        {/* Tabs - Chỉ có tab thông tin cá nhân */}
+        {/* Tabs */}
         <div className={styles.tabsContainer}>
           <button
-            className={`${styles.tab} ${styles.active}`}
+            className={`${styles.tab} ${activeTab === 'info' ? styles.active : ''}`}
             onClick={() => setActiveTab('info')}
           >
             Thông tin cá nhân
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'addresses' ? styles.active : ''}`}
+            onClick={() => {
+              setActiveTab('addresses');
+              // Only fetch if not already loaded
+              if (userAddresses.length === 0 && !isLoadingAddresses) {
+                fetchUserAddresses();
+              }
+            }}
+          >
+            Địa chỉ ({userAddresses.length})
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'orders' ? styles.active : ''}`}
+            onClick={() => {
+              setActiveTab('orders');
+              // Only fetch if not already loaded
+              if (userOrders.length === 0 && !isLoadingOrders) {
+                fetchUserOrders();
+              }
+            }}
+          >
+            Đơn hàng gần nhất ({userOrders.length})
           </button>
         </div>
 
@@ -181,10 +256,6 @@ export default function UserModal({
                     <span className={styles.infoValue}>{user.phone || 'Chưa có'}</span>
                   </div>
                   <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Địa chỉ:</span>
-                    <span className={styles.infoValue}>{user.address || 'Chưa có'}</span>
-                  </div>
-                  <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Ngày tạo:</span>
                     <span className={styles.infoValue}>
                       {new Date(user.createdAt).toLocaleString('vi-VN')}
@@ -198,6 +269,103 @@ export default function UserModal({
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'addresses' && (
+            <div className={styles.addressesTab}>
+              <div className={styles.addressHeader}>
+                <h4>Danh sách địa chỉ ({userAddresses.length})</h4>
+              </div>
+              
+              {isLoadingAddresses ? (
+                <div className={styles.loadingState}>
+                  <span>Đang tải địa chỉ...</span>
+                </div>
+              ) : userAddresses.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <span>Người dùng chưa có địa chỉ nào</span>
+                </div>
+              ) : (
+                <div className={styles.addressList}>
+                  {userAddresses.map((address, index) => (
+                    <div key={address._id || index} className={styles.addressItem}>
+                      <div className={styles.addressHeader}>
+                        <div className={styles.addressName}>
+                          <strong>{address.fullName}</strong>
+                          {address.isDefault && (
+                            <span className={styles.defaultBadge}>Mặc định</span>
+                          )}
+                        </div>
+                        <div className={styles.addressPhone}>{address.phone}</div>
+                      </div>
+                      <div className={styles.addressDetails}>
+                        <div className={styles.addressLine}>{address.addressLine}</div>
+                        <div className={styles.addressLocation}>
+                          {address.ward}, {address.district}, {address.city}
+                        </div>
+                      </div>
+                      <div className={styles.addressMeta}>
+                        <span className={styles.createdDate}>
+                          Tạo: {new Date(address.createdAt).toLocaleDateString('vi-VN')}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'orders' && (
+            <div className={styles.ordersTab}>
+              <div className={styles.ordersHeader}>
+                <h4>Lịch sử {userOrders.length} đơn hàng gần nhất</h4>
+              </div>
+              
+              {isLoadingOrders ? (
+                <div className={styles.loadingState}>
+                  <span>Đang tải đơn hàng...</span>
+                </div>
+              ) : userOrders.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <span>Người dùng chưa có đơn hàng nào</span>
+                </div>
+              ) : (
+                <div className={styles.orderList}>
+                  {userOrders.map((order) => (
+                    <div 
+                      key={order._id} 
+                      className={styles.orderItem}
+                      onClick={() => handleOrderClick(order._id)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div className={styles.orderHeader}>
+                        <div className={styles.orderCode}>
+                          <strong>#{order.orderCode}</strong>
+                        </div>
+                        <div 
+                          className={styles.orderStatus}
+                          style={{ color: getOrderStatusColor(order.status) }}
+                        >
+                          {order.status}
+                        </div>
+                      </div>
+                      <div className={styles.orderDetails}>
+                        <div className={styles.orderMoney}>
+                          <span>Tổng tiền: </span>
+                          <strong style={{ color: '#1E40AF' }}>
+                            {order.finalTotal?.toLocaleString('vi-VN')}₫
+                          </strong>
+                        </div>
+                        <div className={styles.orderDate}>
+                          {new Date(order.createdAt).toLocaleDateString('vi-VN')}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -223,6 +391,15 @@ export default function UserModal({
           </div>
         </div>
       </div>
+
+      {/* Order Detail Modal */}
+      {selectedOrderId && (
+        <OrderDetailModal
+          orderId={selectedOrderId}
+          isOpen={isOrderDetailModalOpen}
+          onClose={handleCloseOrderModal}
+        />
+      )}
     </div>
   );
 }

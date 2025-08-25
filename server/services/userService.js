@@ -553,6 +553,30 @@ class UserService extends BaseService {
       throw new AppError(`Lỗi khi lấy thống kê người dùng: ${error.message}`, ERROR_CODES.INTERNAL_SERVER_ERROR);
     }
   }
+
+  // --- Admin Address Management ---
+  async getUserAddressesByAdmin(userId) {
+    try {
+      console.log(`[DEBUG] UserService.getUserAddressesByAdmin for user: ${userId}`);
+      
+      // Check if user exists
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new AppError('Không tìm thấy người dùng', ERROR_CODES.NOT_FOUND);
+      }
+      
+      // Get all addresses for this user
+      const addresses = await Address.find({ user: userId })
+        .sort({ isDefault: -1, createdAt: -1 }) // Default addresses first, then by creation date
+        .lean();
+      
+      console.log(`[DEBUG] Found ${addresses.length} addresses for user ${userId}`);
+      return addresses;
+    } catch (error) {
+      console.error('[ERROR] getUserAddressesByAdmin:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = UserService;

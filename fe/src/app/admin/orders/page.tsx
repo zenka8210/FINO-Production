@@ -43,17 +43,42 @@ export default function AdminOrdersPage() {
   const [printOrder, setPrintOrder] = useState<OrderWithRefs | null>(null);
 
   // Business logic for status transitions  
-  const getValidStatusTransitions = (currentStatus: string): string[] => {
+  const getValidStatusTransitions = (currentStatus: string, order?: OrderWithRefs): string[] => {
     // STRICT WORKFLOW ENFORCEMENT - Must follow sequential steps
-    const statusFlow = {
+    const baseStatusFlow: { [key: string]: string[] } = {
       'pending': ['pending', 'processing', 'cancelled'],
       'processing': ['processing', 'shipped', 'cancelled'], // REMOVED 'delivered' - must go through shipped first
       'shipped': ['shipped', 'delivered', 'cancelled'], // Can cancel if customer doesn't receive (return)
       'delivered': ['delivered'], // Final state - no changes allowed
       'cancelled': ['cancelled'] // Final state - no changes allowed
     };
+
+    // DIGITAL PAYMENT RESTRICTION: VNPay/Momo với payment pending không thể chuyển pending->processing
+    if (order && currentStatus === 'pending') {
+      const paymentMethod = order.paymentMethod?.method || order.paymentMethod || '';
+      const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
+      const isDigitalPayment = digitalMethods.includes(paymentMethod);
+      const isPaymentPending = order.paymentStatus === 'pending';
+      
+      // Debug logging
+      console.log('🔍 DIGITAL PAYMENT CHECK:', {
+        orderId: order._id,
+        currentStatus,
+        paymentMethod,
+        paymentStatus: order.paymentStatus,
+        isDigitalPayment,
+        isPaymentPending,
+        shouldRestrict: isDigitalPayment && isPaymentPending
+      });
+      
+      if (isDigitalPayment && isPaymentPending) {
+        console.log('🚫 RESTRICTING: Digital payment order with pending payment');
+        // Chỉ cho phép pending và cancelled, KHÔNG cho phép processing
+        return ['pending', 'cancelled'];
+      }
+    }
     
-    return statusFlow[currentStatus] || [currentStatus];
+    return baseStatusFlow[currentStatus] || [currentStatus];
   };
 
   // Check if cancellation is allowed - Updated logic
@@ -496,7 +521,7 @@ export default function AdminOrdersPage() {
             </option>
             
             {/* Show only valid transitions */}
-            {getValidStatusTransitions(order.status).filter(status => status !== order.status).map(status => (
+            {getValidStatusTransitions(order.status, order).filter(status => status !== order.status).map(status => (
               <option key={status} value={status}>
                 {status === 'pending' && 'Chờ xử lý'}
                 {status === 'processing' && 'Đang xử lý'}
@@ -545,10 +570,19 @@ export default function AdminOrdersPage() {
       }
       
       // Frontend validation: Check if transition is allowed
-      const validTransitions = getValidStatusTransitions(order.status);
+      const validTransitions = getValidStatusTransitions(order.status, order);
       if (!validTransitions.includes(newStatus)) {
         let errorMessage = '';
-        if (newStatus === 'cancelled' && !canCancelOrder(order.status)) {
+        
+        // Special handling for digital payment restrictions
+        const paymentMethod = order.paymentMethod?.method || order.paymentMethod || '';
+        const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
+        const isDigitalPayment = digitalMethods.includes(paymentMethod);
+        const isPaymentPending = order.paymentStatus === 'pending';
+        
+        if (order.status === 'pending' && newStatus === 'processing' && isDigitalPayment && isPaymentPending) {
+          errorMessage = `Không thể chuyển đơn hàng ${paymentMethod} từ "Chờ xử lý" sang "Đang xử lý" khi thanh toán chưa hoàn tất. Hệ thống sẽ tự động cập nhật khi nhận được xác nhận thanh toán từ ${paymentMethod}.`;
+        } else if (newStatus === 'cancelled' && !canCancelOrder(order.status)) {
           errorMessage = 'Chỉ có thể hủy đơn hàng ở trạng thái chờ xử lý hoặc đang xử lý';
         } else if (order.status === 'cancelled') {
           errorMessage = 'Không thể thay đổi trạng thái đơn hàng đã hủy';
@@ -562,7 +596,7 @@ export default function AdminOrdersPage() {
           errorMessage = `Không thể chuyển trạng thái từ '${order.status}' sang '${newStatus}'. Vui lòng theo quy trình: Chờ xử lý → Đang xử lý → Đã gửi hàng → Đã giao hàng.`;
         }
         setUpdateMessage(`❌ ${errorMessage}`);
-        setTimeout(() => setUpdateMessage(''), 7000); // Longer timeout for detailed messages
+        setTimeout(() => setUpdateMessage(''), 8000); // Longer timeout for detailed messages
         return;
       }
       
@@ -1478,7 +1512,11 @@ export default function AdminOrdersPage() {
                 {/* Order Info */}
                 <div>
                   <div className={styles.orderCode}>
-                    {order.orderCode}
+                    {order.orderCode} | {
+                      typeof order.paymentMethod === 'string' 
+                        ? order.paymentMethod 
+                        : order.paymentMethod?.method || 'N/A'
+                    }
                   </div>
                   <div className={styles.orderMeta}>
                     {order.user?.name || 'N/A'} • {new Date(order.createdAt).toLocaleDateString('vi-VN')}
@@ -1578,7 +1616,7 @@ export default function AdminOrdersPage() {
                     </option>
                     
                     {/* Show only valid transitions */}
-                    {getValidStatusTransitions(order.status).filter(status => status !== order.status).map(status => (
+                    {getValidStatusTransitions(order.status, order).filter(status => status !== order.status).map(status => (
                       <option key={status} value={status}>
                         {status === 'pending' && 'Chờ xử lý'}
                         {status === 'processing' && 'Đang xử lý'}

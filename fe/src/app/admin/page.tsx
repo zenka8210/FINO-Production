@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
 import styles from "./admin.module.css";
 import StatCard from "./components/StatCard";
+import OrderDetailModal from "../../components/OrderDetailModal";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 // Type definitions
@@ -94,6 +95,10 @@ export default function AdminPage() {
 
   // Chart states
   const [chartPeriod, setChartPeriod] = useState<'7' | '30' | '90'>('7');
+  
+  // Modal states for order detail
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isLoadingChart, setIsLoadingChart] = useState(false);
 
   // Set last update time on client side to avoid hydration mismatch
@@ -521,10 +526,21 @@ export default function AdminPage() {
     }
   };
 
+  // Function to handle order detail modal
+  const handleOrderClick = (orderId: string) => {
+    setSelectedOrderId(orderId);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedOrderId(null);
+    setIsDetailModalOpen(false);
+  };
+
   // Business logic helper: Get valid status options based on current status (updated to use transitions)
-  const getValidStatusOptions = (currentStatus: string) => {
+  const getValidStatusOptions = (currentStatus: string, order?: any) => {
     // Use the more restrictive transition logic (consistent with admin/orders page)
-    return getValidStatusTransitions(currentStatus);
+    return getValidStatusTransitions(currentStatus, order);
   };
 
   // Function to handle chart period change
@@ -574,17 +590,44 @@ export default function AdminPage() {
   };
 
   // Business logic for status transitions (strict workflow enforcement)  
-  const getValidStatusTransitions = (currentStatus: string): string[] => {
+  const getValidStatusTransitions = (currentStatus: string, order?: any): string[] => {
     // STRICT WORKFLOW - Must follow proper order fulfillment process
-    const statusFlow: { [key: string]: string[] } = {
+    const baseStatusFlow: { [key: string]: string[] } = {
       'pending': ['pending', 'processing', 'cancelled'],
       'processing': ['processing', 'shipped', 'cancelled'], // Cannot skip to delivered
       'shipped': ['shipped', 'delivered', 'cancelled'], // Can cancel if customer doesn't receive (return)
       'delivered': ['delivered'], // Final state - no changes allowed
       'cancelled': ['cancelled'] // Final state - no changes allowed
     };
+
+    // DIGITAL PAYMENT RESTRICTION: VNPay/Momo với payment pending không thể chuyển pending->processing
+    if (order && currentStatus === 'pending') {
+      const paymentMethod = typeof order.paymentMethod === 'string' 
+        ? order.paymentMethod 
+        : order.paymentMethod?.method || '';
+      const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
+      const isDigitalPayment = digitalMethods.includes(paymentMethod);
+      const isPaymentPending = order.paymentStatus === 'pending';
+      
+      // Debug logging for admin dashboard
+      console.log('🔍 ADMIN DASHBOARD - DIGITAL PAYMENT CHECK:', {
+        orderId: order._id,
+        currentStatus,
+        paymentMethod,
+        paymentStatus: order.paymentStatus,
+        isDigitalPayment,
+        isPaymentPending,
+        shouldRestrict: isDigitalPayment && isPaymentPending
+      });
+      
+      if (isDigitalPayment && isPaymentPending) {
+        console.log('🚫 ADMIN DASHBOARD - RESTRICTING: Digital payment order with pending payment');
+        // Chỉ cho phép pending và cancelled, KHÔNG cho phép processing
+        return ['pending', 'cancelled'];
+      }
+    }
     
-    return statusFlow[currentStatus] || [currentStatus];
+    return baseStatusFlow[currentStatus] || [currentStatus];
   };
 
   // Helper functions for validation (consistent with admin/orders page)
@@ -628,11 +671,21 @@ export default function AdminPage() {
     }
 
     // Enhanced business logic validation using transition rules (consistent with admin/orders page)
-    const validTransitions = getValidStatusTransitions(currentOrder.status);
+    const validTransitions = getValidStatusTransitions(currentOrder.status, currentOrder);
     if (!validTransitions.includes(newStatus)) {
       let errorMessage = '';
       
-      if (currentOrder.status === 'cancelled') {
+      // Special handling for digital payment restrictions
+      const paymentMethod = typeof currentOrder.paymentMethod === 'string' 
+        ? currentOrder.paymentMethod 
+        : currentOrder.paymentMethod?.method || '';
+      const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
+      const isDigitalPayment = digitalMethods.includes(paymentMethod);
+      const isPaymentPending = currentOrder.paymentStatus === 'pending';
+      
+      if (currentOrder.status === 'pending' && newStatus === 'processing' && isDigitalPayment && isPaymentPending) {
+        errorMessage = `⚠️ Không thể chuyển đơn hàng ${paymentMethod} từ "Chờ xử lý" sang "Đang xử lý"!\n\nĐơn hàng ${paymentMethod} với thanh toán chưa hoàn tất sẽ được hệ thống tự động cập nhật khi nhận được xác nhận từ ${paymentMethod}.\n\nHiện tại chỉ có thể hủy đơn hàng này.`;
+      } else if (currentOrder.status === 'cancelled') {
         errorMessage = '⚠️ Không thể thay đổi trạng thái đơn hàng đã hủy!\n\nĐơn hàng đã hủy không thể chuyển sang trạng thái khác.';
       } else if (currentOrder.status === 'delivered') {
         errorMessage = '⚠️ Không thể thay đổi trạng thái đơn hàng đã giao!\n\nĐơn hàng đã giao là trạng thái cuối cùng.';
@@ -2042,17 +2095,23 @@ export default function AdminPage() {
                 }}>
                 {(showAllOrders ? allOrders : recentOrders).length > 0 ? (
                   (showAllOrders ? allOrders : recentOrders).map((order) => (
-                    <div key={order._id} className={styles.orderItem} style={{
-                      display: 'grid',
-                      gridTemplateColumns: '60px 2fr 1fr 120px 120px 140px 140px',
-                      gap: '1rem',
-                      alignItems: 'center',
-                      padding: '1.25rem 1.5rem',
-                      borderBottom: '1px solid rgba(226, 232, 240, 0.5)',
-                      transition: 'all 0.2s ease',
-                      position: 'relative',
-                      zIndex: 1
-                    }}>
+                    <div 
+                      key={order._id} 
+                      className={styles.orderItem} 
+                      onClick={() => handleOrderClick(order._id)}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '60px 2fr 1fr 120px 120px 140px 140px',
+                        gap: '1rem',
+                        alignItems: 'center',
+                        padding: '1.25rem 1.5rem',
+                        borderBottom: '1px solid rgba(226, 232, 240, 0.5)',
+                        transition: 'all 0.2s ease',
+                        position: 'relative',
+                        zIndex: 1,
+                        cursor: 'pointer'
+                      }}
+                    >
                       {/* Order Icon */}
                       <div className={styles.orderIcon}>
                         📦
@@ -2062,6 +2121,16 @@ export default function AdminPage() {
                       <div className={styles.orderInfo}>
                         <div className={styles.orderCode}>
                           {order.orderNumber}
+                          {(() => {
+                            const paymentMethod = typeof order.paymentMethod === 'string' 
+                              ? order.paymentMethod 
+                              : order.paymentMethod?.method || '';
+                            return paymentMethod ? (
+                              <span className={`${styles.paymentMethodBadge} ${styles[`payment${paymentMethod}`] || ''}`}>
+                                | {paymentMethod}
+                              </span>
+                            ) : null;
+                          })()}
                         </div>
                         <div className={styles.orderCustomer}>
                           👤 {order.customerName}
@@ -2094,17 +2163,17 @@ export default function AdminPage() {
                         value={order.status}
                         onChange={(e) => updateOrderStatus(order._id, e.target.value)}
                         onClick={(e) => e.stopPropagation()}
-                        disabled={getValidStatusOptions(order.status).length <= 1}
-                        className={`${styles.orderStatusSelect} ${getValidStatusOptions(order.status).length <= 1 ? styles.disabled : ''}`}
+                        disabled={getValidStatusOptions(order.status, order).length <= 1}
+                        className={`${styles.orderStatusSelect} ${getValidStatusOptions(order.status, order).length <= 1 ? styles.disabled : ''}`}
                         style={{
                           position: 'relative',
                           zIndex: 10,
                           minWidth: '140px',
                           maxWidth: '140px',
-                          opacity: getValidStatusOptions(order.status).length <= 1 ? 0.5 : 1,
-                          cursor: getValidStatusOptions(order.status).length <= 1 ? 'not-allowed' : 'pointer'
+                          opacity: getValidStatusOptions(order.status, order).length <= 1 ? 0.5 : 1,
+                          cursor: getValidStatusOptions(order.status, order).length <= 1 ? 'not-allowed' : 'pointer'
                         }}
-                        title={getValidStatusOptions(order.status).length <= 1 ? 'Không thể thay đổi trạng thái từ trạng thái hiện tại' : ''}
+                        title={getValidStatusOptions(order.status, order).length <= 1 ? 'Không thể thay đổi trạng thái từ trạng thái hiện tại' : ''}
                         onFocus={(e) => {
                           e.target.style.zIndex = '1000';
                           if (e.target.parentElement) {
@@ -2118,7 +2187,7 @@ export default function AdminPage() {
                           }
                         }}
                       >
-                        {getValidStatusOptions(order.status).map((status: string) => {
+                        {getValidStatusOptions(order.status, order).map((status: string) => {
                           const statusLabels: { [key: string]: string } = {
                             'pending': '🕐 Chờ xử lý',
                             'processing': '⚙️ Đang xử lý',
@@ -2461,6 +2530,15 @@ export default function AdminPage() {
             }}>
               {error}
             </div>
+          )}
+
+          {/* Order Detail Modal */}
+          {isDetailModalOpen && selectedOrderId && (
+            <OrderDetailModal
+              orderId={selectedOrderId}
+              isOpen={isDetailModalOpen}
+              onClose={handleCloseModal}
+            />
           )}
     </>
   );

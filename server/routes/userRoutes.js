@@ -137,6 +137,20 @@ router.patch(
   userController.toggleUserActiveStatusByAdmin
 );
 
+/**
+ * @route GET /api/users/:userId/addresses
+ * @description Lấy danh sách địa chỉ của người dùng cụ thể (chỉ dành cho quản trị viên).
+ * @access Private (Admin)
+ * @param {String} userId - ID của người dùng.
+ */
+router.get(
+  '/:userId/addresses',
+  protect,
+  restrictToAdmin,
+  validateObjectId('userId'),
+  userController.getUserAddressesByAdmin
+);
+
 
 // === Current User Profile & Address Management Routes ===
 
