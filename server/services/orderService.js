@@ -1485,6 +1485,100 @@ class OrderService extends BaseService {
   }
 
   /**
+   * Update order status (admin only)
+   * Auto-update payment status for COD orders when delivered
+   * @param {string} orderId - Order ID
+   * @param {string} newStatus - New order status
+   * @returns {Object} Updated order
+   */
+  async updateOrderStatus(orderId, newStatus) {
+    try {
+      const order = await this.Model.findById(orderId)
+        .populate('paymentMethod', 'method');
+
+      if (!order) {
+        throw new AppError(orderMessages.ORDER_NOT_FOUND, ERROR_CODES.NOT_FOUND);
+      }
+
+      // Validate status transition
+      const validTransitions = this.getValidStatusTransitions(order.status);
+      if (!validTransitions.includes(newStatus)) {
+        throw new AppError(
+          `Không thể chuyển từ trạng thái "${order.status}" sang "${newStatus}"`,
+          ERROR_CODES.BAD_REQUEST
+        );
+      }
+
+      // Prepare update data
+      const updateData = { 
+        status: newStatus,
+        updatedAt: new Date()
+      };
+
+      // Auto-update payment status for COD orders when delivered
+      const paymentMethod = order.paymentMethod?.method || '';
+      const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
+      
+      if (newStatus === 'delivered' && isCOD && order.paymentStatus !== 'paid') {
+        updateData.paymentStatus = 'paid';
+        console.log('[OrderService] 🔄 Auto-updating COD paymentStatus to paid (order delivered)', {
+          orderId,
+          paymentMethod,
+          isCOD,
+          newStatus,
+          previousPaymentStatus: order.paymentStatus
+        });
+      }
+
+      // Update the order
+      const updatedOrder = await this.Model.findByIdAndUpdate(
+        orderId,
+        updateData,
+        { new: true, runValidators: true }
+      ).populate('user', 'name email phone')
+       .populate('address')
+       .populate('voucher')
+       .populate('paymentMethod')
+       .populate({
+         path: 'items.productVariant',
+         populate: {
+           path: 'product color size',
+           select: 'name images price salePrice'
+         }
+       });
+
+      console.log('[OrderService] ✅ Order status updated successfully:', {
+        orderId,
+        oldStatus: order.status,
+        newStatus,
+        paymentStatusUpdated: updateData.paymentStatus ? true : false
+      });
+
+      return updatedOrder;
+    } catch (error) {
+      console.error('❌ Error updating order status:', error);
+      throw new AppError(`Error updating order status: ${error.message}`, ERROR_CODES.INTERNAL_ERROR);
+    }
+  }
+
+  /**
+   * Get valid status transitions based on current status
+   * @param {string} currentStatus - Current order status
+   * @returns {Array} Array of valid next statuses
+   */
+  getValidStatusTransitions(currentStatus) {
+    const statusFlow = {
+      'pending': ['pending', 'processing', 'cancelled'],
+      'processing': ['processing', 'shipped', 'delivered', 'cancelled'], 
+      'shipped': ['shipped', 'delivered', 'cancelled'],
+      'delivered': ['delivered'], // Final state
+      'cancelled': ['cancelled']  // Final state
+    };
+    
+    return statusFlow[currentStatus] || [currentStatus];
+  }
+
+  /**
    * Check if order can be paid (for VNPay validation)
    * @param {string} orderId - Order ID
    * @returns {boolean} Whether order can be paid

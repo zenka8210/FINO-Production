@@ -27,6 +27,7 @@ interface OrderItem {
   finalTotal?: number;
   status: string;
   paymentStatus?: string;
+  paymentMethod?: string | { method?: string };
   createdAt: string;
   updatedAt?: string;
 }
@@ -572,12 +573,12 @@ export default function AdminPage() {
     }
   };
 
-  // Business logic for status transitions (consistent with admin/orders page)  
+  // Business logic for status transitions (strict workflow enforcement)  
   const getValidStatusTransitions = (currentStatus: string): string[] => {
-    // ENHANCED ADMIN CONTROL - Match backend logic exactly
-    const statusFlow = {
+    // STRICT WORKFLOW - Must follow proper order fulfillment process
+    const statusFlow: { [key: string]: string[] } = {
       'pending': ['pending', 'processing', 'cancelled'],
-      'processing': ['processing', 'shipped', 'delivered', 'cancelled'], 
+      'processing': ['processing', 'shipped', 'cancelled'], // Cannot skip to delivered
       'shipped': ['shipped', 'delivered', 'cancelled'], // Can cancel if customer doesn't receive (return)
       'delivered': ['delivered'], // Final state - no changes allowed
       'cancelled': ['cancelled'] // Final state - no changes allowed
@@ -637,6 +638,8 @@ export default function AdminPage() {
         errorMessage = '⚠️ Không thể thay đổi trạng thái đơn hàng đã giao!\n\nĐơn hàng đã giao là trạng thái cuối cùng.';
       } else if (newStatus === 'cancelled' && !canCancelOrder(currentOrder.status)) {
         errorMessage = '⚠️ Không thể hủy đơn hàng đã gửi hàng hoặc đã giao hàng!\n\nChỉ có thể hủy đơn hàng ở trạng thái "Chờ xử lý" hoặc "Đang xử lý".';
+      } else if (currentOrder.status === 'processing' && newStatus === 'delivered') {
+        errorMessage = '⚠️ Không thể chuyển trực tiếp từ "Đang xử lý" sang "Đã giao hàng"!\n\nBạn phải chuyển qua bước "Đã gửi hàng" trước.\n\nQuy trình: Đang xử lý → Đã gửi hàng → Đã giao hàng';
       } else {
         errorMessage = `⚠️ Không thể chuyển từ "${getStatusLabel(currentOrder.status)}" sang "${getStatusLabel(newStatus)}"!\n\nVui lòng tuân theo quy trình xử lý đơn hàng.`;
       }
@@ -664,16 +667,27 @@ export default function AdminPage() {
       const result = await response.json();
       
       if (result.success || response.ok) {
-        // Update local state with auto-update paymentStatus logic (consistent with admin/orders page)
+        // Update local state with auto-update paymentStatus logic for COD orders
         setRecentOrders(prev => 
           prev.map(order => {
             if (order._id === orderId) {
               const updatedOrder = { ...order, status: newStatus, updatedAt: new Date().toISOString() };
               
-              // Auto-update paymentStatus to 'paid' when status is 'delivered'
-              if (newStatus === 'delivered') {
+              // Auto-update paymentStatus to 'paid' when COD order status is 'delivered'
+              const paymentMethod = typeof order.paymentMethod === 'object' 
+                ? order.paymentMethod?.method || '' 
+                : order.paymentMethod || '';
+              const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
+              
+              if (newStatus === 'delivered' && isCOD) {
                 updatedOrder.paymentStatus = 'paid';
-                console.log('[DEBUG] 🔄 Auto-updating paymentStatus to paid (order delivered)');
+                console.log('[DEBUG] 🔄 Auto-updating COD paymentStatus to paid (order delivered)', {
+                  orderId,
+                  paymentMethod,
+                  isCOD,
+                  newStatus,
+                  previousPaymentStatus: order.paymentStatus
+                });
               }
               
               return updatedOrder;
@@ -687,10 +701,21 @@ export default function AdminPage() {
             if (order._id === orderId) {
               const updatedOrder = { ...order, status: newStatus, updatedAt: new Date().toISOString() };
               
-              // Auto-update paymentStatus to 'paid' when status is 'delivered'
-              if (newStatus === 'delivered') {
+              // Auto-update paymentStatus to 'paid' when COD order status is 'delivered'
+              const paymentMethod = typeof order.paymentMethod === 'object' 
+                ? order.paymentMethod?.method || '' 
+                : order.paymentMethod || '';
+              const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
+              
+              if (newStatus === 'delivered' && isCOD) {
                 updatedOrder.paymentStatus = 'paid';
-                console.log('[DEBUG] 🔄 Auto-updating paymentStatus to paid (order delivered)');
+                console.log('[DEBUG] 🔄 Auto-updating COD paymentStatus to paid (order delivered)', {
+                  orderId,
+                  paymentMethod,
+                  isCOD,
+                  newStatus,
+                  previousPaymentStatus: order.paymentStatus
+                });
               }
               
               return updatedOrder;
@@ -730,7 +755,9 @@ export default function AdminPage() {
 
     // Validation using helper function (consistent with admin/orders page)
     if (!canChangePaymentStatus(currentOrder)) {
-      const paymentMethod = currentOrder.paymentMethod?.method || currentOrder.paymentMethod || '';
+      const paymentMethod = typeof currentOrder.paymentMethod === 'object' 
+        ? currentOrder.paymentMethod?.method || '' 
+        : currentOrder.paymentMethod || '';
       const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
       
       if (digitalMethods.includes(paymentMethod)) {

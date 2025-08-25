@@ -8,8 +8,6 @@ interface UserModalProps {
   user: User | null;
   isOpen: boolean;
   onClose: () => void;
-  onUserUpdated: () => void;
-  onDeleteUser: (userId: string) => void;
   onToggleStatus: (userId: string, currentStatus: boolean) => void;
   onUpdateRole: (userId: string, newRole: 'customer' | 'admin') => void;
 }
@@ -27,8 +25,6 @@ export default function UserModal({
   user,
   isOpen,
   onClose,
-  onUserUpdated,
-  onDeleteUser,
   onToggleStatus,
   onUpdateRole
 }: UserModalProps) {
@@ -37,24 +33,9 @@ export default function UserModal({
   const [isLoading, setIsLoading] = useState(false);
   const [userOrders, setUserOrders] = useState<UserOrders[]>([]);
   const [userAddresses, setUserAddresses] = useState<any[]>([]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({
-    name: '',
-    phone: '',
-    address: ''
-  });
 
   useEffect(() => {
     if (user && isOpen) {
-      // Reset form và edit state khi user thay đổi
-      setEditForm({
-        name: user.name || '',
-        phone: user.phone || '',
-        address: user.address || ''
-      });
-      
-      // Reset edit mode khi chuyển user
-      setIsEditing(false);
       setActiveTab('info');
     }
   }, [user, isOpen]);
@@ -62,7 +43,6 @@ export default function UserModal({
   // Reset state khi modal đóng
   useEffect(() => {
     if (!isOpen) {
-      setIsEditing(false);
       setActiveTab('info');
       setUserOrders([]);
       setUserAddresses([]);
@@ -76,7 +56,6 @@ export default function UserModal({
     try {
       setIsLoading(true);
       const response = await orderService.getOrdersByUserId(user._id, {
-        limit: 10,
         sortBy: 'createdAt',
         sortOrder: 'desc'
       }) as any;
@@ -104,49 +83,6 @@ export default function UserModal({
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleUpdateUser = async () => {
-    if (!user) return;
-
-    try {
-      setIsLoading(true);
-      await userService.updateUserByAdmin(user._id, {
-        name: editForm.name,
-        phone: editForm.phone
-      });
-      setIsEditing(false);
-      onUserUpdated();
-      showSuccess('Cập nhật thông tin người dùng thành công');
-    } catch (error: any) {
-      showError('Lỗi cập nhật thông tin', error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDeleteUser = () => {
-    if (!user) return;
-    
-    if (confirm(`Bạn có chắc chắn muốn xóa người dùng "${user.email}"?`)) {
-      onDeleteUser(user._id);
-      onClose();
-    }
-  };
-
-  const handleClose = () => {
-    if (isEditing) {
-      const hasChanges = 
-        editForm.name !== (user?.name || '') ||
-        editForm.phone !== (user?.phone || '') ||
-        editForm.address !== (user?.address || '');
-      
-      if (hasChanges && !confirm('Bạn có thay đổi chưa lưu. Bạn có chắc muốn đóng không?')) {
-        return;
-      }
-    }
-    
-    onClose();
   };
 
   const handleToggleStatus = () => {
@@ -188,14 +124,14 @@ export default function UserModal({
   if (!isOpen || !user) return null;
 
   return (
-    <div className={styles.modalOverlay} onClick={handleClose}>
+    <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <div className={styles.userTitle}>
             <h2 className={styles.userName}>{user.name || 'Chưa có tên'}</h2>
             <p className={styles.userEmail}>{user.email}</p>
           </div>
-          <button onClick={handleClose} className={styles.closeButton}>
+          <button onClick={onClose} className={styles.closeButton}>
             ✕
           </button>
         </div>
@@ -230,83 +166,38 @@ export default function UserModal({
         <div className={styles.tabContent}>
           {activeTab === 'info' && (
             <div className={styles.infoTab}>
-              {isEditing ? (
-                <div className={styles.editForm}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Tên:</label>
-                    <input
-                      type="text"
-                      value={editForm.name}
-                      onChange={(e) => setEditForm({...editForm, name: e.target.value})}
-                      className={styles.formInput}
-                    />
+              <div className={styles.userInfo}>
+                <div className={styles.infoGroup}>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Email:</span>
+                    <span className={styles.infoValue}>{user.email}</span>
                   </div>
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Số điện thoại:</label>
-                    <input
-                      type="text"
-                      value={editForm.phone}
-                      onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
-                      className={styles.formInput}
-                    />
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Tên:</span>
+                    <span className={styles.infoValue}>{user.name || 'Chưa có'}</span>
                   </div>
-                  <div className={styles.formActions}>
-                    <button
-                      onClick={handleUpdateUser}
-                      disabled={isLoading}
-                      className={styles.saveButton}
-                    >
-                      {isLoading ? 'Đang lưu...' : 'Lưu'}
-                    </button>
-                    <button
-                      onClick={() => setIsEditing(false)}
-                      className={styles.cancelButton}
-                    >
-                      Hủy
-                    </button>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Số điện thoại:</span>
+                    <span className={styles.infoValue}>{user.phone || 'Chưa có'}</span>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Địa chỉ:</span>
+                    <span className={styles.infoValue}>{user.address || 'Chưa có'}</span>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Ngày tạo:</span>
+                    <span className={styles.infoValue}>
+                      {new Date(user.createdAt).toLocaleString('vi-VN')}
+                    </span>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Cập nhật lần cuối:</span>
+                    <span className={styles.infoValue}>
+                      {new Date(user.updatedAt).toLocaleString('vi-VN')}
+                    </span>
                   </div>
                 </div>
-              ) : (
-                <div className={styles.userInfo}>
-                  <div className={styles.infoGroup}>
-                    <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>Email:</span>
-                      <span className={styles.infoValue}>{user.email}</span>
-                    </div>
-                    <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>Tên:</span>
-                      <span className={styles.infoValue}>{user.name || 'Chưa có'}</span>
-                    </div>
-                    <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>Số điện thoại:</span>
-                      <span className={styles.infoValue}>{user.phone || 'Chưa có'}</span>
-                    </div>
-                    <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>Địa chỉ:</span>
-                      <span className={styles.infoValue}>{user.address || 'Chưa có'}</span>
-                    </div>
-                    <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>Ngày tạo:</span>
-                      <span className={styles.infoValue}>
-                        {new Date(user.createdAt).toLocaleString('vi-VN')}
-                      </span>
-                    </div>
-                    <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>Cập nhật lần cuối:</span>
-                      <span className={styles.infoValue}>
-                        {new Date(user.updatedAt).toLocaleString('vi-VN')}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className={styles.editButton}
-                  >
-                    Chỉnh sửa thông tin
-                  </button>
-                </div>
-              )}
+              </div>
             </div>
           )}
         </div>
@@ -329,15 +220,6 @@ export default function UserModal({
               <option value="customer">Khách hàng</option>
               <option value="admin">Quản trị viên</option>
             </select>
-          </div>
-          
-          <div className={styles.rightActions}>
-            <button
-              onClick={handleDeleteUser}
-              className={`${styles.actionButton} ${styles.deleteButton}`}
-            >
-              Xóa người dùng
-            </button>
           </div>
         </div>
       </div>

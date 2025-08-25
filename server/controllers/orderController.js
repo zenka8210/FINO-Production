@@ -646,6 +646,39 @@ class OrderController extends BaseController {
       next(error);
     }
   };
+
+  // ============= ORDER STATUS UPDATE METHODS =============
+
+  // PUT /api/orders/admin/:id/status - Update order status (admin only)
+  updateOrderStatus = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      if (!status) {
+        return ResponseHandler.badRequest(res, 'Trạng thái đơn hàng là bắt buộc');
+      }
+
+      // Validate status value
+      const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+      if (!validStatuses.includes(status)) {
+        return ResponseHandler.badRequest(res, 'Trạng thái đơn hàng không hợp lệ');
+      }
+
+      console.log('[OrderController] 🔄 Updating order status:', { id, status });
+
+      const updatedOrder = await this.service.updateOrderStatus(id, status);
+      
+      ResponseHandler.success(res, 'Cập nhật trạng thái đơn hàng thành công', {
+        order: updatedOrder,
+        statusUpdated: status,
+        paymentStatusAutoUpdated: updatedOrder.paymentStatus === 'paid' && status === 'delivered'
+      });
+    } catch (error) {
+      console.error('[OrderController] ❌ Error updating order status:', error);
+      next(error);
+    }
+  };
 }
 
 module.exports = OrderController;

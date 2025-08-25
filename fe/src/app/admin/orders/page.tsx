@@ -44,10 +44,10 @@ export default function AdminOrdersPage() {
 
   // Business logic for status transitions  
   const getValidStatusTransitions = (currentStatus: string): string[] => {
-    // ENHANCED ADMIN CONTROL - Match backend logic exactly
+    // STRICT WORKFLOW ENFORCEMENT - Must follow sequential steps
     const statusFlow = {
       'pending': ['pending', 'processing', 'cancelled'],
-      'processing': ['processing', 'shipped', 'delivered', 'cancelled'], 
+      'processing': ['processing', 'shipped', 'cancelled'], // REMOVED 'delivered' - must go through shipped first
       'shipped': ['shipped', 'delivered', 'cancelled'], // Can cancel if customer doesn't receive (return)
       'delivered': ['delivered'], // Final state - no changes allowed
       'cancelled': ['cancelled'] // Final state - no changes allowed
@@ -552,11 +552,17 @@ export default function AdminOrdersPage() {
           errorMessage = 'Chỉ có thể hủy đơn hàng ở trạng thái chờ xử lý hoặc đang xử lý';
         } else if (order.status === 'cancelled') {
           errorMessage = 'Không thể thay đổi trạng thái đơn hàng đã hủy';
+        } else if (order.status === 'processing' && newStatus === 'delivered') {
+          errorMessage = 'Không thể chuyển thẳng từ "Đang xử lý" sang "Đã giao hàng". Vui lòng chuyển sang "Đã gửi hàng" trước.';
+        } else if (order.status === 'pending' && newStatus === 'shipped') {
+          errorMessage = 'Không thể chuyển thẳng từ "Chờ xử lý" sang "Đã gửi hàng". Vui lòng chuyển sang "Đang xử lý" trước.';
+        } else if (order.status === 'pending' && newStatus === 'delivered') {
+          errorMessage = 'Không thể chuyển thẳng từ "Chờ xử lý" sang "Đã giao hàng". Quy trình: Chờ xử lý → Đang xử lý → Đã gửi hàng → Đã giao hàng.';
         } else {
-          errorMessage = `Không thể chuyển trạng thái từ '${order.status}' sang '${newStatus}'`;
+          errorMessage = `Không thể chuyển trạng thái từ '${order.status}' sang '${newStatus}'. Vui lòng theo quy trình: Chờ xử lý → Đang xử lý → Đã gửi hàng → Đã giao hàng.`;
         }
         setUpdateMessage(`❌ ${errorMessage}`);
-        setTimeout(() => setUpdateMessage(''), 5000);
+        setTimeout(() => setUpdateMessage(''), 7000); // Longer timeout for detailed messages
         return;
       }
       

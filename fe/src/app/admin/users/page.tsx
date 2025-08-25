@@ -7,6 +7,7 @@ import { User } from "../../../types";
 import { userService } from "../../../services";
 import { orderService } from "../../../services/orderService";
 import UserModal from "./components/UserModal";
+import OrderDetailModal from "../../../components/OrderDetailModal";
 import styles from "./user-admin.module.css";
 
 interface UserFilters {
@@ -68,6 +69,16 @@ export default function AdminUsersPage() {
   const [isOrdersModalOpen, setIsOrdersModalOpen] = useState(false);
   const [selectedUserOrders, setSelectedUserOrders] = useState<any[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
+
+  // Orders pagination
+  const [ordersCurrentPage, setOrdersCurrentPage] = useState(1);
+  const [ordersTotalPages, setOrdersTotalPages] = useState(1);
+  const [ordersTotalItems, setOrdersTotalItems] = useState(0);
+  const [ordersPerPage] = useState(10);
+
+  // Order Detail Modal
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [isOrderDetailModalOpen, setIsOrderDetailModalOpen] = useState(false);
 
   // Page jump functionality
   const [showPageInput, setShowPageInput] = useState(false);
@@ -186,13 +197,6 @@ export default function AdminUsersPage() {
     setIsUserModalOpen(true);
   };
 
-  const handleUserUpdated = () => {
-    setIsUserModalOpen(false);
-    setSelectedUser(null);
-    fetchUsers(); // Refresh list
-    showSuccess('Cập nhật người dùng thành công');
-  };
-
   const handleToggleUserStatus = async (userId: string, currentStatus: boolean) => {
     try {
       await userService.toggleUserActiveStatus(userId);
@@ -214,20 +218,34 @@ export default function AdminUsersPage() {
   };
 
   const handleViewUserOrders = async (user: User) => {
+    setSelectedUser(user);
+    setOrdersCurrentPage(1); // Reset to first page
+    setIsOrdersModalOpen(true);
+    await fetchUserOrders(user._id, 1);
+  };
+
+  const fetchUserOrders = async (userId: string, page: number = ordersCurrentPage) => {
     try {
-      setSelectedUser(user);
       setIsLoadingOrders(true);
-      setIsOrdersModalOpen(true);
       
-      // Fetch user orders
-      const ordersResponse = await orderService.getOrdersByUserId(user._id) as any;
+      // Fetch user orders with pagination
+      const ordersResponse = await orderService.getOrdersByUserId(userId, {
+        page,
+        limit: ordersPerPage,
+        sortBy: 'createdAt',
+        sortOrder: 'desc'
+      }) as any;
+      
       console.log('[DEBUG] Orders response:', ordersResponse);
       
       // Handle nested response structure from backend
       let orders = [];
+      let pagination = null;
+      
       if (ordersResponse?.data?.documents) {
         // Backend returns: { data: { documents: [...], pagination: {...} } }
         orders = ordersResponse.data.documents;
+        pagination = ordersResponse.data.pagination;
       } else if (Array.isArray(ordersResponse?.data)) {
         // Backend returns: { data: [...] }
         orders = ordersResponse.data;
@@ -237,7 +255,27 @@ export default function AdminUsersPage() {
       }
       
       console.log('[DEBUG] Processed orders:', orders);
+      console.log('[DEBUG] Pagination:', pagination);
+      
       setSelectedUserOrders(orders);
+      
+      // Update pagination state
+      if (pagination) {
+        setOrdersCurrentPage(pagination.page);      // API returns 'page'
+        setOrdersTotalPages(pagination.pages);      // API returns 'pages' 
+        setOrdersTotalItems(pagination.total);      // API returns 'total'
+        console.log('[DEBUG] Pagination state updated:', {
+          currentPage: pagination.page,
+          totalPages: pagination.pages,
+          totalItems: pagination.total
+        });
+      } else {
+        // If no pagination, assume single page
+        setOrdersCurrentPage(1);
+        setOrdersTotalPages(1);
+        setOrdersTotalItems(orders.length);
+        console.log('[DEBUG] No pagination, single page:', orders.length);
+      }
     } catch (error: any) {
       console.error('[DEBUG] Error fetching orders:', error);
       showError('Lỗi tải đơn hàng', error.message);
@@ -247,16 +285,20 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa người dùng này?')) return;
-    
-    try {
-      await userService.deleteUserByAdmin(userId);
-      fetchUsers(); // Refresh list
-      showSuccess('Xóa người dùng thành công');
-    } catch (error: any) {
-      showError('Lỗi xóa người dùng', error.message);
+  const handleOrdersPageChange = async (page: number) => {
+    if (selectedUser && page >= 1 && page <= ordersTotalPages && page !== ordersCurrentPage && !isLoadingOrders) {
+      await fetchUserOrders(selectedUser._id, page);
     }
+  };
+
+  const handleViewOrderDetail = (orderId: string) => {
+    setSelectedOrderId(orderId);
+    setIsOrderDetailModalOpen(true);
+  };
+
+  const handleCloseOrderDetailModal = () => {
+    setSelectedOrderId(null);
+    setIsOrderDetailModalOpen(false);
   };
 
   // Pagination handlers
@@ -646,8 +688,6 @@ export default function AdminUsersPage() {
           setIsUserModalOpen(false);
           setSelectedUser(null);
         }}
-        onUserUpdated={handleUserUpdated}
-        onDeleteUser={handleDeleteUser}
         onToggleStatus={handleToggleUserStatus}
         onUpdateRole={handleUpdateUserRole}
       />
@@ -678,7 +718,13 @@ export default function AdminUsersPage() {
                   {selectedUserOrders.map((order: any) => (
                     <div key={order._id} className={styles.orderCard}>
                       <div className={styles.orderHeader}>
-                        <div className={styles.orderId}>Đơn hàng #{(order.orderCode || order._id)?.slice(-8)}</div>
+                        <div 
+                          className={`${styles.orderId} ${styles.clickableOrderId}`}
+                          onClick={() => handleViewOrderDetail(order._id)}
+                          title="Click để xem chi tiết đơn hàng"
+                        >
+                          Đơn hàng #{order.orderCode || order._id?.slice(-8)}
+                        </div>
                         <div className={`${styles.orderStatus} ${styles[`status_${order.status}`]}`}>
                           {order.status}
                         </div>
@@ -699,9 +745,69 @@ export default function AdminUsersPage() {
                 </div>
               )}
             </div>
+            
+            {/* Orders Pagination - Moved outside modalBody */}
+            {!isLoadingOrders && selectedUserOrders.length > 0 && (
+              <div className={styles.ordersPagination}>
+                <div className={styles.paginationInfo}>
+                  {ordersTotalPages > 1 ? (
+                    <>Trang {ordersCurrentPage} / {ordersTotalPages} - Tổng: {ordersTotalItems} đơn hàng</>
+                  ) : (
+                    <>Tổng: {ordersTotalItems} đơn hàng</>
+                  )}
+                </div>
+                {ordersTotalPages > 1 && (
+                  <div className={styles.paginationControls}>
+                    <button
+                      onClick={() => handleOrdersPageChange(ordersCurrentPage - 1)}
+                      disabled={ordersCurrentPage <= 1 || isLoadingOrders}
+                      className={styles.pageButton}
+                    >
+                      « Trước
+                    </button>
+                    
+                    {Array.from({ length: Math.min(5, ordersTotalPages) }, (_, i) => {
+                      const page = ordersCurrentPage <= 3 
+                        ? i + 1 
+                        : ordersCurrentPage >= ordersTotalPages - 2 
+                          ? ordersTotalPages - 4 + i 
+                          : ordersCurrentPage - 2 + i;
+                      
+                      if (page < 1 || page > ordersTotalPages) return null;
+                      
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => handleOrdersPageChange(page)}
+                          disabled={isLoadingOrders}
+                          className={`${styles.pageButton} ${page === ordersCurrentPage ? styles.activePage : ''}`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    })}
+                    
+                    <button
+                      onClick={() => handleOrdersPageChange(ordersCurrentPage + 1)}
+                      disabled={ordersCurrentPage >= ordersTotalPages || isLoadingOrders}
+                      className={styles.pageButton}
+                    >
+                      Sau »
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
+
+      {/* Order Detail Modal */}
+      <OrderDetailModal
+        orderId={selectedOrderId}
+        isOpen={isOrderDetailModalOpen}
+        onClose={handleCloseOrderDetailModal}
+      />
     </div>
   );
 }

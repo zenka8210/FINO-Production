@@ -22,9 +22,10 @@ const authMiddleware = async (req, res, next) => {
       return next(new AppError(MESSAGES.USER.NOT_FOUND || 'Token không hợp lệ, người dùng không tồn tại', ERROR_CODES.UNAUTHORIZED));
     }
 
-    // if (!user.isActive) {
-    //   return next(new AppError('Tài khoản đã bị khóa.', ERROR_CODES.FORBIDDEN));
-    // }
+    // Check if user account is active
+    if (!user.isActive) {
+      return next(new AppError('Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.', ERROR_CODES.FORBIDDEN));
+    }
 
     req.user = user; // Gắn thông tin user vào request
     next();

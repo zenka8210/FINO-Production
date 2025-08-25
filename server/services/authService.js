@@ -80,6 +80,12 @@ async login(email, password) {
     throw new AppError(MESSAGES.AUTH_FAILED, ERROR_CODES.UNAUTHORIZED);
   }
 
+  // Check if user account is active
+  if (!user.isActive) {
+    console.log('User account is inactive:', email);
+    throw new AppError('Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.', ERROR_CODES.FORBIDDEN);
+  }
+
   // So sánh mật khẩu
   const isMatch = await user.comparePassword(password);
   console.log('Password match result:', isMatch);
