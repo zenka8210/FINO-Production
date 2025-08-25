@@ -1,8 +1,9 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import ErrorPage from '@/app/components/ui/ErrorPage';
 
-export default function MaintenancePage() {
+function MaintenanceContent() {
   const searchParams = useSearchParams();
   const reason = searchParams.get('reason');
 
@@ -28,5 +29,21 @@ export default function MaintenancePage() {
       showRefreshButton={true}
       showBackButton={false}
     />
+  );
+}
+
+export default function MaintenancePage() {
+  return (
+    <Suspense fallback={
+      <ErrorPage
+        title="Đang tải..."
+        message="Vui lòng chờ trong giây lát..."
+        errorCode=""
+        showRefreshButton={false}
+        showBackButton={false}
+      />
+    }>
+      <MaintenanceContent />
+    </Suspense>
   );
 }

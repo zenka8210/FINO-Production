@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts';
 import { PageHeader, Button } from '@/app/components/ui';
@@ -192,7 +192,7 @@ const getInvoiceStyles = () => `
   }
 `;
 
-export default function OrderDetailPage() {
+function OrderDetailContent() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -983,5 +983,26 @@ export default function OrderDetailPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function OrderDetailPage() {
+  return (
+    <Suspense fallback={
+      <div className="container">
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          minHeight: '400px',
+          flexDirection: 'column',
+          gap: '1rem'
+        }}>
+          <div style={{ fontSize: '1.2rem', color: '#666' }}>Đang tải chi tiết đơn hàng...</div>
+        </div>
+      </div>
+    }>
+      <OrderDetailContent />
+    </Suspense>
   );
 }

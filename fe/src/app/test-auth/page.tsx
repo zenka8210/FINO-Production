@@ -1,3 +1,5 @@
+'use client';
+
 // Simple test script to verify login authentication flow
 console.log('Testing cart authentication flow...');
 
