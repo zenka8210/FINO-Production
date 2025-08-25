@@ -199,12 +199,30 @@ class ApiClient {
       // Log response structure for debugging
       if (process.env.NODE_ENV === 'development') {
         console.log('🔍 getPaginated response structure:', responseData);
+        console.log('🔍 responseData.data structure:', responseData?.data);
+        console.log('🔍 responseData.data.documents:', responseData?.data?.documents);
+        console.log('🔍 responseData.data.pagination:', responseData?.data?.pagination);
       }
       
       // Handle nested data structure from backend (reviews case)
       // Backend returns: {success, message, data: {data: [], pagination: {page, limit, total, totalPages}}}
       if (responseData && responseData.success && responseData.data) {
         const backendData = responseData.data;
+        
+        // NEW: Handle documents structure (orders case)
+        // Backend returns: {success, message, data: {documents: [], pagination: {}}}
+        if (backendData.documents && Array.isArray(backendData.documents) && backendData.pagination) {
+          const backendPagination = backendData.pagination;
+          return {
+            success: responseData.success,
+            message: responseData.message,
+            data: backendData.documents, // Use documents instead of data
+            total: backendPagination.total,
+            page: backendPagination.page,
+            limit: backendPagination.limit,
+            totalPages: backendPagination.pages // Backend uses 'pages' not 'totalPages'
+          };
+        }
         
         // Check if backend data has nested structure with data array and pagination object
         if (backendData.data && Array.isArray(backendData.data) && backendData.pagination) {

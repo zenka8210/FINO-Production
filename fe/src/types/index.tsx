@@ -136,6 +136,23 @@ export interface OrderDetail {
   quantity: number; // required
   price: number; // required
   totalPrice: number; // required
+  productName?: string; // Fallback product name
+  productSnapshot?: {
+    productId: string;
+    productName: string;
+    productDescription?: string;
+    productImages?: string[]; // 🆕 Product parent images for fallback
+    variantId: string;
+    variantSku?: string;
+    variantPrice: number;
+    variantStock?: number;
+    variantImages?: string[];
+    colorId: string;
+    colorName: string;
+    sizeId: string;
+    sizeName: string;
+    snapshotCreatedAt: Date;
+  };
 }
 
 // ============= 13. ORDER SCHEMA =============

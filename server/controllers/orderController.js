@@ -39,6 +39,8 @@ class OrderController extends BaseController {
     }
   };
 
+
+
   // Admin: Lấy đơn hàng theo ID (admin có thể xem tất cả đơn hàng)
   getOrderByIdAdmin = async (req, res, next) => {
     try {
@@ -105,9 +107,10 @@ class OrderController extends BaseController {
   // Lấy đơn hàng của user hiện tại
   getUserOrders = async (req, res, next) => {
     try {
-      const { page, limit, status, startDate, endDate } = req.query;
+      const { page, limit, status, startDate, endDate, search } = req.query;
       
       console.log('🗓️ Date filter params:', { startDate, endDate });
+      console.log('🔍 Search param:', search);
       
       // Build date filter
       const dateFilter = {};
@@ -122,7 +125,8 @@ class OrderController extends BaseController {
         page: parseInt(page) || PAGINATION.DEFAULT_PAGE,
         limit: parseInt(limit) || PAGINATION.DEFAULT_LIMIT,
         status,
-        dateFilter
+        dateFilter,
+        search
       };
 
       const result = await this.service.getUserOrders(req.user._id, options);
@@ -240,6 +244,28 @@ class OrderController extends BaseController {
       }
 
       ResponseHandler.success(res, 'Order retrieved successfully', order);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Cập nhật địa chỉ đơn hàng (chỉ cho đơn hàng pending)
+  updateOrderAddress = async (req, res, next) => {
+    try {
+      const { addressId } = req.body;
+      
+      if (!addressId) {
+        throw new AppError('Địa chỉ là bắt buộc', ERROR_CODES.BAD_REQUEST);
+      }
+
+      // Use service to update order address
+      const updatedOrder = await this.service.updateOrderAddress(
+        req.params.id,
+        addressId,
+        req.user._id
+      );
+      
+      ResponseHandler.success(res, 'Cập nhật địa chỉ thành công', updatedOrder);
     } catch (error) {
       next(error);
     }

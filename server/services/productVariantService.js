@@ -221,8 +221,16 @@ class ProductVariantService extends BaseService {
     if (!variant) {
       throw new AppError(productVariantMessages.VARIANT_NOT_FOUND, 404);
     }
-    // Add any checks here if a variant cannot be deleted (e.g., if it's part of an active order)
-    // For now, we allow direct deletion.
+    
+    // 🆕 SNAPSHOT APPROACH: With the productSnapshot system in OrderSchema,
+    // we can safely delete variants without breaking order history.
+    // Order data will be preserved via productSnapshot field.
+    console.log('🗑️ Deleting ProductVariant with snapshot approach:', {
+      variantId: id,
+      sku: variant.sku,
+      note: 'Order data preserved via productSnapshot'
+    });
+    
     await this.Model.findByIdAndDelete(id);
     return { message: productVariantMessages.VARIANT_DELETED_SUCCESSFULLY };
   }

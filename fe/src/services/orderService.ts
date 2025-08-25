@@ -430,6 +430,22 @@ export class OrderService {
       throw new Error(error.response?.data?.message || 'Failed to update shipping fees');
     }
   }
+
+  /**
+   * Update order address (only for pending orders)
+   * PUT /api/orders/:id/address
+   */
+  async updateOrderAddress(orderId: string, addressId: string): Promise<OrderWithRefs> {
+    try {
+      const response = await apiClient.put<ApiResponse<OrderWithRefs>>(`/api/orders/${orderId}/address`, { addressId });
+      if (!response.data?.data) {
+        throw new Error('No data returned from server');
+      }
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to update order address');
+    }
+  }
 }
 
 // Create and export singleton instance

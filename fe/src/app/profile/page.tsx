@@ -4,9 +4,10 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, useCart } from '@/contexts';
 import { useApiNotification, useOrders } from '@/hooks';
-import { Button, PageHeader, LoadingSpinner, OrderDetailButton, OrderReviewModal } from '@/app/components/ui';
+import { Button, PageHeader, LoadingSpinner, OrderDetailButton, OrderReviewModal, OrderCard } from '@/app/components/ui';
 import AddAddressModal from '@/app/components/AddAddressModal';
 import EditAddressModal from '@/app/components/EditAddressModal';
+import AddressSelectionModal from '@/app/components/ui/AddressSelectionModal';
 import { userService } from '@/services/userService';
 import { orderService } from '@/services/orderService';
 import { reviewService } from '@/services/reviewService';
@@ -87,6 +88,10 @@ function ProfilePageContent() {
   const [selectedOrderForReview, setSelectedOrderForReview] = useState<OrderWithRefs | null>(null);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [selectedAddressForEdit, setSelectedAddressForEdit] = useState<Address | null>(null);
+  
+  // Address change states (copied from orders page)
+  const [addressModalOpen, setAddressModalOpen] = useState(false);
+  const [selectedOrderForAddress, setSelectedOrderForAddress] = useState<OrderWithRefs | null>(null);
   
   // Review states
   const [reviewedOrders, setReviewedOrders] = useState<Set<string>>(new Set());
@@ -173,26 +178,58 @@ function ProfilePageContent() {
   const fetchOrders = async (limitOrders = 3) => {
     try {
       setOrdersLoading(true);
+      console.log('🔄 Fetching user orders with limit:', limitOrders);
       
       // Get orders - limited for both overview and orders section
       const queryParams = { page: 1, limit: limitOrders };
       const response = await orderService.getUserOrders(queryParams);
       
+      console.log('📋 Raw getUserOrders Response:', response);
+      
       // Handle different response structures
       let ordersData = [];
       if (Array.isArray(response)) {
         ordersData = response;
+        console.log('📋 Response is direct array, length:', ordersData.length);
       } else if ((response as any)?.data?.documents && Array.isArray((response as any).data.documents)) {
         ordersData = (response as any).data.documents;
+        console.log('📋 Response has data.documents, length:', ordersData.length);
       } else if (response?.data && Array.isArray(response.data)) {
         ordersData = response.data;
+        console.log('📋 Response has data array, length:', ordersData.length);
       } else if ((response as any)?.orders && Array.isArray((response as any).orders)) {
         ordersData = (response as any).orders;
+        console.log('📋 Response has orders array, length:', ordersData.length);
       } else if ((response as any)?.message?.data && Array.isArray((response as any).message.data)) {
         ordersData = (response as any).message.data;
+        console.log('📋 Response has message.data array, length:', ordersData.length);
       } else {
         console.warn('⚠️ Unexpected orders response structure:', response);
         ordersData = [];
+      }
+      
+      // Debug first order structure
+      if (ordersData.length > 0) {
+        const firstOrder = ordersData[0];
+        console.log('🔍 First Order Debug:');
+        console.log('   - orderCode:', firstOrder.orderCode);
+        console.log('   - items count:', firstOrder.items?.length);
+        
+        if (firstOrder.items && firstOrder.items.length > 0) {
+          const firstItem = firstOrder.items[0];
+          console.log('📦 First Item Debug:');
+          console.log('   - item keys:', Object.keys(firstItem));
+          console.log('   - has productSnapshot:', !!firstItem.productSnapshot);
+          console.log('   - has productVariant:', !!firstItem.productVariant);
+          
+          if (firstItem.productSnapshot) {
+            console.log('🎯 ProductSnapshot Debug:');
+            console.log('   - productName:', firstItem.productSnapshot.productName);
+            console.log('   - colorName:', firstItem.productSnapshot.colorName);
+            console.log('   - sizeName:', firstItem.productSnapshot.sizeName);
+            console.log('   - productImages length:', firstItem.productSnapshot.productImages?.length);
+          }
+        }
       }
       
       setOrders(ordersData);
@@ -497,7 +534,8 @@ function ProfilePageContent() {
       
       // Prepare items for batch add to cart
       const items = order.items?.map((item: any) => ({
-        productVariant: item.productVariant?._id,
+        // Use productSnapshot data if available, fallback to productVariant reference
+        productVariant: item.productSnapshot?.variantId || item.productVariant?._id,
         quantity: item.quantity
       })).filter(item => item.productVariant) || [];
 
@@ -548,6 +586,18 @@ function ProfilePageContent() {
     }
   };
 
+  // Handle change address functionality
+  const handleChangeAddress = (order: OrderWithRefs) => {
+    setSelectedOrderForAddress(order);
+    setAddressModalOpen(true);
+  };
+
+  // Handle address change success
+  const handleAddressChanged = async () => {
+    // Refresh orders list to show updated address
+    await fetchOrders(10);
+  };
+
   // Handle cancel order
   const handleCancelOrder = async (orderId: string) => {
     try {
@@ -574,16 +624,44 @@ function ProfilePageContent() {
   // Check if order has been reviewed
   const checkOrderReviewStatus = async (orders: OrderWithRefs[]) => {
     try {
+      console.log('🔍 Debug: Checking review status for orders:', orders.length);
+      
       const reviewPromises = orders
         .filter(order => order.status === 'delivered')
         .map(async (order) => {
           try {
+            console.log('🔍 Debug: Processing order:', order._id, 'with items:', order.items?.length);
+            
             // Check each product in the order
-            const productPromises = order.items?.map(async (item: any) => {
+            const productPromises = order.items?.map(async (item: any, index: number) => {
               try {
-                const result = await reviewService.canReviewProduct(item.productVariant?.product?._id);
+                // Debug order item structure
+                console.log(`🔍 Debug: Order ${order._id} Item ${index}:`, {
+                  hasProductVariant: !!item.productVariant,
+                  hasProduct: !!item.productVariant?.product,
+                  hasProductSnapshot: !!item.productSnapshot,
+                  productId: item.productSnapshot?.productId || item.productVariant?.product?._id,
+                  productName: item.productSnapshot?.productName || item.productVariant?.product?.name
+                });
+                
+                // Validate that we have a valid product ID from snapshot or reference
+                const productId = item.productSnapshot?.productId || item.productVariant?.product?._id;
+                if (!productId) {
+                  console.warn('⚠️ Missing product ID for order item:', {
+                    orderId: order._id,
+                    itemIndex: index,
+                    hasProductVariant: !!item.productVariant,
+                    hasProduct: !!item.productVariant?.product,
+                    hasProductSnapshot: !!item.productSnapshot,
+                    item: item
+                  });
+                  return { orderId: order._id, canReview: false }; // Cannot review if no product ID
+                }
+                
+                const result = await reviewService.canReviewProduct(productId);
                 return { orderId: order._id, canReview: result.canReview };
-              } catch {
+              } catch (error) {
+                console.error('❌ Error checking review status for item:', error);
                 return { orderId: order._id, canReview: true }; // Default to can review if check fails
               }
             }) || [];
@@ -823,109 +901,19 @@ function ProfilePageContent() {
                   ) : (
                     <div className={styles.ordersList}>
                       {orders.slice(0, 3).map((order) => (
-                        <div key={order._id} className={styles.orderCard}>
-                          <div className={styles.orderHeader}>
-                            <div className={styles.orderInfo}>
-                              <h4 className={styles.orderCode}>#{order.orderCode}</h4>
-                              <div className={styles.orderMeta}>
-                                <span className={styles.orderDate}>
-                                  <FaClock className={styles.metaIcon} />
-                                  {new Date(order.createdAt).toLocaleDateString('vi-VN')}
-                                </span>
-                                <span className={`${styles.orderStatus} ${styles[`status${order.status.charAt(0).toUpperCase() + order.status.slice(1)}`]}`}>
-                                  {order.status === 'pending' && <FaClock className={styles.statusIcon} />}
-                                  {order.status === 'processing' && <FaTruck className={styles.statusIcon} />}
-                                  {order.status === 'shipped' && <FaTruck className={styles.statusIcon} />}
-                                  {order.status === 'delivered' && <FaCheckCircle className={styles.statusIcon} />}
-                                  {order.status === 'cancelled' && <FaTimesCircle className={styles.statusIcon} />}
-                                  {order.status === 'pending' && 'Chờ xác nhận'}
-                                  {order.status === 'processing' && 'Đang xử lý'}
-                                  {order.status === 'shipped' && 'Đã gửi hàng'}
-                                  {order.status === 'delivered' && 'Đã giao'}
-                                  {order.status === 'cancelled' && 'Đã hủy'}
-                                </span>
-                              </div>
-                            </div>
-                            <div className={styles.orderTotal}>
-                              <span className={styles.totalLabel}>Tổng tiền:</span>
-                              <span className={styles.totalAmount}>{formatCurrency(order.finalTotal || 0)}</span>
-                            </div>
-                          </div>
-                          
-                          <div className={styles.orderItems}>
-                            {order.items?.slice(0, 2).map((item: any, index: number) => (
-                              <div key={index} className={styles.orderItem}>
-                                <div className={styles.itemInfo}>
-                                  <span className={styles.itemName}>
-                                    {item.productVariant?.product?.name || item.productName}
-                                  </span>
-                                  <span className={styles.itemDetails}>
-                                    Số lượng: {item.quantity} • {formatCurrency(item.price)}
-                                  </span>
-                                </div>
-                              </div>
-                            ))}
-                            {(order.items?.length || 0) > 2 && (
-                              <div className={styles.moreItems}>
-                                +{(order.items?.length || 0) - 2} sản phẩm khác
-                              </div>
-                            )}
-                          </div>
-
-                          <div className={styles.orderActions}>
-                            <OrderDetailButton 
-                              orderId={order._id}
-                              variant="outline"
-                              size="sm"
-                            >
-                              <FaEye className={styles.buttonIcon} />
-                              Xem chi tiết
-                            </OrderDetailButton>
-                            
-                            {order.status === 'pending' && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className={styles.cancelButton}
-                                onClick={() => {
-                                  if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
-                                    // Handle cancel order
-                                    console.log('Cancel order:', order._id);
-                                  }
-                                }}
-                              >
-                                <FaTimesCircle className={styles.buttonIcon} />
-                                Hủy đơn
-                              </Button>
-                            )}
-                            
-                            {/* Nút Đánh giá cho đơn hàng đã giao */}
-                            {order.status === 'delivered' && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className={styles.reviewButton}
-                                onClick={() => isOrderReviewed(order._id) ? undefined : handleReviewOrder(order)}
-                                disabled={isOrderReviewed(order._id)}
-                              >
-                                <FaStar className={styles.buttonIcon} />
-                                {isOrderReviewed(order._id) ? 'Đã đánh giá' : 'Đánh giá'}
-                              </Button>
-                            )}
-                            
-                            {/* Nút Mua lại - LUÔN Ở CUỐI (bên phải ngoài cùng) */}
-                            <Button
-                              variant="primary"
-                              size="sm"
-                              className={styles.reorderButton}
-                              onClick={() => handleReorder(order)}
-                              disabled={loading}
-                            >
-                              <FaShoppingCart className={styles.buttonIcon} />
-                              Mua lại
-                            </Button>
-                          </div>
-                        </div>
+                        <OrderCard
+                          key={order._id}
+                          order={order}
+                          showReviewButton={true}
+                          onReviewOrder={handleReviewOrder}
+                          onCancelOrder={handleCancelOrder}
+                          onReorderOrder={handleReorder}
+                          onReorderComplete={() => fetchOrders(3)}
+                          onChangeAddress={handleChangeAddress}
+                          isOrderReviewed={isOrderReviewed}
+                          maxItems={2}
+                          showDetailedInfo={true}
+                        />
                       ))}
                       
                       {orders.length > 3 && (
@@ -1342,6 +1330,18 @@ function ProfilePageContent() {
                   </p>
                 </div>
                 <div className={styles.sectionActions}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      console.log('🔄 Force refreshing orders data...');
+                      setOrders([]); // Clear current data
+                      fetchOrders(10); // Refetch with fresh data
+                    }}
+                    className={styles.refreshButton}
+                  >
+                    🔄 Làm mới
+                  </Button>
                   <Button 
                     variant="outline"
                     size="sm"
@@ -1372,84 +1372,19 @@ function ProfilePageContent() {
                 ) : (
                   <div className={styles.ordersList}>
                     {orders.map((order) => (
-                      <div key={order._id} className={styles.orderCard}>
-                        <div className={styles.orderHeader}>
-                          <div className={styles.orderInfo}>
-                            <h4>Đơn hàng #{order.orderCode}</h4>
-                            <p className={styles.orderDate}>{formatDate(order.createdAt)}</p>
-                          </div>
-                          <div className={`${styles.orderStatus} ${getOrderStatusClass(order.status)}`}>
-                            {getOrderStatusText(order.status)}
-                          </div>
-                        </div>
-
-                        <div className={styles.orderItems}>
-                          {order.items.slice(0, 3).map((item, index) => (
-                            <div key={index} className={styles.orderItem}>
-                              <span>{item.productVariant?.product?.name || 'Sản phẩm'}</span>
-                              <span>x{item.quantity}</span>
-                            </div>
-                          ))}
-                          {order.items.length > 3 && (
-                            <p className={styles.moreItems}>+{order.items.length - 3} sản phẩm khác</p>
-                          )}
-                        </div>
-
-                        <div className={styles.orderFooter}>
-                          <div className={styles.orderTotal}>
-                            <strong>{order.finalTotal?.toLocaleString('vi-VN')}đ</strong>
-                          </div>
-                          <div className={styles.orderActions}>
-                            <OrderDetailButton 
-                              orderId={order._id}
-                              variant="outline"
-                              size="sm"
-                            >
-                              Chi tiết
-                            </OrderDetailButton>
-                            
-                            {order.status === 'pending' && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className={styles.cancelButton}
-                                onClick={async () => {
-                                  if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
-                                    await handleCancelOrder(order._id);
-                                  }
-                                }}
-                                disabled={loading}
-                              >
-                                {loading ? 'Đang hủy...' : 'Hủy đơn'}
-                              </Button>
-                            )}
-                            
-                            {/* Nút Đánh giá cho đơn hàng đã giao */}
-                            {order.status === 'delivered' && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className={styles.reviewButton}
-                                onClick={() => isOrderReviewed(order._id) ? undefined : handleReviewOrder(order)}
-                                disabled={isOrderReviewed(order._id)}
-                              >
-                                {isOrderReviewed(order._id) ? 'Đã đánh giá' : 'Đánh giá'}
-                              </Button>
-                            )}
-                            
-                            {/* Nút Mua lại - LUÔN Ở CUỐI (bên phải ngoài cùng) */}
-                            <Button
-                              variant="primary"
-                              size="sm"
-                              className={styles.reorderButton}
-                              onClick={() => handleReorder(order)}
-                              disabled={loading}
-                            >
-                              Mua lại
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
+                      <OrderCard
+                        key={order._id}
+                        order={order}
+                        showReviewButton={true}
+                        onReviewOrder={handleReviewOrder}
+                        onCancelOrder={handleCancelOrder}
+                        onReorderOrder={handleReorder}
+                        onReorderComplete={() => fetchOrders(10)}
+                        onChangeAddress={handleChangeAddress}
+                        isOrderReviewed={isOrderReviewed}
+                        maxItems={3}
+                        showDetailedInfo={false}
+                      />
                     ))}
                   </div>
                 )}
@@ -1615,6 +1550,19 @@ function ProfilePageContent() {
         onEditSuccess={handleEditAddressSuccess}
         address={selectedAddressForEdit}
       />
+
+      {/* Address Selection Modal */}
+      {selectedOrderForAddress && (
+        <AddressSelectionModal
+          isOpen={addressModalOpen}
+          onClose={() => {
+            setAddressModalOpen(false);
+            setSelectedOrderForAddress(null);
+          }}
+          order={selectedOrderForAddress}
+          onSuccess={handleAddressChanged}
+        />
+      )}
     </div>
   );
 }

@@ -87,6 +87,7 @@ class AddressService extends BaseService {
     if (!address) {
       throw new AppError(addressMessages.ADDRESS_NOT_FOUND, 404, ERROR_CODES.ADDRESS.NOT_FOUND);
     }
+    
     if (address.user.toString() !== userId) {
       throw new AppError(addressMessages.ADDRESS_BELONGS_TO_ANOTHER_USER, 403, ERROR_CODES.ADDRESS.PERMISSION_DENIED);
     }

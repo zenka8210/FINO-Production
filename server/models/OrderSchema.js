@@ -5,7 +5,25 @@ const OrderDetailsSchema = new mongoose.Schema({
   productVariant: { type: mongoose.Schema.Types.ObjectId, ref: 'ProductVariant', required: true },
   quantity: { type: Number, required: true },
   price: { type: Number, required: true },
-  totalPrice: { type: Number, required: true }, 
+  totalPrice: { type: Number, required: true },
+  
+  // 🆕 PRODUCT/VARIANT SNAPSHOT - Backup product & variant data to prevent data loss when variant is deleted
+  productSnapshot: {
+    productId: { type: mongoose.Schema.Types.ObjectId },
+    productName: { type: String },
+    productDescription: { type: String },
+    productImages: [String], // 🆕 Store product parent images for fallback
+    variantId: { type: mongoose.Schema.Types.ObjectId },
+    variantSku: { type: String },
+    variantPrice: { type: Number },
+    variantStock: { type: Number },
+    variantImages: [String],
+    colorId: { type: mongoose.Schema.Types.ObjectId },
+    colorName: { type: String },
+    sizeId: { type: mongoose.Schema.Types.ObjectId },
+    sizeName: { type: String },
+    snapshotCreatedAt: { type: Date, default: Date.now }
+  }
 }, { _id: false });
 
 const OrderSchema = new mongoose.Schema({
@@ -181,11 +199,71 @@ OrderSchema.statics.createFromCart = async function(cart, orderDetails) {
     
     total += itemTotal;
     
+    // 🆕 CREATE PRODUCT/VARIANT SNAPSHOT to prevent data loss when variant is deleted
+    let productSnapshot = null;
+    try {
+      if (item.productVariant && typeof item.productVariant === 'object') {
+        // If populated, use the data directly
+        const variant = item.productVariant;
+        const product = variant.product;
+        
+        productSnapshot = {
+          productId: product?._id,
+          productName: product?.name,
+          productDescription: product?.description,
+          productImages: product?.images || [], // 🆕 Store product parent images
+          variantId: variant._id,
+          variantSku: variant.sku,
+          variantPrice: variant.price,
+          variantStock: variant.stock,
+          variantImages: variant.images || [],
+          colorId: variant.color?._id,
+          colorName: variant.color?.name,
+          sizeId: variant.size?._id,
+          sizeName: variant.size?.name,
+          snapshotCreatedAt: new Date()
+        };
+        console.log('💾 Created product snapshot:', productSnapshot.productName, productSnapshot.colorName, productSnapshot.sizeName);
+      } else {
+        // If not populated, fetch the data
+        const ProductVariant = mongoose.model('ProductVariant');
+        const variant = await ProductVariant.findById(item.productVariant)
+          .populate('product', 'name description images') // 🆕 Include images in populate
+          .populate('color', 'name')
+          .populate('size', 'name');
+          
+        if (variant) {
+          productSnapshot = {
+            productId: variant.product?._id,
+            productName: variant.product?.name,
+            productDescription: variant.product?.description,
+            productImages: variant.product?.images || [], // 🆕 Store product parent images
+            variantId: variant._id,
+            variantSku: variant.sku,
+            variantPrice: variant.price,
+            variantStock: variant.stock,
+            variantImages: variant.images || [],
+            colorId: variant.color?._id,
+            colorName: variant.color?.name,
+            sizeId: variant.size?._id,
+            sizeName: variant.size?.name,
+            snapshotCreatedAt: new Date()
+          };
+          console.log('💾 Fetched and created product snapshot:', productSnapshot.productName);
+        } else {
+          console.log('⚠️  Warning: ProductVariant not found for snapshot creation');
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error creating product snapshot:', error);
+    }
+    
     orderItems.push({
       productVariant: item.productVariant,
       quantity: item.quantity,
       price: currentPrice, // Use correctly calculated current price (sale priority)
-      totalPrice: itemTotal // Calculate from correct price
+      totalPrice: itemTotal, // Calculate from correct price
+      productSnapshot // 🆕 Add product snapshot
     });
   }
   

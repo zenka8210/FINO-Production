@@ -1559,21 +1559,27 @@ export default function AdminOrdersPage() {
                   {(order.items || []).slice(0, 3).map((item, idx) => (
                     <div key={idx} className={styles.orderProductItem}>
                       <div className={styles.productName}>
-                        {item?.productVariant?.product?.name?.substring(0, 30) || 'Sản phẩm'}
-                        {item?.productVariant?.product?.name?.length > 30 ? '...' : ''}
+                        {(() => {
+                          // Priority: 1. Snapshot, 2. ProductVariant reference, 3. Fallback
+                          const fullName = item?.productSnapshot?.productName || 
+                                          item?.productVariant?.product?.name || 
+                                          item?.productName || 
+                                          'Sản phẩm không xác định';
+                          return fullName.substring(0, 30) + (fullName.length > 30 ? '...' : '');
+                        })()}
                       </div>
                       <div className={styles.productVariantInfo}>
                         <span className={styles.variantDetail}>
                           SL: {item?.quantity || 0}
                         </span>
-                        {item?.productVariant?.color?.name && (
+                        {(item?.productSnapshot?.colorName || item?.productVariant?.color?.name) && (
                           <span className={styles.variantDetail}>
-                            Màu: {item.productVariant.color.name}
+                            Màu: {item?.productSnapshot?.colorName || item.productVariant.color.name}
                           </span>
                         )}
-                        {item?.productVariant?.size?.name && (
+                        {(item?.productSnapshot?.sizeName || item?.productVariant?.size?.name) && (
                           <span className={styles.variantDetail}>
-                            Size: {item.productVariant.size.name}
+                            Size: {item?.productSnapshot?.sizeName || item.productVariant.size.name}
                           </span>
                         )}
                         <span className={styles.variantDetail}>

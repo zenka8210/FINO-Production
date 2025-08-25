@@ -34,6 +34,9 @@ router.get('/code/:orderCode', orderController.getOrderByCode);
 // PUT /api/orders/:id/cancel - Cancel order (user can only cancel their own orders)
 router.put('/:id/cancel', validateObjectId('id'), orderController.cancelOrder);
 
+// PUT /api/orders/:id/address - Update order address (user can only update their own pending orders)
+router.put('/:id/address', authenticateToken, validateObjectId('id'), orderController.updateOrderAddress);
+
 // GET /api/orders/:productId/can-review - Check if user can review product
 router.get('/:productId/can-review', validateObjectId('productId'), orderController.canReviewProduct);
 

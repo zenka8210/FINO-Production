@@ -146,9 +146,20 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ order }) => {
         </thead>
         <tbody>
           {order.items?.map((item, index) => {
-            const productName = item.productVariant?.product?.name || 'N/A';
-            const colorName = item.productVariant?.color?.name || '';
-            const sizeName = item.productVariant?.size?.name || '';
+            // Priority: 1. Snapshot, 2. ProductVariant reference, 3. Fallback
+            const productName = item.productSnapshot?.productName || 
+                               item.productVariant?.product?.name || 
+                               item.productName || 
+                               'Sản phẩm không xác định';
+            
+            const colorName = item.productSnapshot?.colorName || 
+                             item.productVariant?.color?.name || 
+                             '';
+            
+            const sizeName = item.productSnapshot?.sizeName || 
+                            item.productVariant?.size?.name || 
+                            '';
+            
             const unitPrice = item.price || 0;
             const totalPrice = unitPrice * item.quantity;
             

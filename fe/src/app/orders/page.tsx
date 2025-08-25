@@ -2,22 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts';
-import { useApiNotification } from '@/hooks';
-import { PageHeader, LoadingSpinner, Button, Pagination, OrderDetailButton } from '@/app/components/ui';
+import { useAuth, useCart } from '@/contexts';
+import { useApiNotification, useOrders } from '@/hooks';
+import { PageHeader, LoadingSpinner, Button, Pagination, OrderCard, OrderReviewModal, AddressSelectionModal } from '@/app/components/ui';
 import { orderService } from '@/services/orderService';
+import { reviewService } from '@/services/reviewService';
 import { OrderWithRefs } from '@/types';
-import { formatCurrency } from '@/lib/utils';
 import { 
   FaShoppingBag, 
-  FaEye, 
-  FaClock, 
-  FaCheckCircle, 
-  FaTruck, 
-  FaTimesCircle,
+  FaTimes,
   FaFilter,
-  FaSearch,
-  FaTimes
+  FaSearch
 } from 'react-icons/fa';
 import styles from './OrdersPage.module.css';
 
@@ -35,12 +30,15 @@ interface OrderFilters {
   status: string;
   startDate: string;
   endDate: string;
+  search: string;
 }
 
 export default function OrdersPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
-  const { showError } = useApiNotification();
+  const { loadCart } = useCart();
+  const { showError, showSuccess } = useApiNotification();
+  const { cancelOrder } = useOrders();
 
   // States
   const [orders, setOrders] = useState<OrderWithRefs[]>([]);
@@ -49,12 +47,22 @@ export default function OrdersPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
   const [limit] = useState(10);
+  
+  // Review states
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [selectedOrderForReview, setSelectedOrderForReview] = useState<OrderWithRefs | null>(null);
+  const [reviewedOrders, setReviewedOrders] = useState<Set<string>>(new Set());
+
+  // Address change states
+  const [addressModalOpen, setAddressModalOpen] = useState(false);
+  const [selectedOrderForAddress, setSelectedOrderForAddress] = useState<OrderWithRefs | null>(null);
 
   // Filter states
   const [filters, setFilters] = useState<OrderFilters>({
     status: '',
     startDate: '',
-    endDate: ''
+    endDate: '',
+    search: ''
   });
 
   // Redirect if not authenticated
@@ -81,41 +89,74 @@ export default function OrdersPage() {
         limit,
         ...(filters.status && { status: filters.status as any }),
         ...(filters.startDate && { startDate: filters.startDate }),
-        ...(filters.endDate && { endDate: filters.endDate })
+        ...(filters.endDate && { endDate: filters.endDate }),
+        ...(filters.search && { search: filters.search })
       };
 
       console.log('📦 Loading orders with params:', queryParams);
 
       const response = await orderService.getUserOrders(queryParams);
       
+      console.log('📋 Raw getUserOrders Response:', response);
+      
       let ordersData: OrderWithRefs[] = [];
       let totalCount = 0;
       let totalPagesCount = 1;
 
-      // Handle different response structures
-      if (Array.isArray(response)) {
+      // Handle different response structures - prioritize pagination structure
+      if ((response as any)?.data?.documents && Array.isArray((response as any).data.documents)) {
+        // Standard paginated response
+        ordersData = (response as any).data.documents;
+        const pagination = (response as any).data.pagination;
+        totalCount = pagination?.total || 0;
+        totalPagesCount = pagination?.totalPages || pagination?.pages || 1;
+        console.log('📄 Using paginated response:', { documents: ordersData.length, total: totalCount, pages: totalPagesCount });
+      } else if ((response as any)?.documents && Array.isArray((response as any).documents)) {
+        // Direct documents with pagination
+        ordersData = (response as any).documents;
+        const pagination = (response as any).pagination;
+        totalCount = pagination?.total || 0;
+        totalPagesCount = pagination?.totalPages || pagination?.pages || 1;
+        console.log('📄 Using direct documents response:', { documents: ordersData.length, total: totalCount, pages: totalPagesCount });
+      } else if (Array.isArray(response?.data)) {
+        // Array response with pagination metadata
+        ordersData = response.data;
+        totalCount = response.total || response.data.length;
+        totalPagesCount = response.totalPages || Math.ceil((response.total || response.data.length) / limit);
+        console.log('📄 Using array response with pagination metadata:', { 
+          documents: ordersData.length, 
+          total: totalCount, 
+          totalPages: totalPagesCount,
+          responseTotalPages: response.totalPages,
+          responseTotal: response.total
+        });
+      } else if (Array.isArray(response)) {
+        // Direct array response 
         ordersData = response;
         totalCount = response.length;
-      } else if ((response as any)?.data?.documents && Array.isArray((response as any).data.documents)) {
-        ordersData = (response as any).data.documents;
-        totalCount = (response as any).data.pagination?.total || (response as any).data.documents.length;
-        totalPagesCount = (response as any).data.pagination?.pages || Math.ceil((response as any).data.documents.length / limit);
-      } else if (response?.data && Array.isArray(response.data)) {
-        ordersData = response.data;
-        totalCount = (response as any).total || response.data.length;
-        totalPagesCount = (response as any).pages || Math.ceil(response.data.length / limit);
-      } else if ((response as any)?.orders && Array.isArray((response as any).orders)) {
-        ordersData = (response as any).orders;
-        totalCount = (response as any).total || (response as any).orders.length;
-        totalPagesCount = (response as any).pages || 1;
+        totalPagesCount = Math.ceil(response.length / limit);
+        console.log('📄 Using direct array response:', { documents: ordersData.length, total: totalCount });
       } else {
         console.warn('⚠️ Unexpected orders response structure:', response);
         ordersData = [];
+        totalCount = 0;
+        totalPagesCount = 1;
       }
       
       setOrders(ordersData);
       setTotalOrders(totalCount);
       setTotalPages(totalPagesCount);
+      
+      // Check review status for loaded orders
+      await checkOrderReviewStatus(ordersData);
+      
+      console.log('📊 Final pagination state:', {
+        currentPage,
+        totalPages: totalPagesCount,
+        totalOrders: totalCount,
+        orderCount: ordersData.length,
+        shouldShowPagination: totalPagesCount > 1
+      });
       
     } catch (error: any) {
       console.error('❌ Error loading orders:', error);
@@ -142,7 +183,8 @@ export default function OrdersPage() {
     setFilters({
       status: '',
       startDate: '',
-      endDate: ''
+      endDate: '',
+      search: ''
     });
     setCurrentPage(1);
   };
@@ -152,90 +194,20 @@ export default function OrdersPage() {
     setCurrentPage(page);
   };
 
-  // Get status icon and label
-  const getStatusDisplay = (status: string) => {
-    const statusConfig = {
-      pending: { icon: <FaClock />, label: 'Chờ xác nhận', className: styles.statusPending },
-      processing: { icon: <FaTruck />, label: 'Đang xử lý', className: styles.statusProcessing },
-      shipped: { icon: <FaTruck />, label: 'Đã gửi hàng', className: styles.statusShipped },
-      delivered: { icon: <FaCheckCircle />, label: 'Đã giao', className: styles.statusDelivered },
-      cancelled: { icon: <FaTimesCircle />, label: 'Đã hủy', className: styles.statusCancelled }
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || { 
-      icon: <FaClock />,
-      label: status, 
-      className: styles.statusPending 
-    };
-
-    return (
-      <span className={`${styles.orderStatus} ${config.className}`}>
-        <span className={styles.statusIcon}>{config.icon}</span>
-        {config.label}
-      </span>
-    );
-  };
-
-  // Format date (updated to match profile page format)
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
-  // Get order status badge class (from profile page)
-  const getOrderStatusClass = (status: string) => {
-    const statusClasses: Record<string, string> = {
-      'pending': styles.statusPending,
-      'processing': styles.statusProcessing,
-      'shipped': styles.statusShipped,
-      'delivered': styles.statusDelivered,
-      'cancelled': styles.statusCancelled
-    };
-    return statusClasses[status] || styles.statusDefault;
-  };
-
-  // Get Vietnamese order status text (from profile page)
-  const getOrderStatusText = (status: string) => {
-    const statusTexts: Record<string, string> = {
-      'pending': 'Chờ xác nhận',
-      'processing': 'Đang xử lý',
-      'shipped': 'Đã gửi hàng',
-      'delivered': 'Đã giao',
-      'cancelled': 'Đã hủy'
-    };
-    return statusTexts[status] || status;
-  };
-
-  // Handle cancel order (from profile page)
+  // Handle cancel order (matching profile page exactly)
   const handleCancelOrder = async (orderId: string) => {
     try {
       setIsLoading(true);
       console.log('Cancel order:', orderId);
       
-      // Call the cancel order API using the hook
-      // We need to implement this or use existing order cancel functionality
-      // For now, we'll use a basic fetch call
-      const token = localStorage.getItem('authToken');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/orders/${orderId}/cancel`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to cancel order');
-      }
+      // Call the cancel order API using useOrders hook
+      await cancelOrder(orderId);
       
       // Show success message
-      showError('Đơn hàng đã được hủy thành công'); // Using showError as success notification
+      showSuccess('Đơn hàng đã được hủy thành công');
       
       // Refresh orders list
-      loadOrders();
+      await loadOrders();
       
     } catch (error: any) {
       console.error('Error cancelling order:', error);
@@ -245,15 +217,129 @@ export default function OrdersPage() {
     }
   };
 
-  // Handle reorder functionality (from profile page)
+  // Handle reorder functionality (matching profile page exactly)
   const handleReorder = async (order: OrderWithRefs) => {
     try {
-      // This would add all items from the order back to cart
-      // We'll implement a basic version
-      showError('Tính năng mua lại đang được phát triển'); // Temporary message
-    } catch (error: any) {
-      showError('Không thể thực hiện mua lại', error);
+      setIsLoading(true);
+      
+      // Prepare items for batch add to cart
+      const items = order.items?.map((item: any) => ({
+        // Use productSnapshot data if available, fallback to productVariant reference
+        productVariant: item.productSnapshot?.variantId || item.productVariant?._id,
+        quantity: item.quantity
+      })).filter(item => item.productVariant) || [];
+
+      if (items.length === 0) {
+        showError('Không tìm thấy sản phẩm hợp lệ trong đơn hàng');
+        return;
+      }
+
+      // Use batch add to cart (will update quantities if items already exist)
+      const cartService = await import('@/services/cartService');
+      const result = await cartService.CartService.getInstance().batchAddToCart(items);
+      
+      if (result.errorCount > 0) {
+        showError(`Đã thêm ${result.successCount} sản phẩm. ${result.errorCount} sản phẩm không thể thêm.`);
+      } else {
+        showSuccess(`Đã thêm ${result.successCount} sản phẩm vào giỏ hàng`);
+      }
+      
+      // Refresh cart context to ensure data is up to date
+      await loadCart();
+      
+      // Redirect to cart page
+      router.push('/cart');
+    } catch (error) {
+      showError('Không thể thêm sản phẩm vào giỏ hàng', error);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  // Review functionality
+  const handleReviewOrder = (order: OrderWithRefs) => {
+    setSelectedOrderForReview(order);
+    setReviewModalOpen(true);
+  };
+
+  // Check if order has been reviewed
+  const checkOrderReviewStatus = async (orders: OrderWithRefs[]) => {
+    try {
+      console.log('🔍 Debug: Checking review status for orders:', orders.length);
+      
+      const reviewPromises = orders
+        .filter(order => order.status === 'delivered')
+        .map(async (order) => {
+          try {
+            console.log('🔍 Debug: Processing order:', order._id, 'with items:', order.items?.length);
+            
+            // Check each product in the order
+            const productPromises = order.items?.map(async (item: any, index: number) => {
+              try {
+                // Debug order item structure
+                console.log(`🔍 Debug: Order ${order._id} Item ${index}:`, {
+                  hasProductVariant: !!item.productVariant,
+                  hasProduct: !!item.productVariant?.product,
+                  hasProductSnapshot: !!item.productSnapshot,
+                  productId: item.productSnapshot?.productId || item.productVariant?.product?._id,
+                  productName: item.productSnapshot?.productName || item.productVariant?.product?.name
+                });
+                
+                // Validate that we have a valid product ID from snapshot or reference
+                const productId = item.productSnapshot?.productId || item.productVariant?.product?._id;
+                if (!productId) {
+                  console.warn('⚠️ Missing product ID for order item:', {
+                    orderId: order._id,
+                    itemIndex: index,
+                    hasProductVariant: !!item.productVariant,
+                    hasProduct: !!item.productVariant?.product,
+                    hasProductSnapshot: !!item.productSnapshot,
+                    item: item
+                  });
+                  return { orderId: order._id, canReview: false }; // Cannot review if no product ID
+                }
+                
+                const result = await reviewService.canReviewProduct(productId);
+                return { orderId: order._id, canReview: result.canReview };
+              } catch (error) {
+                console.error('❌ Error checking review status for item:', error);
+                return { orderId: order._id, canReview: true }; // Default to can review if check fails
+              }
+            }) || [];
+            
+            const results = await Promise.all(productPromises);
+            // If any product can't be reviewed, consider order as reviewed
+            const canReviewOrder = results.some(r => r.canReview);
+            return { orderId: order._id, isReviewed: !canReviewOrder };
+          } catch {
+            return { orderId: order._id, isReviewed: false };
+          }
+        });
+
+      const reviewStatuses = await Promise.all(reviewPromises);
+      const reviewedOrderIds = reviewStatuses
+        .filter(status => status.isReviewed)
+        .map(status => status.orderId);
+      
+      setReviewedOrders(new Set(reviewedOrderIds));
+    } catch (error) {
+      console.error('Error checking review status:', error);
+    }
+  };
+
+  const isOrderReviewed = (orderId: string): boolean => {
+    return reviewedOrders.has(orderId);
+  };
+
+  // Address change functionality
+  const handleChangeAddress = (order: OrderWithRefs) => {
+    setSelectedOrderForAddress(order);
+    setAddressModalOpen(true);
+  };
+
+  const handleAddressChanged = async () => {
+    // Refresh orders list to show updated address
+    await loadOrders();
   };
 
   // Loading state
@@ -287,6 +373,20 @@ export default function OrdersPage() {
           {/* Filters Section */}
           <div className={styles.filtersSection}>
             <div className={styles.filtersGrid}>
+              <div className={styles.filterGroup}>
+                <label className={styles.filterLabel}>Tìm kiếm</label>
+                <div className={styles.searchInputContainer}>
+                  <FaSearch className={styles.searchIcon} />
+                  <input
+                    type="text"
+                    className={styles.searchInput}
+                    placeholder="Tìm theo mã đơn hàng, tên sản phẩm..."
+                    value={filters.search}
+                    onChange={(e) => handleFilterChange('search', e.target.value)}
+                  />
+                </div>
+              </div>
+
               <div className={styles.filterGroup}>
                 <label className={styles.filterLabel}>Trạng thái</label>
                 <select
@@ -327,7 +427,7 @@ export default function OrdersPage() {
                   variant="outline"
                   size="sm"
                   onClick={clearFilters}
-                  disabled={!filters.status && !filters.startDate && !filters.endDate}
+                  disabled={!filters.status && !filters.startDate && !filters.endDate && !filters.search}
                 >
                   <FaTimes />
                   Xóa bộ lọc
@@ -371,71 +471,19 @@ export default function OrdersPage() {
               <>
                 <div className={styles.ordersList}>
                   {orders.map((order) => (
-                    <div key={order._id} className={styles.orderCard}>
-                      <div className={styles.orderHeader}>
-                        <div className={styles.orderInfo}>
-                          <h4>Đơn hàng #{order.orderCode}</h4>
-                          <p className={styles.orderDate}>{formatDate(order.createdAt)}</p>
-                        </div>
-                        <div className={`${styles.orderStatus} ${getOrderStatusClass(order.status)}`}>
-                          {getOrderStatusText(order.status)}
-                        </div>
-                      </div>
-
-                      <div className={styles.orderItems}>
-                        {order.items.slice(0, 3).map((item, index) => (
-                          <div key={index} className={styles.orderItem}>
-                            <span>{item.productVariant?.product?.name || 'Sản phẩm'}</span>
-                            <span>x{item.quantity}</span>
-                          </div>
-                        ))}
-                        {order.items.length > 3 && (
-                          <p className={styles.moreItems}>+{order.items.length - 3} sản phẩm khác</p>
-                        )}
-                      </div>
-
-                      <div className={styles.orderFooter}>
-                        <div className={styles.orderTotal}>
-                          <strong>{order.finalTotal?.toLocaleString('vi-VN')}đ</strong>
-                        </div>
-                        <div className={styles.orderActions}>
-                          <OrderDetailButton 
-                            orderId={order._id}
-                            variant="outline"
-                            size="sm"
-                          >
-                            Chi tiết
-                          </OrderDetailButton>
-                          
-                          {order.status === 'pending' && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className={styles.cancelButton}
-                              onClick={async () => {
-                                if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
-                                  await handleCancelOrder(order._id);
-                                }
-                              }}
-                              disabled={isLoading}
-                            >
-                              {isLoading ? 'Đang hủy...' : 'Hủy đơn'}
-                            </Button>
-                          )}
-                          
-                          {/* Nút Mua lại - LUÔN Ở CUỐI (bên phải ngoài cùng) */}
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            className={styles.reorderButton}
-                            onClick={() => handleReorder(order)}
-                            disabled={isLoading}
-                          >
-                            Mua lại
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
+                    <OrderCard
+                      key={order._id}
+                      order={order}
+                      maxItems={3}
+                      showDetailedInfo={false}
+                      showReviewButton={true}
+                      onReviewOrder={handleReviewOrder}
+                      onCancelOrder={handleCancelOrder}
+                      onReorderOrder={handleReorder}
+                      onChangeAddress={handleChangeAddress}
+                      isOrderReviewed={isOrderReviewed}
+                      onReorderComplete={() => loadOrders()}
+                    />
                   ))}
                 </div>
 
@@ -461,6 +509,41 @@ export default function OrdersPage() {
           </div>
         </div>
       </div>
+      
+      {/* Review Modal */}
+      {selectedOrderForReview && (
+        <OrderReviewModal
+          isOpen={reviewModalOpen}
+          onClose={() => {
+            setReviewModalOpen(false);
+            setSelectedOrderForReview(null);
+          }}
+          order={selectedOrderForReview}
+          onSuccess={() => {
+            // Mark order as reviewed
+            if (selectedOrderForReview) {
+              setReviewedOrders(prev => new Set([...prev, selectedOrderForReview._id]));
+            }
+            // Close modal
+            setReviewModalOpen(false);
+            setSelectedOrderForReview(null);
+            showSuccess('Đánh giá đã được gửi thành công!');
+          }}
+        />
+      )}
+
+      {/* Address Selection Modal */}
+      {selectedOrderForAddress && (
+        <AddressSelectionModal
+          isOpen={addressModalOpen}
+          onClose={() => {
+            setAddressModalOpen(false);
+            setSelectedOrderForAddress(null);
+          }}
+          order={selectedOrderForAddress}
+          onSuccess={handleAddressChanged}
+        />
+      )}
     </div>
   );
 }

@@ -305,11 +305,17 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: OrderDeta
                     }}>
                       <div>
                         <div style={{ fontWeight: 600, color: '#1f2937', marginBottom: '0.25rem' }}>
-                          {item.productVariant?.product?.name || 'Sản phẩm không xác định'}
+                          {/* Priority: 1. Snapshot, 2. ProductVariant reference, 3. Fallback */}
+                          {item.productSnapshot?.productName || 
+                           item.productVariant?.product?.name || 
+                           item.productName || 
+                           'Sản phẩm không xác định'}
                         </div>
                         <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                          {item.productVariant?.size?.name && `Size: ${item.productVariant.size.name}`}
-                          {item.productVariant?.color?.name && ` - Màu: ${item.productVariant.color.name}`}
+                          {(item.productSnapshot?.sizeName || item.productVariant?.size?.name) && 
+                           `Size: ${item.productSnapshot?.sizeName || item.productVariant.size.name}`}
+                          {(item.productSnapshot?.colorName || item.productVariant?.color?.name) && 
+                           ` - Màu: ${item.productSnapshot?.colorName || item.productVariant.color.name}`}
                         </div>
                       </div>
                       <div style={{ textAlign: 'center', fontSize: '0.875rem', color: '#374151' }}>

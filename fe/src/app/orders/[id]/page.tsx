@@ -814,23 +814,53 @@ function OrderDetailContent() {
                 {order.items?.map((item, index) => (
                   <div key={index} className={styles.orderItem}>
                     <div className={styles.itemImage}>
-                      {item.productVariant?.product?.images?.[0] ? (
-                        <img
-                          src={item.productVariant.product.images[0]}
-                          alt={item.productVariant.product.name}
-                        />
-                      ) : (
-                        <span>📷</span>
-                      )}
+                      {(() => {
+                        // Priority for images: 1. Snapshot variantImages, 2. Snapshot productImages, 3. ProductVariant reference
+                        let imageUrl = null;
+                        
+                        if (item.productSnapshot) {
+                          // Use variantImages if available and not empty
+                          if (item.productSnapshot.variantImages && item.productSnapshot.variantImages.length > 0) {
+                            imageUrl = item.productSnapshot.variantImages[0];
+                          }
+                          // Fallback to product images from snapshot
+                          else if (item.productSnapshot.productImages && item.productSnapshot.productImages.length > 0) {
+                            imageUrl = item.productSnapshot.productImages[0];
+                          }
+                        }
+                        
+                        // Fallback to productVariant reference images
+                        if (!imageUrl && item.productVariant?.product?.images?.[0]) {
+                          imageUrl = item.productVariant.product.images[0];
+                        }
+                        
+                        const altText = item.productSnapshot?.productName || 
+                                       item.productVariant?.product?.name || 
+                                       'Sản phẩm';
+                        
+                        return imageUrl ? (
+                          <img
+                            src={imageUrl}
+                            alt={altText}
+                          />
+                        ) : (
+                          <span>📷</span>
+                        );
+                      })()}
                     </div>
                     
                     <div className={styles.itemDetails}>
                       <h4 className={styles.itemName}>
-                        {item.productVariant?.product?.name || 'Sản phẩm không xác định'}
+                        {/* Priority: 1. Snapshot, 2. ProductVariant reference, 3. Fallback */}
+                        {item.productSnapshot?.productName || 
+                         item.productVariant?.product?.name || 
+                         item.productName || 
+                         'Sản phẩm không xác định'}
                       </h4>
                       <div className={styles.itemVariant}>
-                        Màu: {item.productVariant?.color?.name || 'N/A'} • 
-                        Size: {item.productVariant?.size?.name || 'N/A'}
+                        {/* Show variant details from snapshot or reference */}
+                        Màu: {item.productSnapshot?.colorName || item.productVariant?.color?.name || 'N/A'} • 
+                        Size: {item.productSnapshot?.sizeName || item.productVariant?.size?.name || 'N/A'}
                       </div>
                       <div className={styles.itemPrice}>
                         {formatCurrency(item.price)} / sản phẩm

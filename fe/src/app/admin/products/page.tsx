@@ -12,6 +12,7 @@ import { categoryService } from '@/services/categoryService';
 import { colorService } from '@/services/colorService';
 import { sizeService } from '@/services/sizeService';
 import { productService } from '@/services/productService';
+import { productVariantService } from '@/services/productVariantService';
 import { Category, Color, Size } from '@/types';
 import { useFileUpload } from '@/hooks/useApiCall';
 import { SearchableSelect } from '@/app/components/ui';
@@ -707,6 +708,8 @@ export default function AdminProductsPage() {
             setShowForm(false);
             setEditing(null);
           }}
+          showError={showError}
+          showSuccess={showSuccess}
         />
       )}
     </div>
@@ -718,6 +721,8 @@ interface ProductFormProps {
   product: ProductWithCategory | null;
   onSubmit: (data: any) => void;
   onCancel: () => void;
+  showError: (title: string, error: Error) => void;
+  showSuccess: (message: string) => void;
 }
 
 interface ProductVariantFormData {
@@ -744,7 +749,7 @@ interface ProductFormData {
   variants: ProductVariantFormData[];
 }
 
-function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
+function ProductForm({ product, onSubmit, onCancel, showError, showSuccess }: ProductFormProps) {
   // Helper function to convert ISO date to datetime-local format
   const formatDateForInput = (isoDate: string | undefined): string => {
     if (!isoDate) return '';
@@ -960,18 +965,34 @@ function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
     }));
   };
 
-  // Remove variant
+  // Remove variant with simplified approach
   const removeVariant = (index: number) => {
+    const variant = formData.variants[index];
+    
+    // Show confirmation dialog for all variants (both new and existing)
+    const confirmed = window.confirm(
+      `Bạn có chắc chắn muốn xóa phiên bản ${index + 1}?\n\n` +
+      `⚠️ Hành động này không thể hoàn tác!`
+    );
+    
+    if (!confirmed) {
+      return;
+    }
+    
+    // Remove variant from form data
     setFormData(prev => ({
       ...prev,
       variants: prev.variants.filter((_, idx) => idx !== index)
     }));
+    
     // Also remove variant image URLs
     setVariantImageUrls(prev => {
       const newState = { ...prev };
       delete newState[index];
       return newState;
     });
+    
+    showSuccess(`Đã xóa phiên bản ${index + 1}`);
   };
 
   // Update variant

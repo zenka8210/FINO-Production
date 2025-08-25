@@ -139,13 +139,12 @@ ProductVariantSchema.statics.validateVariantRequirements = async function(produc
 
 // Static method: Check if variant can be safely deleted
 ProductVariantSchema.statics.canDeleteVariant = async function(variantId) {
-  const CartOrder = require('./CartOrderSchema');
+  const Cart = require('./CartSchema');
   const Order = require('./OrderSchema');
   
   // Check if variant is used in any active carts
-  const activeCartCount = await CartOrder.countDocuments({
-    'items.productVariant': variantId,
-    type: 'cart'
+  const activeCartCount = await Cart.countDocuments({
+    'items.productVariant': variantId
   });
   
   // Check if variant is used in any orders

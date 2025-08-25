@@ -3,6 +3,7 @@ const Order = require('../models/OrderSchema'); // Use Order model for orders
 const Cart = require('../models/CartSchema'); // For cart operations
 const Address = require('../models/AddressSchema');
 const VoucherService = require('./voucherService');
+const AddressService = require('./addressService');
 const EmailService = require('./emailService');
 const { AppError } = require('../middlewares/errorHandler');
 const { orderMessages, ERROR_CODES, PAGINATION } = require('../config/constants');
@@ -13,6 +14,7 @@ class OrderService extends BaseService {
   constructor() {
     super(Order); // Use Order model - CORRECT collection for orders
     this.voucherService = new VoucherService();
+    this.addressService = new AddressService();
     this.emailService = new EmailService();
   }  // Create new order
   async createOrder(userId, orderData) {
@@ -153,7 +155,7 @@ class OrderService extends BaseService {
 
   // Get user orders
   async getUserOrders(userId, options = {}) {
-    const { page = PAGINATION.DEFAULT_PAGE, limit = PAGINATION.DEFAULT_LIMIT, status, dateFilter } = options;
+    const { page = PAGINATION.DEFAULT_PAGE, limit = PAGINATION.DEFAULT_LIMIT, status, dateFilter, search } = options;
     
     let filter = { user: userId };
     if (status) filter.status = status;
@@ -163,12 +165,28 @@ class OrderService extends BaseService {
       filter.createdAt = dateFilter.createdAt;
     }
 
-    return await this.getAll({
+    // Apply search filter for order code and product names in snapshots
+    if (search && search.trim()) {
+      console.log('🔍 Applying search filter:', search);
+      const searchRegex = new RegExp(search.trim(), 'i');
+      
+      // Search primarily in order code and product snapshots
+      filter.$or = [
+        { orderCode: searchRegex },
+        // Search in product snapshots (primary data source) 
+        { 'items.productSnapshot.productName': searchRegex }
+      ];
+      
+      console.log('🔍 Search filter applied:', JSON.stringify(filter.$or, null, 2));
+    }
+
+    const result = await this.getAll({
       page,
       limit,
       filter,
       sort: { createdAt: -1 },
       populate: [
+        // Only populate productVariant as fallback - productSnapshot is primary data source
         {
           path: 'items.productVariant',
           populate: [
@@ -182,6 +200,36 @@ class OrderService extends BaseService {
         { path: 'voucher', select: 'code discountPercent' }
       ]
     });
+
+    // Enhance with address fallback logic for each order
+    if (result.documents) {
+      result.documents = result.documents.map(order => {
+        const orderObj = order.toObject ? order.toObject() : order;
+        
+        // 🆕 FALLBACK TO ADDRESS SNAPSHOT if address reference is lost
+        if (!orderObj.address && orderObj.addressSnapshot) {
+          console.log(`⚠️  Order ${orderObj.orderCode}: Address reference lost, using addressSnapshot fallback`);
+          // Create a mock address object from snapshot for compatibility
+          orderObj.address = {
+            _id: null, // Indicate this is from snapshot
+            fullName: orderObj.addressSnapshot.fullName,
+            phone: orderObj.addressSnapshot.phone,
+            addressLine: orderObj.addressSnapshot.addressLine,
+            ward: orderObj.addressSnapshot.ward,
+            district: orderObj.addressSnapshot.district,
+            city: orderObj.addressSnapshot.city,
+            postalCode: orderObj.addressSnapshot.postalCode,
+            isDefault: orderObj.addressSnapshot.isDefault,
+            isSnapshot: true, // Flag to indicate this is from snapshot
+            snapshotCreatedAt: orderObj.addressSnapshot.snapshotCreatedAt
+          };
+        }
+        
+        return orderObj;
+      });
+    }
+
+    return result;
   }
 
   // Calculate shipping fee for an address (for frontend preview)
@@ -622,6 +670,18 @@ class OrderService extends BaseService {
     } else {
       console.log(`ℹ️  Order ${orderObj.orderCode}: Address is available, no fallback needed`);
     }
+
+    // Note: productSnapshot data is already included in the order object
+    // Frontend should prioritize productSnapshot over productVariant references
+    console.log(`📦 Order ${orderObj.orderCode} items with productSnapshot status:`);
+    orderObj.items?.forEach((item, index) => {
+      const hasSnapshot = !!item.productSnapshot;
+      const hasVariant = !!item.productVariant;
+      console.log(`   Item ${index}: productSnapshot=${hasSnapshot}, productVariant=${hasVariant}`);
+      if (hasSnapshot) {
+        console.log(`     Snapshot product: ${item.productSnapshot.productName}`);
+      }
+    });
 
     return orderObj;
   }
@@ -1599,6 +1659,70 @@ class OrderService extends BaseService {
     } catch (error) {
       console.error('Error checking if order can be paid:', error);
       return false;
+    }
+  }
+
+  // Update order address (only for pending orders)
+  async updateOrderAddress(orderId, addressId, userId) {
+    try {
+      console.log('🔍 [OrderService] updateOrderAddress called:', {
+        orderId,
+        addressId,
+        userId
+      });
+
+      // 1. Find the order and check ownership
+      const order = await this.Model.findById(orderId);
+      if (!order) {
+        throw new AppError('Đơn hàng không tồn tại', ERROR_CODES.NOT_FOUND);
+      }
+
+      // 2. Check if user owns this order
+      if (order.user.toString() !== userId.toString()) {
+        throw new AppError('Không có quyền cập nhật đơn hàng này', ERROR_CODES.FORBIDDEN);
+      }
+
+      // 3. Check if order is in pending status
+      if (order.status !== 'pending') {
+        throw new AppError('Chỉ có thể đổi địa chỉ cho đơn hàng đang chờ xử lý', ERROR_CODES.BAD_REQUEST);
+      }
+
+      // 4. Verify the new address exists and belongs to user
+      // Convert userId to string if it's ObjectId
+      const userIdString = userId.toString();
+      
+      const address = await this.addressService.getAddressById(addressId, userIdString);
+      if (!address) {
+        throw new AppError('Địa chỉ không tồn tại hoặc không thuộc về bạn', ERROR_CODES.NOT_FOUND);
+      }
+
+      // 5. Calculate new shipping fee
+      const newShippingFee = ShippingUtils.calculateShippingFee(address);
+      
+      // 6. Update final total with new shipping fee
+      const newFinalTotal = order.total - order.shippingFee + newShippingFee;
+
+      // 7. Update order with new address and shipping info
+      const updatedOrder = await this.Model.findByIdAndUpdate(
+        orderId,
+        {
+          address: addressId,
+          shippingFee: newShippingFee,
+          finalTotal: newFinalTotal,
+          updatedAt: new Date()
+        },
+        { 
+          new: true,
+          runValidators: true
+        }
+      ).populate(['user', 'address', 'voucher', 'paymentMethod']);
+
+      console.log('✅ [OrderService] Order address updated successfully');
+      return updatedOrder;
+
+    } catch (error) {
+      console.error('❌ [OrderService] Error updating order address:', error);
+      throw error;
     }
   }
 }
