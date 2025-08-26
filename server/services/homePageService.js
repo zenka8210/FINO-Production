@@ -120,7 +120,7 @@ class HomePageService {
           }
         },
         { $match: { reviewCount: { $gte: 1 } } }, // At least 1 review
-        { $sort: { avgRating: -1, reviewCount: -1 } },
+        { $sort: { avgRating: -1, reviewCount: -1, _id: 1 } }, // ADD: _id for deterministic sorting
         { $limit: limit }
       ]);
       
@@ -133,7 +133,7 @@ class HomePageService {
             wishlistCount: { $sum: 1 }
           }
         },
-        { $sort: { wishlistCount: -1 } },
+        { $sort: { wishlistCount: -1, _id: 1 } }, // ADD: _id for deterministic sorting
         { $limit: limit }
       ]);
       
@@ -157,7 +157,7 @@ class HomePageService {
             orderCount: { $sum: 1 }
           }
         },
-        { $sort: { totalSold: -1, orderCount: -1 } },
+        { $sort: { totalSold: -1, orderCount: -1, _id: 1 } }, // ADD: _id for deterministic sorting
         { $limit: limit }
       ]);
       
@@ -167,33 +167,41 @@ class HomePageService {
         bestSellingCount: bestSellingProducts.length
       });
       
-      // Combine and prioritize product IDs
-      const featuredProductIds = [];
-      const addedProducts = new Set();
+      // IMPROVED: Score-based combination for more distinct differences
+      const productScores = new Map();
       
-      // Priority 1: Top rated products
-      for (const item of topRatedProducts) {
-        if (featuredProductIds.length < limit && !addedProducts.has(item._id.toString())) {
-          featuredProductIds.push(item._id);
-          addedProducts.add(item._id.toString());
-        }
-      }
+      // Add scores from top rated (weight: 40%)
+      topRatedProducts.forEach((item, index) => {
+        const score = (topRatedProducts.length - index) * 0.4;
+        productScores.set(item._id.toString(), (productScores.get(item._id.toString()) || 0) + score);
+      });
       
-      // Priority 2: Most wishlisted products
-      for (const item of mostWishlistedProducts) {
-        if (featuredProductIds.length < limit && !addedProducts.has(item._id.toString())) {
-          featuredProductIds.push(item._id);
-          addedProducts.add(item._id.toString());
-        }
-      }
+      // Add scores from wishlisted (weight: 30%)
+      mostWishlistedProducts.forEach((item, index) => {
+        const score = (mostWishlistedProducts.length - index) * 0.3;
+        productScores.set(item._id.toString(), (productScores.get(item._id.toString()) || 0) + score);
+      });
       
-      // Priority 3: Best selling products
-      for (const item of bestSellingProducts) {
-        if (featuredProductIds.length < limit && !addedProducts.has(item._id.toString())) {
-          featuredProductIds.push(item._id);
-          addedProducts.add(item._id.toString());
-        }
-      }
+      // Add scores from best selling (weight: 30%)
+      bestSellingProducts.forEach((item, index) => {
+        const score = (bestSellingProducts.length - index) * 0.3;
+        productScores.set(item._id.toString(), (productScores.get(item._id.toString()) || 0) + score);
+      });
+      
+      // Sort by combined score, then by _id for deterministic order
+      const sortedByScore = Array.from(productScores.entries())
+        .sort((a, b) => {
+          if (b[1] !== a[1]) return b[1] - a[1]; // Sort by score desc
+          return a[0].localeCompare(b[0]); // Then by _id for deterministic order
+        })
+        .slice(0, limit)
+        .map(entry => entry[0]);
+      
+      // Convert back to ObjectIds
+      const featuredProductIds = sortedByScore.map(id => {
+        const mongoose = require('mongoose');
+        return new mongoose.Types.ObjectId(id);
+      });
       
       // If still need more products, fill with newest active products
       if (featuredProductIds.length < limit) {
@@ -201,7 +209,7 @@ class HomePageService {
           isActive: true,
           _id: { $nin: featuredProductIds }
         })
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: -1, _id: 1 }) // ADD: _id for deterministic sorting
         .limit(limit - featuredProductIds.length)
         .lean();
         
@@ -256,7 +264,7 @@ class HomePageService {
           }
         },
         { $match: { reviewCount: { $gte: 1 } } },
-        { $sort: { avgRating: -1, reviewCount: -1 } },
+        { $sort: { avgRating: -1, reviewCount: -1, _id: 1 } }, // ADD: _id for deterministic sorting
         { $limit: limit * 2 } // Get more to ensure we have enough active products
       ]);
       
@@ -267,14 +275,16 @@ class HomePageService {
         isActive: true
       })
       .populate('category', 'name isActive')
-      .limit(limit)
       .lean();
       
-      // Maintain rating order
-      const orderedProducts = productIds
-        .map(id => products.find(p => p._id.toString() === id.toString()))
-        .filter(Boolean)
-        .slice(0, limit);
+      // FIXED: Maintain rating order deterministically
+      const orderedProducts = [];
+      for (const id of productIds) {
+        const product = products.find(p => p._id.toString() === id.toString());
+        if (product && orderedProducts.length < limit) {
+          orderedProducts.push(product);
+        }
+      }
       
       console.log(`✅ Top rated products: ${orderedProducts.length} found`);
       return orderedProducts;
@@ -299,7 +309,7 @@ class HomePageService {
             wishlistCount: { $sum: 1 }
           }
         },
-        { $sort: { wishlistCount: -1 } },
+        { $sort: { wishlistCount: -1, _id: 1 } }, // ADD: _id for deterministic sorting
         { $limit: limit * 2 }
       ]);
       
@@ -313,11 +323,14 @@ class HomePageService {
       .limit(limit)
       .lean();
       
-      // Maintain wishlist order
-      const orderedProducts = productIds
-        .map(id => products.find(p => p._id.toString() === id.toString()))
-        .filter(Boolean)
-        .slice(0, limit);
+      // FIXED: Maintain wishlist order deterministically
+      const orderedProducts = [];
+      for (const id of productIds) {
+        const product = products.find(p => p._id.toString() === id.toString());
+        if (product && orderedProducts.length < limit) {
+          orderedProducts.push(product);
+        }
+      }
       
       console.log(`✅ Most wishlisted products: ${orderedProducts.length} found`);
       return orderedProducts;
@@ -353,7 +366,7 @@ class HomePageService {
             orderCount: { $sum: 1 }
           }
         },
-        { $sort: { totalSold: -1, orderCount: -1 } },
+        { $sort: { totalSold: -1, orderCount: -1, _id: 1 } }, // ADD: _id for deterministic sorting
         { $limit: limit * 2 }
       ]);
       
@@ -364,14 +377,16 @@ class HomePageService {
         isActive: true
       })
       .populate('category', 'name isActive')
-      .limit(limit)
       .lean();
       
-      // Maintain sales order
-      const orderedProducts = productIds
-        .map(id => products.find(p => p._id.toString() === id.toString()))
-        .filter(Boolean)
-        .slice(0, limit);
+      // FIXED: Maintain sales order deterministically
+      const orderedProducts = [];
+      for (const id of productIds) {
+        const product = products.find(p => p._id.toString() === id.toString());
+        if (product && orderedProducts.length < limit) {
+          orderedProducts.push(product);
+        }
+      }
       
       console.log(`✅ Best selling products: ${orderedProducts.length} found`);
       return orderedProducts;

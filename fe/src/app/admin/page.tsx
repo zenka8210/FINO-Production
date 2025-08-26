@@ -635,7 +635,7 @@ export default function AdminPage() {
     return ['pending', 'processing'].includes(currentStatus);
   };
 
-  // Check if payment status can be changed manually
+  // Check if payment status can be changed manually - COD business logic
   const canChangePaymentStatus = (order: any): boolean => {
     const paymentMethod = order.paymentMethod?.method || order.paymentMethod || '';
     const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
@@ -650,12 +650,19 @@ export default function AdminPage() {
       return false;
     }
     
-    // Không cho phép thay đổi payment status cho COD đã giao
+    // COD Business Logic - restrict based on order status
     const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
-    const isDelivered = order.status === 'delivered';
     
-    if (isCOD && isDelivered) {
-      return false;
+    if (isCOD) {
+      // COD orders can only change payment status when order status is 'shipped'
+      if (order.status !== 'shipped') {
+        return false;
+      }
+      
+      // Không cho phép thay đổi payment status cho COD đã giao
+      if (order.status === 'delivered') {
+        return false;
+      }
     }
     
     return true;
@@ -812,6 +819,7 @@ export default function AdminPage() {
         ? currentOrder.paymentMethod?.method || '' 
         : currentOrder.paymentMethod || '';
       const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
+      const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
       
       if (digitalMethods.includes(paymentMethod)) {
         alert('⚠️ Không thể thay đổi trạng thái thanh toán cho đơn hàng thanh toán điện tử (VNPay/Momo)!\n\nTrạng thái thanh toán được cập nhật tự động từ cổng thanh toán.');
@@ -819,14 +827,12 @@ export default function AdminPage() {
       } else if (currentOrder.status === 'cancelled') {
         alert('⚠️ Không thể thay đổi trạng thái thanh toán cho đơn hàng đã hủy!');
         return;
-      } else {
-        const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
-        const isDelivered = currentOrder.status === 'delivered';
-        
-        if (isCOD && isDelivered) {
-          alert('⚠️ Không thể thay đổi trạng thái thanh toán cho đơn hàng COD đã giao hàng!');
-          return;
-        }
+      } else if (isCOD && currentOrder.status !== 'shipped') {
+        alert('⚠️ Không thể thay đổi trạng thái thanh toán cho đơn COD!\n\nChỉ có thể thay đổi khi đơn hàng ở trạng thái "Đã gửi hàng".');
+        return;
+      } else if (isCOD && currentOrder.status === 'delivered') {
+        alert('⚠️ Không thể thay đổi trạng thái thanh toán cho đơn hàng COD đã giao hàng!');
+        return;
       }
     }
 
@@ -846,31 +852,54 @@ export default function AdminPage() {
       const result = await response.json();
       
       if (result.success) {
-        // Update local state
+        // COD Auto-update Logic: When payment status changes to 'paid', auto-update order status to 'delivered'
+        const paymentMethod = typeof currentOrder.paymentMethod === 'object' 
+          ? currentOrder.paymentMethod?.method || '' 
+          : currentOrder.paymentMethod || '';
+        const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
+        const shouldAutoUpdateStatus = isCOD && newPaymentStatus === 'paid' && currentOrder.status === 'shipped';
+        
+        // Update local state with potential auto-update
+        const updatedOrder = { 
+          ...currentOrder, 
+          paymentStatus: newPaymentStatus, 
+          updatedAt: new Date().toISOString(),
+          // Auto-update order status to 'delivered' for COD when payment is confirmed
+          ...(shouldAutoUpdateStatus && { status: 'delivered' })
+        };
+        
         setRecentOrders(prev => 
           prev.map(order => 
-            order._id === orderId 
-              ? { ...order, paymentStatus: newPaymentStatus, updatedAt: new Date().toISOString() }
-              : order
+            order._id === orderId ? updatedOrder : order
           )
         );
         
         setAllOrders(prev => 
           prev.map(order => 
-            order._id === orderId 
-              ? { ...order, paymentStatus: newPaymentStatus, updatedAt: new Date().toISOString() }
-              : order
+            order._id === orderId ? updatedOrder : order
           )
         );
         
         console.log('Payment status updated successfully');
-        alert('Cập nhật trạng thái thanh toán thành công!');
+        
+        // Show appropriate message
+        if (shouldAutoUpdateStatus) {
+          console.log('[DEBUG] 🔄 Auto-updating COD order status to delivered', {
+            orderId,
+            paymentMethod,
+            newPaymentStatus,
+            previousStatus: currentOrder.status
+          });
+          alert('✅ Cập nhật trạng thái thanh toán thành công!\n\n🚚 Đơn hàng COD đã được tự động chuyển sang trạng thái "Đã giao hàng".');
+        } else {
+          alert('✅ Cập nhật trạng thái thanh toán thành công!');
+        }
       } else {
         throw new Error(result.message || 'Failed to update payment status');
       }
     } catch (error) {
       console.error('Failed to update payment status:', error);
-      alert('Lỗi khi cập nhật trạng thái thanh toán. Vui lòng thử lại!');
+      alert('❌ Lỗi khi cập nhật trạng thái thanh toán. Vui lòng thử lại!');
     }
   };
 

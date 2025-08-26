@@ -705,6 +705,91 @@ class OrderController extends BaseController {
       next(error);
     }
   };
+
+  // Admin: Update payment status
+  updatePaymentStatus = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const { paymentStatus, autoDelivered } = req.body;
+
+      if (!paymentStatus) {
+        return ResponseHandler.badRequest(res, 'Trạng thái thanh toán là bắt buộc');
+      }
+
+      // Validate payment status value
+      const validPaymentStatuses = ['pending', 'paid', 'failed', 'cancelled'];
+      if (!validPaymentStatuses.includes(paymentStatus)) {
+        return ResponseHandler.badRequest(res, 'Trạng thái thanh toán không hợp lệ');
+      }
+
+      console.log('[OrderController] 🔄 Updating payment status:', { id, paymentStatus, autoDelivered });
+
+      // Get current order to check business rules
+      const order = await this.service.getOrderWithDetails(id);
+      if (!order) {
+        return ResponseHandler.notFound(res, 'Không tìm thấy đơn hàng');
+      }
+
+      // Business Logic: Check COD payment status rules
+      const paymentMethod = order.paymentMethod?.method || order.paymentMethod || '';
+      const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
+      
+      if (isCOD) {
+        // COD orders can only update payment status when order status = "shipped"
+        if (order.status !== 'shipped' && paymentStatus === 'paid') {
+          return ResponseHandler.badRequest(res, 
+            `Không thể xác nhận thanh toán COD khi đơn hàng đang ở trạng thái "${order.status}". Chỉ có thể xác nhận khi đơn hàng đã được gửi đi (trạng thái "shipped").`
+          );
+        }
+        
+        // COD orders with status "delivered" cannot change payment status
+        if (order.status === 'delivered') {
+          return ResponseHandler.badRequest(res, 
+            'Không thể thay đổi trạng thái thanh toán COD khi đơn hàng đã giao thành công'
+          );
+        }
+      }
+
+      // Digital payment methods cannot be manually changed
+      const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
+      if (digitalMethods.includes(paymentMethod)) {
+        return ResponseHandler.badRequest(res, 
+          `Không thể thay đổi trạng thái thanh toán cho phương thức ${paymentMethod} - Đây là phương thức thanh toán điện tử`
+        );
+      }
+
+      // Cancelled orders cannot change payment status
+      if (order.status === 'cancelled') {
+        return ResponseHandler.badRequest(res, 
+          'Không thể thay đổi trạng thái thanh toán cho đơn hàng đã hủy'
+        );
+      }
+
+      // Update payment status
+      const updatedOrder = await this.service.updatePaymentStatus(id, paymentStatus);
+      
+      // COD Business Logic: Auto update order status to "delivered" when payment confirmed
+      let finalOrder = updatedOrder;
+      const shouldAutoDelivered = isCOD && paymentStatus === 'paid' && order.status === 'shipped';
+      
+      if (shouldAutoDelivered) {
+        console.log('[OrderController] 🚚 COD: Auto-updating order status to delivered');
+        finalOrder = await this.service.updateOrderStatus(id, 'delivered');
+      }
+      
+      ResponseHandler.success(res, 'Cập nhật trạng thái thanh toán thành công', {
+        order: finalOrder,
+        paymentStatusUpdated: paymentStatus,
+        orderStatusAutoUpdated: shouldAutoDelivered ? 'delivered' : null,
+        message: shouldAutoDelivered 
+          ? 'Thanh toán COD đã xác nhận → Đơn hàng tự động chuyển sang "Đã giao hàng"'
+          : `Trạng thái thanh toán đã cập nhật: ${paymentStatus}`
+      });
+    } catch (error) {
+      console.error('[OrderController] ❌ Error updating payment status:', error);
+      next(error);
+    }
+  };
 }
 
 module.exports = OrderController;

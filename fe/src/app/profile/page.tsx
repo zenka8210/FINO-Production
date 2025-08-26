@@ -816,9 +816,6 @@ function ProfilePageContent() {
                     <p>{userProfile.name || 'Chưa cập nhật'}</p>
                     <small>{userProfile.phone || 'Chưa có số điện thoại'}</small>
                   </div>
-                  <Button variant="ghost" size="sm">
-                    Chỉnh sửa
-                  </Button>
                 </div>
 
                 <div className={styles.overviewCard} onClick={() => router.push('/profile?section=addresses')}>
@@ -830,9 +827,6 @@ function ProfilePageContent() {
                     <p>{addresses.length} địa chỉ đã lưu</p>
                     <small>{addresses.find(addr => addr.isDefault)?.city || 'Chưa có địa chỉ mặc định'}</small>
                   </div>
-                  <Button variant="ghost" size="sm">
-                    Xem tất cả
-                  </Button>
                 </div>
 
                 <div className={styles.overviewCard} onClick={() => router.push('/orders')}>
@@ -844,9 +838,6 @@ function ProfilePageContent() {
                     <p>{orders.length} đơn hàng gần đây</p>
                     <small>Lịch sử mua sắm của bạn</small>
                   </div>
-                  <Button variant="ghost" size="sm">
-                    Xem tất cả
-                  </Button>
                 </div>
 
                 <div className={styles.overviewCard} onClick={() => router.push('/profile?section=security')}>
@@ -858,9 +849,6 @@ function ProfilePageContent() {
                     <p>Tài khoản được bảo vệ</p>
                     <small>Cập nhật lần cuối: {formatDate(userProfile.updatedAt)}</small>
                   </div>
-                  <Button variant="ghost" size="sm">
-                    Cài đặt
-                  </Button>
                 </div>
               </div>
 
@@ -882,9 +870,9 @@ function ProfilePageContent() {
 
                 <div className={styles.ordersContainer}>
                   {ordersLoading ? (
-                    <div className={styles.loadingState}>
-                      <LoadingSpinner size="md" />
-                      <p>Đang tải đơn hàng...</p>
+                    <div className={styles.loadingSection}>
+                      <LoadingSpinner size="lg" />
+                      <p>Đang tải danh sách đơn hàng...</p>
                     </div>
                   ) : orders.length === 0 ? (
                     <div className={styles.emptyState}>
@@ -892,10 +880,9 @@ function ProfilePageContent() {
                         <FaShoppingBag />
                       </div>
                       <h3>Chưa có đơn hàng nào</h3>
-                      <p>Bạn chưa có đơn hàng nào. Hãy bắt đầu mua sắm ngay!</p>
+                      <p>Bạn chưa thực hiện đơn hàng nào. Hãy bắt đầu mua sắm!</p>
                       <Button variant="primary" onClick={() => router.push('/products')}>
-                        <FaShoppingBag className={styles.buttonIcon} />
-                        Bắt đầu mua sắm
+                        Khám phá sản phẩm
                       </Button>
                     </div>
                   ) : (
@@ -908,11 +895,11 @@ function ProfilePageContent() {
                           onReviewOrder={handleReviewOrder}
                           onCancelOrder={handleCancelOrder}
                           onReorderOrder={handleReorder}
-                          onReorderComplete={() => fetchOrders(3)}
+                          onReorderComplete={() => fetchOrders(10)}
                           onChangeAddress={handleChangeAddress}
                           isOrderReviewed={isOrderReviewed}
-                          maxItems={2}
-                          showDetailedInfo={true}
+                          maxItems={3}
+                          showDetailedInfo={false}
                         />
                       ))}
                       

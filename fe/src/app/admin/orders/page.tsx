@@ -101,12 +101,23 @@ export default function AdminOrdersPage() {
       return false;
     }
     
-    // Không cho phép thay đổi payment status cho COD đã giao (chỉ delivered, shipped vẫn có thể cancel nếu không nhận)
+    // COD BUSINESS LOGIC: Chỉ cho phép update payment status khi order status = "shipped"
     const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
     const isDelivered = order.status === 'delivered';
     
-    if (isCOD && isDelivered) {
-      return false;
+    if (isCOD) {
+      // COD với trạng thái "delivered" không thể thay đổi payment status nữa
+      if (isDelivered) {
+        return false;
+      }
+      
+      // COD với trạng thái "pending" hoặc "processing" không thể thay đổi payment status
+      if (order.status === 'pending' || order.status === 'processing') {
+        return false;
+      }
+      
+      // COD chỉ có thể thay đổi payment status khi order status = "shipped"
+      return order.status === 'shipped';
     }
     
     return true;
@@ -727,7 +738,6 @@ export default function AdminOrdersPage() {
         const paymentMethod = order.paymentMethod?.method || order.paymentMethod || '';
         const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
         const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
-        const isDelivered = order.status === 'delivered';
         
         let errorMsg = 'Không thể thay đổi trạng thái thanh toán';
         
@@ -735,8 +745,10 @@ export default function AdminOrdersPage() {
           errorMsg = 'Không thể thay đổi trạng thái thanh toán cho đơn hàng đã hủy';
         } else if (digitalMethods.includes(paymentMethod)) {
           errorMsg = `Không thể thay đổi trạng thái thanh toán cho phương thức ${paymentMethod} - Đây là phương thức thanh toán điện tử`;
-        } else if (isCOD && isDelivered) {
+        } else if (isCOD && order.status === 'delivered') {
           errorMsg = `Không thể thay đổi trạng thái thanh toán COD khi đơn hàng đã giao hàng thành công`;
+        } else if (isCOD && (order.status === 'pending' || order.status === 'processing')) {
+          errorMsg = `Không thể thay đổi trạng thái thanh toán COD khi đơn hàng đang ở trạng thái "${order.status}". Chỉ có thể thay đổi khi đơn hàng đã được gửi đi (trạng thái "Đã gửi hàng").`;
         }
         
         throw new Error(errorMsg);
@@ -748,41 +760,65 @@ export default function AdminOrdersPage() {
         throw new Error('Không có token xác thực - Vui lòng đăng nhập lại');
       }
       
+      // COD BUSINESS LOGIC: Auto update order status to "delivered" when payment status = "paid"
+      const isCOD = (order.paymentMethod?.method || order.paymentMethod || '').toLowerCase() === 'cod' || 
+                   (order.paymentMethod?.method || order.paymentMethod || '').toLowerCase() === 'tiền mặt';
+      const shouldAutoDelivered = isCOD && newPaymentStatus === 'paid' && order.status === 'shipped';
+      
       // Optimistic update - update UI first
-      setOrders(prev => prev.map(order => 
-        order._id === orderId 
-          ? { ...order, paymentStatus: newPaymentStatus as any }
-          : order
+      setOrders(prev => prev.map(currentOrder => 
+        currentOrder._id === orderId 
+          ? { 
+              ...currentOrder, 
+              paymentStatus: newPaymentStatus as any,
+              // Auto update order status to delivered for COD when payment confirmed
+              status: shouldAutoDelivered ? 'delivered' : currentOrder.status
+            }
+          : currentOrder
       ));
       
-      // Call API to update payment status
+      // Call API to update payment status (backend will handle order status auto-update)
       const response = await fetch(`http://localhost:5000/api/orders/admin/${orderId}/payment-status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ paymentStatus: newPaymentStatus })
+        body: JSON.stringify({ 
+          paymentStatus: newPaymentStatus,
+          autoDelivered: shouldAutoDelivered // Send flag to backend
+        })
       });
       
       if (!response.ok) {
         throw new Error(`Failed to update payment status: ${response.status}`);
       }
       
-      console.log('[DEBUG] ✅ Payment status updated successfully');
-      setUpdateMessage(`✅ Cập nhật trạng thái thanh toán thành công: ${getPaymentStatusDisplay(newPaymentStatus).label}`);
+      const responseData = await response.json();
+      console.log('[DEBUG] ✅ Payment status updated successfully:', responseData);
       
-      // Clear message after 3 seconds
-      setTimeout(() => setUpdateMessage(''), 3000);
+      // Enhanced success message
+      if (shouldAutoDelivered) {
+        setUpdateMessage(`✅ Cập nhật thành công: Thanh toán COD đã xác nhận → Đơn hàng tự động chuyển sang "Đã giao hàng"`);
+      } else {
+        setUpdateMessage(`✅ Cập nhật trạng thái thanh toán thành công: ${getPaymentStatusDisplay(newPaymentStatus).label}`);
+      }
+      
+      // Clear message after 4 seconds for auto-delivered (longer for important info)
+      setTimeout(() => setUpdateMessage(''), shouldAutoDelivered ? 4000 : 3000);
       
     } catch (err: any) {
       console.error('[DEBUG] ❌ Payment status update failed:', err);
       
       // Revert optimistic update on error
-      setOrders(prev => prev.map(order => 
-        order._id === orderId 
-          ? { ...order, paymentStatus: orders.find(o => o._id === orderId)?.paymentStatus || 'pending' }
-          : order
+      setOrders(prev => prev.map(currentOrder => 
+        currentOrder._id === orderId 
+          ? { 
+              ...currentOrder, 
+              paymentStatus: orders.find(o => o._id === orderId)?.paymentStatus || 'pending',
+              status: orders.find(o => o._id === orderId)?.status || currentOrder.status
+            }
+          : currentOrder
       ));
       
       let errorMessage = 'Không thể cập nhật trạng thái thanh toán';
@@ -790,10 +826,10 @@ export default function AdminOrdersPage() {
         errorMessage = `📋 ${err.message}`;
       }
       
-      setUpdateMessage(`⚠️ ${errorMessage}`);
+      setUpdateMessage(`❌ ${errorMessage}`);
       
-      // Clear error message after 5 seconds
-      setTimeout(() => setUpdateMessage(''), 5000);
+      // Clear error message after 6 seconds for detailed COD error messages
+      setTimeout(() => setUpdateMessage(''), 6000);
     }
   };
 
@@ -1642,7 +1678,6 @@ export default function AdminOrdersPage() {
                           const paymentMethod = order.paymentMethod?.method || order.paymentMethod || '';
                           const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
                           const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
-                          const isDelivered = order.status === 'delivered';
                           
                           let errorMsg = 'Không thể thay đổi trạng thái thanh toán';
                           
@@ -1650,12 +1685,14 @@ export default function AdminOrdersPage() {
                             errorMsg = '⚠️ Không thể thay đổi trạng thái thanh toán cho đơn hàng đã hủy';
                           } else if (digitalMethods.includes(paymentMethod)) {
                             errorMsg = `⚠️ Không thể thay đổi trạng thái thanh toán cho phương thức ${paymentMethod} - Đây là phương thức thanh toán điện tử`;
-                          } else if (isCOD && isDelivered) {
+                          } else if (isCOD && order.status === 'delivered') {
                             errorMsg = `⚠️ Không thể thay đổi trạng thái thanh toán COD khi đơn hàng đã giao thành công`;
+                          } else if (isCOD && (order.status === 'pending' || order.status === 'processing')) {
+                            errorMsg = `⚠️ COD: Chỉ có thể xác nhận thanh toán khi đơn hàng đã được gửi đi (trạng thái "Đã gửi hàng"). Hiện tại: "${order.status}"`;
                           }
                           
                           setUpdateMessage(errorMsg);
-                          setTimeout(() => setUpdateMessage(''), 5000);
+                          setTimeout(() => setUpdateMessage(''), 6000);
                         }
                       }}
                       className={styles.orderStatusSelect}
@@ -1663,14 +1700,15 @@ export default function AdminOrdersPage() {
                         const paymentMethod = order.paymentMethod?.method || order.paymentMethod || '';
                         const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
                         const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
-                        const isDelivered = order.status === 'delivered';
                         
                         if (order.status === 'cancelled') {
                           return 'Không thể thay đổi thanh toán cho đơn hàng đã hủy';
                         } else if (digitalMethods.includes(paymentMethod)) {
                           return `Không thể thay đổi thanh toán ${paymentMethod} - Phương thức điện tử`;
-                        } else if (isCOD && isDelivered) {
+                        } else if (isCOD && order.status === 'delivered') {
                           return `Không thể thay đổi COD khi đã giao hàng thành công`;
+                        } else if (isCOD && (order.status === 'pending' || order.status === 'processing')) {
+                          return `COD: Chỉ có thể xác nhận thanh toán khi đã gửi hàng`;
                         }
                         return 'Không thể thay đổi trạng thái thanh toán';
                       })()}
@@ -1678,7 +1716,8 @@ export default function AdminOrdersPage() {
                       style={{
                         opacity: !canChangePaymentStatus(order) ? 0.6 : 1,
                         cursor: !canChangePaymentStatus(order) ? 'not-allowed' : 'pointer',
-                        backgroundColor: !canChangePaymentStatus(order) ? '#f5f5f5' : ''
+                        backgroundColor: !canChangePaymentStatus(order) ? '#f5f5f5' : '',
+                        borderColor: !canChangePaymentStatus(order) ? '#d1d5db' : ''
                       }}
                     >
                       <option value="pending">Chờ thanh toán</option>
@@ -1693,7 +1732,22 @@ export default function AdminOrdersPage() {
                           color: '#f59e0b',
                           cursor: 'help'
                         }}
-                        title={`Đơn hàng thanh toán qua ${order.paymentMethod?.method} không thể thay đổi trạng thái`}
+                        title={(() => {
+                          const paymentMethod = order.paymentMethod?.method || order.paymentMethod || '';
+                          const digitalMethods = ['VNPay', 'Momo', 'vnpay', 'momo'];
+                          const isCOD = paymentMethod.toLowerCase() === 'cod' || paymentMethod.toLowerCase() === 'tiền mặt';
+                          
+                          if (order.status === 'cancelled') {
+                            return 'Không thể thay đổi thanh toán cho đơn hàng đã hủy';
+                          } else if (digitalMethods.includes(paymentMethod)) {
+                            return `Không thể thay đổi thanh toán ${paymentMethod} - Phương thức điện tử`;
+                          } else if (isCOD && order.status === 'delivered') {
+                            return 'COD: Không thể thay đổi thanh toán khi đã giao hàng thành công';
+                          } else if (isCOD && (order.status === 'pending' || order.status === 'processing')) {
+                            return `COD: Chỉ có thể xác nhận thanh toán khi đơn hàng "Đã gửi hàng". Hiện tại: "${order.status}"`;
+                          }
+                          return 'Không thể thay đổi trạng thái thanh toán';
+                        })()}
                       >
                         🔒
                       </span>

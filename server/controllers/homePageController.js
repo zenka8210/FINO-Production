@@ -84,8 +84,6 @@ class HomePageController extends BaseController {
       const limit = parseInt(req.query.limit) || 6;
       const filterType = req.query.filter || 'combined';
       
-      console.log(`🌟 HomePageController: Fetching featured products with filter: ${filterType}, limit: ${limit}`);
-      
       const products = await homePageService.getFeaturedProducts(limit, filterType);
       
       return res.status(200).json({

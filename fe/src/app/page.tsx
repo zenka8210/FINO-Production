@@ -44,20 +44,10 @@ export default function Home() {
       // TRY OPTIMIZED APPROACH FIRST - Single API call for all home data
       if (!hasTriedOptimized) {
         try {
-          console.log('🚀 OPTIMIZED: Trying single API call for all home data...');
           setHasTriedOptimized(true);
           
           const homeData = await homePageService.getHomePageData();
-          console.log('✅ OPTIMIZED: Home data fetched successfully');
-          console.log('📊 OPTIMIZED Data summary:', {
-            categories: homeData.categories?.length || 0,
-            banners: homeData.banners?.length || 0,
-            featuredProducts: homeData.featuredProducts?.length || 0,
-            newProducts: homeData.newProducts?.length || 0,
-            saleProducts: homeData.saleProducts?.length || 0,
-            posts: homeData.posts?.length || 0
-          });
-
+          
           // Set all data from optimized response
           setProducts([...homeData.featuredProducts, ...homeData.newProducts, ...homeData.saleProducts]);
           setFeaturedProducts(homeData.featuredProducts || []);
@@ -77,9 +67,6 @@ export default function Home() {
         const response = await getProducts({ 
           limit: 50 // Increase limit to get more products
         });
-        console.log('Products response:', response);
-        console.log('Response data type:', typeof response.data);
-        console.log('Response data:', response.data);
         
         // Extract products array from response.data.data
         const productsArray = Array.isArray(response.data) ? response.data : 
@@ -88,23 +75,17 @@ export default function Home() {
         setProducts(productsArray);
         
         // 1. Featured Products - Use REAL backend API with business metrics
-        console.log(`🎯 Homepage: Fetching REAL featured products from API with filter: ${featuredFilter}...`);
         const featuredResponse = await homePageService.getFeaturedProducts(6, featuredFilter);
-        console.log('✅ Real featured products:', featuredResponse);
         
         // Handle response structure
         const featuredProductsData = Array.isArray(featuredResponse) ? featuredResponse : [];
         setFeaturedProducts(featuredProductsData);
         
         // 2. New Products - Use dedicated backend endpoint (avoid logic duplication)
-        console.log('🆕 Homepage: Fetching newest products from dedicated endpoint...');
         const newProductsResponse = await homePageService.getNewProducts(6); // Request 6 products
-        console.log('✅ Real newest products from homePageService:', newProductsResponse);
-        console.log('📊 New products count:', newProductsResponse?.length || 0);
         
         // Use data directly from optimized backend endpoint
         const newProductsData = Array.isArray(newProductsResponse) ? newProductsResponse : [];
-        console.log(`📦 New products loaded: ${newProductsData.length} products (expecting 6)`);
         
         if (newProductsData.length === 0) {
           console.warn('⚠️ No new products found! Check database or backend');
@@ -117,7 +98,7 @@ export default function Home() {
     };
 
     fetchProducts();
-  }, [getProducts, hasTriedOptimized]); // Keep original dependencies without featuredFilter
+  }, [hasTriedOptimized]);
 
   // Handle featured products filter change with useCallback to prevent re-renders
   const handleFeaturedFilterChange = useCallback(async (newFilter: FeaturedFilterType) => {
@@ -125,14 +106,13 @@ export default function Home() {
       return; // No change needed or already loading
     }
     
-    console.log(`🔄 Changing featured filter from ${featuredFilter} to: ${newFilter}`);
     setFeaturedLoading(true);
     
     try {
       const featuredResponse = await homePageService.getFeaturedProducts(6, newFilter);
-      console.log(`✅ Featured products loaded for filter ${newFilter}:`, featuredResponse.length);
       
       const featuredProductsData = Array.isArray(featuredResponse) ? featuredResponse : [];
+      
       setFeaturedProducts(featuredProductsData);
       setFeaturedFilter(newFilter); // Set filter after successful load
     } catch (error) {
@@ -141,7 +121,7 @@ export default function Home() {
     } finally {
       setFeaturedLoading(false);
     }
-  }, [featuredFilter, featuredLoading]); // Only depend on current filter and loading state
+  }, [featuredFilter, featuredLoading]);
 
   // Show loading while either optimized or fallback is loading
   if (loading || isOptimizedLoading) {

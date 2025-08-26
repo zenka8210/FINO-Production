@@ -67,17 +67,13 @@ class HomePageService {
    */
   async getFeaturedProducts(limit: number = 6, filterType: string = 'combined') {
     try {
-      console.log(`⭐ HomePageService: Fetching featured products with filter ${filterType}, limit ${limit}...`);
-      const response = await apiClient.get(`${this.baseUrl}/featured`, {
-        params: { limit, filter: filterType }
-      });
-      console.log('🔍 Featured products response:', response);
+      const url = `${this.baseUrl}/featured?limit=${limit}&filter=${filterType}&_t=${Date.now()}`;
       
-      // FIXED: ApiClient.get() returns {success, data, message}
+      const response = await apiClient.get(url);
+      
       if (response && response.success && response.data) {
         const products = response.data;
         if (Array.isArray(products)) {
-          console.log(`✅ HomePageService: Found ${products.length} featured products (${filterType})`);
           return products;
         } else {
           console.warn('⚠️ HomePageService: Featured data is not an array:', typeof products);

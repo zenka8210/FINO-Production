@@ -1725,6 +1725,48 @@ class OrderService extends BaseService {
       throw error;
     }
   }
+
+  // Update payment status
+  async updatePaymentStatus(orderId, paymentStatus) {
+    try {
+      console.log('🔄 [OrderService] Updating payment status:', { orderId, paymentStatus });
+
+      // Validate payment status
+      const validPaymentStatuses = ['pending', 'paid', 'failed', 'cancelled'];
+      if (!validPaymentStatuses.includes(paymentStatus)) {
+        throw new AppError('Trạng thái thanh toán không hợp lệ', ERROR_CODES.BAD_REQUEST);
+      }
+
+      // Find and update order
+      const updatedOrder = await this.Model.findByIdAndUpdate(
+        orderId,
+        {
+          paymentStatus: paymentStatus,
+          updatedAt: new Date()
+        },
+        { 
+          new: true,
+          runValidators: true
+        }
+      ).populate(['user', 'address', 'voucher', 'paymentMethod']);
+
+      if (!updatedOrder) {
+        throw new AppError('Không tìm thấy đơn hàng', ERROR_CODES.NOT_FOUND);
+      }
+
+      console.log('✅ [OrderService] Payment status updated successfully:', {
+        orderId,
+        oldPaymentStatus: paymentStatus,
+        newPaymentStatus: updatedOrder.paymentStatus
+      });
+
+      return updatedOrder;
+
+    } catch (error) {
+      console.error('❌ [OrderService] Error updating payment status:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = OrderService;
