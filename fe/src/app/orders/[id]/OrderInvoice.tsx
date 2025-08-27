@@ -187,15 +187,7 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ order }) => {
           <div className="summaryRow subtotal">
             <span>Tạm tính:</span>
             <span>{formatCurrency(order.total || 0)}</span>
-          </div>
-          
-          {order.discountAmount && order.discountAmount > 0 && (
-            <div className="summaryRow discount">
-              <span>Giảm giá ({order.voucher?.code || 'Voucher'}):</span>
-              <span>-{formatCurrency(order.discountAmount)}</span>
-            </div>
-          )}
-          
+          </div>  
           <div className="summaryRow shipping">
             <span>Phí vận chuyển:</span>
             <span>{formatCurrency(order.shippingFee || 0)}</span>

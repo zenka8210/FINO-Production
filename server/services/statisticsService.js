@@ -589,6 +589,88 @@ class StatisticsService extends BaseService {
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} giờ trước`;
     return `${Math.floor(diffInSeconds / 86400)} ngày trước`;
   }
+
+  // Get Daily Revenue with accurate orders count
+  async getDailyRevenue() {
+    try {
+      console.log('📊 Calculating daily revenue with accurate order count...');
+      
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayEnd = new Date(today.getTime() - 1);
+
+      console.log('Date ranges:', {
+        today: today.toISOString(),
+        yesterday: yesterday.toISOString(),
+        yesterdayEnd: yesterdayEnd.toISOString()
+      });
+
+      // Get today's data - ALL orders (not just paid)
+      const todayAllOrders = await Order.countDocuments({
+        createdAt: { $gte: today }
+      });
+
+      // Get today's revenue (only paid orders)
+      const todayRevenueResult = await Order.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: today },
+            paymentStatus: 'paid'
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            totalRevenue: { $sum: '$finalTotal' },
+            orderCount: { $sum: 1 }
+          }
+        }
+      ]);
+
+      // Get yesterday's revenue (only paid orders)
+      const yesterdayRevenueResult = await Order.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: yesterday, $lte: yesterdayEnd },
+            paymentStatus: 'paid'
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            totalRevenue: { $sum: '$finalTotal' },
+            orderCount: { $sum: 1 }
+          }
+        }
+      ]);
+
+      const todayRevenue = todayRevenueResult[0]?.totalRevenue || 0;
+      const yesterdayRevenue = yesterdayRevenueResult[0]?.totalRevenue || 0;
+
+      // Calculate change percentage
+      let changePercent = 0;
+      if (yesterdayRevenue > 0) {
+        changePercent = ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100;
+      } else if (todayRevenue > 0) {
+        changePercent = 100; // Show as 100% increase when yesterday was 0
+      }
+
+      const result = {
+        today: todayRevenue,
+        yesterday: yesterdayRevenue,
+        changePercent: Math.round(changePercent * 100) / 100, // Round to 2 decimal places
+        todayOrders: todayAllOrders // ALL orders created today, regardless of status
+      };
+
+      console.log('✅ Daily revenue calculation result:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ Error calculating daily revenue:', error);
+      throw new AppError(`Error calculating daily revenue: ${error.message}`, 500);
+    }
+  }
 }
 
 module.exports = StatisticsService;

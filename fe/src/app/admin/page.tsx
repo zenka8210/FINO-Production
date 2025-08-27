@@ -967,8 +967,8 @@ export default function AdminPage() {
   // Function to get today's order count
   const getTodaysOrderCount = async (token: string | null, baseUrl: string) => {
     try {
-      // Fetch recent orders to count today's orders
-      const ordersResponse = await fetch(`${baseUrl}/api/orders?limit=100&page=1`, {
+      // Use a very large limit to get ALL orders
+      const ordersResponse = await fetch(`${baseUrl}/api/orders?limit=10000&page=1`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -979,7 +979,7 @@ export default function AdminPage() {
         const ordersData = await ordersResponse.json();
         const orders = ordersData.data?.documents || ordersData.data || ordersData.orders || [];
         
-        // Filter orders for today
+        // Filter orders for today - ALL statuses
         const today = new Date();
         const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         
@@ -989,7 +989,13 @@ export default function AdminPage() {
           return orderDate >= todayStart;
         }) : [];
         
-        console.log('Today orders count:', todayOrders.length);
+        console.log('Today orders count (ALL statuses):', todayOrders.length);
+        console.log('Today orders details:', todayOrders.map(o => ({ 
+          id: o._id, 
+          status: o.status, 
+          paymentStatus: o.paymentStatus,
+          createdAt: o.createdAt 
+        })));
         
         // Update only the todayOrders count
         setDailyRevenue(prev => ({
@@ -1011,8 +1017,8 @@ export default function AdminPage() {
     const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
     
     try {
-      // Try to get daily revenue from the same API that chart uses
-      const response = await fetch(`${BASE_URL}/api/statistics/revenue-chart?period=week`, {
+      // Use the new dedicated daily revenue endpoint
+      const response = await fetch(`${BASE_URL}/api/statistics/daily-revenue`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -1020,7 +1026,28 @@ export default function AdminPage() {
       });
       
       if (response.ok) {
-        const chartData = await response.json();
+        const result = await response.json();
+        console.log('Daily revenue API response:', result);
+        
+        if (result.success && result.data) {
+          setDailyRevenue(result.data);
+          console.log('✅ Successfully loaded daily revenue from new endpoint:', result.data);
+          return; // Successfully got data from new API
+        }
+      }
+      
+      console.log('New daily revenue API failed, using fallback...');
+      
+      // Fallback: Try to get daily revenue from the revenue chart API
+      const chartResponse = await fetch(`${BASE_URL}/api/statistics/revenue-chart?period=week`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (chartResponse.ok) {
+        const chartData = await chartResponse.json();
         console.log('Revenue chart data for daily calculation:', chartData);
         
         if (chartData.success && chartData.data) {
@@ -1092,8 +1119,8 @@ export default function AdminPage() {
       
       console.log('Chart API failed, using fallback calculation...');
       
-      // Fetch ALL orders (not just first page) - use large limit to get all
-      const ordersResponse = await fetch(`${BASE_URL}/api/orders?limit=1000&page=1`, {
+      // Fetch ALL orders (not just first page) - use very large limit to get all
+      const ordersResponse = await fetch(`${BASE_URL}/api/orders?limit=10000&page=1`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

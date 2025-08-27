@@ -130,6 +130,16 @@ class StatisticsController extends BaseController {
     }
   };
 
+  // Daily Revenue with Today's Orders Count
+  getDailyRevenue = async (req, res, next) => {
+    try {
+      const dailyRevenue = await this.statisticsService.getDailyRevenue();
+      ResponseHandler.success(res, 'Daily revenue data retrieved successfully', dailyRevenue);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   // Public basic statistics for About page
   getPublicStats = async (req, res, next) => {
     try {

@@ -86,19 +86,24 @@ function CheckoutSuccessContent() {
       
       setOrderDetails(order);
       
-      // Only clear cart if NOT coming from payment gateway (VNPay/MoMo already cleared in processing page)
-      const fromPaymentGateway = ['vnpay', 'momo'].includes(searchParams.get('paymentMethod') || '');
-      if (!fromPaymentGateway) {
-        console.log('🧹 Clearing cart after successful order (non-payment gateway)...');
+      // Clear cart logic for different payment methods
+      const paymentMethod = searchParams.get('paymentMethod') || '';
+      const fromVNPayProcessing = paymentMethod === 'vnpay'; // VNPay has processing page that clears cart
+      const fromMoMoCallback = paymentMethod === 'momo'; // MoMo redirects directly here
+      
+      if (!fromVNPayProcessing) {
+        // Clear cart for COD orders and MoMo orders (backend should also clear for MoMo success)
+        console.log(`🧹 Clearing cart after successful ${paymentMethod || 'COD'} order...`);
         try {
-          // Silent clear - no toast needed since user already knows order succeeded
-          clearCart('');
+          // Clear cart with success message for non-VNPay orders
+          const clearMessage = fromMoMoCallback ? 'Thanh toán MoMo thành công!' : '';
+          clearCart(clearMessage);
+          console.log(`✅ Cart cleared on success page for ${paymentMethod || 'COD'}`);
         } catch (cartError) {
           console.warn('⚠️ Cart clear failed but order was successful:', cartError);
         }
-        console.log('✅ Cart cleared on success page');
       } else {
-        console.log('🔍 Payment gateway detected - cart already cleared in processing page');
+        console.log('🔍 VNPay payment detected - cart already cleared in processing page');
       }
     } catch (error: any) {
       console.error('❌ Error loading order details:', error);

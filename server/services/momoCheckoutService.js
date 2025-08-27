@@ -160,6 +160,11 @@ class MoMoCheckoutService {
         
         await order.save();
 
+        // Clear user's cart after successful payment (like VNPay)
+        console.log('🧹 Clearing cart after successful MoMo payment...');
+        await this.cartService.clearUserCart(order.user);
+        console.log('✅ Cart cleared after successful MoMo payment');
+
         console.log('✅ Order confirmed successfully:', order.orderCode);
       } else {
         // Update order for failed payment
@@ -260,6 +265,11 @@ class MoMoCheckoutService {
         };
         
         await order.save();
+
+        // Clear user's cart after successful payment (like VNPay)
+        console.log('🧹 Clearing cart after successful MoMo IPN payment...');
+        await this.cartService.clearUserCart(order.user);
+        console.log('✅ Cart cleared after successful MoMo IPN payment');
 
         console.log('✅ Order confirmed via IPN:', order.orderCode);
       }

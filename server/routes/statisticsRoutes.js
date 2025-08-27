@@ -21,6 +21,9 @@ router.get('/low-stock', statisticsController.getLowStockStats);
 // GET /api/statistics/dashboard - Get dashboard overview stats
 router.get('/dashboard', statisticsController.getDashboardStats);
 
+// GET /api/statistics/daily-revenue - Get daily revenue with accurate order count
+router.get('/daily-revenue', statisticsController.getDailyRevenue);
+
 // GET /api/statistics/revenue-chart - Get revenue chart data
 router.get('/revenue-chart', statisticsController.getRevenueChart);
 
